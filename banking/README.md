@@ -36,7 +36,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 18 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators' publication feeds on a clock and writes a digest of what is new. The desk then drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | Daily sweep built and run on a schedule on a development cluster |
 | 19 | [Policy and Procedures Assistant](agents/policy-and-procedures-assistant/README.md) | Answers staff questions from the bank's own policies and procedures, citing the document | Conversational, answering | Chat | Built and tested as a draft. Not yet published |
 | 20 | Audit Evidence | Collects the evidence a control test plan names and lists what is missing | Workflow, scheduled | Sent to the auditor | Planned |
-| 27 | Third-Party Risk Assessment | Reads a supplier's questionnaire and evidence, and drafts the assessment against the bank's requirements | Workflow, event-triggered | Third-party risk desk | Planned |
+| 27 | [Third-Party Risk Assessment](agents/third-party-risk-assessment/README.md) | Reads a supplier's questionnaire and evidence, and drafts the assessment against the bank's requirements | Workflow, event-triggered | Third-party risk desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | | **Finance and relationship management** | | | | |
 | 21 | Management Reporting | Answers questions on the finance warehouse in plain language, shows the query it ran, and drafts the commentary | Conversational, answering | Chat | Planned |
 | 22 | Client Meeting Brief | The client's holdings and exposure, recent contacts and public news, in one brief | Workflow, scheduled | Sent to the relationship manager | Planned |
@@ -67,7 +67,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | Payments desk | Payment Investigation, Payment Exception Repair | Planned |
 | Reconciliation desk | Reconciliation Break | Planned |
 | Card servicing screen | Card Servicing | Planned |
-| Third-party risk desk | Third-Party Risk Assessment | Planned |
+| [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Research desk | Equity Research Report | Planned |
 
 ## How an agent reaches a bank's systems

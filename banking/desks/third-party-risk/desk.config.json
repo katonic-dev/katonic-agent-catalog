@@ -1,0 +1,299 @@
+{
+  "$comment": "What makes the generic case desk the third-party risk desk. Start it with DESK_CONFIG pointing at this file. Needs the settings-driven case desk engine. The bank (Meridian Trust Bank), its standard, its suppliers and their documents are invented.",
+  "desk": {
+    "id": "third-party-risk",
+    "name": "Third-party risk desk",
+    "caseNoun": "supplier assessment",
+    "caseNounPlural": "supplier assessments",
+    "draftNoun": "assessment",
+    "deciderRole": "third-party risk officer",
+    "tagline": "Suppliers' questionnaires in, a drafted assessment against the bank's standard for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a supplier assessment",
+    "issuedVerb": "Recommended for approval by",
+    "arrivedVia": {
+      "feed": "the supplier portal",
+      "officer": "the third-party risk team"
+    }
+  },
+  "case": {
+    "heading": "THE SUPPLIER'S QUESTIONNAIRE",
+    "metaFields": [
+      "supplier",
+      "tier",
+      "received_on"
+    ],
+    "queryFields": [
+      "standard"
+    ],
+    "detailFields": [
+      "service"
+    ],
+    "showText": "text",
+    "textHeading": "The supplier's questionnaire and evidence, as the desk holds it",
+    "noTextShown": "The desk holds no questionnaire for this supplier. Ask the supplier for it.",
+    "noTextNote": "No questionnaire was supplied with this case. Say that you have no questionnaire, assess nothing and give no recommendation.",
+    "libraryHeading": "THE BANK'S STANDARD",
+    "libraryNoun": "standards library",
+    "libraryInstruction": "The desk has searched the bank's standards library \"{library}\" for you. The passages it returned are below, each with its document. Treat them as the standard: take every requirement from them, in the standard's own order and with its clause numbers, and cite the document and the clause number at the start of the passage. Do not use any requirement that is not in them. Do not say that no standard is connected.",
+    "askPlaceholder": "For example: which evidence did you rely on for requirement 2.3?",
+    "searchPlaceholder": "Search by supplier or service",
+    "demoNote": "Demo data: the bank, its standard, these suppliers and their documents are invented. Nothing here is a real assessment.",
+    "listFields": [
+      "tier",
+      "received_on"
+    ],
+    "chipFields": [
+      "tier"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "Supplier's reply",
+    "replyLabel": "The supplier's reply (it is added to the questionnaire)",
+    "replyButton": "Add the reply and assess again",
+    "replyNote": "The supplier has replied. The reply is at the end of the questionnaire. Assess every requirement again in the light of it. A reply counts only where it gives both the answer and the evidence (clause 7.1).",
+    "replyEvent": "added the supplier's reply"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "suppliers"
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the third-party risk team (the form at the top of the list)",
+      "Sent by the bank's supplier portal when a supplier submits its questionnaire (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Supplier name as the title",
+        "hint": "The supplier's name, as the queue shows it.",
+        "required": true
+      },
+      {
+        "key": "supplier",
+        "label": "Supplier",
+        "required": true
+      },
+      {
+        "key": "tier",
+        "label": "Tier",
+        "hint": "Tier 1 or Tier 2",
+        "required": true
+      },
+      {
+        "key": "received_on",
+        "label": "Questionnaire received on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "service",
+        "label": "What the supplier provides to the bank",
+        "required": false
+      },
+      {
+        "key": "standard",
+        "label": "Standard to assess against",
+        "hint": "The desk uses this to find the standard in the library.",
+        "default": "Third-party security and resilience standard (MTB-STD-041)",
+        "required": false
+      },
+      {
+        "key": "text",
+        "label": "Questionnaire answers and extracts of the evidence",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A supplier's questionnaire has arrived at the bank's third-party risk desk. Assess it against the bank's standard, whose passages are given below.\n\nFirst, under the heading \"Summary\", write at most six lines: the supplier, what it provides, its tier, which clause of the standard decides which requirements apply to that tier, and how many requirements are met, partly met, not met and not answered.\n\nThen, under the heading \"Draft assessment. For review by the third-party risk officer. Not issued.\", write a Markdown table with exactly these seven columns, one row per requirement that applies to the tier, in the standard's order:\n| # | Requirement | Standard | Supplier's answer | Evidence relied on | Mark | Reason and what the officer should check |\n- #: 1, 2, 3 and so on, in order.\n- Requirement: the requirement in the standard's own words.\n- Standard: the document and clause, for example MTB-STD-041 2.1.\n- Supplier's answer: the answer in a few words, in the supplier's own terms. If the answer is blank, write \"Left blank\".\n- Evidence relied on: the evidence document and what it says, quoted or closely paraphrased. If none is attached, write \"None attached\".\n- Mark: exactly one of: met, partly met, not met, not answered.\n- Reason and what the officer should check: why the mark follows from the answer and the evidence, and what the officer should verify.\nRead every date against the case date, not against today's date. Do not write a row for a requirement that does not apply to the tier. Do not fill a blank answer.\n\nLast, write one line that starts \"Recommendation:\" and is exactly one of: \"recommend approval\"; \"recommend approval with conditions\" followed by the numbered list of conditions; \"ask the supplier for\" followed by the numbered list of what to ask for; or \"do not recommend approval\" followed by the requirements that are not met. Write nothing after that line.",
+    "sections": [
+      "Summary",
+      "Draft assessment"
+    ],
+    "marks": {
+      "met": "Met",
+      "partly met": "Partly met",
+      "not met": "Not met",
+      "not answered": "Not answered"
+    },
+    "markTones": {
+      "met": "ok",
+      "partly met": "warn",
+      "not met": "err",
+      "not answered": "none"
+    },
+    "markHints": {
+      "not answered": "The supplier left the answer blank",
+      "not met": "No evidence, evidence that says something else, or a shortfall (clause 7.1)"
+    },
+    "proposalPrefix": "Recommendation:",
+    "passMark": "met",
+    "reviewHeading": "Draft assessment",
+    "rowLabels": {
+      "source": "Standard",
+      "policy": "The supplier says",
+      "citation": "Evidence"
+    }
+  },
+  "decisions": [
+    {
+      "id": "recommend",
+      "label": "Recommend approval",
+      "proposalPrefix": "recommend approval",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records your recommendation to approve, with version {version}{edited} of the assessment, in your name. A tier 1 supplier is approved by the Risk Committee, not by this desk."
+    },
+    {
+      "id": "recommend_with_conditions",
+      "label": "Recommend approval with conditions",
+      "proposalPrefix": "recommend approval with conditions",
+      "outcome": "recommended_with_conditions",
+      "needsNote": true,
+      "noteLabel": "The conditions, one to a line",
+      "noteHint": "Each condition says which requirement the supplier must meet, and by when. The Risk Committee decides whether to approve."
+    },
+    {
+      "id": "ask_supplier",
+      "label": "Ask the supplier",
+      "proposalPrefix": "ask the supplier",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What the supplier should send",
+      "noteHint": "This text goes into the letter to the supplier, one item to a line. The assessment waits here until the reply is added."
+    },
+    {
+      "id": "do_not_recommend",
+      "label": "Do not recommend approval",
+      "proposalPrefix": "do not recommend approval",
+      "outcome": "not_recommended",
+      "needsNote": true,
+      "noteLabel": "Which requirements are not met, and why"
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the assessment",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the officer",
+    "sent_back": "Being redone",
+    "issued": "Recommended for approval",
+    "recommended_with_conditions": "Recommended with conditions",
+    "info_requested": "Waiting for the supplier",
+    "not_recommended": "Not recommended",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "recommended_with_conditions",
+    "not_recommended",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every action taken on a supplier assessment, in the order it was taken: recommendations, requests to the supplier, requests to redo an assessment, and removals. The desk does not approve a supplier: the Risk Committee approves a tier 1 supplier, and an unmet requirement can be accepted only as a recorded exception with an end date.",
+    "columns": [
+      "case_id",
+      "title",
+      "supplier",
+      "tier",
+      "received_on",
+      "service",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "library",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "supplier",
+      "tier",
+      "received_on",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "supplier": "Supplier",
+      "tier": "Tier",
+      "received_on": "Received",
+      "decision": "Action",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "letter_number": "Letter",
+      "draft_versions": "Assessment versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered an assessment cannot decide it. Any other third-party risk officer can. You can still ask the agent to redo the assessment.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Recommending approval while a requirement is not marked met needs a reason",
+    "reasonToApproveUnmetLabel": "Why you recommend approval although a requirement is not marked met. An unmet requirement can be accepted only as a recorded exception with an end date (clause 7.5).",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as a recommendation to approve. A tier 1 supplier is approved by the Risk Committee (clause 7.4). Nothing further happens on this desk.",
+    "recommended_with_conditions": "Recorded with its conditions. A tier 1 supplier is approved by the Risk Committee (clause 7.4). A requirement that is not met can be accepted only as a recorded exception with an end date (clause 7.5).",
+    "info_requested": "When the supplier replies, add the reply here. The agent assesses every requirement again and the assessment comes back for your decision.",
+    "not_recommended": "Recorded as not recommended. Only the Risk Committee can accept an unmet requirement, as a recorded exception with an end date (clause 7.5)."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Supplier assessment: more information needed",
+      "linkLabel": "Letter asking for information",
+      "prefix": "TP",
+      "days": 21,
+      "toField": "supplier",
+      "opening": "We cannot complete the assessment of the supplier below until we have more information. This is not a decision on the supplier.",
+      "fields": [
+        "supplier",
+        "service"
+      ],
+      "list": "note",
+      "listHeading": "What we need",
+      "dateLine": "Please send it by {until}.",
+      "body": [
+        "Each answer needs its evidence. An answer with no evidence, or with evidence that says something else, does not meet the bank's standard.",
+        "Send it through the supplier portal and quote {number}."
+      ],
+      "signature": "Third-Party Risk, Meridian Trust Bank (an invented bank, for demonstration)"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Recommended approval",
+    "recommended_with_conditions": "Recommended approval with conditions",
+    "info_requested": "Asked the supplier for information",
+    "not_recommended": "Did not recommend approval",
+    "sent_back": "Asked the agent to redo the assessment",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

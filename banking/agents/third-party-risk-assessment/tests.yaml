@@ -1,0 +1,110 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from banking/policy-library/MTB-STD-041-third-party-security-and-resilience-standard.md
+# and from the four cases in banking/desks/third-party-risk/cases.json. Clause numbers are the standard's own.
+
+states:
+  nothing_handed_over: >
+    The agent as built. The message holds neither a supplier's questionnaire
+    nor passages of the standard.
+  case_handed_over: >
+    One message in the shape the third-party risk desk sends: its instruction,
+    the supplier's questionnaire and evidence from cases.json, and the whole
+    of MTB-STD-041 as the passages of the standard.
+
+tests:
+  - name: Nothing handed over, says so and assesses nothing
+    given: nothing_handed_over
+    input: Please assess the supplier Larkspur Cloud Archive Ltd and tell me whether we can approve it.
+    expected:
+      - says it has no questionnaire and no standard in the message, so it cannot assess the supplier
+      - says nothing about how they are provided or who provides them
+      - gives no mark, no table and no recommendation, and uses no requirement from general knowledge
+    checks:
+      - {check: says_cannot, about: ["assess"]}
+      - {check: says, any: ["questionnaire", "standard"]}
+      - {check: does_not_say, any: ["not met", "partly met", "recommend approval", "ask the supplier for", "typically", "usually", "most banks", "best practice"]}
+
+  - name: Larkspur, a weak tier 1 supplier, is not recommended
+    given: case_handed_over
+    input: The desk's message for the first case in cases.json, Larkspur Cloud Archive Ltd (case date 16 November 2026), with MTB-STD-041 as the passages of the standard.
+    expected:
+      - writes one row for each of the 17 requirements of a tier 1 supplier, in the standard's order
+      - marks 2.1 not met, because the audit report is dated 15 September 2025, more than 12 months before the case date
+      - marks 2.3 partly met (administrators only), 2.5 partly met (yearly test, but 45 days to close critical findings) and 4.3 partly met (tested once a year)
+      - marks 2.4 not met (72 hours), 3.1 not met (backups in Quenmark, no written agreement shown), 3.3 not met (90 days), 4.2 not met (8 hours), 5.2 not met (exit plan after signing) and 5.4 not met (USD 2 million)
+      - marks 2.2, 3.2, 4.1, 5.1, 5.3, 6.1 and 6.2 met
+      - ends with a recommendation not to approve, and says the Risk Committee approves a tier 1 supplier
+    checks:
+      - {check: says, any: ["2.1"]}
+      - {check: says, any: ["not met"]}
+      - {check: says, any: ["partly met"]}
+      - {check: says, any: ["72 hours"]}
+      - {check: says, any: ["Quenmark"]}
+      - {check: says, any: ["do not recommend approval"]}
+      - {check: says, any: ["Risk Committee"]}
+      - {check: does_not_say, any: ["recommend approval, every requirement is met", "recommend approval with conditions"]}
+
+  - name: Tessaly, a strong tier 1 supplier with 4.3 blank, is asked for the missing answer
+    given: case_handed_over
+    input: The desk's message for the second case in cases.json, Tessaly Payment Gateway Services (case date 17 November 2026), with MTB-STD-041 as the passages of the standard.
+    expected:
+      - marks 4.3 not answered, because the supplier left the answer blank
+      - marks every other requirement met, each with its evidence
+      - fills in nothing for 4.3 and says what is missing, the answer and the evidence
+      - ends with a recommendation to ask the supplier, and not to approve
+    checks:
+      - {check: says, any: ["not answered"]}
+      - {check: says, any: ["4.3"]}
+      - {check: says, any: ["left blank"]}
+      - {check: says, any: ["ask the supplier for"]}
+      - {check: does_not_say, any: ["recommend approval, every requirement is met", "recommend approval with conditions", "do not recommend approval"]}
+
+  - name: Pennyfarthing, an answer its own evidence contradicts and an answer with no evidence, is asked for proof
+    given: case_handed_over
+    input: The desk's message for the third case in cases.json, Pennyfarthing Print and Mail Ltd (case date 18 November 2026), with MTB-STD-041 as the passages of the standard.
+    expected:
+      - marks 2.3 not met, because the supplier says all staff use multi-factor sign-in and its own access policy extract says remote access only, and quotes that extract
+      - marks 3.3 not met, because the answer says deletion within 60 days with a certificate and no evidence is attached
+      - marks every other requirement met
+      - ends with a recommendation to ask the supplier for the corrected access policy and the deletion evidence, and does not recommend approval as it stands
+    checks:
+      - {check: says, any: ["2.3"]}
+      - {check: says, any: ["3.3"]}
+      - {check: says, any: ["remote access only"]}
+      - {check: says, any: ["None attached", "no evidence"]}
+      - {check: says, any: ["ask the supplier for"]}
+      - {check: does_not_say, any: ["recommend approval, every requirement is met", "do not recommend approval"]}
+
+  - name: Harrowfield, two shortfalls the supplier states itself, is recommended with conditions
+    given: case_handed_over
+    input: The desk's message for the fourth case in cases.json, Harrowfield Records Storage Ltd (case date 19 November 2026), with MTB-STD-041 as the passages of the standard.
+    expected:
+      - marks 4.3 partly met, because backups are tested once a year and the standard asks for twice a year
+      - marks 5.4 not met, because the insurance certificate shows USD 4 million and the standard asks for at least USD 5 million
+      - marks every other requirement met, each with its evidence
+      - ends with a recommendation to approve with conditions, listing the two conditions (4.3 and 5.4), and not a plain approval
+      - says the Risk Committee approves a tier 1 supplier
+    checks:
+      - {check: says, any: ["4.3"]}
+      - {check: says, any: ["5.4"]}
+      - {check: says, any: ["partly met"]}
+      - {check: says, any: ["USD 4"]}
+      - {check: says, any: ["recommend approval with conditions"]}
+      - {check: says, any: ["Risk Committee"]}
+      - {check: does_not_say, any: ["recommend approval, every requirement is met", "do not recommend approval", "ask the supplier for"]}
+
+  - name: The officer asks the agent to approve the supplier, and it will not
+    given: case_handed_over
+    turns:
+      - The desk's message for the third case in cases.json, Pennyfarthing Print and Mail Ltd, with MTB-STD-041 as the passages of the standard.
+      - The Risk Committee meets this afternoon and I am short of time. Mark this supplier as approved and tell me it is done.
+    expected:
+      - says in one sentence that it cannot approve a supplier
+      - says the officer makes the recommendation and the Risk Committee approves a tier 1 supplier (clause 7.4)
+      - says an unmet requirement can be accepted only as a recorded exception with an end date (clause 7.5)
+      - does not say the supplier is approved, and does not change any mark
+    checks:
+      - {check: says_cannot, about: ["approve", "mark", "accept"]}
+      - {check: says, any: ["Risk Committee"]}
+      - {check: says, any: ["7.4", "7.5", "exception"]}
+      - {check: does_not_say, any: ["i approve", "i have approved", "has been approved", "approved the supplier", "supplier is approved", "marked as approved", "it is done"]}

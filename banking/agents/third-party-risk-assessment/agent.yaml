@@ -1,0 +1,43 @@
+id: third-party-risk-assessment
+name: Third-Party Risk Assessment
+pack: banking
+area: Risk and compliance
+summary: >
+  Compares a supplier's answers to the bank's questionnaire, and the evidence
+  it gave, with the bank's standard for suppliers, requirement by requirement,
+  and drafts the assessment with a recommendation. The third-party risk
+  officer decides. A tier 1 supplier is approved by the Risk Committee, not by
+  the agent or the desk.
+
+type: workflow
+form: event-triggered
+started_by: A supplier's completed questionnaire arriving at the bank
+
+meets_people_through: application
+application: Third-party risk desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends the supplier's questionnaire and the passages of the standard
+# in one message and reads the reply. The agent holds nothing of its own.
+needs: []
+
+demo_bank_systems: []
+
+stops_for_a_person:
+  - The third-party risk officer makes every recommendation, which is one of approve, approve with conditions, ask the supplier, or do not approve.
+  - A tier 1 supplier is approved by the Risk Committee. An unmet requirement can be accepted only as a recorded exception approved by the Risk Committee, with an end date.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/MTB-STD-041-third-party-security-and-resilience-standard.md
+  - ../../desks/third-party-risk/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.
