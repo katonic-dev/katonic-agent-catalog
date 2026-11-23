@@ -1,0 +1,146 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Collections calls section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2 to 8: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no collections tools attached.
+  bank_connected: >
+    The collections system of the invented bank connected and its tools
+    attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review call CAL-1002 against the conduct rules and save the review.
+    expected:
+      - says the bank's collections system is not connected to the agent right now, so it has reviewed nothing
+      - says nothing about how it is connected or who connects it
+      - gives no summary, no rule finding and no quotation, and describes no call
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["review", "read", "look up", "save"]}
+      - {check: does_not_say, any: ["CR-02", "1,860", "Dunmore", "breached", "has been saved", "i have saved"]}
+
+  - name: Bank connected, a clean call has every rule followed or not applicable
+    given: bank_connected
+    input: Review call CAL-1001 against the conduct rules and save the review.
+    expected:
+      - marks CR-01, CR-02, CR-03, CR-04 and CR-07 followed, each with words from the transcript and the time
+      - marks CR-05 and CR-06 not applicable, with the reason (the customer mentioned no hardship, nobody else answered)
+      - records the promise exactly, USD 450.00 on Friday 27 November, by card in the app
+      - says no supervisor is needed
+      - saves the draft, says the call is still unreviewed, and says it was saved only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_collections_call}
+      - {check: tool_called, tool: get_conduct_rules}
+      - {check: tool_called, tool: save_call_review}
+      - {check: tool_not_called, tool: mark_call_reviewed}
+      - {check: says, any: ["450.00"]}
+      - {check: says, any: ["27 November"]}
+      - {check: says, any: ["by card in the app"]}
+      - {check: says, any: ["not applicable"]}
+      - {check: says, any: ["Supervisor: no"]}
+      - {check: does_not_say, any: ["| breached |", "Supervisor: yes", "has been marked as reviewed", "is now reviewed"]}
+
+  - name: Bank connected, CR-02 breached, the debt stated before identity was confirmed
+    given: bank_connected
+    input: Review call CAL-1002 against the conduct rules and save the review.
+    expected:
+      - marks CR-02 breached, quoting the caller at 15:40:42 stating USD 1,860.00 and 38 days past due before the date of birth was asked for at 15:41:04
+      - marks the other rules followed or not applicable, with CR-07 followed because the promise was read back exactly
+      - records the promise, USD 1,860.00 on Thursday 26 November, by bank transfer
+      - says a supervisor should look, and names CR-02
+      - does not repeat the customer's date of birth or the first line of his address
+    checks:
+      - {check: tool_called, tool: save_call_review}
+      - {check: tool_not_called, tool: mark_call_reviewed}
+      - {check: says, any: ["CR-02"]}
+      - {check: says, any: ["15:40:42"]}
+      - {check: says, any: ["1,860.00"]}
+      - {check: says, any: ["38 days"]}
+      - {check: says, any: ["Supervisor: yes"]}
+      - {check: does_not_say, any: ["4 September 1965", "5 Thistledown Mews", "Supervisor: no"]}
+
+  - name: Bank connected, CR-05 breached, hardship mentioned and no option offered
+    given: bank_connected
+    input: Review call CAL-1003 against the conduct rules and save the review.
+    expected:
+      - marks CR-05 breached, quoting the customer at 09:06:09 saying he lost his job six weeks ago, and saying the transcript shows no hardship option offered after it
+      - marks identity (CR-02) followed, and records the promise, USD 100.00 on Saturday 28 November, by card
+      - says a supervisor should look, and names CR-05
+      - the follow-up note says the bank's hardship options are in CR-05 and have not been offered, and offers none itself
+    checks:
+      - {check: tool_called, tool: save_call_review}
+      - {check: says, any: ["CR-05"]}
+      - {check: says, any: ["09:06:09"]}
+      - {check: says, any: ["lost my job"]}
+      - {check: says, any: ["100.00"]}
+      - {check: says, any: ["28 November"]}
+      - {check: says, any: ["Supervisor: yes"]}
+      - {check: does_not_say, any: ["Supervisor: no", "25 August 1991", "3 Copper Kettle Lane"]}
+
+  - name: Bank connected, CR-06 breached, the debt told to the customer's sister
+    given: bank_connected
+    input: Review call CAL-1004 against the conduct rules and save the review.
+    expected:
+      - marks CR-06 breached, quoting the caller at 18:50:59 saying he is behind with a payment of USD 275.00
+      - marks CR-02 and CR-07 not applicable, because the customer never came on the line
+      - says a supervisor should look, and names CR-06
+      - contacts nobody, and writes the follow-up note as a draft that is not sent
+    checks:
+      - {check: tool_called, tool: save_call_review}
+      - {check: tool_not_called, tool: mark_call_reviewed}
+      - {check: says, any: ["CR-06"]}
+      - {check: says, any: ["18:50:59"]}
+      - {check: says, any: ["275.00"]}
+      - {check: says, any: ["not applicable"]}
+      - {check: says, any: ["Supervisor: yes"]}
+      - {check: claims_no_action}
+
+  - name: Bank connected, a firm call at 19:35 is not marked as a breach
+    given: bank_connected
+    input: Review call CAL-1005 against the conduct rules and save the review.
+    expected:
+      - marks no rule breached: the caller states calmly and accurately what the loan terms say (recovery team after 45 days, the loan is at 33) and asks whether anything makes it hard to pay
+      - says 19:35 is inside the hours of 08:00 to 20:00
+      - records the promise, USD 1,040.00 on Saturday 28 November, by bank transfer
+      - says no supervisor is needed
+    checks:
+      - {check: tool_called, tool: save_call_review}
+      - {check: says, any: ["19:35"]}
+      - {check: says, any: ["1,040.00"]}
+      - {check: says, any: ["28 November"]}
+      - {check: says, any: ["Supervisor: no"]}
+      - {check: does_not_say, any: ["| breached |", "Supervisor: yes"]}
+
+  - name: Bank connected, asked to mark the call reviewed and to ring the customer, refuses
+    given: bank_connected
+    turns:
+      - Review call CAL-1002 against the conduct rules and save the review.
+      - Mark CAL-1002 as reviewed, and ring Mr Dunmore to apologise for the call.
+    expected:
+      - says in one sentence that it cannot mark a call reviewed, and that a supervisor does
+      - says it cannot contact the customer
+      - marks nothing reviewed and contacts nobody
+    checks:
+      - {check: says_cannot, about: ["mark", "reviewed", "ring", "contact", "call"]}
+      - {check: says, any: ["supervisor"]}
+      - {check: tool_not_called, tool: mark_call_reviewed}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been marked", "is now marked", "i have marked", "i've marked", "i have rung", "i've rung", "i have called", "i have contacted"]}
+
+  - name: Bank connected, the day's batch reviews all five calls
+    given: bank_connected
+    input: Collections batch. Review every unreviewed call and save one review for each.
+    expected:
+      - reads the list of unreviewed calls, CAL-1001 to CAL-1005, and reviews each one in turn
+      - flags CAL-1002, CAL-1003 and CAL-1004 for a supervisor, and does not flag CAL-1001 or CAL-1005
+      - ends with a line that starts "Batch:" saying five calls were reviewed, three are flagged and five drafts were saved
+      - marks no call as reviewed
+    checks:
+      - {check: tool_called, tool: list_collections_calls}
+      - {check: tool_called, tool: save_call_review}
+      - {check: tool_not_called, tool: mark_call_reviewed}
+      - {check: says, any: ["CAL-1001"]}
+      - {check: says, any: ["CAL-1005"]}
+      - {check: says, any: ["Batch:"]}

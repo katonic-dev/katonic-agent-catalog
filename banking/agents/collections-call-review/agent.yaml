@@ -1,0 +1,52 @@
+id: collections-call-review
+name: Collections Call Review
+pack: banking
+area: Lending
+summary: >
+  For a recorded collections call, writes a short summary, marks each of the
+  bank's conduct rules followed, breached or not applicable with the exact
+  words from the transcript, drafts the follow-up note, and says whether a
+  supervisor should look. It contacts no customer and never marks a call as
+  reviewed: a supervisor does.
+
+type: workflow
+form: scheduled
+started_by: >
+  A clock: the day's batch of unreviewed calls. It can also be asked for one
+  call by its id
+
+meets_people_through: bank-system
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: collections-system
+    kind: api
+    required: true
+    label: The bank's collections system, to read recorded calls and the conduct rules, and to save a call review as a draft
+    operations:
+      - list_collections_calls
+      - get_collections_call
+      - get_conduct_rules
+      - save_call_review
+
+demo_bank_systems: [collections]
+
+stops_for_a_person:
+  - A supervisor reads each flagged call and its note and closes the review. The agent never marks a call as reviewed.
+  - Whether a breach is serious, and what happens to the caller, is for the supervisor. The agent states what the transcript shows.
+  - Anything said to the customer afterwards is for the bank's staff. The agent contacts no customer.
+
+# The only write is a draft call review, kept with its author, a time and a
+# version number. The call stays unreviewed. The agent makes no change in the
+# bank's records, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

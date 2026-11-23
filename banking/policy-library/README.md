@@ -8,11 +8,13 @@ Meridian Trust Bank does not exist. These policies were written so that agents i
 | `MTB-POL-021-customer-information-and-data-sharing-policy.md` | Customer information and data sharing |
 | `MTB-POL-033-technology-risk-and-outsourcing-policy.md` | Technology risk and outsourcing |
 | `MTB-STD-041-third-party-security-and-resilience-standard.md` | Third-party security and resilience: what the bank requires of a supplier |
+| `MTB-PRD-051-current-account-terms-and-fees.md` | Everyday Current Account: terms and fees |
+| `MTB-PRD-052-savings-account-terms.md` | Saver Account: terms, interest tiers and notice |
 
-The three policies also ship with the regulatory change desk in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk). The standard is what the Third-Party Risk Assessment agent marks a supplier against.
+The two product terms (MTB-PRD-051 and MTB-PRD-052) are what the Banking Support agent answers from, together with the customer records of the invented bank. The three policies also ship with the regulatory change desk in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk). The standard is what the Third-Party Risk Assessment agent marks a supplier against.
 
 ## How to use them
 
 In Knowledge, choose Connect Source, then File Upload, and add the files. Indexing needs an embedding model.
 
-One thing is left out on purpose, so that an agent can be tested on what it does when the documents are silent: the retention schedule that policy MTB-POL-021 points to in clause 6.2 is not in the library.
+One thing is left out on purpose, so that an agent can be tested on what it does when the documents are silent: the retention schedule that policy MTB-POL-021 points to in clause 6.2 is not in the library. Likewise, clause 5.2 of MTB-PRD-051 points to the Tariff of Charges for the fee on a payment sent outside Meridia, and the tariff is not in the library.

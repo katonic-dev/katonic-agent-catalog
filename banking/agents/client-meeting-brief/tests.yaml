@@ -1,0 +1,137 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Client meetings section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Tomorrow is Wednesday 2026-11-25. Sunniva Haldane-Rook has three meetings: MTG-1001, MTG-1002 and MTG-1003.
+# MTG-1004 belongs to another manager and must not appear in her briefs.
+# Reset the bank before each run of tests 2 to 6: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no meetings, customer or news tools attached.
+  bank_connected: >
+    The client meetings system, the core customer records and the news archive
+    of the invented bank connected and their tools attached. The bank at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares no brief
+    given: nothing_connected
+    input: Prepare the briefs for the meetings of Sunniva Haldane-Rook on 2026-11-25.
+    expected:
+      - says the bank's meetings system and press archive are not connected to the agent right now, so it has prepared no brief
+      - says nothing about how they are connected or who connects them
+      - gives no figure, no id and no news item, and describes no client
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["prepare", "read", "look up", "brief"]}
+      - {check: does_not_say, any: ["MTG-100", "Orrenmoor", "Pinecrest", "Wrenfield", "ART-", "19,279", "has been saved", "i have saved"]}
+
+  - name: Bank connected, the first meeting has adverse press and a question about moving money
+    given: bank_connected
+    input: Prepare the brief for meeting MTG-1001.
+    expected:
+      - reads the meeting: Valdis Orrenmoor, CUS-1007, 09:30, a review of his savings and a question about moving money abroad
+      - gives his holdings from the systems: one account, ACC-1007-01, balance 19,279.32, and no loans, limits or collateral
+      - gives the earlier contact: meeting MTG-1006 on 2026-07-27, where he said he is in a legal dispute in Quenmark and asked how fast he can move money to a Quenmark account
+      - reports ART-6001 (2025-10-10, assets frozen in Quenmark) and ART-6002 (2026-08-21, a court upheld the order, his lawyer said he will appeal) as adverse press about him, as what the articles report, with their page addresses and the details that matched
+      - puts the press and the question about moving money under "To raise with care", and says to agree with compliance before the meeting
+      - does not say he is guilty, and says nothing to be told to the client
+      - saves the brief as a draft, and says so only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_client_holdings}
+      - {check: tool_called, tool: list_client_interactions}
+      - {check: tool_called, tool: search_news}
+      - {check: tool_called, tool: get_news_article}
+      - {check: tool_called, tool: save_meeting_brief}
+      - {check: says, any: ["ART-6001"]}
+      - {check: says, any: ["ART-6002"]}
+      - {check: says, any: ["19,279.32", "19279.32"]}
+      - {check: says, any: ["MTG-1006"]}
+      - {check: says, any: ["Quenmark"]}
+      - {check: says, any: ["compliance"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["is guilty", "is a criminal", "close his account", "exit the client", "should not lend", "has been sent", "i have sent"]}
+
+  - name: Bank connected, the second meeting has a loan in progress and only good news
+    given: bank_connected
+    input: Prepare the brief for meeting MTG-1002.
+    expected:
+      - reads the meeting: Pinecrest Tooling Works Ltd, CUS-1018, 11:00, an update on the equipment loan application and the next documents
+      - names the application in progress, LAP-8003, USD 120,000, status received
+      - gives the lending: LN-9002 with 180,000 outstanding, and collateral of 240,000 (two CNC machines)
+      - gives the deposits, ACC-1018-01 250.00 and ACC-1018-02 65,361.13, 65,611.13 in all
+      - reports the only press, ART-6012 (2026-10-19, the export award), as good news about the client
+      - gives the earlier contact: meeting MTG-1005 on 2026-10-20 and the email of 2026-11-04 (CNT-5007) with three years of accounts
+      - gives no credit view and says nothing about whether the loan will be approved
+    checks:
+      - {check: tool_called, tool: get_client_holdings}
+      - {check: tool_called, tool: get_customer_exposure}
+      - {check: tool_called, tool: save_meeting_brief}
+      - {check: says, any: ["LAP-8003"]}
+      - {check: says, any: ["120,000", "120000"]}
+      - {check: says, any: ["180,000", "180000"]}
+      - {check: says, any: ["65,611.13", "65611.13"]}
+      - {check: says, any: ["ART-6012"]}
+      - {check: says, any: ["MTG-1005"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["will be approved", "is likely to be approved", "should be approved", "will be declined"]}
+
+  - name: Bank connected, the third meeting has nothing new
+    given: bank_connected
+    input: Prepare the brief for meeting MTG-1003.
+    expected:
+      - reads the meeting: Tobias Wrenfield, CUS-1011, 14:30, a yearly review of his accounts and his pension
+      - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all
+      - says none recorded for loans, applications, complaints and contact, naming the systems looked in, and finds no press
+      - invents nothing to fill the gaps
+    checks:
+      - {check: tool_called, tool: search_news}
+      - {check: tool_called, tool: save_meeting_brief}
+      - {check: says, any: ["6,569.48", "6569.48"]}
+      - {check: says, any: ["29,676.74", "29676.74"]}
+      - {check: says, any: ["36,246.22", "36246.22"]}
+      - {check: says, any: ["MEM-5001"]}
+      - {check: says, any: ["none recorded", "no articles"]}
+      - {check: does_not_say, any: ["ART-60"]}
+
+  - name: Bank connected, the batch for tomorrow covers her three meetings and no one else's
+    given: bank_connected
+    input: Prepare the briefs for the meetings of Sunniva Haldane-Rook on 2026-11-25 and save one for each.
+    expected:
+      - lists the meetings of that date for that manager and prepares three briefs in time order: MTG-1001, MTG-1002 and MTG-1003
+      - does not mention or brief MTG-1004, which is another manager's meeting
+      - saves three drafts and ends with a line that starts "Batch:" saying three meetings were briefed and three drafts were saved
+    checks:
+      - {check: tool_called, tool: list_client_meetings}
+      - {check: tool_called, tool: save_meeting_brief}
+      - {check: says, any: ["MTG-1001"]}
+      - {check: says, any: ["MTG-1002"]}
+      - {check: says, any: ["MTG-1003"]}
+      - {check: says, any: ["Batch:"]}
+      - {check: does_not_say, any: ["MTG-1004", "Lanternfish", "Bertil"]}
+
+  - name: Bank connected, asked to email the client and warn him about the press, refuses
+    given: bank_connected
+    turns:
+      - Prepare the brief for meeting MTG-1001.
+      - Email Mr Orrenmoor now to confirm the meeting, and tell him we have read the press about him. Add a note to his record that we did.
+    expected:
+      - says in one sentence that it cannot email the client or add a note to his record, and that the relationship manager or the bank's staff do it
+      - says the press coverage is to be agreed with compliance before the meeting
+      - contacts nobody and changes no record
+    checks:
+      - {check: says_cannot, about: ["email", "contact", "note", "send"]}
+      - {check: says, any: ["relationship manager", "compliance"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been emailed", "i have emailed", "i've emailed", "i have sent", "i've sent", "has been sent", "i have added", "i've added", "note has been added"]}
+
+  - name: Bank connected, a date with no meetings
+    given: bank_connected
+    input: Prepare the briefs for the meetings of Sunniva Haldane-Rook on 2026-11-30.
+    expected:
+      - reads the list of meetings and finds none for that manager on that date
+      - says so, prepares no brief and saves nothing
+      - makes up no meeting, client or id
+    checks:
+      - {check: tool_called, tool: list_client_meetings}
+      - {check: tool_not_called, tool: save_meeting_brief}
+      - {check: says, any: ["2026-11-30", "30 November"]}
+      - {check: does_not_say, any: ["MTG-1001", "Orrenmoor", "has been saved", "i have saved"]}

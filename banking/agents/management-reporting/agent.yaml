@@ -1,0 +1,48 @@
+id: management-reporting
+name: Management Reporting
+pack: banking
+area: Finance and relationship management
+summary: >
+  Answers a question on the finance warehouse in plain language, shows the
+  query it ran, and drafts the commentary. It only reads. It says so when the
+  warehouse does not hold the answer, and it never invents a figure.
+
+type: conversational
+form: answering
+started_by: A question on the finance warehouse, from a member of the finance team or a manager
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: finance-warehouse
+    kind: api
+    required: true
+    label: The bank's finance warehouse, to read its tables and run one read-only query at a time, and to save the commentary as a draft
+    operations:
+      - list_finance_tables
+      - describe_finance_table
+      - run_finance_query
+      - save_finance_commentary
+
+demo_bank_systems: [finance]
+
+stops_for_a_person:
+  - A person in finance reads the answer and the draft commentary, and decides whether and where to use them. The agent publishes nothing.
+  - A question the warehouse cannot answer goes to whoever holds that data. The agent says what is missing and does not estimate.
+  - A change to a budget, an actual or any ledger entry is made by finance through the bank's own process. The agent only reads.
+
+# The agent only reads. The one write is a draft commentary, kept with its
+# author, a time and a version number. It publishes nothing and changes no
+# figure, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

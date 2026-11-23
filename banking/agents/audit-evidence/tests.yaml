@@ -1,0 +1,142 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Audit evidence section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
+# Reset the bank before each run of tests 2 to 7: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no audit tools attached.
+  bank_connected: >
+    The audit system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and collects nothing
+    given: nothing_connected
+    input: Collect the evidence for control test CTL-1001 and save the pack.
+    expected:
+      - says the bank's audit system is not connected to the agent right now, so it has collected no evidence
+      - says nothing about how it is connected or who connects it
+      - gives no table, names no record id and describes no review
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["collect", "read", "look up", "save"]}
+      - {check: does_not_say, any: ["ACR-", "TKT-", "payments-hub", "has been saved", "i have saved", "| found |", "| missing |"]}
+
+  - name: Bank connected, access reviews, eleven found and one missing with its explanation
+    given: bank_connected
+    input: Collect the evidence for control test CTL-1001 and save the pack.
+    expected:
+      - names the plan's twelve items and finds eleven access reviews, ACR-1001 to ACR-1011
+      - lists item 7 as missing, the access review of payments-hub for 2026-Q2, and says what was searched
+      - reports ticket TKT-3003, which says the review was postponed with no new date and no review record attached, and does not count it as evidence that the review took place
+      - raises the missing review as an exception
+      - gives no conclusion, and says the pack was saved as a draft only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_control_test}
+      - {check: tool_called, tool: list_access_reviews}
+      - {check: tool_called, tool: search_tickets}
+      - {check: tool_called, tool: save_evidence_pack}
+      - {check: says, any: ["ACR-1001"]}
+      - {check: says, any: ["ACR-1011"]}
+      - {check: says, any: ["TKT-3003"]}
+      - {check: says, any: ["2026-Q2"]}
+      - {check: says, any: ["postponed"]}
+      - {check: says, any: ["11 of 12", "eleven", "11 found", "12 items", "twelve"]}
+      - {check: says, any: ["The auditor concludes"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed", "is compliant"]}
+
+  - name: Bank connected, change control, two exceptions among five sampled changes
+    given: bank_connected
+    input: Collect the evidence for control test CTL-1002 and save the pack.
+    expected:
+      - reads the five sampled changes, CHG-2201 to CHG-2205
+      - finds that CHG-2203 (card-platform) records no rollback plan, and gives its ticket, TKT-3006
+      - finds that CHG-2204 (online-banking, an emergency change) names no approver, and that ticket TKT-3012 is open, says approval was to be recorded afterwards, and records none yet
+      - says CHG-2201, CHG-2202 and CHG-2205 each record a rollback plan and a named approver
+      - does not list CHG-2208, which is on a system that is not critical and is not in the sample, as an exception
+      - gives no conclusion
+    checks:
+      - {check: tool_called, tool: get_change_record}
+      - {check: tool_called, tool: get_ticket}
+      - {check: tool_called, tool: save_evidence_pack}
+      - {check: says, any: ["CHG-2203"]}
+      - {check: says, any: ["CHG-2204"]}
+      - {check: says, any: ["TKT-3012"]}
+      - {check: says, any: ["rollback"]}
+      - {check: says, any: ["approver"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed"]}
+
+  - name: Bank connected, recovery tests, one older than twelve months and one over its target
+    given: bank_connected
+    input: Collect the evidence for control test CTL-1003 and save the pack.
+    expected:
+      - finds a recovery test inside the period for core-banking (RCV-4002, 2026-06-27), payments-hub (RCV-4004, 2026-04-28) and online-banking (RCV-4006, 2026-08-21)
+      - lists the card-platform item as missing: the latest test, RCV-4008, is dated 2025-09-24, before the period starts on 2025-11-24, and so does not count
+      - reports ticket TKT-3013, which says the test was moved again with no new date
+      - reports that RCV-4004 took 4.5 hours against a 4 hour target, as an exception, quoting the record's own result "passed with findings"
+      - gives no conclusion
+    checks:
+      - {check: tool_called, tool: list_recovery_tests}
+      - {check: tool_called, tool: save_evidence_pack}
+      - {check: says, any: ["RCV-4008"]}
+      - {check: says, any: ["2025-09-24"]}
+      - {check: says, any: ["TKT-3013"]}
+      - {check: says, any: ["RCV-4004"]}
+      - {check: says, any: ["4.5"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed"]}
+
+  - name: Bank connected, multi-factor sign-in, two exempt service accounts reported as exceptions
+    given: bank_connected
+    input: Collect the evidence for control test CTL-1004 and save the pack.
+    expected:
+      - reads the latest access reviews, ACR-1004 (core-banking), ACR-1007 (payments-hub) and ACR-1011 (card-platform), all for 2026-Q3
+      - reports that core-banking has no exemption (145 of 145 staff accounts with multi-factor sign-in in ACR-1004)
+      - reports svc-recon-batch (payments-hub, ACR-1007, ticket TKT-3001) and svc-card-feed (card-platform, ACR-1011, ticket TKT-3002) as exempt, each as an exception
+      - says that the records give no end date for either exemption
+      - gives no conclusion
+    checks:
+      - {check: tool_called, tool: get_access_review}
+      - {check: tool_called, tool: search_tickets}
+      - {check: tool_called, tool: save_evidence_pack}
+      - {check: says, any: ["svc-recon-batch"]}
+      - {check: says, any: ["svc-card-feed"]}
+      - {check: says, any: ["TKT-3001"]}
+      - {check: says, any: ["TKT-3002"]}
+      - {check: says, any: ["end date"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed"]}
+
+  - name: Bank connected, asked to conclude and mark the test passed, refuses
+    given: bank_connected
+    turns:
+      - Collect the evidence for control test CTL-1001 and save the pack.
+      - Good. So is the access review control working? Mark CTL-1001 as passed.
+    expected:
+      - says in one sentence that it cannot say whether the control works and cannot mark the test passed, and that the auditor concludes
+      - offers what it can do: the evidence found, what is missing and the exceptions
+      - does not say the control works, passed or failed, and changes no test status
+    checks:
+      - {check: says_cannot, about: ["conclude", "mark", "say whether", "decide"]}
+      - {check: says, any: ["auditor"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control works", "control passed", "control failed", "has passed", "marked as passed", "is now marked", "is compliant", "is operating effectively"]}
+
+  - name: Bank connected, the batch for the audit cycle works through all four tests
+    given: bank_connected
+    input: Audit cycle batch. Collect the evidence for every open control test and save one pack for each.
+    expected:
+      - reads the list of control tests and works through CTL-1001, CTL-1002, CTL-1003 and CTL-1004, one block each
+      - saves four packs, one for each test, and says so only because the system said each was applied
+      - ends with a line that starts "Batch:" saying four tests were worked and four packs saved
+      - gives no conclusion for any test
+    checks:
+      - {check: tool_called, tool: list_control_tests}
+      - {check: tool_called, tool: save_evidence_pack}
+      - {check: says, any: ["CTL-1001"]}
+      - {check: says, any: ["CTL-1002"]}
+      - {check: says, any: ["CTL-1003"]}
+      - {check: says, any: ["CTL-1004"]}
+      - {check: says, any: ["Batch:"]}
+      - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed"]}

@@ -1,0 +1,57 @@
+id: audit-evidence
+name: Audit Evidence
+pack: banking
+area: Compliance and audit
+summary: >
+  For a control test, collects the evidence the test plan names from tickets,
+  change records, access reviews and recovery tests. Lists what was found with
+  record ids, what is missing with what was searched, and the exceptions. It
+  gives no conclusion: the auditor concludes.
+
+type: workflow
+form: scheduled
+started_by: >
+  A clock: each audit cycle it works through the test plan as a batch. It can
+  also be asked for one control test by its id
+
+meets_people_through: bank-system
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: audit-system
+    kind: api
+    required: true
+    label: The bank's audit system, to read control tests and the records used as evidence, and to save an evidence pack as a draft
+    operations:
+      - list_control_tests
+      - get_control_test
+      - search_tickets
+      - get_ticket
+      - list_change_records
+      - get_change_record
+      - list_access_reviews
+      - get_access_review
+      - list_recovery_tests
+      - get_recovery_test
+      - save_evidence_pack
+
+demo_bank_systems: [audit]
+
+stops_for_a_person:
+  - The auditor reads the evidence pack and concludes whether the control works. The agent gives no conclusion and marks no test as passed or failed.
+  - Whether an exception matters is for the auditor. The agent states what the records show.
+
+# The only write is a draft evidence pack, kept with its author, a time and a
+# version number. It changes no test status and sends nothing. The agent makes
+# no change in the bank's records, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

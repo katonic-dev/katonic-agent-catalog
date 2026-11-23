@@ -1,0 +1,60 @@
+id: banking-support
+name: Banking Support
+pack: banking
+area: Customer service
+summary: >
+  For a member of staff with a customer's question. Drafts the reply from the
+  bank's product and policy documents and the customer's own records, with a
+  source for every statement. It stops before any reply is sent: the member of
+  staff sends it.
+
+type: conversational
+form: acting
+started_by: A staff member's request
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: product-documents
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the bank's product and policy documents
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+  - id: customer-records
+    kind: api
+    required: true
+    label: The bank's customer records, to find a customer, read their accounts, transactions and contacts, and save a draft note
+    operations:
+      - search_customers
+      - list_customer_accounts
+      - list_account_transactions
+      - list_customer_contacts
+      - add_contact_note
+
+demo_bank_systems: [core]
+
+stops_for_a_person:
+  - The member of staff reads the draft reply and sends it. The agent sends nothing to the customer.
+  - A refund, a reversal, a waiver or any change to an account or a customer detail is decided and made by the bank's staff through the bank's usual process. The agent changes nothing.
+  - A question about another customer's account is not answered. It goes through the bank's usual process for such a request.
+
+# The only write is a draft note on the customer's contact history, kept with
+# its author, a time and a version number. It sends nothing and changes
+# nothing else. The agent makes no change in the bank's records, so the list is
+# empty.
+changes: []
+
+sample_data:
+  - ../../policy-library/MTB-PRD-051-current-account-terms-and-fees.md
+  - ../../policy-library/MTB-PRD-052-savings-account-terms.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

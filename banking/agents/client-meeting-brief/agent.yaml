@@ -1,0 +1,62 @@
+id: client-meeting-brief
+name: Client Meeting Brief
+pack: banking
+area: Finance and relationship management
+summary: >
+  For each of a relationship manager's meetings the next day, writes one brief:
+  what the client holds and owes, recent contacts, anything in progress with the
+  bank, and public news, each point with its source. It changes nothing,
+  contacts no one and saves the brief as a draft.
+
+type: workflow
+form: scheduled
+started_by: >
+  A clock: each day it prepares the briefs for the next day's meetings in the
+  calendar. It can also be asked for one meeting by its id
+
+meets_people_through: bank-system
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: meetings-and-holdings
+    kind: api
+    required: true
+    label: The bank's client meetings system, to read the meetings, what a client holds and the earlier contact, and to save a brief as a draft
+    operations:
+      - list_client_meetings
+      - get_client_meeting
+      - get_client_holdings
+      - list_client_interactions
+      - save_meeting_brief
+  - id: credit-exposure
+    kind: api
+    required: true
+    label: The bank's customer records, to read the bank's credit exposure to a client
+    operations: [get_customer_exposure]
+  - id: news-archive
+    kind: api
+    required: true
+    label: The bank's press archive, to find and read public news about a client
+    operations: [search_news, get_news_article]
+
+demo_bank_systems: [crm, core, news]
+
+stops_for_a_person:
+  - The relationship manager reads the brief and decides what to say in the meeting. The brief is internal and goes only to the manager.
+  - Press coverage that touches a client is raised with the right people at the bank, such as compliance, before the meeting. The agent only points it out.
+  - The agent contacts no client and no colleague, and changes no record.
+
+# The only write is a draft brief on the meeting, kept with its author, a time
+# and a version number. It sends nothing and changes nothing else. The agent
+# makes no change in the bank's records, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.
