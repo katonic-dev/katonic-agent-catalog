@@ -13,6 +13,7 @@ import asyncio
 import json
 import re
 import uuid
+from contextvars import ContextVar
 from typing import Any
 from urllib.parse import quote, urlencode
 
@@ -24,6 +25,8 @@ from .config import INVENTED_NOTICE
 
 SUPPORTED = ["2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25"]
 METHODS = ("get", "post", "put", "patch", "delete")
+# where the caller reached us, so a tool that returns an address (news page_url) gives one the caller can open
+_caller: ContextVar[dict] = ContextVar("mcp_caller", default={})
 
 
 def _resolve(doc: dict, node: Any, depth: int = 0) -> Any:
@@ -79,9 +82,10 @@ def build_tools(doc: dict) -> dict[str, dict]:
     return tools
 
 
-async def call_asgi(app: Any, method: str, path: str, query: str, body: bytes, headers: dict[str, str]):
+async def call_asgi(app: Any, method: str, path: str, query: str, body: bytes, headers: dict[str, str],
+                    scheme: str = "http"):
     scope = {"type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1", "method": method.upper(),
-             "scheme": "http", "path": path, "raw_path": path.encode(), "query_string": query.encode(),
+             "scheme": scheme, "path": path, "raw_path": path.encode(), "query_string": query.encode(),
              "root_path": "", "headers": [(k.lower().encode(), v.encode()) for k, v in headers.items()],
              "server": ("internal", 80), "client": ("internal", 0), "state": {}}
     sent = {"done": False}
@@ -130,7 +134,12 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
         if ctx.settings.auth_enabled:
             headers[KEY_HEADER] = ctx.settings.api_key
         payload = json.dumps(body_args).encode() if spec["method"] in ("post", "put", "patch") else b""
-        status, raw = await call_asgi(app, spec["method"], path, query, payload, headers)
+        caller = _caller.get()
+        if caller.get("host"):
+            headers["x-public-root-path"] = caller.get("root_path", "")
+            headers["host"] = caller["host"]
+        status, raw = await call_asgi(app, spec["method"], path, query, payload, headers,
+                                      scheme=caller.get("scheme", "http"))
         text = raw.decode("utf-8", "replace")
         if status >= 400:
             try:
@@ -172,9 +181,14 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
         return DemoJSONResponse({"detail": "A valid key is needed. Send it in the X-API-Key header or as "
                                            "'Authorization: Bearer <key>'."}, status_code=401)
 
+    def note_caller(request: Request) -> None:
+        _caller.set({"host": request.headers.get("host", ""), "scheme": request.url.scheme,
+                     "root_path": request.scope.get("root_path", "")})
+
     async def rpc_post(request: Request) -> Response:
         if not key_is_valid(ctx, request):
             return denied()
+        note_caller(request)
         try:
             data = await request.json()
         except ValueError:
@@ -198,6 +212,7 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
     async def sse_get(request: Request) -> Response:
         if not key_is_valid(ctx, request):
             return denied()
+        note_caller(request)
         sid = uuid.uuid4().hex
         q: asyncio.Queue = asyncio.Queue()
         sessions[sid] = q
@@ -227,6 +242,7 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
     async def messages_post(request: Request) -> Response:
         if not key_is_valid(ctx, request):
             return denied()
+        note_caller(request)
         q = sessions.get(request.query_params.get("session_id", ""))
         if q is None:
             return DemoJSONResponse({"detail": "Unknown or closed session. Open /sse again."}, status_code=404)

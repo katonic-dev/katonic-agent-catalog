@@ -1,4 +1,4 @@
-"""Assembles the service: six systems, admin routes, landing page, health."""
+"""Assembles the service: nine systems, the regulator's public feed, admin routes, landing page, health."""
 
 from __future__ import annotations
 
@@ -15,10 +15,12 @@ from .common import Ctx, DemoJSONResponse, FastAPIOffline, make_auth, not_found
 from .config import BANK_NAME, INVENTED_NOTICE, load_settings
 from .mcp_doors import install_mcp
 from .store import Store
-from .systems import aml, cards, core, lending, payments, screening
+from .regulator import make_router as make_regulator_router
+from .seed_reg import REGULATOR_NAME
+from .systems import aml, cards, core, fraud, lending, news, payments, recon, screening
 
 log = logging.getLogger("demo-bank")
-SYSTEMS = [core, cards, screening, aml, payments, lending]
+SYSTEMS = [core, cards, screening, aml, payments, lending, fraud, recon, news]
 
 
 class DemoHeaderMiddleware:
@@ -43,7 +45,8 @@ class DemoHeaderMiddleware:
 
 
 class SubscriptionBody(BaseModel):
-    event_kind: Literal["*", "screening-alert", "payment-repair", "payment-investigation", "loan-application"] = Field(
+    event_kind: Literal["*", "screening-alert", "payment-repair", "payment-investigation", "loan-application",
+                        "fraud-case", "reconciliation-break", "regulator-publication"] = Field(
         "*", description="Which events to send. * means all.")
     url: str = Field(..., description="Where to POST the event.")
     header_name: str = Field("", description="Name of the header that carries the secret.")
@@ -136,6 +139,7 @@ def create_app(env: dict | None = None) -> FastAPI:
         return events.simulate(store, kind)
 
     app.include_router(admin)
+    app.include_router(make_regulator_router(ctx))
 
     @app.exception_handler(HTTPException)
     async def _err(_: Request, exc: HTTPException):
@@ -159,6 +163,8 @@ def create_app(env: dict | None = None) -> FastAPI:
             warn = ('<p style="background:#fde8e8;border:2px solid #b00;padding:10px"><b>Warning: sign-in is OFF '
                     "(BANK_AUTH=off).</b> Anyone who can reach this address can read and change the data. "
                     "Use this only on your own laptop.</p>")
+        pubs = sorted(store.data["regulator_publications"].values(), key=lambda p: (p["published"], p["publication_id"]))
+        first_pub = html.escape(pubs[-1]["publication_id"]) if pubs else ""
         count_rows = "".join(f"<tr><td>{html.escape(k.replace('_', ' '))}</td><td>{v}</td></tr>" for k, v in counts.items())
         page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>{BANK_NAME} (invented)</title>
@@ -172,8 +178,15 @@ th{{background:#eef2f7}}code{{background:#eef2f7;padding:1px 4px}}</style></head
 Every JSON answer carries <code>"demo_data": true</code> and the header <code>X-Demo-Data: invented</code>.</p>
 <p>Bank date: <b>{settings.bank_today.isoformat()}</b>. Data operations need a key in the <code>X-API-Key</code> header
 (or <code>Authorization: Bearer ...</code>). The key is not shown here.</p>
-<h2>The six systems</h2>
+<h2>The nine systems</h2>
 <table><tr><th>System</th><th>API docs</th><th>OpenAPI document</th><th>MCP addresses</th></tr>{''.join(rows)}</table>
+<h2>A regulator's public website (invented)</h2>
+<p><b>{html.escape(REGULATOR_NAME)}</b> is invented. It is not one of the bank's systems: it stands for a regulator's
+public website. It needs no key and has no MCP address.</p>
+<ul><li><a href="{root}/regulator/feed.xml">{html.escape(origin)}/regulator/feed.xml</a> (RSS 2.0, newest first)</li>
+<li><a href="{root}/regulator/publications.json">{html.escape(origin)}/regulator/publications.json</a> (the same list as JSON)</li>
+<li>{html.escape(origin)}/regulator/publications/&lt;id&gt; (one publication as a web page, for example
+<a href="{root}/regulator/publications/{first_pub}">{first_pub}</a>)</li></ul>
 <h2>Open items</h2><table>{count_rows}</table>
 <h2>Start again</h2>
 <p>Send <code>POST {html.escape(root)}/admin/reset</code> with the key. This puts all data back to the starting point.

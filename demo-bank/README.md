@@ -2,13 +2,13 @@
 
 Meridian Trust Bank is invented, and so is every person, company, account and record in this service. Nothing here describes a real bank or a real customer.
 
-This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds six systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems.
+This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds nine systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems. Next to them it serves the public website of an invented regulator, which is not one of the bank's systems.
 
 Every JSON answer carries `"demo_data": true` at the top level, and every response carries the header `X-Demo-Data: invented`.
 
 Licence: Apache-2.0.
 
-## The six systems
+## The nine systems
 
 | System | Path | What it holds | Operations |
 |---|---|---|---|
@@ -18,6 +18,9 @@ Licence: Apache-2.0.
 | aml | `/aml` | transaction monitoring alerts, rules, counterparties, cases | 8 |
 | payments | `/payments` | payments, investigations, the repair queue, rules, bank directory | 13 |
 | lending | `/lending` | loan applications, documents, credit policy, approved loans | 11 |
+| fraud | `/fraud` | fraud cases on card payments and payments, the rules that raise them, decisions | 5 |
+| recon | `/recon` | reconciliation breaks between the ledger and bank statements, matching rules, proposals, postings | 5 |
+| news | `/news` | an invented press archive from two invented outlets, for adverse media screening | 3 |
 
 For each system `<path>`:
 
@@ -34,7 +37,23 @@ Operations that only read are plain reads. Operations that write come in two kin
 
 This is a simulator with its own state. A write really changes it, and the answer says `"applied": true`. There is deliberately no operation that files a report.
 
+In all, 66 operations. A change in the new systems is deciding a fraud case (`decide_fraud_case`) and posting a reconciliation break (`post_break_resolution`). Drafts are the fraud case summary, the break proposal and the media screening summary.
+
+The news system also serves each article as a plain web page at `/news/pages/<article id>`. It needs no key, so a link in a summary can be opened. It is not in the OpenAPI document. The `page_url` in an article carries the address.
+
 The scenarios and their right answers are in [SCENARIOS.md](SCENARIOS.md).
+
+## The regulator's public website (invented)
+
+The "Meridia Financial Conduct Authority (invented)" is not one of the bank's systems. It stands for a regulator's public website, so it needs no key and has no MCP address and no OpenAPI document. It starts with six publications dated over the last 60 days.
+
+| Address | What it gives |
+|---|---|
+| `/regulator/feed.xml` | An RSS 2.0 feed, newest first: title, link, pubDate, guid, description. |
+| `/regulator/publications.json` | The same list as JSON. |
+| `/regulator/publications/<id>` | One publication as a web page, with the full text in numbered paragraphs. |
+
+Publication ids look like `MFCA-2026-045`. They are written to be compared with the policy library in `banking/policy-library`; the right verdicts are in [SCENARIOS.md](SCENARIOS.md). `POST /admin/simulate/regulator-publication` adds one more.
 
 ## Quick start
 
@@ -69,7 +88,7 @@ Tests: `pip install -r requirements-dev.txt` then `pytest`.
 
 ## Sign-in
 
-Data operations, the MCP addresses and the admin routes need the key, as the header `X-API-Key: <key>` or as `Authorization: Bearer <key>`. Open without a key: `/`, `/health`, `/healthz`, the docs pages and the OpenAPI documents. Each OpenAPI document declares the header key as its security scheme.
+Data operations, the MCP addresses and the admin routes need the key, as the header `X-API-Key: <key>` or as `Authorization: Bearer <key>`. Open without a key: `/`, `/health`, `/healthz`, the docs pages, the OpenAPI documents, the news article pages (`/news/pages/<id>`) and the regulator's website (`/regulator/...`). Each OpenAPI document declares the header key as its security scheme.
 
 ## Environment variables
 
@@ -91,8 +110,8 @@ These routes need the key.
 - `POST /admin/reset` puts the data back to the start.
 - `GET /admin/state` gives counts.
 - `GET /admin/events` shows what was sent and the outcome.
-- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, or `*`), a URL, a header name and a secret value.
-- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating.
+- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, or `*`), a URL, a header name and a secret value.
+- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system and a publication on the regulator's website.
 
 For each matching subscription the service POSTs `{"message": "...", "event_type": "...", "item_id": "...", "system": "...", "demo_data": true}` with the secret header and a 10 second timeout. A failed delivery never fails the caller. The outcome is recorded in the events log. The message is plain sentences that say what arrived, its id and which system holds it.
 

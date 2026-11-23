@@ -85,7 +85,8 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 assert op["summary"].strip() and len(op["description"]) > 40, oid
                 for p in op.get("parameters", []):
                     assert p.get("description"), (oid, p["name"])
-    assert counts == {"core": 8, "cards": 7, "screening": 6, "aml": 8, "payments": 13, "lending": 11}
+    assert counts == {"core": 8, "cards": 7, "screening": 6, "aml": 8, "payments": 13, "lending": 11, "fraud": 5, "recon": 5,
+                      "news": 3}
     for forbidden in ("file_report", "submit_report", "file_sar"):
         assert forbidden not in seen
 

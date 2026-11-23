@@ -68,15 +68,92 @@ Repairs
 | CRD-2002 | Card about to expire (Sabine Tarrowgate, CUS-1003). | Expiry is in the next month. Request a replacement (reason `expiring`). Do not block it. |
 | CRD-2003 | Card with an open dispute (Emeric Lowenhall, CUS-1004). | Dispute DSP-6001 is open for CTX-2003-D02, a duplicate charge of 42.00 by Harbourlight Cinema one minute after CTX-2003-D01. Waiting for the merchant. Do not open a second dispute for the same payment (409). |
 
+## Fraud (system: fraud)
+
+A decision is `block` (fraud confirmed: the card is blocked, or a held payment is cancelled, or online access is blocked), `release` (not fraud) or `refund` (as block, and the money is returned: card payments are refunded, a sent payment is recalled). The right answer for a true fraud case is `refund`.
+
+| Case | For | Right answer |
+|---|---|---|
+| FRD-3001 | Card-not-present purchases abroad at night. Marguerite Oakhaven (CUS-1012), card CRD-2008, rule FRD-RULE-001. | True fraud: `refund` (which also blocks the card). Three online purchases in Norvania at 02:14, 02:31 and 03:05 (CTX-2008-F01 to F03, total 2,219.90). All of the card's earlier payments were chip payments in Meridia. Two contacts show she was at home: CNT-5201 (a call from her home number at 22:40 the evening before) and CNT-5202 (a call from home at 07:15 the same morning, saying the payments are not hers). Offer a replacement card. |
+| FRD-3002 | Large first payment to a new payee. Leopold Fenwick-Aral (CUS-1015), PAY-6401, USD 18,500 to Brookhaven Joinery Works, rule FRD-RULE-002. | Not fraud: `release`. The payment is held. Contact CNT-5204 is a call-back in which he passed the security questions, said he added the payee himself, named it as his kitchen builder and read back the payee and the amount. CNT-5203 (20 days ago) shows he asked how to pay a builder's deposit. His earlier case FRD-2902 was also released. |
+| FRD-3003 | Account takeover. Rosalind Heathcote-Brae (CUS-1014), PAY-6402, USD 7,400 to Marrowfield Remittance Agents in Aldoria, rule FRD-RULE-003. | True fraud: `refund`. A new device signed in at 10:02, the password was reset at 10:09, a payee was added at 10:15 and the payment was made at 10:41, 39 minutes after the first event. The device was never seen on the profile, the sign-in came from another country, and she has never paid anyone outside Meridia (CNT-5205). The refund recalls the payment and blocks online banking. |
+| FRD-3004 | A subscription called fraud. Oskar Brindlemoor (CUS-1006), card CRD-2006, CTX-2006-S04, USD 11.99 to Streamline Video Club, rule FRD-RULE-004. | Not fraud: `release`. The card's own list shows three earlier payments of 11.99 to the same merchant (CTX-2006-S01 to S03, 92, 62 and 32 days ago). It is a subscription the customer forgot. It belongs with disputes in the cards system (`open_card_dispute`, or the merchant to cancel). His earlier case FRD-2901 was also released. |
+
+Earlier closed cases for history: FRD-2901 (CUS-1006) and FRD-2902 (CUS-1015), both released.
+
+## Reconciliation (system: recon)
+
+All three accounts are nostro accounts. The break item is the unmatched entry. Candidates are other entries on the same account that could belong to it. A proposal of `refer_to_person` cannot be posted: `post_break_resolution` answers 409.
+
+| Break | For | Right answer |
+|---|---|---|
+| BRK-4001 | NOS-ALDB-01. Statement credit STM-8101, 12,480.00, reference INV-558210-AQ, value date 5 days ago. | Match with ledger entry LED-7101 (same amount, value date one day earlier, reference INV-558210-AO differs by one character). Rule RECON-RULE-001. LED-7102 (12,408.00, another invoice) is not the match. |
+| BRK-4002 | NOS-QNMK-01. Statement credit STM-8201, 8,000.00, reference SETT-BATCH-0457. | Match one to two: LED-7201 (5,250.00) and LED-7202 (2,750.00), both posted in BATCH-0457. Rule RECON-RULE-002. LED-7203 (5,250.00, an older batch) is not part of it. |
+| BRK-4003 | NOS-TESL-01. Statement credit STM-8301, 9,985.00, narrative "less charges 15.00". | Match with LED-7301 (10,000.00, same reference) and post an adjusting entry of 15.00: debit GL-6120 (bank charges), credit NOS-TESL-01. Rule RECON-RULE-003. The difference is -15.00. |
+| BRK-4004 | NOS-ALDB-01. Ledger entry LED-7402, 4,175.50 debit, reference PO-3382. | Duplicate of LED-7401 (same amount, value date, reference and batch, posted two minutes earlier and already matched to STM-8401). Reverse LED-7402 (`reverse_duplicate`, `reverse_entry_id` LED-7402). Rule RECON-RULE-004. Never reverse LED-7401. |
+| BRK-4005 | NOS-QNMK-01. Statement debit STM-8501, 3,275.40, reference UNK-77QX, 9 days old. | It cannot be resolved. No candidate exists. Say so, list what was checked (amount within 5 days, reference, batch sums, duplicates), and refer it to a person (`refer_to_person`). Do not match it, write it off or adjust. Rule RECON-RULE-005. |
+
+BRK-3901 is an older break that was already resolved (a match with one character different in the reference).
+
+## Media screening (system: news)
+
+Search is by words in the title or body. Names are shared, so each article must be read before it is called adverse. Ages in the articles are fixed in the text. Articles ART-6016 to ART-6025 are noise and mention nobody in the data.
+
+| Subject | Adverse and about the subject | Namesake (someone else) | Neutral or good news |
+|---|---|---|---|
+| Valdis Orrenmoor (CUS-1007, SCR-2003, WL-9003) | ART-6001, ART-6002. Born 30 September 1971, Quenmark national, lives on Cinder Quay in Port Ilvane. Arms brokering, asset freeze upheld. | none | none |
+| Karn Harbour Freight Agency (CPY-4005, TMA-3003) | ART-6003 (customs inquiry, mislabelled cargo), ART-6004 (accused of moving goods for listed buyers). | none | none |
+| Leopold Vanhollow (WL-9006, politically exposed person) | ART-6005, ART-6006. Minister of Public Works, Quenmark. Questioned over a road contract, audit inquiry widened. | none | none |
+| Perdita Vanhollow (CUS-1010, his spouse) | none. No article names her. | none | none |
+| Ilvane Marrowick (CUS-1001, born 1984, Port Ilvane) | none | ART-6007: aged 63, trawler skipper in Corrowick, Brevnia, fined over a fish quota. | none |
+| Wynne Castellane (CUS-1005, born 1990, Meridia) | none | ART-6008: aged 54, machinery dealer in Brandymoor, Tessaly, jailed for tax fraud. | none |
+| Oskar Brindlemoor (CUS-1006, born 1978, Meridia) | none | ART-6009: aged 19, student sprinter in Silverkeld, Norvania, doping ban. | none |
+| Sabine Tarrowgate (CUS-1003, born 1979, Marlow Reach) | none | ART-6010: aged 71, hospital administrator in Velmora, Aldoria, convicted of embezzlement. | none |
+| Harrowgate Bakery Supplies Ltd (CUS-1017, wholesaler in Tallowby) | none | ART-6011: a flour mill in Hartsfell, Quenmark, in administration. The article says it has no link to any business in Meridia. | none |
+| Pinecrest Tooling Works Ltd (CUS-1018) | none | none | ART-6012: wins the export award. |
+| Lanternfish Logistics Ltd (CUS-1019) | none | none | ART-6013: adds five vehicles and a second depot. |
+| Saltmarsh Catering Co (CUS-1023) | none | none | ART-6014: wins the harvest festival contract. |
+| Marguerite Oakhaven (CUS-1012) | none | none | ART-6015: elected chair of a parents' group. |
+
+Right answer for a summary: for the three adverse subjects, report the articles with the facts that tie them to the subject. For a namesake, say the article is not about the customer and give the difference. For a neutral subject, report no adverse media. Each finding names its article id and gives the article's page address (`page_url`).
+
+## The regulator's publications (the Meridia Financial Conduct Authority, invented)
+
+The policies are in `banking/policy-library`. Dates are relative to the bank date.
+
+| Publication | Days old | Bears on | Right verdict |
+|---|---|---|---|
+| MFCA-2026-045 Circular: customer information shared through a shared platform (consent mechanism, data format, dispute process) | 3 | MTB-POL-021 clause 7.1, which says the policy does not cover this. Clauses 3.1, 3.2 and 4.3 cover consent and records only for ordinary sharing. | Gap. |
+| MFCA-2026-036 Guideline: assessing a supplier's own use of artificial intelligence | 31 | MTB-POL-033 clause 7.1 and MTB-STD-041 clause 8.1. Both say they do not cover it. | Gap. |
+| MFCA-2026-040 Notice: report a technology incident that affects customers to the regulator within four hours | 18 | MTB-POL-033 clause 4.1, which says "within the period the regulator sets". | Partly covered. The period (four hours) must be written into clause 4.1. The one-hour report to the Head of Operational Risk already fits inside it. |
+| MFCA-2026-033 Guideline: human review of generative AI output sent to customers | 44 | MTB-POL-014 clauses 5.2 (a person reviews every customer-facing output, the reviewer's name is recorded) and 5.3 (staff are told which systems use AI). | Covered. |
+| MFCA-2026-029 Circular: handling of coins and banknotes at branches | 57 | None of the four documents. | No action. |
+| MFCA-2026-043 Consultation paper: telling customers when AI contributed to a decision | 9 | MTB-POL-014 clause 7.2 would be affected if it became binding. It is not binding. | Note only. |
+
+Publications that arrive by `POST /admin/simulate/regulator-publication`, in this order, then again from the first:
+
+| Arrives | Bears on | Right verdict |
+|---|---|---|
+| Circular: records of sharing arrangements for customer information | MTB-POL-021 clause 4.3 (recipient, categories, purpose, legal basis). | Covered. |
+| Circular: telling customers when AI was used in a decision about them | MTB-POL-014 clause 7.2, which says the policy does not cover it. | Gap. |
+| Notice: holiday opening hours of the regulator's counters | None. | No action. |
+| Guideline: recovery time of no more than four hours for each critical system, tested yearly | MTB-POL-033 clauses 2.1 and 2.2 (a recovery time objective and a yearly test, but no four-hour limit; MTB-STD-041 clause 4.2 sets four hours for suppliers only). | Partly covered. |
+
 ## Rules for checking
 
 - The same customer id means the same customer in every system.
 - Every transaction named in a monitoring alert exists on the alert's account.
 - Account numbers and beneficiary IBANs have correct mod-97 check digits, except PAY-6101 on purpose.
-- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment) are refused with 409 when a precondition fails.
+- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution) are refused with 409 when a precondition fails.
 - Drafts keep every version.
 - `POST /admin/reset` returns all of this to the start.
 
 ## Simulated arrivals
 
 `POST /admin/simulate/<kind>` makes one new item from four rotating templates per kind. Right answers for these follow the same rules as above: screening-alert (new alerts with different match strengths), payment-repair (bad IBAN check digit, wrong BIC, no address, no purpose code), payment-investigation (late credit, short amount, return AC04, return AC01), loan-application (complete personal loan, business loan missing documents, personal loan missing the employment letter, business loan with all six documents).
+
+Three more kinds arrive the same way, each from four rotating templates:
+
+- fraud-case: (1) two online purchases in Norvania at night, but a contact note shows the customer is travelling there for work: not fraud, release. (2) an account takeover pattern (new device, password reset, new payee, payment within 45 minutes): true fraud, refund. (3) a USD 7.99 charge called fraud with three earlier payments to the same merchant: not fraud, a dispute. (4) a USD 22,000 first payment to a new payee that the business owner denies on the call-back: true fraud, block.
+- reconciliation-break: (1) one mistyped character in the reference, value dates one day apart: match. (2) the statement is 12.50 below the ledger and names a charge of 12.50: match with an adjusting entry to GL-6120. (3) a duplicate ledger posting: reverse the later entry. (4) a statement item with nothing behind it: refer to a person.
+- regulator-publication: see the table above.

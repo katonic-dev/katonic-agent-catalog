@@ -1,4 +1,4 @@
-"""Shared pieces for the six systems: app factory, sign-in, responses, OpenAPI 3.0.3 conversion."""
+"""Shared pieces for the systems: app factory, sign-in, responses, OpenAPI 3.0.3 conversion."""
 
 from __future__ import annotations
 

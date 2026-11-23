@@ -97,7 +97,7 @@ Only for a workflow agent. The steps in order, what each step reads from the one
 
 ## tests.yaml
 
-Five tests. Each one names the state the agent is in, what the person types or what arrives, and what a right answer contains.
+At least five tests. Each one names the state the agent is in, what the person types or what arrives, and what a right answer contains.
 
 ```yaml
 tests:

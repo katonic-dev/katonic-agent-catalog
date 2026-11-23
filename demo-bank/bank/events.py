@@ -11,11 +11,15 @@ from .ibanutil import make_iban
 from .seed_base import BANK_BY_CODE, d_ago
 from .seed_lend import installment
 from .seed_pay import _bene
+from .seed_recon import sim_break
+from .seed_reg import sim_publication
 from .store import Store, now_iso
 
-KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application"]
+KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application", "fraud-case",
+         "reconciliation-break", "regulator-publication"]
 SYSTEM_OF = {"screening-alert": "screening", "payment-repair": "payments", "payment-investigation": "payments",
-             "loan-application": "lending"}
+             "loan-application": "lending", "fraud-case": "fraud", "reconciliation-break": "recon",
+             "regulator-publication": "regulator"}
 TIMEOUT = 10
 
 
@@ -209,8 +213,104 @@ def _application(store: Store, n: int) -> tuple[str, str]:
                  f"check which required documents are missing and draft the missing items.")
 
 
+
+def _contact_note(store: Store, cid: str, channel: str, ago: int, direction: str, subject: str, summary: str, by: str) -> str:
+    d, today = store.data, store.settings.bank_today
+    key = f"CNT-{store.next_number('contact', 5100)}"
+    d["contacts"][key] = {"contact_id": key, "customer_id": cid, "channel": channel, "date": d_ago(today, ago),
+                          "direction": direction, "subject": subject, "summary": summary, "recorded_by": by,
+                          "drafted_by": by, "version": 1}
+    return key
+
+
+def _sim_card_tx(store: Store, card_id: str, ago: int, hour: str, amount: float, merchant: str, country: str = "XM",
+                 card_present: bool = False) -> str:
+    d, today = store.data, store.settings.bank_today
+    tid = f"CTX-{card_id[4:]}-X{store.next_number('sim_ctx', 1):03d}"
+    d["card_transactions"][tid] = {"card_transaction_id": tid, "card_id": card_id, "date": d_ago(today, ago), "time": hour,
+                                   "amount": float(amount), "currency": "USD", "merchant": merchant,
+                                   "channel": "chip" if card_present else "online", "status": "posted", "disputed": False,
+                                   "country": country, "card_present": card_present}
+    return tid
+
+
+def _fraud(store: Store, n: int) -> tuple[str, str]:
+    d, today = store.data, store.settings.bank_today
+    kind = n % 4
+    fid = f"FRD-{3100 + store.next_number('sim_frd', 1)}"
+    card, events, notes, priority = "", [], [], "medium"
+    if kind == 0:
+        num, rule, source, card = 1011, "FRD-RULE-001", "rule", "CRD-2007"
+        items = [("card_payment", _sim_card_tx(store, card, 1, "01:50", 215.00, "Kaldmoor Travel Gear", "QN")),
+                 ("card_payment", _sim_card_tx(store, card, 1, "02:10", 380.00, "Silverkeld Gadget Mart", "QN"))]
+        amount = 595.00
+        why = "Two online purchases in Norvania at 01:50 and 02:10 local time, total USD 595.00."
+        channel = {"channel": "online card payment", "card_present": False, "merchant_country": "QN", "ip_country": "QN",
+                   "device_seen_before": True, "three_d_secure": "not used"}
+        _contact_note(store, "CUS-1011", "call", 4, "inbound", "Travelling for work",
+                      "Customer phoned from Silverkeld, Norvania. He is there for work until the end of the week and asked "
+                      "the bank not to block his card.", "Contact centre")
+    elif kind == 1:
+        num, rule, source = 1016, "FRD-RULE-003", "rule"
+        b = _bene("Kellmoor Currency Desk", "NRVA", "12090550002214", "Dock Lane 4", "Silverkeld, Norvania", "QN")
+        p = _new_payment(store, num, 5200.00, b, "credited", reference="Transfer")
+        items, amount = [("payment", p["payment_id"])], 5200.00
+        why = "A new device signed in, the password was reset, a payee was added and USD 5,200 was paid, all within 45 minutes."
+        channel = {"channel": "mobile app", "device_id": "DEV-91C3E", "device_seen_before": False, "ip_country": "XB",
+                   "usual_ip_country": "XM"}
+        day = today.isoformat()
+        events = [{"time": f"{day} 09:05", "event": "new_device_signed_in", "detail": "Sign-in from device DEV-91C3E, never seen."},
+                  {"time": f"{day} 09:12", "event": "password_reset", "detail": "Password reset with a code sent by text message."},
+                  {"time": f"{day} 09:20", "event": "payee_added", "detail": "New payee added: Kellmoor Currency Desk."},
+                  {"time": f"{day} 09:50", "event": "payment_made", "detail": f"{p['payment_id']}, USD 5,200.00, to the new payee."}]
+        priority = "high"
+    elif kind == 2:
+        num, rule, source, card = 1013, "FRD-RULE-004", "customer report", "CRD-2009"
+        for ago in (91, 61, 31):
+            _sim_card_tx(store, card, ago, "04:00", 7.99, "Pagewise Audio Club")
+        items = [("card_payment", _sim_card_tx(store, card, 1, "04:00", 7.99, "Pagewise Audio Club"))]
+        amount = 7.99
+        why = "The customer reports one card payment of USD 7.99 to Pagewise Audio Club as fraud."
+        channel = {"channel": "online card payment", "card_present": False, "merchant_country": "XM", "ip_country": "XM",
+                   "device_seen_before": True}
+        _contact_note(store, "CUS-1013", "call", 1, "inbound", "Card charge not recognised",
+                      "Customer says the USD 7.99 charge from Pagewise Audio Club is fraud and wants it refunded.",
+                      "Contact centre")
+        priority = "low"
+    else:
+        num, rule, source = 1019, "FRD-RULE-002", "rule"
+        b = _bene("Duskmere Plant Hire", "ROVA", "30770990005512", "Yard 3", "Duskmere, Rovaland", "XR")
+        p = _new_payment(store, num, 22000.00, b, "held", reference="Equipment hire",
+                         timeline=[{"date": today.isoformat(), "status": "submitted", "note": "Submitted in online banking."},
+                                   {"date": today.isoformat(), "status": "held", "note": "Held by the fraud check."}])
+        items, amount = [("payment", p["payment_id"])], 22000.00
+        why = "Payment of USD 22,000 to Duskmere Plant Hire in Rovaland. It is the customer's first payment to this payee."
+        channel = {"channel": "online banking (web)", "device_seen_before": True, "ip_country": "XM"}
+        _contact_note(store, "CUS-1019", "call", 0, "outbound", f"Call-back about payment {p['payment_id']}",
+                      "The fraud team phoned the registered contact number. The owner says he did not make this payment and "
+                      "has never heard of the payee.", "Fraud team")
+    cid = f"CUS-{num}"
+    acc = d["cards"][card]["account_id"] if card else f"ACC-{num}-01"
+    d["fraud_cases"][fid] = {"case_id": fid, "status": "open", "customer_id": cid, "card_id": card, "account_id": acc,
+                             "opened": today.isoformat(), "source": source, "rule_id": rule, "priority": priority,
+                             "why_flagged": why, "flagged_items": [{"kind": k, "id": i} for k, i in items],
+                             "amount_at_risk": amount, "currency": "USD", "channel_details": channel,
+                             "security_events": events, "notes": notes, "summaries": [], "decision": None}
+    return fid, (f"A new fraud case {fid} has arrived in the fraud system for customer {cid} ({d['customers'][cid]['name']}). "
+                 f"{why} It is open and needs a decision. Read it with get_fraud_case in the fraud system.")
+
+
+def _recon(store: Store, n: int) -> tuple[str, str]:
+    return sim_break(store.data, store.settings.bank_today, n % 4, store.next_number("sim_brk", 1))
+
+
+def _regulator(store: Store, n: int) -> tuple[str, str]:
+    return sim_publication(store.data, store.settings.bank_today, n, store.next_number("sim_reg", 46))
+
+
 MAKERS = {"screening-alert": _screening, "payment-repair": _repair, "payment-investigation": _investigation,
-          "loan-application": _application}
+          "loan-application": _application, "fraud-case": _fraud, "reconciliation-break": _recon,
+          "regulator-publication": _regulator}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

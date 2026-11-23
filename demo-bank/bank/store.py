@@ -52,6 +52,8 @@ class Store:
             if saved.get("bank_today") == self.settings.bank_today.isoformat() and saved.get("seed") == SEED:
                 self.data, self.counters = saved["data"], saved["counters"]
                 self.simulated = saved.get("simulated", {})
+                for key, value in build_all(self.settings.bank_today).items():  # a file from an older version
+                    self.data.setdefault(key, value)
         except Exception as exc:  # a damaged file never stops the service
             log.warning("State file ignored: %s", exc)
 
@@ -122,4 +124,8 @@ class Store:
             "held_payment_repairs": sum(1 for r in d["repairs"].values() if r["status"] in ("held", "proposed")),
             "loan_applications_received": sum(1 for a in d["applications"].values() if a["status"] == "received"),
             "approved_loans": len(d["approved_terms"]),
+            "open_fraud_cases": openc("fraud_cases"),
+            "open_reconciliation_breaks": openc("recon_breaks"),
+            "news_articles": len(d["news_articles"]),
+            "regulator_publications": len(d["regulator_publications"]),
         }
