@@ -1,0 +1,52 @@
+id: loan-document-verification
+name: Loan Document Verification
+pack: banking
+area: Lending
+summary: >
+  Compares the signed contract and the security documents of an approved loan
+  with the terms the credit committee approved, and marks every difference.
+  Every difference goes to a banker. The agent approves and releases nothing.
+
+type: workflow
+form: api
+started_by: A call from the Lending desk or from the bank's lending system, naming an approved loan
+
+meets_people_through: application
+application: Lending desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the loan's id and reads the reply.
+# The agent reads the approved terms and the loan's documents.
+needs:
+  - id: lending-system
+    kind: api
+    required: true
+    label: The bank's lending system, to read an approved loan's terms and documents, and to save a draft list of differences
+    operations:
+      - get_approved_terms
+      - list_loan_documents
+      - get_loan_document
+      - save_document_differences
+
+demo_bank_systems: [lending]
+
+stops_for_a_person:
+  - A banker receives every difference and decides what to do about it. The agent approves nothing, confirms nothing as in order for release and releases nothing.
+  - Which side is right, the approval or the contract, is for the banker to find out. The agent shows both values and chooses neither.
+
+# Saving the differences is a draft kept with its author, a time and a version
+# number. It changes no loan.
+changes:
+  - {tool: save_document_differences, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/lending/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

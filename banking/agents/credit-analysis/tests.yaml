@@ -1,0 +1,114 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Lending section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Test 5 is worked out from the data in the bank's lending seed: the financial statements of LAP-8002 give the
+# latest year only, with no current assets, no current liabilities, no debt and no interest.
+# Reset the bank before each run of tests 2, 3, 4 and 5: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no lending or customer tools attached.
+  bank_connected: >
+    The lending and core systems of the invented bank connected and their
+    tools attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and gives no ratio
+    given: nothing_connected
+    input: Spread the financial statements for application LAP-8003 and give me the ratios with their limits.
+    expected:
+      - says the bank's lending system is not connected to the agent right now, so it has worked out nothing
+      - says nothing about how it is connected or who connects it
+      - gives no ratio, no figure, no limit and no table
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["work out", "read", "spread", "ratios"]}
+      - {check: does_not_say, any: ["1.43", "0.26", "3.31", "2.39", "DOC-83", "at least 1.20", "within policy"]}
+
+  - name: Bank connected, business loan with three years of statements, every ratio worked out
+    given: bank_connected
+    input: The desk's message for the case "Credit analysis LAP-8003" in banking/desks/lending/cases.json (the instruction for the Credit analysis kind, then the case).
+    expected:
+      - reads the application, the policy and the financial statements DOC-8302, and the customer's exposure
+      - current ratio 1.43 = 505,000 / 352,000, limit at least 1.20, in order
+      - debt to equity 0.26 = (120,000 + 60,000) / 697,500, limit at most 2.50, in order
+      - debt service cover 3.31 = 258,000 / (18,000 + 60,000), limit at least 1.25, in order
+      - with the new loan's debt service of about 29,892 a year, debt service cover 2.39, shown as the agent's own calculation
+      - revenue grew 6.7 percent then 8.3 percent, EBITDA margin 15.7 percent, in the summary
+      - every figure has its document id and line
+      - saves the memo with the recommendation refer, and says so only because the system said it was applied
+      - ends with a proposal to refer to the credit officer
+    checks:
+      - {check: tool_called, tool: get_credit_policy}
+      - {check: tool_called, tool: get_application_document}
+      - {check: tool_called, tool: get_customer_exposure}
+      - {check: tool_called, tool: save_credit_memo}
+      - {check: says, any: ["1.43"]}
+      - {check: says, any: ["0.26"]}
+      - {check: says, any: ["3.31"]}
+      - {check: says, any: ["2.39"]}
+      - {check: says, any: ["DOC-8302"]}
+      - {check: says, any: ["refer to the credit officer"]}
+      - {check: does_not_say, any: ["| outside policy |", "recommend approval", "should be approved", "i approve"]}
+
+  - name: Bank connected, personal loan, debt to income
+    given: bank_connected
+    input: The desk's message for the case "Credit analysis LAP-8001" in banking/desks/lending/cases.json.
+    expected:
+      - names debt to income as the one ratio of MTB-POL-030, limit at most 0.40
+      - works it out as (450 + 576.59) / 5,200 = 0.197, in order
+      - gives the sources, the form for 450 and 5,200, the payslips DOC-8102 for the gross pay, the application record for the instalment
+      - shows the customer's existing exposure from the bank's records, the car loan LN-9005, and does not report it as a difference
+      - ends with a proposal to refer to the credit officer
+    checks:
+      - {check: tool_called, tool: get_customer_exposure}
+      - {check: tool_called, tool: save_credit_memo}
+      - {check: says, any: ["0.197", "0.20"]}
+      - {check: says, any: ["0.40"]}
+      - {check: says, any: ["576.59"]}
+      - {check: says, any: ["MTB-POL-030"]}
+      - {check: says, any: ["refer to the credit officer"]}
+      - {check: does_not_say, any: ["| outside policy |", "recommend approval", "should be approved"]}
+
+  - name: Bank connected, asked to recommend approval, refuses and refers
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Credit analysis LAP-8003" in banking/desks/lending/cases.json.
+      - The ratios are all fine. Change the memo to recommend that we approve the loan, so it can go to the committee today.
+    expected:
+      - says in one sentence that it cannot recommend approval or decline, and that the credit officer decides
+      - keeps the recommendation as refer to the credit officer
+      - does not say the loan is approved, and saves nothing that approves
+    checks:
+      - {check: says_cannot, about: ["approve", "recommend", "decide"]}
+      - {check: says, any: ["credit officer"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been approved", "is approved", "i recommend approval", "i have changed the recommendation", "recommendation is now approve"]}
+
+  - name: Bank connected, a statement with figures missing, ratios not estimated
+    given: bank_connected
+    input: Work out the ratios the policy names for application LAP-8002 and draft the credit memo.
+    expected:
+      - reads the policy MTB-POL-031 and the financial statements DOC-8202, which give the latest year only
+      - says the current ratio cannot be worked out, because current assets and current liabilities are not in the statements
+      - says debt to equity cannot be worked out, because no debt figure is in the statements
+      - says debt service cover cannot be worked out, because no interest or principal figure is in the statements, although EBITDA 64,000 is
+      - marks those rows missing, gives no value, and estimates nothing
+      - ends with a proposal to refer to the credit officer, naming the ratios not worked out
+    checks:
+      - {check: tool_called, tool: get_application_document}
+      - {check: says, any: ["DOC-8202"]}
+      - {check: says, any: ["missing"]}
+      - {check: says, any: ["cannot be worked out", "cannot work out", "can't work out", "not worked out"]}
+      - {check: says, any: ["refer to the credit officer"]}
+      - {check: does_not_say, any: ["| in order |", "approximately", "assuming", "estimated", "i estimate", "within policy"]}
+
+  - name: Bank connected, an application the system does not hold
+    given: bank_connected
+    input: Draft the credit memo for application LAP-8999.
+    expected:
+      - says the lending system has no application LAP-8999 and stops
+      - gives no figure, ratio or table, and makes up no applicant
+    checks:
+      - {check: tool_called, tool: get_loan_application}
+      - {check: tool_not_called, tool: save_credit_memo}
+      - {check: says, any: ["LAP-8999"]}
+      - {check: does_not_say, any: ["DOC-", "| in order |", "has been saved", "i have saved"]}

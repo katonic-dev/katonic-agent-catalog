@@ -1,0 +1,325 @@
+{
+  "$comment": "What makes the generic case desk the lending desk. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. The bank (Meridian Trust Bank), its customers, its applications and its documents are invented.",
+  "desk": {
+    "id": "lending",
+    "name": "Lending desk",
+    "caseNoun": "lending case",
+    "caseNounPlural": "lending cases",
+    "draftNoun": "review",
+    "deciderRole": "lending officer",
+    "tagline": "Application packs, credit analyses and signed loan documents in one queue, a drafted review for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a lending case",
+    "arrivedVia": {
+      "feed": "the bank's lending system",
+      "officer": "the lending team"
+    },
+    "issuedVerb": "Draft accepted by"
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "customer"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "product",
+      "amount"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the application or the loan from the lending system.",
+    "noTextNote": "No summary was supplied with this case. Work from the application or loan the case names, read from the lending system.",
+    "askPlaceholder": "For example: which document did you take the turnover figure from?",
+    "searchPlaceholder": "Search by customer, id or kind",
+    "demoNote": "Demo data: the bank, its customers, its applications and its documents are invented. Nothing here is a real lending decision.",
+    "listFields": [
+      "kind",
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the case)",
+    "replyButton": "Add the reply and review again",
+    "replyNote": "A reply has been added at the end of the case. Read the application or the loan from the lending system again, as new documents may have arrived, and review every item again in the light of it.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The case"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Application intake": {
+        "agentEnv": "INTAKE_AGENT_ID",
+        "instruction": "A loan application has arrived at the bank's lending desk. Work on the application named in the case below. Check its pack against the documents the product requires, and extract the figures. You approve nothing and decline nothing: the list goes to the loan officer.\n\nRead the application, its document checklist, its documents and the lending policy from the lending system before you write anything, and use only ids the system returns. Give every figure with the document id and the line it came from. Where two sources give different figures, show both and choose neither. Never fill a gap or estimate a missing figure.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the lending system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft review. For the lending officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Required by | What the file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Required by is the policy, the approved terms or the form that sets the test. What the file shows is the value in a few words. Source is the document id and the line or clause it came from. For a figure from the application form, write Application form and the name of the figure in plain words, never a field name with an underscore in it. Mark is exactly one of: in order, missing, differs, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six: the applicant, the product and the amount; the policy that names the required documents; how many required documents are in order and how many are missing; each figure that differs, with both values; then the \"Saved:\" line.\nRows: one row for each document the product requires, in the policy's order, then one row for each figure on the form that the documents also give, such as income, turnover or debt payments. A document is in order when it is on file and shows what its type should, missing when it is not on file, and differs when it contradicts the form. A figure is in order when the form and the documents agree, and differs when they do not.\nThe \"Proposal:\" line is exactly one of: \"send the pack to the loan officer\" and a short reason, when nothing is missing and no figure differs; or \"send the list to the loan officer\" followed by what to ask the applicant for and which figures to confirm."
+      },
+      "Credit analysis": {
+        "agentEnv": "CREDIT_AGENT_ID",
+        "instruction": "A loan application has arrived for credit analysis at the bank's lending desk. Work on the application named in the case below. Spread what the documents give, work out each ratio that the bank's lending policy names for the product, and compare it with the policy's limit. You approve nothing and decline nothing: the credit officer decides.\n\nRead the application, its documents and the lending policy from the lending system, and the customer's existing exposure to the bank, before you write anything. Use only ids the system returns. Give every figure with the document id and the line it came from, and show the working. Where two sources give different figures, show both and choose neither. Never fill a gap or estimate a missing figure: if a ratio cannot be worked out, say which figure is missing and give no value.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the lending system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft review. For the lending officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Required by | What the file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Required by is the policy, the approved terms or the form that sets the test. What the file shows is the value in a few words. Source is the document id and the line or clause it came from. For a figure from the application form, write Application form and the name of the figure in plain words, never a field name with an underscore in it. Mark is exactly one of: in order, outside policy, missing, differs, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most ten, written as the credit memo in plain sentences: who asks for what; the latest figures the ratios use and how they moved over the years given; the customer's existing exposure to the bank as the bank's records show it, kept apart from the ratios; then the \"Saved:\" line.\nRows: one row for each ratio the policy names, with its limit in Required by and the working in What the file shows. Add one row for any figure or check that bears on a ratio, for example the new loan's own debt service added to a debt service cover. A ratio is in order when it is within the limit, outside policy when it is beyond it, missing when a figure it needs is not in the file, and differs when the sources give different values for a figure it needs.\nThe \"Proposal:\" line always starts \"refer to the credit officer\" and then gives a short reason that names any ratio that is outside policy or could not be worked out. Never write approve or decline."
+      },
+      "Document check": {
+        "agentEnv": "DOCUMENT_AGENT_ID",
+        "instruction": "An approved loan's signed documents are at the bank's lending desk for checking. Work on the loan named in the case below. Compare the contract and the security documents with the terms the credit committee approved, and mark every difference. You approve nothing and release nothing: every difference goes to a banker.\n\nRead the approved terms and every document of the loan from the lending system before you write anything, and use only ids the system returns. Give every value with the document id and the clause it came from. Show both values wherever they differ and choose neither. Never fill a gap: a term the contract does not state is missing.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the lending system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft review. For the lending officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Required by | What the file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Required by is the policy, the approved terms or the form that sets the test. What the file shows is the value in a few words. Source is the document id and the line or clause it came from. For a figure from the application form, write Application form and the name of the figure in plain words, never a field name with an underscore in it. Mark is exactly one of: in order, differs, missing, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six: the borrower, the facility and the approval reference; which documents were read; how many terms agree and how many differ; then the \"Saved:\" line.\nRows: one row for each approved term (amount, term, rate margin, repayment, each fee, each covenant, security, governing law), in the order of the approved terms. Required by is the approved value. A term is in order when the contract says the same, differs when it says something else, and missing when the contract does not state it.\nThe \"Proposal:\" line is exactly one of: \"send the differences to a banker\" followed by the differing terms and their clauses; or \"nothing differs, send to a banker to confirm\"."
+      }
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the lending team (the form at the top of the list)",
+      "Sent by the bank's lending system when an application arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The customer, the amount and the work, for example: Oakhaven, USD 18,000: application pack"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Application intake",
+          "Credit analysis",
+          "Document check"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Application or loan id",
+        "required": true,
+        "hint": "For example LAP-8001 for an application or LN-9001 for a loan"
+      },
+      {
+        "key": "customer",
+        "label": "Customer",
+        "required": true
+      },
+      {
+        "key": "product",
+        "label": "Product",
+        "required": true
+      },
+      {
+        "key": "amount",
+        "label": "Amount",
+        "required": false,
+        "hint": "With the currency, for example USD 18,000"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "Who, what product, how much, and the documents on file with their ids"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A lending case has arrived whose kind of work is not one this desk knows. The kinds are Application intake, Credit analysis and Document check. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the lending system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft review"
+    ],
+    "marks": {
+      "in order": "In order",
+      "missing": "Missing",
+      "differs": "Differs",
+      "outside policy": "Outside policy"
+    },
+    "markTones": {
+      "in order": "ok",
+      "missing": "err",
+      "differs": "warn",
+      "outside policy": "err"
+    },
+    "markHints": {
+      "in order": "The file shows what the policy, the approved terms or the form requires",
+      "missing": "Not on file, or not stated, or a figure needed for the ratio is not in the file",
+      "differs": "Two sources give different values. The agent shows both and chooses neither",
+      "outside policy": "The value is beyond the limit the lending policy names"
+    },
+    "proposalPrefix": "Proposal:",
+    "passMark": "in order",
+    "reviewHeading": "Draft review",
+    "rowLabels": {
+      "source": "Required by",
+      "policy": "The file shows",
+      "citation": "Source"
+    },
+    "plainSource": true
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Accept the draft",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you accept version {version}{edited} of the review as the file note, in your name. It does not approve or decline a loan, and it changes nothing in the lending system.",
+      "proposalPrefix": [
+        "send the pack to the loan officer",
+        "nothing differs, send to a banker to confirm"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask for more",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to ask for, one item to a line",
+      "noteHint": "This text goes into the letter, one item to a line. The case waits here until the reply is added.",
+      "proposalPrefix": [
+        "send the list to the loan officer"
+      ]
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority: a banker, the credit officer or the credit committee. Name them and give the reason.",
+      "proposalPrefix": [
+        "refer to the credit officer",
+        "send the differences to a banker"
+      ]
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the review",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the officer",
+    "sent_back": "Being redone",
+    "issued": "Draft accepted",
+    "info_requested": "Waiting for a reply",
+    "referred": "Referred on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk approves and declines no loan: the loan officer, the credit officer or the credit committee does that, elsewhere.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "customer",
+      "product",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "customer",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind",
+      "reference": "Id",
+      "customer": "Customer",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "letter_number": "Letter",
+      "draft_versions": "Review versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other lending officer can. You can still ask the agent to redo the review.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Accepting a draft in which an item is not marked in order needs a reason",
+    "reasonToApproveUnmetLabel": "Why you accept the draft although an item is not marked in order",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as accepted. Nothing further happens on this desk. Any decision on the loan is taken elsewhere, by the loan officer, the credit officer or the credit committee.",
+    "info_requested": "When the reply comes, add it here. The agent reads the case again and the review comes back for your decision.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Your loan: more information needed",
+      "linkLabel": "Letter asking for information",
+      "prefix": "LD",
+      "days": 14,
+      "toField": "customer",
+      "opening": "We cannot go further with the case below until we have more information. This is not a decision on any loan.",
+      "fields": [
+        "customer",
+        "reference",
+        "product"
+      ],
+      "list": "note",
+      "listHeading": "What we need",
+      "dateLine": "Please send it by {until}.",
+      "body": [
+        "Quote {number} when you reply."
+      ],
+      "signature": "Lending, Meridian Trust Bank (an invented bank, for demonstration)"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Accepted the draft",
+    "info_requested": "Asked for more information",
+    "referred": "Referred on",
+    "sent_back": "Asked the agent to redo the review",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

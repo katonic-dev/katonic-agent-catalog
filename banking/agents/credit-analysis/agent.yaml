@@ -1,0 +1,59 @@
+id: credit-analysis
+name: Credit Analysis
+pack: banking
+area: Lending
+summary: >
+  Spreads an application's financial figures, works out the ratios the bank's
+  lending policy names, compares each with its limit, and drafts the credit
+  memo with the source of every figure. The credit officer decides. The agent
+  approves and declines nothing.
+
+type: workflow
+form: api
+started_by: A call from the Lending desk or from the bank's lending system, naming an application
+
+meets_people_through: application
+application: Lending desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the application's id and reads the reply.
+# The agent reads the application, its documents and the customer's exposure.
+needs:
+  - id: lending-system
+    kind: api
+    required: true
+    label: The bank's lending system, to read an application, its documents and the lending policy, and to save a draft credit memo
+    operations:
+      - get_loan_application
+      - list_application_documents
+      - get_application_document
+      - get_credit_policy
+      - save_credit_memo
+  - id: customer-exposure
+    kind: api
+    required: true
+    label: The bank's customer records, to read the customer's existing credit exposure
+    operations: [get_customer_exposure]
+
+demo_bank_systems: [lending, core]
+
+stops_for_a_person:
+  - The credit officer reads the memo and decides. The agent approves nothing and declines nothing, and the recommendation it saves is always to refer the application to the credit officer.
+  - A ratio outside policy, or one that could not be worked out, is for the credit officer to weigh.
+
+# Saving a credit memo is a draft kept with its author, a time and a version
+# number. It does not decide the application.
+changes:
+  - {tool: save_credit_memo, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/lending/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

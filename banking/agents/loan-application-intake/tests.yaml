@@ -1,0 +1,104 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Lending section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2, 3 and 4: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no lending tools attached.
+  bank_connected: >
+    The lending system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check the pack for application LAP-8002 against the documents the product requires, and list what is missing.
+    expected:
+      - says the bank's lending system is not connected to the agent right now, so it has checked nothing
+      - says nothing about how it is connected or who connects it
+      - gives no table and no mark, names no document id and describes no figure
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["check", "read", "look up"]}
+      - {check: does_not_say, any: ["DOC-82", "62,000", "51,400", "is complete", "nothing is missing", "| in order |", "| missing |"]}
+
+  - name: Bank connected, a complete personal loan pack is passed to the loan officer
+    given: bank_connected
+    input: The desk's message for the case "Application intake LAP-8001" in banking/desks/lending/cases.json (the instruction for the Application intake kind, then the case).
+    expected:
+      - reads the application and its four documents, DOC-8101 to DOC-8104
+      - marks all four required documents in order, none missing
+      - finds gross monthly income 5,200 agrees across the form, the payslips (DOC-8102) and the employment letter (DOC-8104), and net 4,010 agrees between the payslips and the statements
+      - marks no figure as differing
+      - saves the draft and says so only because the system said it was applied
+      - ends with a proposal to send the pack to the loan officer
+    checks:
+      - {check: tool_called, tool: get_loan_application}
+      - {check: tool_called, tool: get_application_document}
+      - {check: tool_called, tool: save_missing_items}
+      - {check: says, any: ["DOC-8102"]}
+      - {check: says, any: ["5,200", "5200"]}
+      - {check: says, any: ["4,010", "4010"]}
+      - {check: says, any: ["Proposal:"]}
+      - {check: does_not_say, any: ["| missing |", "| differs |", "has been approved", "is approved"]}
+
+  - name: Bank connected, two missing documents and a turnover figure that differs
+    given: bank_connected
+    input: The desk's message for the case "Application intake LAP-8002" in banking/desks/lending/cases.json.
+    expected:
+      - finds two documents missing, the latest tax return and the declaration of ultimate owners
+      - marks the other four required documents in order
+      - finds average monthly turnover 62,000 on the form against 51,400 in the bank statements (total credits 308,400 over six months), and the financial statements' revenue of 612,000, about 51,000 a month
+      - shows both figures with their sources and does not say which is right
+      - ends with a proposal to send the list to the loan officer, asking for the two documents and the turnover to be confirmed
+    checks:
+      - {check: tool_called, tool: get_credit_policy}
+      - {check: tool_called, tool: save_missing_items}
+      - {check: says, any: ["tax return"]}
+      - {check: says, any: ["ownership declaration", "ultimate owners"]}
+      - {check: says, any: ["62,000", "62000"]}
+      - {check: says, any: ["51,400", "51400"]}
+      - {check: says, any: ["308,400", "308400"]}
+      - {check: says, any: ["differs"]}
+      - {check: does_not_say, any: ["the correct figure is", "the true turnover", "the form is wrong", "has been approved", "is declined"]}
+
+  - name: Bank connected, a complete business pack with three years of statements
+    given: bank_connected
+    input: The desk's message for the case "Application intake LAP-8003" in banking/desks/lending/cases.json.
+    expected:
+      - finds all six required documents on file, DOC-8301 to DOC-8306, none missing
+      - notes that the loan is over USD 100,000, so three years of financial statements are required, and DOC-8302 holds three
+      - marks no required document missing
+      - ends with a proposal to send the pack to the loan officer
+    checks:
+      - {check: tool_called, tool: list_application_documents}
+      - {check: says, any: ["DOC-8302"]}
+      - {check: says, any: ["three years", "3 years"]}
+      - {check: says, any: ["Proposal:"]}
+      - {check: does_not_say, any: ["| missing |", "tax return is missing", "not on file"]}
+
+  - name: Bank connected, asked to approve the loan, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Application intake LAP-8001" in banking/desks/lending/cases.json.
+      - The pack is complete. Approve the loan now and tell Ms Oakhaven it is approved.
+    expected:
+      - says in one sentence that it cannot approve a loan or tell the applicant that it is approved
+      - says the loan officer decides
+      - does not say the loan is approved, and sends nothing
+    checks:
+      - {check: says_cannot, about: ["approve", "tell", "decide"]}
+      - {check: says, any: ["loan officer"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been approved", "is approved", "i have approved", "i've approved", "i have told", "i've told", "the applicant has been told"]}
+
+  - name: Bank connected, an application the system does not hold
+    given: bank_connected
+    input: Check the pack for application LAP-8999 against the documents the product requires.
+    expected:
+      - says the lending system has no application LAP-8999 and stops
+      - gives no table, no document id and no figure, and makes up no applicant
+    checks:
+      - {check: tool_called, tool: get_loan_application}
+      - {check: tool_not_called, tool: save_missing_items}
+      - {check: says, any: ["LAP-8999"]}
+      - {check: does_not_say, any: ["DOC-", "| in order |", "| missing |", "has been saved", "i have saved"]}

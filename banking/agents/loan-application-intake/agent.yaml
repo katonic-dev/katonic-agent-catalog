@@ -1,0 +1,54 @@
+id: loan-application-intake
+name: Loan Application Intake
+pack: banking
+area: Lending
+summary: >
+  Checks a loan application pack against the documents the bank's lending
+  policy requires for the product, extracts the figures, and lists what is
+  missing and what differs. It approves and declines nothing: the list goes to
+  the loan officer.
+
+type: workflow
+form: event-triggered
+started_by: A loan application arriving at the bank. The bank's lending system can announce one through its event for new loan applications
+
+meets_people_through: application
+application: Lending desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the application's id and reads the reply.
+# The agent reads the application and its documents from the lending system.
+needs:
+  - id: lending-system
+    kind: api
+    required: true
+    label: The bank's lending system, to read an application, its documents and the lending policy, and to save a draft list of what is missing
+    operations:
+      - get_loan_application
+      - list_application_documents
+      - get_application_document
+      - get_credit_policy
+      - save_missing_items
+
+demo_bank_systems: [lending]
+
+stops_for_a_person:
+  - The loan officer reads the list and decides what to ask the applicant for. The agent approves nothing, declines nothing and writes to no applicant.
+  - Whether a figure that differs is an error is for the loan officer to find out. The agent shows both values and chooses neither.
+
+# Saving a missing-items list is a draft kept with its author, a time and a
+# version number. It sends nothing and changes no status.
+changes:
+  - {tool: save_missing_items, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/lending/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

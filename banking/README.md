@@ -20,9 +20,9 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 6 | Business Onboarding | Reads the registry extract, draws the ownership chain, lists directors and owners for screening, and prepares the file | Multi-agent, pipeline | Onboarding and review desk | Planned |
 | 7 | Periodic Review | Compares what the bank holds with fresh documents and a fresh screening, and drafts the refreshed profile with every change marked | Workflow, scheduled | Onboarding and review desk | Planned |
 | | **Lending** | | | | |
-| 8 | Loan Application Intake | Checks an application pack for completeness, extracts the figures and lists what is missing | Workflow, event-triggered | Lending desk | Planned |
-| 9 | Credit Analysis | Spreads the financial statements, works out the ratios the bank's policy names, and drafts the credit memo with the source of every figure | Workflow, API | Lending desk | Planned |
-| 10 | Loan Document Verification | Compares the contract and security documents with the approved terms and marks every difference | Workflow, API | Lending desk | Planned |
+| 8 | [Loan Application Intake](agents/loan-application-intake/README.md) | Checks an application pack for completeness, extracts the figures and lists what is missing | Workflow, event-triggered | Lending desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
+| 9 | [Credit Analysis](agents/credit-analysis/README.md) | Spreads the financial statements, works out the ratios the bank's policy names, and drafts the credit memo with the source of every figure | Workflow, API | Lending desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
+| 10 | [Loan Document Verification](agents/loan-document-verification/README.md) | Compares the contract and security documents with the approved terms and marks every difference | Workflow, API | Lending desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | 11 | Collections Call Review | Summarises a collections call, checks it against the bank's conduct rules, and drafts the follow-up note | Workflow, scheduled | Sent to the supervisor | Planned |
 | | **Customer service** | | | | |
 | 12 | Banking Support | Drafts the reply to a customer's question from the bank's documents and the customer's own records | Conversational, acting | Chat | Planned |
@@ -62,7 +62,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | Investigations desk | AML Investigation, Adverse Media Screening | Planned |
 | Fraud desk | Fraud Case Summary | Planned |
 | Onboarding and review desk | Customer Onboarding, Business Onboarding, Periodic Review | Planned |
-| Lending desk | Loan Application Intake, Credit Analysis, Loan Document Verification | Planned |
+| [Lending desk](desks/lending/README.md) | Loan Application Intake, Credit Analysis, Loan Document Verification | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Complaints desk | Complaint Handling | Planned |
 | Payments desk | Payment Investigation, Payment Exception Repair | Planned |
 | Reconciliation desk | Reconciliation Break | Planned |

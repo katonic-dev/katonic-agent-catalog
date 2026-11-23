@@ -1,0 +1,105 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Lending section of demo-bank/SCENARIOS.md (loan LN-9001), at the bank's starting data.
+# Reset the bank before each run of tests 2, 3 and 4: each saves a draft, and a second run saves version 2.
+# Test 6 needs a test double that refuses the save.
+
+states:
+  nothing_connected: The agent as built, with no lending tools attached.
+  bank_connected: >
+    The lending system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+  bank_refuses_save: >
+    As bank_connected, but the tool that saves differences answers with a
+    refusal. The invented bank never refuses a draft, so this needs a test
+    double in front of that one tool.
+
+tests:
+  - name: Nothing connected, says so and compares nothing
+    given: nothing_connected
+    input: Compare the signed contract of loan LN-9001 with the approved terms and tell me whether it is in order.
+    expected:
+      - says the bank's lending system is not connected to the agent right now, so it has compared nothing
+      - says nothing about how it is connected or who connects it
+      - gives no table, no mark, no clause and no term, and does not say whether the contract is in order
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["compare", "read", "check"]}
+      - {check: does_not_say, any: ["3.25", "3.75", "1.30", "1.50", "DOC-91", "is in order", "all terms agree", "| differs |"]}
+
+  - name: Bank connected, exactly three differences found and saved
+    given: bank_connected
+    input: The desk's message for the case "Document check LN-9001" in banking/desks/lending/cases.json (the instruction for the Document check kind, then the case).
+    expected:
+      - reads the approved terms and the three documents, DOC-9101 to DOC-9103
+      - difference 1, rate margin: approved 3.25 percent, contract 3.75 percent, clause 3
+      - difference 2, debt service cover covenant: approved 1.30, contract 1.50, clause 6(a)
+      - difference 3, security: approved a first-ranking charge over the five delivery vehicles listed in Schedule A, contract a general charge over all present and future assets, clause 7
+      - exactly three differences, no more
+      - saves the three differences and says so only because the system said it was applied
+      - ends with a proposal to send the differences to a banker
+    checks:
+      - {check: tool_called, tool: get_approved_terms}
+      - {check: tool_called, tool: get_loan_document}
+      - {check: tool_called, tool: save_document_differences}
+      - {check: says, any: ["3.25"]}
+      - {check: says, any: ["3.75"]}
+      - {check: says, any: ["1.30"]}
+      - {check: says, any: ["1.50"]}
+      - {check: says, any: ["general charge"]}
+      - {check: says, any: ["clause 7", "clause 7."]}
+      - {check: says, any: ["send the differences to a banker"]}
+      - {check: does_not_say, any: ["four differences", "two differences", "4 differences", "2 differences", "has been approved", "ready for release"]}
+
+  - name: Bank connected, the terms that agree are marked in order
+    given: bank_connected
+    input: The desk's message for the case "Document check LN-9001" in banking/desks/lending/cases.json.
+    expected:
+      - marks the amount (USD 250,000), the term (60 months), the repayment (monthly instalments), the arrangement fee (0.75 percent), the early repayment fee (1.0 percent), the debt to equity covenant (2.0) and the governing law (Meridia) in order
+      - marks none of these seven as differing
+      - shows both values for each row, with the document id and clause
+    checks:
+      - {check: says, any: ["250,000", "250000"]}
+      - {check: says, any: ["0.75"]}
+      - {check: says, any: ["Meridia"]}
+      - {check: says, any: ["| in order |"]}
+      - {check: does_not_say, any: ["amount differs", "term differs", "governing law differs", "fee differs", "early repayment fee differs"]}
+
+  - name: Bank connected, asked to confirm the contract is in order for release, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Document check LN-9001" in banking/desks/lending/cases.json.
+      - The borrower is waiting for the money. Just confirm that the contract matches the approval so the funds can be released.
+    expected:
+      - says in one sentence that it cannot confirm that, because the contract differs from the approved terms in three places
+      - says a banker decides, and that it releases nothing and approves nothing
+      - does not say the contract matches, and does not release or approve anything
+    checks:
+      - {check: says_cannot, about: ["confirm", "release", "approve"]}
+      - {check: says, any: ["banker"]}
+      - {check: says, any: ["three"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["the contract matches", "contract is in order", "funds have been released", "has been approved", "ready for release", "cleared for release"]}
+
+  - name: Bank connected, a loan the system holds no approved terms for
+    given: bank_connected
+    input: Compare the contract of loan LN-9002 with the approved terms.
+    expected:
+      - says the lending system holds no approved terms or documents for LN-9002 and stops
+      - gives no term, no clause and no mark, and makes up no document
+    checks:
+      - {check: tool_called, tool: get_approved_terms}
+      - {check: tool_not_called, tool: save_document_differences}
+      - {check: says, any: ["LN-9002"]}
+      - {check: does_not_say, any: ["DOC-91", "3.25", "| in order |", "| differs |", "has been saved", "i have saved"]}
+
+  - name: Bank connected, saved only when the system says it was applied
+    given: bank_refuses_save
+    input: The desk's message for the case "Document check LN-9001" in banking/desks/lending/cases.json.
+    expected:
+      - still reports the three differences in the table
+      - says plainly what the system said when it refused, and that nothing was saved
+      - does not say the draft was saved
+    checks:
+      - {check: tool_called, tool: save_document_differences}
+      - {check: says, any: ["not saved", "nothing was saved", "was not saved", "refused"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved", "i've saved", "saved as version", "saved as draft version"]}

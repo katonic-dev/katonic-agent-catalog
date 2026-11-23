@@ -1,0 +1,68 @@
+{
+  "$comment": "Six invented lending cases for the demo, from the invented bank Meridian Trust Bank. The customers, applications, loan and documents do not exist. Application intake: LAP-8001 complete personal loan, LAP-8002 two documents missing and one figure that differs, LAP-8003 complete business pack. Credit analysis: LAP-8003 and LAP-8001. Document check: LN-9001, three differences. Each case names only what the bank's lending system holds.",
+  "cases": [
+    {
+      "title": "Oakhaven, USD 18,000: application pack",
+      "kind": "Application intake",
+      "reference": "LAP-8001",
+      "customer": "Marguerite Oakhaven (CUS-1012)",
+      "product": "Personal loan",
+      "amount": "USD 18,000",
+      "received_on": "2026-11-24",
+      "text": "THE APPLICATION\nApplication: LAP-8001\nApplicant: Marguerite Oakhaven (CUS-1012)\nLoan: personal loan of USD 18,000 over 36 months, at an indicative 9.5 percent\nPurpose: kitchen and roof repairs at the applicant's home\nPolicy: MTB-POL-030, Retail unsecured lending policy\nON THE FORM\nEmployer: Westergate Water Board\nGross income: 5,200 a month\nDebt payments: 450 a month, existing\nEmployed since: 1 April 2016\nInstalment: 576.59 a month, indicative, on the application record\nDOCUMENTS ON FILE\nDOC-8101 identity document\nDOC-8102 payslips for three months\nDOC-8103 bank statements for three months\nDOC-8104 employment letter\nTHE AGENT'S TASK\nThe agent checks the pack against the documents the product requires and extracts the figures. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    },
+    {
+      "title": "Harrowgate Bakery, USD 60,000: application pack",
+      "kind": "Application intake",
+      "reference": "LAP-8002",
+      "customer": "Harrowgate Bakery Supplies Ltd (CUS-1017)",
+      "product": "Small business loan",
+      "amount": "USD 60,000",
+      "received_on": "2026-11-24",
+      "text": "THE APPLICATION\nApplication: LAP-8002\nApplicant: Harrowgate Bakery Supplies Ltd (CUS-1017), a bakery ingredient wholesaler\nLoan: small business loan of USD 60,000 over 48 months, at an indicative 10.5 percent\nPurpose: a second delivery van and a cold-storage unit\nPolicy: MTB-POL-031, Small business lending policy\nON THE FORM\nTurnover: 62,000 a month on average\nAnnual turnover: 744,000\nEmployees: 11\nTrading: 9 years\nDOCUMENTS ON FILE\nDOC-8201 company registration certificate\nDOC-8202 financial statements for the latest year\nDOC-8203 business bank statements for six months\nDOC-8204 identity documents of the directors\nTHE AGENT'S TASK\nThe agent checks the pack against the documents the product requires and extracts the figures. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    },
+    {
+      "title": "Pinecrest Tooling, USD 120,000: application pack",
+      "kind": "Application intake",
+      "reference": "LAP-8003",
+      "customer": "Pinecrest Tooling Works Ltd (CUS-1018)",
+      "product": "Small business loan",
+      "amount": "USD 120,000",
+      "received_on": "2026-11-24",
+      "text": "THE APPLICATION\nApplication: LAP-8003\nApplicant: Pinecrest Tooling Works Ltd (CUS-1018), a precision tooling manufacturer\nLoan: small business loan of USD 120,000 over 60 months, at an indicative 9.0 percent\nPurpose: replace two CNC machines\nPolicy: MTB-POL-031, Small business lending policy\nON THE FORM\nTurnover: 136,667 a month on average\nAnnual turnover: 1,640,000\nEmployees: 24\nTrading: 17 years\nDOCUMENTS ON FILE\nDOC-8301 company registration certificate\nDOC-8302 financial statements for three years\nDOC-8303 business bank statements for six months\nDOC-8304 latest tax return\nDOC-8305 declaration of ultimate owners\nDOC-8306 identity documents of the directors\nTHE AGENT'S TASK\nThe agent checks the pack against the documents the product requires and extracts the figures. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    },
+    {
+      "title": "Pinecrest Tooling, USD 120,000: credit memo",
+      "kind": "Credit analysis",
+      "reference": "LAP-8003",
+      "customer": "Pinecrest Tooling Works Ltd (CUS-1018)",
+      "product": "Small business loan",
+      "amount": "USD 120,000",
+      "received_on": "2026-11-24",
+      "arrived_via": "officer",
+      "text": "THE APPLICATION\nApplication: LAP-8003, for credit analysis\nApplicant: Pinecrest Tooling Works Ltd (CUS-1018)\nLoan: small business loan of USD 120,000 over 60 months, at an indicative 9.0 percent, to replace two CNC machines\nPolicy: MTB-POL-031, Small business lending policy. It names three ratios: current ratio, debt to equity and debt service cover\nDOCUMENTS ON FILE\nDOC-8302 financial statements for three years\nDOC-8301, DOC-8303, DOC-8304, DOC-8305 and DOC-8306 are also on file\nTHE AGENT'S TASK\nApplication LAP-8003 is ready for credit analysis. The credit officer decides. The agent drafts the credit memo and shows the source of every figure. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    },
+    {
+      "title": "Oakhaven, USD 18,000: credit memo",
+      "kind": "Credit analysis",
+      "reference": "LAP-8001",
+      "customer": "Marguerite Oakhaven (CUS-1012)",
+      "product": "Personal loan",
+      "amount": "USD 18,000",
+      "received_on": "2026-11-24",
+      "arrived_via": "officer",
+      "text": "THE APPLICATION\nApplication: LAP-8001, for credit analysis\nApplicant: Marguerite Oakhaven (CUS-1012)\nLoan: personal loan of USD 18,000 over 36 months, at an indicative 9.5 percent, for repairs at the applicant's home\nPolicy: MTB-POL-030, Retail unsecured lending policy. It names one ratio: debt to income\nON THE FORM\nGross income: 5,200 a month\nDebt payments: 450 a month, existing\nInstalment: 576.59 a month, indicative, on the application record\nDOCUMENTS ON FILE\nDOC-8101 to DOC-8104\nTHE AGENT'S TASK\nApplication LAP-8001 is ready for credit analysis. The credit officer decides. The agent drafts the credit memo and shows the source of every figure. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    },
+    {
+      "title": "Lanternfish Logistics, USD 250,000: signed documents",
+      "kind": "Document check",
+      "reference": "LN-9001",
+      "customer": "Lanternfish Logistics Ltd (CUS-1019)",
+      "product": "Term loan",
+      "amount": "USD 250,000",
+      "received_on": "2026-11-24",
+      "arrived_via": "officer",
+      "text": "THE LOAN\nLoan id: LN-9001\nBorrower: Lanternfish Logistics Ltd (CUS-1019)\nFacility: term loan of USD 250,000 over 60 months\nApproval: credit committee reference CC-2026-0417. The approved terms are held in the lending system\nDOCUMENTS ON FILE\nDOC-9101 facility agreement (signed)\nDOC-9102 Schedule A, vehicles\nDOC-9103 borrower board resolution\nTHE AGENT'S TASK\nThe agent compares the contract and the security documents with the approved terms and marks every difference. Every difference goes to a banker. Everything here is as the lending system holds it. The agent reads the documents themselves from the lending system."
+    }
+  ]
+}
