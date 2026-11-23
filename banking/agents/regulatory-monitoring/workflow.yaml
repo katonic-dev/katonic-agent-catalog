@@ -1,0 +1,247 @@
+type: workflow_dag
+version: 1
+canvas:
+  width: 1280
+  height: 460
+nodes:
+  - id: n_input
+    kind: in
+    position:
+      x: 120
+      'y': 80
+    width: null
+    title: Every day at 06:00
+    sub: ''
+    badge: null
+    config:
+      cron: '0 6 * * *'
+      source: schedule
+      timezone: Asia/Dubai
+  - id: n_fetch_a
+    kind: http
+    position:
+      x: 380
+      'y': 80
+    width: null
+    title: Fetch FCA feed
+    sub: ''
+    badge: null
+    config:
+      method: GET
+      url: https://www.fca.org.uk/news/rss.xml
+      timeout_seconds: 30
+  - id: n_tidy_a
+    kind: code
+    position:
+      x: 640
+      'y': 80
+    width: null
+    title: 'FCA: one line per publication'
+    sub: ''
+    badge: null
+    config:
+      code: |-
+        import re, html
+        x = r'''{{n_fetch_a.body}}'''
+        def tag(s, t):
+            m = re.search(r'<' + t + r'[^>]*>(.*?)</' + t + '>', s, re.S)
+            if not m:
+                return ''
+            v = re.sub(r'<!\[CDATA\[(.*?)\]\]>', r'\1', m.group(1), flags=re.S)
+            return ' '.join(html.unescape(v).split())
+        items = re.findall(r'<item\b[^>]*>(.*?)</item>', x, re.S)
+        for it in items:
+            print(' | '.join([tag(it, 'pubDate'), tag(it, 'title'), tag(it, 'link')]))
+        if not items:
+            print('UNREADABLE')
+      language: python
+  - id: n_cmp_a
+    kind: compare_last
+    position:
+      x: 900
+      'y': 80
+    width: null
+    title: 'FCA: compare with last copy'
+    sub: ''
+    badge: null
+    config:
+      key: feed_a
+      value: $n_tidy_a.stdout
+  - id: n_fetch_b
+    kind: http
+    position:
+      x: 1160
+      'y': 80
+    width: null
+    title: Fetch ECB feed
+    sub: ''
+    badge: null
+    config:
+      method: GET
+      url: https://www.ecb.europa.eu/rss/press.xml
+      timeout_seconds: 30
+  - id: n_tidy_b
+    kind: code
+    position:
+      x: 1420
+      'y': 80
+    width: null
+    title: 'ECB: one line per publication'
+    sub: ''
+    badge: null
+    config:
+      code: |-
+        import re, html
+        x = r'''{{n_fetch_b.body}}'''
+        def tag(s, t):
+            m = re.search(r'<' + t + r'[^>]*>(.*?)</' + t + '>', s, re.S)
+            if not m:
+                return ''
+            v = re.sub(r'<!\[CDATA\[(.*?)\]\]>', r'\1', m.group(1), flags=re.S)
+            return ' '.join(html.unescape(v).split())
+        items = re.findall(r'<item\b[^>]*>(.*?)</item>', x, re.S)
+        for it in items:
+            print(' | '.join([tag(it, 'pubDate'), tag(it, 'title'), tag(it, 'link')]))
+        if not items:
+            print('UNREADABLE')
+      language: python
+  - id: n_cmp_b
+    kind: compare_last
+    position:
+      x: 1680
+      'y': 80
+    width: null
+    title: 'ECB: compare with last copy'
+    sub: ''
+    badge: null
+    config:
+      key: feed_b
+      value: $n_tidy_b.stdout
+  - id: n_digest
+    kind: llm
+    position:
+      x: 1940
+      'y': 80
+    width: null
+    title: Write the digest
+    sub: ''
+    badge: null
+    config:
+      tier: balanced
+      model: your-model-name   # pin a model that answers on your platform
+      prompt: |-
+        You write the daily digest of a regulatory monitoring sweep. A compliance officer reads it. You change nothing and decide nothing.
+
+        Write one section per regulator, in this order: the Financial Conduct Authority (FCA), then the European Central Bank (ECB). Start each section with the regulator's name as a heading.
+
+        In each section, use only the comparison for that source, given below. Each added line holds a date, a title and a link, separated by " | ".
+        - If the source was read and the comparison has added lines, list each NEW publication on its own line with its title, its date and its link. Take every item only from the added lines of that source's comparison.
+        - If the source was read and nothing was added, write "Nothing new since the last run."
+        - If the comparison says this was the first run for the source and it says the copy was saved, write that a first copy was saved and nothing is reported as new.
+        - If the comparison says this was the first run and it says the copy was not saved, write that this was a test run, nothing was saved and nothing is reported as new.
+        - If the source could not be read, say so, and do not say that nothing is new. The source could not be read when the fetch status is not 200, or when the only added line is UNREADABLE.
+        - If the comparison says it was cut short, say that more publications were added than are listed.
+
+        Never add a publication that is not in the added lines. Never use what you know about the regulators or their publications. Add no commentary, no advice and no summary of what a publication means.
+
+        SOURCE 1: Financial Conduct Authority (FCA)
+        Fetch status: $n_fetch_a.status
+        First run: $n_cmp_a.first_run
+        Changed: $n_cmp_a.changed
+        Number of added lines: $n_cmp_a.added_count
+        Added lines: $n_cmp_a.added
+        Cut short: $n_cmp_a.truncated
+        Copy saved: $n_cmp_a.saved
+        Comparison summary: $n_cmp_a.summary
+
+        SOURCE 2: European Central Bank (ECB)
+        Fetch status: $n_fetch_b.status
+        First run: $n_cmp_b.first_run
+        Changed: $n_cmp_b.changed
+        Number of added lines: $n_cmp_b.added_count
+        Added lines: $n_cmp_b.added
+        Cut short: $n_cmp_b.truncated
+        Copy saved: $n_cmp_b.saved
+        Comparison summary: $n_cmp_b.summary
+      model_funding_source: byok
+  - id: n_done
+    kind: out
+    position:
+      x: 2200
+      'y': 80
+    width: null
+    title: Digest
+    sub: ''
+    badge: null
+    config: {}
+edges:
+  - id: e1
+    source: n_input
+    target: n_fetch_a
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e2
+    source: n_fetch_a
+    target: n_tidy_a
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e3
+    source: n_tidy_a
+    target: n_cmp_a
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e4
+    source: n_cmp_a
+    target: n_fetch_b
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e5
+    source: n_fetch_b
+    target: n_tidy_b
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e6
+    source: n_tidy_b
+    target: n_cmp_b
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e7
+    source: n_cmp_b
+    target: n_digest
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e8
+    source: n_digest
+    target: n_done
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+selected_node_id: null
+stats:
+  step_count: 9
+  avg_time_s: 0
+  cost_per_run_usd: 0
+inspector: null

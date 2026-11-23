@@ -1,0 +1,62 @@
+id: regulatory-monitoring
+name: Regulatory Monitoring Daily Sweep
+pack: banking
+area: Compliance and audit
+summary: >
+  On a clock, reads the publication feeds of two financial regulators, works
+  out what is new since its last run and writes a digest for a compliance
+  officer: each new publication with its title, date and link, or a plain line
+  that nothing is new. It changes nothing.
+
+type: workflow
+form: scheduled
+started_by: A clock. A schedule starts a run at a set time each day. A person can also start one by hand
+
+meets_people_through: application
+application: Regulatory change desk
+
+platform:
+  kind: workflow
+  tier: balanced                # the platform's tier label. The digest step pins one model by name
+  steps:
+    - fetch each feed (HTTP GET)
+    - tidy each feed to one line per publication (code)
+    - compare each with the copy the last run saved (compare_last)
+    - write the digest (one model step)
+
+needs: []
+# None of the four kinds apply. The two feeds are public addresses that need no
+# sign-in, and the platform's HTTP step reads them without a connector, a
+# server or a knowledge source. The workflow keeps its own state between runs.
+
+demo_bank_systems: []
+
+stops_for_a_person:
+  - The compliance officer reads the digest. Nothing is changed, so there is nothing to approve.
+  - What a new publication means for the bank, and what to do about it, is for the officer.
+
+changes: []
+
+sample_data: []
+
+feeds:
+  - name: Financial Conduct Authority (FCA), news
+    url: https://www.fca.org.uk/news/rss.xml
+    note: RSS, about 66 KB, 20 items, one element per line
+  - name: European Central Bank (ECB), press, speeches and interviews
+    url: https://www.ecb.europa.eu/rss/press.xml
+    note: RSS, about 6 KB, 15 items, all on a few long lines
+
+state:
+  built_on_a_cluster: true
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Built, published to a development environment and run on 24 November 2026.
+    Run by hand, it saved a first copy of both feeds, and a second run reported
+    nothing new. A run started by the schedule did the same at the set minute.
+    With one feed address made wrong, the digest said that source could not be
+    read. Not yet run: a feed that really changes, and the refusal test. Tests 3
+    and 5 are written but unrun, so the bar of five runs each is not met. Not
+    promoted to production. The Bank of England feed answers from an ordinary
+    computer but was refused from the cluster, so the ECB feed was used.

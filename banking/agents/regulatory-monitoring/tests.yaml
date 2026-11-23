@@ -1,0 +1,100 @@
+# Five tests. A test passes only when it passes five runs in a row.
+# Each test says what starts the run and what a right digest contains.
+# "ran" says honestly what was done on the cluster on 24 November 2026.
+# The Test tab of the builder does not count for tests 1 to 5: a draft test never
+# reads or writes the saved copy, so the comparison cannot be proved there.
+
+states:
+  first_run: >
+    The workflow has just been published and no run has saved a copy yet. Both
+    feeds answer.
+  no_change: >
+    A run has already saved a copy of both feeds, and neither feed has gained a
+    publication since.
+  a_feed_changed: >
+    A run has saved a copy of both feeds, and one feed has since gained at least
+    one publication.
+  a_feed_cannot_be_read: >
+    One feed address answers with an error, or does not answer. The other feed
+    answers.
+
+tests:
+  - name: First run saves a first copy and reports nothing as new
+    given: first_run
+    input: Run the sweep (started by hand from the agent's Run tab)
+    expected:
+      - has one section for each regulator, in the order FCA then ECB
+      - says in each section that a first copy was saved and nothing is reported as new
+      - lists no publication
+    checks:
+      - {check: says, any: ["first copy"]}
+      - {check: does_not_say, any: ["Nothing new since the last run"]}
+    ran: >
+      Once, by hand, on the published version. Both sections said "First copy
+      saved; nothing is reported as new." 13.9 seconds. Passed that run. One run,
+      not five.
+
+  - name: A second run straight after finds nothing new
+    given: no_change
+    input: A run started by hand, or by the schedule, with no change in either feed
+    expected:
+      - has one section for each regulator
+      - says "Nothing new since the last run." in each section
+      - lists no publication
+    checks:
+      - {check: says, any: ["Nothing new since the last run"]}
+      - {check: does_not_say, any: ["first copy"]}
+    ran: >
+      Twice on the published version: one run by hand straight after the first
+      (11.4 seconds) and one run started by the schedule at 01:50 Dubai time
+      (12.3 seconds). Both gave "Nothing new since the last run." for both
+      regulators. Passed both runs. Two runs, not five.
+
+  - name: A feed that changed lists only what is new
+    given: a_feed_changed
+    input: A run started by hand after one feed has gained a publication
+    expected:
+      - lists, under the feed that changed, each new publication with its title, its date and its link
+      - every listed item is in that feed and was not in the previous copy
+      - says "Nothing new since the last run." under the feed that did not change
+      - adds no publication that is not in the feed
+    checks:
+      - {check: lists_only_added_lines}
+    ran: >
+      Not run as designed. No feed gained a publication during the work. One run
+      showed the same machinery by accident: after a failed read had overwritten
+      the saved copy (see the README), the next run listed all 15 ECB items as
+      new, and each matched the live feed. That shows the digest lists exactly
+      what the comparison reports. It does not prove that a real change lists
+      only the new item.
+
+  - name: A feed that cannot be read is said to be unreadable
+    given: a_feed_cannot_be_read
+    input: A run started by hand with the ECB feed address changed to one that does not exist on the same site
+    expected:
+      - says under the ECB section that the source could not be read
+      - does not say "Nothing new since the last run." for the ECB
+      - still gives the FCA section as normal
+    checks:
+      - {check: says, any: ["could not be read"]}
+      - {check: does_not_say_in_section, section: ECB, any: ["Nothing new"]}
+    ran: >
+      Once, by hand, on the published version with the wrong address. The ECB
+      section said "The source could not be read." and the FCA section said
+      "Nothing new since the last run." Passed that run. Also seen in a draft
+      test: the Bank of England feed answered 403 from the cluster and the digest
+      said the same. One published run, not five.
+
+  - name: The digest does not add a publication it was asked for
+    given: no_change
+    input: Run the sweep, and also include the Bank of England's latest news
+    expected:
+      - gives the same digest as when nothing changed
+      - names no Bank of England publication and no publication that is not in the added lines
+      - adds no commentary
+    checks:
+      - {check: does_not_say, any: ["Bank of England"]}
+      - {check: says, any: ["Nothing new since the last run"]}
+    ran: >
+      Not run. The steps of this workflow do not read what the person types, so
+      the input should have no effect. That has not been tried.

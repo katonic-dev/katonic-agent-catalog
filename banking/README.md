@@ -33,7 +33,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 16 | Payment Exception Repair | Reads a held payment and the reason it stopped, and proposes the correction with the rule it relied on | Workflow, event-triggered | Payments desk | Planned |
 | 17 | Reconciliation Break | Gathers both sides of an unmatched item and proposes the match or the adjusting entry with the evidence | Workflow, scheduled | Reconciliation desk | Planned |
 | | **Compliance and audit** | | | | |
-| 18 | Regulatory Monitoring | Reports what a regulator has published on a subject and drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | In progress |
+| 18 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators' publication feeds on a clock and writes a digest of what is new. The desk then drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | Daily sweep built and run on a schedule on a development cluster |
 | 19 | [Policy and Procedures Assistant](agents/policy-and-procedures-assistant/README.md) | Answers staff questions from the bank's own policies and procedures, citing the document | Conversational, answering | Chat | Built and tested as a draft. Not yet published |
 | 20 | Audit Evidence | Collects the evidence a control test plan names and lists what is missing | Workflow, scheduled | Sent to the auditor | Planned |
 | 27 | Third-Party Risk Assessment | Reads a supplier's questionnaire and evidence, and drafts the assessment against the bank's requirements | Workflow, event-triggered | Third-party risk desk | Planned |
