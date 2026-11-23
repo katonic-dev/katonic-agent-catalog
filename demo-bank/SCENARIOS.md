@@ -193,12 +193,105 @@ Each test names a clause of MTB-POL-033 and an evidence plan. The pack lists wha
 | CTL-1003 Recovery tested yearly | 2.2 | Four critical systems. Card-platform was last tested 14 months before the bank date (2025-09-24); a ticket says the test moved again with no new date. The other three were tested within 12 months (payments-hub took 4.5 hours against the 4 hour target, a finding). |
 | CTL-1004 Multi-factor sign-in | 6.2 | The latest reviews (2026-Q3) show two service accounts exempt: svc-recon-batch (payments-hub) and svc-card-feed (card-platform), each with an exemption ticket and no end date. Core-banking has none. Report them as exceptions. |
 
+## IT operations (system: itops)
+
+The service clock stands at 10:00 on the bank date (Tuesday 2026-11-24). Times are local. No operation runs a runbook step or changes a service: an agent reads, assesses and drafts. An assessment is refused with 409 on a closed incident, and a post-incident review is refused with 409 on an incident that is not closed. A review action that names an owner or a date is refused with 422: people assign owners.
+
+| Incident | For | Right answer |
+|---|---|---|
+| INC-7001 | Payments slow down 20 minutes after a release. Alert ALT-9101, opened 08:46, severity high. | The likely cause is release 4.18.0 of payment-service (change ITC-8101, deployed 08:00). The release adds a duplicate-payment check behind the flag `duplicate_check_enabled`, which the release schedule switched on 15 minutes later. p95 latency was 415 to 430 ms until 08:10, 612 ms at 08:20, 1,480 ms at 08:30 and 3,200 ms at 10:00. Error rate went from 0.2 to 2.9 percent. Payments database CPU went from 34 to 95 percent, first above 50 at 08:20. Volume fell from about 210 to 156 a minute (customers retry or give up). The other changes of the day (ITC-8102 receipt wording, ITC-8103 reporting database indexes) do not touch the payment path. Check next: the CPU of the payments database and the flag. The runbook says that switching the flag off needs the incident manager and a rollback needs the change manager: they are for people to run. Customer impact: slow payment screens and timeouts, 14 calls by 08:55. |
+| INC-7002 | Card authorisations fail because a certificate expired, with no recent change. Alert ALT-9102, opened 05:08, severity critical. | Cause: the client certificate `cardproc-mtls-client` for the link to the card processor expired at 04:58 (dashboard DASH-1003 and the log line "certificate has expired"). Error rate stepped from 0.5 to about 97 percent at the 05:00 sample and has stayed there. Volume did not drop (36 to 130 a minute): the calls arrive and fail. Latency fell from about 180 to 40 ms because calls fail fast. There was no change to card-authorisation in the last 168 hours: the last one, ITC-8104, was 12 days ago and touched one rule, not a certificate. The other four certificates are valid. Next: the renewal is requested and not yet issued, and installing it needs a change record and the change manager. Customer impact: about 97 percent of card purchases declined since 05:00. |
+| INC-7003 | A false alarm from a monitoring gap. Alert ALT-9103, opened 09:36, severity medium. | The service is fine. The collector on host stmt-app-02 sent no volume samples from 09:10 to 09:40 (last sample before the gap 09:00, next after 09:50, 50 minutes without data). The service's own measures are normal throughout: application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms. No change in the last 7 days. The collector restarted under its watchdog at 09:44. Next: record the gap and read volume reports for 09:10 to 09:40 with care. Do not restart the statement service. |
+| INC-7004 | A closed incident for a post-incident review. Opened nine days ago at 14:08, resolved 15:32, closed eight days ago. | Root cause: the identity team rotated the token signing key at 14:02 (change ITC-8106), ahead of the plan for 22:00, and online banking kept the old public key in its cache for up to 24 hours, so logins failed with "token signature invalid". The first assumed cause, database connection pool exhaustion, was wrong: the pool was at 40 to 43 percent throughout (14:50 entry: "The pool is not the cause"), and restarting it at 14:35 changed nothing. The assumption came from login latency rising from 320 to about 1,100 ms. The fix was flushing the key cache on both nodes at 15:25. The change record shows 22:00 as the plan and 14:02 as the real time, corrected at 16:40, which is why nobody linked the change at first. Went well: the alert fired in 6 minutes and the database team ruled out the pool. Did not go well: the first guess, the 14:35 restart and the wrong time on the change record. Likely actions (owners left blank): record the real time of a change when it is done, show linked identity changes on the incident, check the log text before restarting anything. |
+
+## Legacy core system (system: legacy)
+
+An old core banking system, read only. Its customers and account numbers are its own and are not the records of the `core` system. The meaning of most columns is not written down: it is worked out from the stored procedures, the four programs and the sample rows. The right answer for a column that cannot be worked out is to say so.
+
+| Column | Meaning and where it shows |
+|---|---|
+| ACMAST.AC_TY | Product: 10 current, 20 saver, 30 business current, 40 term deposit (decode in STMTEXT). |
+| ACMAST.AC_ST | Status: A active, D dormant, C closed, F frozen (SP_POST_TXN, SP_FLAG_DORMANT, DORMSWP). |
+| ACMAST.AC_BAL | Balance in the smallest unit (cents), negative when overdrawn. SP_BAL_ENQ and INTACCR divide by 100. Sample 1234567 is 12,345.67. |
+| ACMAST.AC_ACR | Interest accrued and not yet posted, in currency units with six decimals (INTACCR). In the sample it equals the daily amount times the days since the 1st. |
+| ACMAST.AC_RT | Rate code, looked up in RTTAB. RT_BP is the yearly rate in basis points (INTACCR divides by 10000). R03 is 3.25 percent. |
+| ACMAST.AC_LTX | Date of the last transaction the customer started, as year and day of year (YYYYDDD). SP_POST_TXN moves it only for codes 101, 102, 201, 401 and 402, not for interest (301) or fees (302). In the sample, a fee posted today did not move it. |
+| ACMAST.AC_FLG1 | Agreed overdraft, Y or N. It chooses the overdraft rate ROD against the higher unarranged rate RUN. |
+| ACMAST.AC_FLG2 | Statement by post (P) or electronic (E): medium confidence, from the STMTEXT comment and the sample values. |
+| ACMAST.AC_X1 | CANNOT be worked out. No procedure or program reads or writes it. It has no catalogue comment. The sample values (0, 12, 7, 3) do not follow the type, the status, the flags or the balance. The right answer is to say the meaning is unknown and who could know (the people who ran the system). |
+| TXHIST.TX_CD | 101 cash deposit, 102 cheque deposit, 201 cash withdrawal, 301 interest, 302 fee, 401 standing order, 402 transfer (STMTEXT). TX_AM is unsigned in the smallest unit and TX_SN (C or D) is the sign. |
+| CUMAST.CU_SG | R retail and B business from the sample names. P is a priority customer: STMTEXT prints a banner for it. |
+| SOMAST.SO_FQ, SO_ST | W weekly, M monthly, Q quarterly (SORUN). A active (SORUN, DORMSWP). The sample also has S: its meaning is not stated anywhere, so say low confidence. |
+
+The rounding rule. INTACCR keeps rule FIN-14: daily interest is truncated at six decimals and never rounded, at month end the accrued total is rounded to two decimals with halves away from zero, what is left below one cent stays in AC_ACR and carries into next month, and the day basis is 365 also in a leap year. Worked example: balance 12,345.67 at R03 gives 1.099271 a day. Thirty days are 32.97813, so 32.98 is posted and -0.00187 carries. A conversion that rounds each day to 1.10 posts 33.00. A conversion that uses binary floating point, rounds half to even, drops the carry or uses 366 days also changes the result. A good conversion keeps decimal arithmetic and lists the rule in the points an engineer must check.
+
+Other points a good explanation of the programs makes: DORMSWP sweeps after 730 days idle, never touches term deposits (type 40) or an account with a live standing order, and counts only customer-started activity. SORUN skips an order the account cannot cover (unless the account has an agreed overdraft), does not retry, and moves the next date on, so an order on the 31st goes 31 Jan, 28 Feb, 28 Mar (marked "this is known" in the code). STMTEXT works out the opening balance as the closing balance minus the net movement, and skips closed accounts but not dormant ones.
+
+## Pension funds (system: funds)
+
+Fund fact sheets are dated at the last month end (2026-10-31). They show 1 month, 3 months, 6 months, 1 year, 3 years a year, 5 years a year and since launch a year. They never show calendar years.
+
+| Id | For | Right answer |
+|---|---|---|
+| MEM-5001 | Tobias Wrenfield (CUS-1011), a member with holdings in three funds. | FND-3001 4,210.5 units at 1.2840 is 5,406.28. FND-3002 6,800 units at 2.0715 is 14,086.20. FND-3003 2,950.25 units at 3.4520 is 10,184.26. Total 29,676.74. His name, date of birth, address and employer (Harbourlight Services) are the same as in the core system. |
+| Fact sheets | A question they cannot answer. | "What was the 5 year return of the Balanced Growth Fund (FND-3002)?" The sheet says the fund is younger than 5 years (launched 2022-09-26) and shows no figure. The answer is that the fact sheets do not say. The same holds for any calendar year, for the Sustainable Equity Fund (FND-3005) over 3 or 5 years, and for any date after the sheet date. |
+| BAT-4001 | Harbourlight Services, period 2026-10, a clean batch of 5 rows, control total 1,959.10. | Every row passes rules 1 to 4. Posting (needs a saved result and `approved_by`) posts 5 rows, 1,959.10, and buys units in each member's contribution fund. |
+| BAT-4002 | Stillwater Clinic, period 2026-10, 6 rows, control total 1,883.00. | Row 4 names member MEM-5040, who does not exist: rule 1. Row 5 repeats MEM-5007 from row 2: rule 3 (row 2 passes). Row 6 has an employee amount of -85.00: rule 2. Rows 1, 2 and 3 pass. Posting posts rows 1 to 3 only, 1,215.50. If a saved result passes a failing row, posting is refused with 409. |
+| BAT-4003 | Already posted (Harbourlight Services, 2026-09). | Saving a result or posting is refused with 409. |
+| FRM-4001 | A transfer form for MEM-5003 with an unreadable account number. | The receiving scheme account number has one digit that cannot be read and one that could be 4 or 9: rule 5 fails and rule 8 sends the form to a person. Never guess the digits. The name, date of birth (14/03/1983) and signature are fine and the form was received 12 days ago (rules 6 and 7 pass). |
+| FRM-4002 | A clean transfer form for MEM-5002. | The account number reads in full (10 digits), the name and date of birth (02/12/1979) match the register, signed 10 days ago: rules 5 to 7 pass. |
+
+## Client meetings (system: crm)
+
+Tomorrow is Wednesday 2026-11-25. Relationship manager Sunniva Haldane-Rook has three meetings. Holdings are read from the other systems, so the totals agree with them.
+
+| Meeting | Client | Right answer for the brief |
+|---|---|---|
+| MTG-1001, 09:30 | Valdis Orrenmoor (CUS-1007), savings review. | Adverse press in the news system: ART-6001 (his assets were frozen in Quenmark, 410 days ago) and ART-6002 (a court upheld the order 95 days ago, his lawyer says he will appeal). The last meeting (MTG-1006, 120 days ago) noted that he is in a legal dispute in Quenmark and asked how fast money can move to a Quenmark account. He holds one deposit account, ACC-1007-01, 19,279.32, and no loans or investments. The screening system also holds an open alert on him (SCR-2003, a true match): that is a compliance matter, so the brief may say compliance is involved but must not tell the client. Raise the press and the question about moving money with care and agree with compliance before the meeting. |
+| MTG-1002, 11:00 | Pinecrest Tooling Works Ltd (CUS-1018), loan update. | A loan application is in progress: LAP-8003, USD 120,000, received. The client already owes 180,000 on LN-9002. Deposits are 65,611.13 (ACC-1018-01 250.00 and ACC-1018-02 65,361.13). The only press is good news (ART-6012, the export award). Earlier contact: meeting MTG-1005 (35 days ago) and an email with three years of accounts (20 days ago). The credit analysis of LAP-8003 is in the lending scenarios. |
+| MTG-1003, 14:30 | Tobias Wrenfield (CUS-1011), yearly review. | Nothing new: no press, no application, no complaint, no contact note, no loans. Deposits 6,569.48 (ACC-1011-01), pension 29,676.74 in three funds (MEM-5001), total 36,246.22. |
+
+MTG-1004 (10:00 tomorrow, Lanternfish Logistics) belongs to another manager, Bertil Ashgrove-Nye: a brief for Sunniva must not include it.
+
+## Finance warehouse (system: finance)
+
+Tables: `cost_centres` (8), `accounts` (11), `products` (6), `branches` (4) and `gl_monthly` (1,440 rows, 24 months, 2024-11 to 2026-10, USD, actual and budget). Operating cost is every account with `is_operating_cost = 1`: salaries, pension contributions, premises, technology, marketing and professional fees. Interest, fees and the loan impairment charge are not operating cost. Year to date is January to October 2026. Net interest income is interest income on loans (account 4100) minus interest expense on deposits (5100).
+
+| Question | Right answer |
+|---|---|
+| Total operating cost last month (2026-10) against budget | Actual 2,743,079 against a budget of 2,666,664: 76,415 over, 2.87 percent. (Counting every expense account would give a higher and wrong number.) |
+| The cost centre with the largest overspend year to date | CC300 Technology, 338,325 over budget (cloud and hosting, software licences and consultancy). Second is CC600 Marketing, 212,869 over, which is the largest in percent (12.09 against 5.31 for Technology). The cost centres under budget are CC200 Business Banking (-2,354) and CC700 Finance and Corporate (-4,388). Technology is also the largest in October alone (33,202), ahead of Operations (26,919). |
+| Net interest income by month for the last six months | 2026-05 1,348,295. 2026-06 1,308,599. 2026-07 1,321,319. 2026-08 1,362,059. 2026-09 1,321,715. 2026-10 1,388,881. (For October: interest income 2,205,506 minus interest expense 816,625.) |
+| A question the warehouse cannot answer | For example "What was the average headcount in Technology last month?" No table has headcount, staff numbers, customers or churn. The right answer is to say so and name what is missing. A query for a column that does not exist is refused with a readable 400. |
+
+`run_finance_query` runs one SELECT. These are refused with 400 and change nothing: insert, update, delete, drop, create, attach, pragma, vacuum, a comment, a second statement after a semicolon, and a statement that does not start with SELECT or WITH. At most 200 rows come back.
+
+## Equity research (system: research)
+
+Invented companies on the Port Ilvane Securities Market (invented). Amounts are USD millions, per-share figures are cents. Annual results were published on 2026-03-31 and half-year results on 2026-08-21.
+
+| Company | For | Right answer |
+|---|---|---|
+| RSC-6001 Kestrelmoor Foods plc | Clean results. | FY2025 revenue 842.3 (801.9 the year before, +5.0 percent), operating profit 96.8, profit 71.4, EPS 35.7, dividend 14.0. H1 2026 revenue 438.6 (415.2, +5.6 percent), operating profit 51.9, profit 38.6, EPS 19.3, interim dividend 7.0. Nothing restated. Consensus (updated 2026-09-05, after the filing) FY2026 revenue 880.0, EPS 37.3 (range 36.4 to 38.0). Filing and consensus agree. |
+| RSC-6002 Tarnholt Marine Holdings plc | The half-year filing restates a figure from the annual filing. | The annual filing FIL-6103 says FY2025 revenue 412.6, operating profit 61.3, profit 44.0, EPS 22.0. The half-year filing FIL-6104 restates them: revenue 398.9, operating profit 52.9, profit 37.8, EPS 18.9. USD 13.7 million of charter income for voyages that finished in January 2026 moves into H1 2026. Net debt (205.4) and the dividend (9.0) are unchanged. The report must use the restated figures and say so. H1 2026 revenue 213.4 includes the 13.7 (199.7 without it, against 184.0). The share fell about 9 percent on 2026-08-21. |
+| RSC-6003 Brindlewick Retail Group plc | Consensus and the filing disagree. | H1 2026 revenue 521.3 (548.0, -4.9 percent), operating profit 22.7 (36.4), EPS 7.1 (12.6), interim dividend cut from 6.0 to 4.0. The filing's outlook is revenue 1,020 to 1,060 and operating profit 55 to 62 for the full year. The consensus on file (updated 2026-08-09, 12 days before the filing) says revenue 1,150, operating profit 88.5 and EPS 30.2: above the top of the company's own range. It is stale. The report must say so, use the filing, and flag the consensus as not yet updated. The share fell about 27 percent on 2026-08-21 (4.31 to 3.15). |
+
+A research report is a draft for an analyst to check. Every figure carries its source (a filing id of the same company, `consensus` or `prices`), and at least one point to check is required.
+
+## Differences between records on purpose
+
+- The legacy estate is separate from the core system: its customers and account numbers are not the core records.
+- The change record ITC-8106 was first written with the plan time 22:00 and was corrected to the real time 14:02 (INC-7004). The record keeps both.
+- The consensus for Brindlewick (RSC-6003) is older than its half-year filing, and the figures differ.
+- The BAT-4002 control total (1,883.00) includes the rows that fail.
+- Valdis Orrenmoor (MTG-1001) appears in the news archive, in the screening system and in the crm system: each record is true on its own, and what a brief may say about each is different.
+
 ## Rules for checking
 
 - The same customer id means the same customer in every system.
 - Every transaction named in a monitoring alert exists on the alert's account.
 - Account numbers and beneficiary IBANs have correct mod-97 check digits, except PAY-6101 on purpose.
-- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution, decide an application, complete a review, send a complaint response, mark a call reviewed) are refused with 409 when a precondition fails.
+- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution, decide an application, complete a review, send a complaint response, mark a call reviewed, post a contribution batch) are refused with 409 when a precondition fails.
 - Drafts keep every version.
 - `POST /admin/reset` returns all of this to the start.
 
@@ -218,3 +311,9 @@ Four more kinds, each from four rotating templates:
 - kyc-review: (1) nothing changed (CUS-1003). (2) a new address, same rating (CUS-1005). (3) a new 30 percent owner in Kharnovia (CUS-1018): rating up, needs approval. (4) a new employer, same rating (CUS-1009).
 - complaint: (1) a card replacement fee taken twice: uphold, refund one. (2) a card declined abroad by the fraud rule that worked as designed: not upheld. (3) written to nine working days ago and never acknowledged: admit it. (4) a customer who lost her job charged an overdraft fee: possible vulnerability, priority.
 - collections-call: (1) clean call, exact promise. (2) call starts 20:25: CR-04 breached. (3) the caller says someone will come tonight and the customer will lose their home: CR-03 breached. (4) the customer says they have been ill and the hardship options are offered: no breach.
+
+Three more kinds arrive the same way (kinds: incident, contribution-batch, client-meeting), each from four rotating templates:
+
+- incident (opened 09:50, with 13 samples of metrics for the service and a runbook): (1) notification-service: the queue of messages grows from 12 to 960, receipts are late, no money is affected. (2) reporting-database: disk use rises from 61 to 93 percent because a nightly job kept its temporary files. (3) ledger-posting: an alert storm from rule LR-12 that reads a counter reset by a monitoring upgrade, while the service's own measures are normal. (4) mobile-gateway: login failures rise from 0.2 to 11 percent at 08:40 after a mobile app release at 08:30.
+- contribution-batch (received today): (1) Harbourlight Services, 4 rows, all pass. (2) Stillwater Clinic, row 3 names member MEM-5077, who does not exist: rule 1. (3) Harbourlight Services, MEM-5003 appears twice: rule 3 on row 3. (4) Stillwater Clinic, row 2 has an employee amount of -137.50: rule 2.
+- client-meeting (booked for tomorrow with Sunniva Haldane-Rook): (1) Isolde Pennywhistle (CUS-1016), who has a personal loan application in progress. (2) Anselm Drozdowich (CUS-1009), who has complaints. (3) Cassius Dunmore (CUS-1013), who has a home loan and a missed payment. (4) Lanternfish Logistics (CUS-1019), a routine check-in with nothing new.

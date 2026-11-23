@@ -2,13 +2,13 @@
 
 Meridian Trust Bank is invented, and so is every person, company, account and record in this service. Nothing here describes a real bank or a real customer.
 
-This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds thirteen systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems. Next to them it serves the public website of an invented regulator, which is not one of the bank's systems.
+This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds nineteen systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems. Next to them it serves the public website of an invented regulator, which is not one of the bank's systems.
 
 Every JSON answer carries `"demo_data": true` at the top level, and every response carries the header `X-Demo-Data: invented`.
 
 Licence: Apache-2.0.
 
-## The thirteen systems
+## The nineteen systems
 
 | System | Path | What it holds | Operations |
 |---|---|---|---|
@@ -25,6 +25,12 @@ Licence: Apache-2.0.
 | complaints | `/complaints` | customer complaints, the complaints procedure, classifications, responses and redress | 6 |
 | collections | `/collections` | transcripts of collections calls, the conduct rules, call reviews | 5 |
 | audit | `/audit` | control tests of policy MTB-POL-033, tickets, change records, access reviews, recovery tests | 11 |
+| itops | `/itops` | incidents, monitoring metrics, dashboards, recent changes, runbooks | 8 |
+| legacy | `/legacy` | an old core system, read only: tables with cryptic names, stored procedures, batch programs | 8 |
+| funds | `/funds` | a pension scheme: funds and fact sheets, members, holdings, contribution batches, transfer forms | 10 |
+| crm | `/crm` | relationship managers' meetings, what a client holds across the bank, earlier contact | 5 |
+| finance | `/finance` | a finance warehouse (general ledger and management accounts for 24 months) that answers one read-only SQL query at a time | 4 |
+| research | `/research` | invented listed companies on an invented exchange: filings, prices, consensus estimates | 6 |
 
 For each system `<path>`:
 
@@ -41,7 +47,15 @@ Operations that only read are plain reads. Operations that write come in two kin
 
 This is a simulator with its own state. A write really changes it, and the answer says `"applied": true`. There is deliberately no operation that files a report.
 
-In all, 100 operations. Changes in the newer systems: `decide_fraud_case`, `post_break_resolution`, `decide_onboarding_application`, `complete_kyc_review`, `send_complaint_response` and `mark_call_reviewed`. Drafts: the fraud case summary, the break proposal, the media screening summary, the onboarding file, the refreshed profile, the complaint classification, the complaint response, the call review and the evidence pack. The evidence pack gives no conclusion: the auditor concludes.
+In all, 141 operations. Changes in the newer systems: `decide_fraud_case`, `post_break_resolution`, `decide_onboarding_application`, `complete_kyc_review`, `send_complaint_response`, `mark_call_reviewed` and `post_contribution_batch`. Drafts: the fraud case summary, the break proposal, the media screening summary, the onboarding file, the refreshed profile, the complaint classification, the complaint response, the call review and the evidence pack. The evidence pack gives no conclusion: the auditor concludes. The six newest systems add these drafts: an incident assessment, a post-incident review, legacy documentation, a converted program, a batch result, a meeting brief, finance commentary and a research report.
+
+Three things to know about the newest systems:
+
+- `itops` and `legacy` change nothing. There is no operation that runs a runbook step or changes a service, and none that changes the old system. An incident assessment needs an open incident and a post-incident review needs a closed one, or the call is refused with 409.
+- `funds` has one change, `post_contribution_batch`. It needs a saved result and `approved_by`, posts only the rows that passed, and is refused with 409 if the saved result passes a row that breaks a rule.
+- `finance` runs ONE read-only SQL statement on an in-memory SQLite database that is built at start from the seed. Anything that is not a single SELECT (or a WITH query that ends in a SELECT) is refused with 400: no insert, update, delete, drop, attach, pragma, comment or second statement. Each query runs on a private copy of the database with `query_only` on and an authorizer that allows reads only. At most 200 rows come back, and a query that runs too long is stopped. The warehouse is created in memory and never written to disk.
+
+The `legacy` estate is separate from the core system: its customers and account numbers are its own and are not the records of `core`. The `crm` holdings are not stored: they are read from `core`, `lending` and `funds` on every call, so the totals agree with those systems.
 
 The audit tests are tied to clauses 2.2, 3.1, 6.1 and 6.2 of `banking/policy-library/MTB-POL-033`. Complaint dates use working days (Monday to Friday).
 
@@ -118,8 +132,8 @@ These routes need the key.
 - `POST /admin/reset` puts the data back to the start.
 - `GET /admin/state` gives counts.
 - `GET /admin/events` shows what was sent and the outcome.
-- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, or `*`), a URL, a header name and a secret value.
-- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system.
+- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, `incident`, `contribution-batch`, `client-meeting`, or `*`), a URL, a header name and a secret value.
+- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system. The three newest kinds make an incident in the itops system, a contribution batch in the funds system and a client meeting for tomorrow in the crm system.
 
 For each matching subscription the service POSTs `{"message": "...", "event_type": "...", "item_id": "...", "system": "...", "demo_data": true}` with the secret header and a 10 second timeout. A failed delivery never fails the caller. The outcome is recorded in the events log. The message is plain sentences that say what arrived, its id and which system holds it.
 

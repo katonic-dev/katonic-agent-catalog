@@ -9,6 +9,12 @@ from .config import SEED
 from .seed_base import (build_accounts, build_background_transactions, build_banks, build_customers,
                         finalise_balances)
 from .seed_aud import build_audit
+from .seed_crm import build_crm
+from .seed_finance import build_finance
+from .seed_funds import build_funds
+from .seed_itops import build_itops
+from .seed_legacy import build_legacy
+from .seed_research import build_research
 from .seed_cmp import PROCEDURE, align_accounts, build_complaints
 from .seed_col import RULES as CONDUCT_RULES, add_loans, build_calls
 from .seed_fraud import build_fraud
@@ -63,4 +69,6 @@ def build_all(today: date) -> dict:
         "complaints": complaints, "complaints_procedure": PROCEDURE,
         "collections_calls": build_calls(customers, today), "conduct_rules": CONDUCT_RULES,
         **build_audit(today),
+        **build_itops(today), **build_legacy(today), **build_funds(today, customers, accounts, tb.rows),
+        **build_crm(today), **build_finance(today), **build_research(today),
     }

@@ -1,4 +1,4 @@
-"""Assembles the service: thirteen systems, the regulator's public feed, admin routes, landing page, health."""
+"""Assembles the service: nineteen systems, the regulator's public feed, admin routes, landing page, health."""
 
 from __future__ import annotations
 
@@ -17,11 +17,12 @@ from .mcp_doors import install_mcp
 from .store import Store
 from .regulator import make_router as make_regulator_router
 from .seed_reg import REGULATOR_NAME
-from .systems import (aml, audit, cards, collections, complaints, core, fraud, lending, news, onboarding, payments, recon,
-                      screening)
+from .systems import (aml, audit, cards, collections, complaints, core, crm, finance, fraud, funds, itops, legacy, lending, news, onboarding,
+                      payments, recon, research, screening)
 
 log = logging.getLogger("demo-bank")
-SYSTEMS = [core, cards, screening, aml, payments, lending, fraud, recon, news, onboarding, complaints, collections, audit]
+SYSTEMS = [core, cards, screening, aml, payments, lending, fraud, recon, news, onboarding, complaints, collections, audit,
+           itops, legacy, funds, crm, finance, research]
 
 
 class DemoHeaderMiddleware:
@@ -48,7 +49,7 @@ class DemoHeaderMiddleware:
 class SubscriptionBody(BaseModel):
     event_kind: Literal["*", "screening-alert", "payment-repair", "payment-investigation", "loan-application",
                         "fraud-case", "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review",
-                        "complaint", "collections-call"] = Field(
+                        "complaint", "collections-call", "incident", "contribution-batch", "client-meeting"] = Field(
         "*", description="Which events to send. * means all.")
     url: str = Field(..., description="Where to POST the event.")
     header_name: str = Field("", description="Name of the header that carries the secret.")
@@ -180,11 +181,8 @@ th{{background:#eef2f7}}code{{background:#eef2f7;padding:1px 4px}}</style></head
 Every JSON answer carries <code>"demo_data": true</code> and the header <code>X-Demo-Data: invented</code>.</p>
 <p>Bank date: <b>{settings.bank_today.isoformat()}</b>. Data operations need a key in the <code>X-API-Key</code> header
 (or <code>Authorization: Bearer ...</code>). The key is not shown here.</p>
-<h2>The nine systems</h2>
-<table><tr><th>System</th><th>API docs</th><th>OpenAPI document</th><th>MCP addresses</th></tr>{''.join(rows[:9])}</table>
-<h2>Four more systems</h2>
-<p>Account opening and customer reviews, complaints, collections call review and audit evidence.</p>
-<table><tr><th>System</th><th>API docs</th><th>OpenAPI document</th><th>MCP addresses</th></tr>{''.join(rows[9:])}</table>
+<h2>The nineteen systems</h2>
+<table><tr><th>System</th><th>API docs</th><th>OpenAPI document</th><th>MCP addresses</th></tr>{''.join(rows)}</table>
 <h2>A regulator's public website (invented)</h2>
 <p><b>{html.escape(REGULATOR_NAME)}</b> is invented. It is not one of the bank's systems: it stands for a regulator's
 public website. It needs no key and has no MCP address.</p>

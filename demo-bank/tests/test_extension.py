@@ -73,7 +73,7 @@ def test_operation_ids_per_new_system_and_total(client):
 
 def test_landing_page_lists_new_systems_and_the_regulator(client):
     text = client.get("/").text
-    assert "The nine systems" in text
+    assert "The nineteen systems" in text
     for s in NEW:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/docs" in text
     section = text.split("A regulator's public website")[1]

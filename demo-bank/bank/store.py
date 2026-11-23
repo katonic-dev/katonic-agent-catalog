@@ -133,4 +133,10 @@ class Store:
             "open_complaints": openc("complaints"),
             "unreviewed_collections_calls": openc("collections_calls", val="unreviewed"),
             "open_control_tests": openc("control_tests"),
+            "open_incidents": openc("itops_incidents"),
+            "legacy_programs": len(d["legacy_programs"]),
+            "received_contribution_batches": openc("pension_batches", val="received"),
+            "upcoming_client_meetings": openc("crm_meetings", val="scheduled"),
+            "finance_tables": len(d["finance"]),
+            "research_companies": len(d["research_companies"]),
         }

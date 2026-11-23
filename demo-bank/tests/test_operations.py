@@ -131,7 +131,7 @@ def test_mcp_tool_calls_read_and_write_through(client, store):
 
 def test_landing_page_lists_the_four_new_systems(client):
     text = client.get("/").text
-    assert "The nine systems" in text and "Four more systems" in text
+    assert "The nineteen systems" in text and "Four more systems" not in text
     for s in NEW:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/docs" in text
     counts = get(client, "/admin/state")["counts"]

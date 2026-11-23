@@ -10,7 +10,10 @@ import urllib.request
 from .ibanutil import make_iban
 from .seed_base import BANK_BY_CODE, d_ago
 from .seed_cmp import sim_complaint
+from .seed_crm import sim_meeting
 from .seed_col import sim_call
+from .seed_funds import sim_batch
+from .seed_itops import sim_incident
 from .seed_lend import installment
 from .seed_onb import sim_application as sim_onboarding, sim_review
 from .seed_pay import _bene
@@ -20,11 +23,12 @@ from .store import Store, now_iso
 
 KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application", "fraud-case",
          "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review", "complaint",
-         "collections-call"]
+         "collections-call", "incident", "contribution-batch", "client-meeting"]
 SYSTEM_OF = {"screening-alert": "screening", "payment-repair": "payments", "payment-investigation": "payments",
              "loan-application": "lending", "fraud-case": "fraud", "reconciliation-break": "recon",
              "regulator-publication": "regulator", "onboarding-application": "onboarding", "kyc-review": "onboarding",
-             "complaint": "complaints", "collections-call": "collections"}
+             "complaint": "complaints", "collections-call": "collections", "incident": "itops",
+             "contribution-batch": "funds", "client-meeting": "crm"}
 TIMEOUT = 10
 
 
@@ -339,10 +343,23 @@ def _call(store: Store, n: int) -> tuple[str, str]:
     return sim_call(store.data, store.settings.bank_today, n % 4, store.next_number("sim_cal", 1))
 
 
+def _incident(store: Store, n: int) -> tuple[str, str]:
+    return sim_incident(store.data, store.settings.bank_today, n % 4, store.next_number("sim_inc", 1))
+
+
+def _batch(store: Store, n: int) -> tuple[str, str]:
+    return sim_batch(store.data, store.settings.bank_today, n % 4, store.next_number("sim_bat", 1))
+
+
+def _meeting(store: Store, n: int) -> tuple[str, str]:
+    return sim_meeting(store.data, store.settings.bank_today, n % 4, store.next_number("sim_mtg", 1))
+
+
 MAKERS = {"screening-alert": _screening, "payment-repair": _repair, "payment-investigation": _investigation,
           "loan-application": _application, "fraud-case": _fraud, "reconciliation-break": _recon,
           "regulator-publication": _regulator, "onboarding-application": _onboarding, "kyc-review": _kyc,
-          "complaint": _complaint, "collections-call": _call}
+          "complaint": _complaint, "collections-call": _call, "incident": _incident,
+          "contribution-batch": _batch, "client-meeting": _meeting}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:
