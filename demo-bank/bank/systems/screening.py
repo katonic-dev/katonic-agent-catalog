@@ -24,16 +24,22 @@ class SearchBody(BaseModel):
 
 
 class FieldRow(BaseModel):
-    field: str = Field(..., description="Field compared, for example date_of_birth.")
+    field: str = Field(..., description="Field compared, for example date_of_birth, place_of_birth or address.")
     customer_value: str = Field("", description="Value held for the customer.")
     list_value: str = Field("", description="Value on the list entry.")
-    result: Literal["match", "differs", "unknown"] = Field(..., description="Outcome of the comparison.")
+    result: Literal["matches", "partly_matches", "differs", "not_on_entry", "noted"] = Field(
+        ..., description="Outcome of the comparison. matches: the two values agree. partly_matches: they agree in part, for example "
+                         "the same country but not the same town, or a spelling variant. differs: both values are present and they "
+                         "do not agree. not_on_entry: the list entry has no value for this field, so nothing can be compared. "
+                         "noted: you looked at the field and record an observation, without a verdict. Any other word is refused with 422.")
 
 
 class Recommendation(BaseModel):
-    recommendation: Literal["clear", "escalate"] = Field(..., description="Clear the alert, or escalate it to a person.")
+    recommendation: Literal["clear", "escalate"] = Field(..., description="clear: the alert is a false positive, so a person can close it. "
+                                                          "escalate: it cannot be cleared and a person must look at it.")
     reasons: list[str] = Field(..., min_length=1, description="Reasons in plain sentences.")
-    field_comparison: list[FieldRow] = Field(default_factory=list, description="Field by field comparison.")
+    field_comparison: list[FieldRow] = Field(default_factory=list, description="Field by field comparison. The result of each row "
+                                             "is one of matches, partly_matches, differs, not_on_entry or noted.")
     drafted_by: str = Field("agent", description="Who wrote the draft. Free text.")
 
 
@@ -83,9 +89,11 @@ def build(ctx: Ctx):
         return listing(rows)
 
     @reg(app, "get", "/alerts/{alert_id}", "get_screening_alert", "Get one screening alert in full",
-         "Read one alert with the customer's fields and the matched list entry's fields side by side, the match score, which "
-         "fields the matcher said matched, a field by field comparison (match, differs or unknown), earlier alerts on the same "
-         "customer and entry with their outcome, drafted recommendations and the closing decision if any.")
+         "Read one alert with the customer's fields and the matched list entry's fields side by side (name, date of birth, place of "
+         "birth, nationality, identity number, address), the match score, which fields the matcher said matched, a field by field "
+         "comparison (each row is match, partial, differs or unknown: unknown means one side has no value, partial means the entry "
+         "gives only the country), earlier alerts on the same customer and entry with their outcome, drafted recommendations and "
+         "the closing decision if any. When you save a recommendation, name the results matches, partly_matches, differs, not_on_entry or noted.")
     def get_screening_alert(alert_id: str = alert_id):
         a = alert_or_404(alert_id)
         c, e = d()["customers"][a["customer_id"]], d()["watchlist"][a["entry_id"]]
@@ -96,6 +104,13 @@ def build(ctx: Ctx):
             else:
                 res = "match" if str(cv).lower() == str(lv).lower() else "differs"
             return {"field": field, "customer_value": cv, "list_value": lv, "result": res}
+
+        def cmp_place(field, cv, lv):
+            """Place of birth and address: partial when the entry gives only the country, which the customer's value ends with."""
+            row = cmp(field, cv, lv)
+            if row["result"] == "differs" and "," not in str(lv) and str(cv).lower().endswith(", " + str(lv).lower()):
+                row["result"] = "partial"
+            return row
 
         comparison = [
             {"field": "name", "customer_value": c["name"], "list_value": e["name"],
@@ -108,19 +123,22 @@ def build(ctx: Ctx):
              ("match" if (c.get("date_of_birth") or "")[:4] == str(e["year_of_birth"]) else "differs")},
             cmp("nationality", c.get("nationality"), e["nationality"]),
             cmp("id_number", c.get("id_number"), e["id_number"]),
+            cmp_place("place_of_birth", c.get("place_of_birth"), e.get("place_of_birth")),
+            cmp_place("address", c.get("address"), e.get("address")),
         ]
         earlier = [{k: x[k] for k in ("alert_id", "status", "created", "match_score", "closure")}
                    for x in d()["screening_alerts"].values()
                    if x["alert_id"] in a["earlier_alert_ids"]]
         return {**row(a), "screening_type": a["screening_type"], "matched_fields": a["matched_fields"],
-                "customer_fields": {k: c.get(k) for k in ("name", "date_of_birth", "nationality", "nationality_name",
-                                                           "id_number", "address", "risk_rating")},
+                "customer_fields": {k: c.get(k) for k in ("name", "date_of_birth", "place_of_birth", "nationality",
+                                                           "nationality_name", "id_number", "address", "risk_rating")},
                 "list_entry_fields": e, "field_comparison": comparison, "earlier_alerts": earlier,
                 "recommendations": a["recommendations"], "closure": a["closure"]}
 
     @reg(app, "get", "/watchlist/{entry_id}", "get_watchlist_entry", "Get a watchlist entry",
          "Read one entry of the Meridia Consolidated Demonstration List (invented): category (sanctions, pep), name, aliases, "
-         "date or year of birth, nationality, identity number, reason listed and related persons.")
+         "date or year of birth, place of birth, address, nationality, identity number, reason listed and related persons. An entry "
+         "may leave a field empty when the list does not know it.")
     def get_watchlist_entry(entry_id: str = Path(..., description="Watchlist entry id, for example WL-9001.")):
         e = d()["watchlist"].get(entry_id)
         if not e:
@@ -149,7 +167,8 @@ def build(ctx: Ctx):
          "Save a recommendation on an alert (draft)",
          "Save your recommendation (clear or escalate) with reasons and a field by field comparison. This is a draft: it is stored "
          "with who wrote it, a timestamp and a version number, earlier versions are kept, and the alert is NOT closed. A person "
-         "closes the alert with close_screening_alert.")
+         "closes the alert with close_screening_alert. The recommendation is clear or escalate. In field_comparison the result of each "
+         "row is one of matches, partly_matches, differs, not_on_entry or noted; any other word is refused with 422.")
     def record_alert_recommendation(body: Recommendation, alert_id: str = alert_id):
         a = alert_or_404(alert_id)
         if a["status"] == "closed":

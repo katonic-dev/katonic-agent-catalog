@@ -60,6 +60,14 @@ INDIVIDUALS = [
     (1016, "Isolde Pennywhistle", "1999-11-22", "XM", "35 Marigold Yard", "Port Ilvane"),
 ]
 
+# where each individual was born, as town and country
+PLACES_OF_BIRTH = {
+    1001: "Port Ilvane, Meridia", 1002: "Marlow Reach, Meridia", 1003: "Tallowby, Meridia", 1004: "Port Ilvane, Meridia",
+    1005: "Marlow Reach, Meridia", 1006: "Tallowby, Meridia", 1007: "Hartsfell, Quenmark", 1008: "Ambrel, Tessaly",
+    1009: "Duskmere, Rovaland", 1010: "Brindlecombe, Quenmark", 1011: "Tallowby, Meridia", 1012: "Marlow Reach, Meridia",
+    1013: "Port Ilvane, Meridia", 1014: "Tallowby, Meridia", 1015: "Marlow Reach, Meridia", 1016: "Port Ilvane, Meridia",
+}
+
 BUSINESSES = [
     (1017, "Harrowgate Bakery Supplies Ltd", "bakery ingredient wholesaler", "Unit 4, Rye Lane Estate", "Tallowby"),
     (1018, "Pinecrest Tooling Works Ltd", "precision tooling manufacturer", "Works Road 17", "Marlow Reach"),
@@ -98,6 +106,7 @@ def build_customers(today: date) -> dict:
         cid = f"CUS-{num}"
         out[cid] = {
             "customer_id": cid, "type": "individual", "name": name, "date_of_birth": dob,
+            "place_of_birth": PLACES_OF_BIRTH[num],
             "nationality": nat, "nationality_name": COUNTRIES[nat],
             "address": f"{street}, {town}, Meridia", "country_of_residence": "XM",
             "segment": "retail", "customer_since": d_ago(today, 400 + num % 37 * 40),

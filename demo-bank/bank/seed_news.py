@@ -75,7 +75,7 @@ ARTICLES = [
      "Pinecrest Tooling Works Ltd of Marlow Reach has won this year's regional export award. The precision tooling "
      "maker sells to buyers in five countries and grew its exports by nearly a fifth.\n\n"
      "The judges praised its record on delivery times and its apprentice scheme. The company said the prize belongs to "
-     "its 85 staff."),
+     "its 24 staff."),
     ("ART-6013", DAILY, 21, "Companies", "Lanternfish Logistics adds five vehicles and a second depot",
      "Lanternfish Logistics Ltd of Port Ilvane has added five delivery vehicles to its fleet and plans a second depot "
      "on the east side of the city. The regional delivery firm says demand from local shops has doubled in two years.\n\n"

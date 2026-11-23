@@ -16,19 +16,19 @@ from .seed_funds import sim_batch
 from .seed_itops import sim_incident
 from .seed_lend import installment
 from .seed_onb import sim_application as sim_onboarding, sim_review
-from .seed_pay import _bene
+from .seed_pay import NO_RULE_NOTE, RULE_NOTES, _bene
 from .seed_recon import sim_break
 from .seed_reg import sim_publication
 from .store import Store, now_iso
 
 KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application", "fraud-case",
          "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review", "complaint",
-         "collections-call", "incident", "contribution-batch", "client-meeting"]
+         "collections-call", "incident", "contribution-batch", "client-meeting", "monitoring-alert"]
 SYSTEM_OF = {"screening-alert": "screening", "payment-repair": "payments", "payment-investigation": "payments",
              "loan-application": "lending", "fraud-case": "fraud", "reconciliation-break": "recon",
              "regulator-publication": "regulator", "onboarding-application": "onboarding", "kyc-review": "onboarding",
              "complaint": "complaints", "collections-call": "collections", "incident": "itops",
-             "contribution-batch": "funds", "client-meeting": "crm"}
+             "contribution-batch": "funds", "client-meeting": "crm", "monitoring-alert": "aml"}
 TIMEOUT = 10
 
 
@@ -81,17 +81,21 @@ def dispatch(store: Store, kind: str, item_id: str, message: str, wait: bool = F
 def _screening(store: Store, n: int) -> tuple[str, str]:
     d, today = store.data, store.settings.bank_today
     templates = [
-        ("CUS-1001", dict(name="Ilvana Marrowitz", dob="1957-06-06", nat="XA", idn="ALD-770112", category="sanctions"), 77),
-        ("CUS-1011", dict(name="Tobias Wrenfeld", dob=None, nat=None, idn="", category="sanctions"), 83),
-        ("CUS-1013", dict(name="Cassius Dunmoor", dob="1965-09-04", nat="XM", idn="", category="pep"), 90),
+        ("CUS-1001", dict(name="Ilvana Marrowitz", dob="1957-06-06", nat="XA", idn="ALD-770112", category="sanctions",
+                                          pob="Velmora, Aldoria", addr="Harbour Steps 2, Velmora, Aldoria"), 77),
+        ("CUS-1011", dict(name="Tobias Wrenfeld", dob=None, nat=None, idn="", category="sanctions", pob="",
+                                          addr="Millrace Walk 70, Tallowby, Meridia"), 83),
+        ("CUS-1013", dict(name="Cassius Dunmoor", dob="1965-09-04", nat="XM", idn="", category="pep", pob="Port Ilvane, Meridia",
+                                          addr=""), 90),
         ("CUS-1016", dict(name="Isolda Pennywhistle-Rae", dob="1999-11-22", nat="XM", idn=d["customers"]["CUS-1016"]["id_number"],
-                          category="sanctions"), 97),
+                          category="sanctions", pob="Port Ilvane, Meridia", addr=""), 97),
     ]
     cid, e, score = templates[n % 4]
     eid = f"WL-{9500 + store.next_number('sim_wl', 1)}"
     d["watchlist"][eid] = {"entry_id": eid, "list_name": "Meridia Consolidated Demonstration List (invented)",
                            "category": e["category"], "name": e["name"], "aliases": [], "date_of_birth": e["dob"],
-                           "year_of_birth": int(e["dob"][:4]) if e["dob"] else None, "nationality": e["nat"],
+                           "year_of_birth": int(e["dob"][:4]) if e["dob"] else None,
+                           "place_of_birth": e["pob"], "address": e["addr"], "nationality": e["nat"],
                            "nationality_name": None, "id_number": e["idn"], "listed_on": d_ago(today, 20),
                            "reason": "Invented example entry.", "related_persons": []}
     aid = f"SCR-{2100 + store.next_number('sim_scr', 1)}"
@@ -177,13 +181,15 @@ def _investigation(store: Store, n: int) -> tuple[str, str]:
           ("pacs.004", "inbound", "Payment return. The account number is incorrect.", {"return_reason": "AC01"})]),
     ]
     typ, bearer, claim, msgs = specs[kind]
+    rule_ids = [[], ["MTB-PAY-RULE-105"], ["MTB-PAY-RULE-106"], ["MTB-PAY-RULE-106"]][kind]
     num = [1014, 1018, 1006, 1016][kind]
     p = _new_payment(store, num, 1500.0 + 200 * kind, bene, "returned" if typ == "payment_returned" else "credited",
                      bearer=bearer, reference=f"Invoice SIM-I{kind + 1}", messages=msgs)
     iid = f"INV-{5100 + store.next_number('sim_inv', 1)}"
     d["investigations"][iid] = {"investigation_id": iid, "payment_id": p["payment_id"], "customer_id": p["customer_id"],
                                 "status": "open", "type": typ, "raised": today.isoformat(), "raised_by": "Contact centre",
-                                "claim": claim, "reply_drafts": []}
+                                "claim": claim, "rule_ids": rule_ids, "rule_note": RULE_NOTES.get(rule_ids[0], NO_RULE_NOTE) if rule_ids else NO_RULE_NOTE,
+                                "reply_drafts": []}
     return iid, (f"A new payment investigation {iid} has arrived in the payments system for payment {p['payment_id']} "
                  f"(customer {p['customer_id']}). Claim: {claim} Read it with get_payment_investigation and draft a reply.")
 
@@ -232,6 +238,9 @@ def _contact_note(store: Store, cid: str, channel: str, ago: int, direction: str
     return key
 
 
+TOWN_OF_COUNTRY = {"XM": "Port Ilvane", "QN": "Silverkeld"}
+
+
 def _sim_card_tx(store: Store, card_id: str, ago: int, hour: str, amount: float, merchant: str, country: str = "XM",
                  card_present: bool = False) -> str:
     d, today = store.data, store.settings.bank_today
@@ -239,7 +248,7 @@ def _sim_card_tx(store: Store, card_id: str, ago: int, hour: str, amount: float,
     d["card_transactions"][tid] = {"card_transaction_id": tid, "card_id": card_id, "date": d_ago(today, ago), "time": hour,
                                    "amount": float(amount), "currency": "USD", "merchant": merchant,
                                    "channel": "chip" if card_present else "online", "status": "posted", "disputed": False,
-                                   "country": country, "card_present": card_present}
+                                   "country": country, "town": TOWN_OF_COUNTRY[country], "card_present": card_present}
     return tid
 
 
@@ -355,11 +364,61 @@ def _meeting(store: Store, n: int) -> tuple[str, str]:
     return sim_meeting(store.data, store.settings.bank_today, n % 4, store.next_number("sim_mtg", 1))
 
 
+def _monitoring(store: Store, n: int) -> tuple[str, str]:
+    d, today = store.data, store.settings.bank_today
+    kind = n % 4
+    aid = f"TMA-{3100 + store.next_number('sim_tma', 1)}"
+    num, rule = [1017, 1019, 1024, 1018][kind], ["MTB-AML-RULE-001", "MTB-AML-RULE-002", "MTB-AML-RULE-003", "MTB-AML-RULE-004"][kind]
+    cid, acc = f"CUS-{num}", d["accounts"][f"ACC-{num}-01"]
+    ids: list[str] = []
+
+    def add(ago, amount, direction, ttype, party, narrative, country="XM"):
+        tid = f"TXN-S{aid[4:]}-{len(ids) + 1:02d}"
+        d["transactions"][tid] = {"transaction_id": tid, "account_id": acc["account_id"], "date": d_ago(today, ago),
+                                  "amount": round(float(amount), 2), "currency": acc["currency"], "direction": direction,
+                                  "type": ttype, "counterparty": party, "counterparty_id": "", "counterparty_country": country,
+                                  "narrative": narrative}
+        ids.append(tid)
+
+    if kind == 0:
+        for ago, amount in [(6, 9250), (5, 9600), (3, 9450), (1, 9700)]:
+            add(ago, amount, "credit", "cash_deposit", "Cash", "Cash deposit")
+        summary, days = "Four cash deposits between USD 9,250 and USD 9,700 in 6 days, total USD 38,000.", (7, 1)
+        score = 84
+    elif kind == 1:
+        for ago, amount, back in [(20, 26000, 25700), (12, 31500, 31100), (5, 28000, 27700)]:
+            add(ago, amount, "credit", "transfer_in", "Brackenmere Holdings", "Consulting fee", "XA")
+            add(ago - 1, back, "debit", "transfer_out", "Vantor Trading", "Services", "XB")
+        summary, days = "Three credits of USD 26,000 to 31,500 each left the account the next day, keeping about 1.17 percent.", (21, 4)
+        score = 80
+    elif kind == 2:
+        for ago, amount in [(20, 7200), (12, 7200), (4, 7200)]:
+            add(ago, amount, "debit", "transfer_out", "Gallowmere Dental Supply", "Dental consumables", "QP")
+        _contact_note(store, cid, "email", 9, "inbound", "Supply contract",
+                      "Customer sent the supply contract and the three invoices for the dental supplier in Kharnovia.", "Business banking")
+        summary, days = "Three payments of USD 7,200 to one counterparty in Kharnovia, total USD 21,600 in 16 days.", (24, 3)
+        score = 58
+    else:
+        for i in range(13):
+            add(2, 1200 + 40 * i, "debit", "transfer_out", f"Supplier {chr(65 + i)}", "Supplier payment")
+        _contact_note(store, cid, "call", 20, "inbound", "Supplier payment runs",
+                      "The finance director said suppliers are now paid every month instead of every quarter.", "Business banking")
+        summary, days = "13 outgoing payments this month against an average of 8.", (7, 1)
+        score = 46
+    d["monitoring_alerts"][aid] = {"alert_id": aid, "status": "open", "customer_id": cid, "account_id": acc["account_id"],
+                                   "rule_id": rule, "period_start": d_ago(today, days[0]), "period_end": d_ago(today, days[1]),
+                                   "created": d_ago(today, max(days[1] - 1, 0)), "transaction_ids": ids, "summary": summary,
+                                   "risk_score": score, "case_id": None, "closure": None, "investigation_drafts": []}
+    return aid, (f"A new monitoring alert {aid} has arrived in the aml system for customer {cid} ({d['customers'][cid]['name']}). "
+                 f"The rule {rule} fired: {summary} It is open and needs an investigation. "
+                 f"Read it with get_monitoring_alert in the aml system.")
+
+
 MAKERS = {"screening-alert": _screening, "payment-repair": _repair, "payment-investigation": _investigation,
           "loan-application": _application, "fraud-case": _fraud, "reconciliation-break": _recon,
           "regulator-publication": _regulator, "onboarding-application": _onboarding, "kyc-review": _kyc,
           "complaint": _complaint, "collections-call": _call, "incident": _incident,
-          "contribution-batch": _batch, "client-meeting": _meeting}
+          "contribution-batch": _batch, "client-meeting": _meeting, "monitoring-alert": _monitoring}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

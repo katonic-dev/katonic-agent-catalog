@@ -56,7 +56,8 @@ def test_new_openapi_documents_are_valid_and_plain(client):
 def test_operation_ids_per_new_system_and_total(client):
     expected = {"fraud": {"list_fraud_cases", "get_fraud_case", "get_fraud_rule", "save_fraud_case_summary", "decide_fraud_case"},
                 "recon": {"list_reconciliation_breaks", "get_reconciliation_break", "get_reconciliation_rule",
-                          "propose_break_resolution", "post_break_resolution"},
+                          "propose_break_resolution", "post_break_resolution", "get_ledger_entry", "get_statement_entry",
+                          "search_ledger_entries", "search_statement_entries"},
                 "news": {"search_news", "get_news_article", "save_media_screening_summary"}}
     seen = []
     for s in ["core", "cards", "screening", "aml", "payments", "lending", *NEW]:
@@ -68,7 +69,7 @@ def test_operation_ids_per_new_system_and_total(client):
             for item in doc["paths"].values():
                 for op in item.values():
                     assert op["description"].strip() and len(op["description"]) > 60
-    assert len(seen) == len(set(seen)) == 66
+    assert len(seen) == len(set(seen)) == 71
 
 
 def test_landing_page_lists_new_systems_and_the_regulator(client):

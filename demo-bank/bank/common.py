@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hmac
+import os
 from dataclasses import dataclass
 from typing import Any
 
@@ -41,7 +42,15 @@ class DemoJSONResponse(JSONResponse):
 
 
 def public_scheme(request: Request) -> str:
-    """The scheme the visitor used: the first X-Forwarded-Proto value if present, else the request's own."""
+    """The scheme the visitor used.
+
+    BANK_PUBLIC_SCHEME wins when it is set to http or https: some gateways end the
+    secure connection before the last proxy, and then every header says http.
+    Otherwise the first X-Forwarded-Proto value if present, else the request's own.
+    """
+    forced = os.environ.get("BANK_PUBLIC_SCHEME", "").strip().lower()
+    if forced in ("http", "https"):
+        return forced
     fwd = request.headers.get("x-forwarded-proto", "").split(",")[0].strip().lower()
     return fwd if fwd in ("http", "https") else request.url.scheme
 

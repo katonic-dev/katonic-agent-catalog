@@ -49,7 +49,8 @@ class DemoHeaderMiddleware:
 class SubscriptionBody(BaseModel):
     event_kind: Literal["*", "screening-alert", "payment-repair", "payment-investigation", "loan-application",
                         "fraud-case", "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review",
-                        "complaint", "collections-call", "incident", "contribution-batch", "client-meeting"] = Field(
+                        "complaint", "collections-call", "incident", "contribution-batch", "client-meeting",
+                        "monitoring-alert"] = Field(
         "*", description="Which events to send. * means all.")
     url: str = Field(..., description="Where to POST the event.")
     header_name: str = Field("", description="Name of the header that carries the secret.")

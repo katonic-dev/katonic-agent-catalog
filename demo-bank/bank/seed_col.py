@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta
 
 from .seed_base import d_ago
+from .seed_scen1 import LOAN_INSTALMENTS
 
 RULES = {
     "CR-01": {"rule_id": "CR-01", "title": "Say who you are",
@@ -61,10 +62,11 @@ def add_loans(loans: dict, exposure: dict, today: date) -> None:
     extra = {"LN-9101": ("CUS-1002", 6000.0, 3900.0, 420), "LN-9102": ("CUS-1004", 5500.0, 4100.0, 300), "LN-9103": ("CUS-1005", 9000.0, 7200.0, 600)}
     for lid, (cid, principal, outstanding, ago) in extra.items():
         loans[lid] = {"loan_id": lid, "customer_id": cid, "product": "Personal loan", "currency": "USD", "principal": principal,
-                      "outstanding": outstanding, "status": "active", "start_date": d_ago(today, ago),
-                      "maturity_date": d_ago(today, -(1095 - ago))}
+                      "outstanding": outstanding, "monthly_instalment": LOAN_INSTALMENTS[lid], "status": "active",
+                      "start_date": d_ago(today, ago), "maturity_date": d_ago(today, -(1095 - ago))}
         e = exposure[cid]
-        e["loans"].append({k: loans[lid][k] for k in ("loan_id", "product", "principal", "outstanding", "status", "maturity_date")})
+        e["loans"].append({k: loans[lid][k] for k in ("loan_id", "product", "principal", "outstanding", "monthly_instalment",
+                                                      "status", "maturity_date")})
         e["total_outstanding_loans"] = round(sum(x["outstanding"] for x in e["loans"]), 2)
 
 
@@ -83,7 +85,7 @@ def build_calls(customers: dict, today: date) -> dict:
     c = customers["CUS-1012"]
     pay = today + timedelta(days=3)
     put(_call("CAL-1001", one, "11:20:05", "CUS-1012", "LN-9005", {"staff_id": "STF-3301", "name": "Anneliese Rookwood"},
-              arrears(450.00, 1, 12, 42), [
+              arrears(LOAN_INSTALMENTS["LN-9005"], 1, 12, 42), [
         ("Caller", "Good morning. This is Anneliese Rookwood, calling from Meridian Trust Bank. Am I speaking with Marguerite Oakhaven?"),
         ("Customer", "Yes, speaking."),
         ("Caller", "Thank you. Before I say anything about your account, I need to check who I am talking to. Could you tell me your date of birth, please?"),
@@ -106,7 +108,7 @@ def build_calls(customers: dict, today: date) -> dict:
     c = customers["CUS-1013"]
     pay = today + timedelta(days=2)
     put(_call("CAL-1002", one, "15:40:30", "CUS-1013", "LN-9003", {"staff_id": "STF-3302", "name": "Dermot Fallowfield"},
-              arrears(930.00, 2, 38, 70), [
+              arrears(LOAN_INSTALMENTS["LN-9003"], 2, 38, 70), [
         ("Caller", "Hello, is that Mr Dunmore? This is Dermot Fallowfield from Meridian Trust Bank."),
         ("Customer", "Yes?"),
         ("Caller", "I am calling about your home loan. You are two payments behind, a total of USD 1,860.00, and the loan is now 38 days past due."),
@@ -127,7 +129,7 @@ def build_calls(customers: dict, today: date) -> dict:
     c = customers["CUS-1002"]
     pay = today + timedelta(days=4)
     put(_call("CAL-1003", two, "09:05:12", "CUS-1002", "LN-9101", {"staff_id": "STF-3303", "name": "Maren Tidewell"},
-              arrears(210.00, 2, 41, 75), [
+              arrears(LOAN_INSTALMENTS["LN-9101"], 2, 41, 75), [
         ("Caller", "Good morning, this is Maren Tidewell from Meridian Trust Bank. Is that Mr Quillfeather?"),
         ("Customer", "Yes, it is."),
         ("Caller", "Thank you. For security I need to check a few things before I talk about your account. What is your date of birth?"),
@@ -148,7 +150,7 @@ def build_calls(customers: dict, today: date) -> dict:
         ("Customer", "Goodbye.")]))
     # CAL-1004: someone else answers and the caller mentions the debt
     put(_call("CAL-1004", two, "18:50:41", "CUS-1004", "LN-9102", {"staff_id": "STF-3304", "name": "Casimir Holloway"},
-              arrears(275.00, 1, 20, 50), [
+              arrears(LOAN_INSTALMENTS["LN-9102"], 1, 20, 50), [
         ("Caller", "Good evening. This is Casimir Holloway, calling from Meridian Trust Bank. May I speak to Emeric Lowenhall, please?"),
         ("Other person", "He is out at the moment. Who is this?"),
         ("Caller", "I am calling about his loan. He is behind with a payment of USD 275.00 and we need him to call us."),
@@ -165,7 +167,7 @@ def build_calls(customers: dict, today: date) -> dict:
     c = customers["CUS-1005"]
     pay = today + timedelta(days=4)
     put(_call("CAL-1005", one, "19:35:20", "CUS-1005", "LN-9103", {"staff_id": "STF-3305", "name": "Bronagh Stillwell"},
-              arrears(520.00, 2, 33, 63), [
+              arrears(LOAN_INSTALMENTS["LN-9103"], 2, 33, 63), [
         ("Caller", "Good evening. This is Bronagh Stillwell, calling from Meridian Trust Bank. Am I speaking with Mr Castellane?"),
         ("Customer", "Yes. What is this about? It is a bit late."),
         ("Caller", "I am sorry to call in the evening. I will be brief. First I need to check it is you. What is your date of birth?"),
@@ -198,7 +200,7 @@ def sim_call(d: dict, today: date, kind: int, n: int) -> tuple[str, str]:
     dob = [("Caller", "Please confirm your date of birth first."), ("Customer", _speak(c["date_of_birth"]) + "."), *ident]
     pay = today + timedelta(days=3)
     if kind == 0:
-        start, arr = "10:10:00", (450.00, 1, 9)
+        start, arr = "10:10:00", (LOAN_INSTALMENTS["LN-9005"], 1, 9)
         lines = [("Caller", f"Good morning, this is {staff} from Meridian Trust Bank. Is that {c['name']}?"), ("Customer", "Yes."), *dob,
                  ("Caller", "Thank you. Your loan payment of USD 450.00 is 9 days overdue. Do you know why?"),
                  ("Customer", "I was away on holiday and forgot it. It is just a mix-up."),
@@ -208,7 +210,7 @@ def sim_call(d: dict, today: date, kind: int, n: int) -> tuple[str, str]:
                  ("Caller", "Thank you. I have noted it exactly. Goodbye.")]
         text = "A clean call that ends in an exact promise to pay."
     elif kind == 1:
-        start, arr = "20:25:10", (210.00, 1, 17)
+        start, arr = "20:25:10", (LOAN_INSTALMENTS["LN-9101"], 1, 17)
         lines = [("Caller", f"Good evening, this is {staff} from Meridian Trust Bank. Is that {c['name']}?"), ("Customer", "Yes. It is after eight."),
                  *dob, ("Caller", "Thank you. Your loan payment of USD 210.00 is 17 days overdue."),
                  ("Customer", "I will pay it on payday. Please do not ring this late again."),
@@ -217,7 +219,7 @@ def sim_call(d: dict, today: date, kind: int, n: int) -> tuple[str, str]:
                  ("Caller", "Thank you. Goodbye.")]
         text = "A call that starts at 20:25, after the permitted hours."
     elif kind == 2:
-        start, arr = "13:30:00", (520.00, 2, 52)
+        start, arr = "13:30:00", (LOAN_INSTALMENTS["LN-9103"], 2, 52)
         lines = [("Caller", f"Hello, this is {staff} from Meridian Trust Bank. Is that {c['name']}?"), ("Customer", "Yes."), *dob,
                  ("Caller", "Your loan is 52 days past due. USD 1,040.00 is overdue."),
                  ("Customer", "I know. I will pay at the end of the week."),
@@ -228,7 +230,7 @@ def sim_call(d: dict, today: date, kind: int, n: int) -> tuple[str, str]:
                  ("Caller", "You do that. Goodbye.")]
         text = "The caller says someone will come to the customer's house tonight and that the customer will lose their home."
     else:
-        start, arr = "14:05:30", (275.00, 3, 75)
+        start, arr = "14:05:30", (LOAN_INSTALMENTS["LN-9102"], 3, 75)
         lines = [("Caller", f"Good afternoon, this is {staff} from Meridian Trust Bank. Is that {c['name']}?"), ("Customer", "Yes."), *dob,
                  ("Caller", "Thank you. Your loan has three payments overdue, USD 825.00, and it is 75 days past due."),
                  ("Customer", "I have been very ill. I was in hospital for a month and I cannot work yet."),

@@ -95,7 +95,7 @@ def test_operation_ids_per_new_system_and_across_all_systems(client):
         if s in EXPECTED:
             assert set(ids) == EXPECTED[s], s
     assert counts["onboarding"] == 12 and counts["complaints"] == 6 and counts["collections"] == 5 and counts["audit"] == 11
-    assert len(seen) == len(set(seen)) == 100
+    assert len(seen) == len(set(seen)) == 105
     for name in ("file_report", "submit_report", "conclude_control_test", "pass_control_test"):
         assert name not in seen
     pack = client.get("/audit/openapi.json").json()["components"]["schemas"]["EvidencePack"]["properties"]
@@ -927,6 +927,16 @@ def test_state_file_from_an_older_version_still_loads(tmp_path):
 
 
 # ---------------------------------------------------------------- addresses behind a gateway
+
+def test_public_scheme_setting_wins_over_the_headers(client, monkeypatch):
+    monkeypatch.setenv("BANK_PUBLIC_SCHEME", "https")
+    page = client.get("/", headers={"X-Forwarded-Proto": "http"}).text
+    assert "https://testserver/core/openapi.json" in page and "http://testserver" not in page
+    feed = client.get("/regulator/feed.xml").text
+    assert "https://testserver/regulator/publications/" in feed and "http://testserver" not in feed
+    monkeypatch.setenv("BANK_PUBLIC_SCHEME", "ftp")  # not a scheme the bank serves: ignored
+    assert "http://testserver/core/openapi.json" in client.get("/").text
+
 
 def test_forwarded_proto_gives_https_addresses(client):
     fwd = {"X-Forwarded-Proto": "https"}

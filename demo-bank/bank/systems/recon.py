@@ -101,6 +101,81 @@ def build(ctx: Ctx):
                 "rules": [{"rule_id": r["rule_id"], "title": r["title"]} for r in d()["recon_rules"].values()],
                 "proposals": b["proposals"], "resolution": b["resolution"]}
 
+    entry_p = Path(..., description="Entry id, for example LED-7101 for a ledger entry or STM-8101 for a statement entry.")
+
+    def related_breaks(eid):
+        return sorted(b["break_id"] for b in d()["recon_breaks"].values()
+                      if b["entry_id"] == eid or any(c["entry_id"] == eid for c in b["candidates"]))
+
+    def search_entries(coll, account, amount_from, amount_to, date_from, date_to, reference):
+        if account and account not in d()["recon_accounts"]:
+            raise not_found("reconciliation account", account, "Accounts are NOS-ALDB-01, NOS-QNMK-01 and NOS-TESL-01.")
+        rows = []
+        for e in d()[coll].values():
+            if account and e["account_id"] != account:
+                continue
+            if amount_from is not None and e["amount"] < amount_from:
+                continue
+            if amount_to is not None and e["amount"] > amount_to:
+                continue
+            if date_from and e["value_date"] < date_from:
+                continue
+            if date_to and e["value_date"] > date_to:
+                continue
+            if reference and reference.strip().lower() not in e["reference"].lower():
+                continue
+            rows.append(e)
+        rows.sort(key=lambda e: (e["value_date"], e["entry_id"]), reverse=True)
+        searched = {"account": account or None, "amount_from": amount_from, "amount_to": amount_to, "date_from": date_from or None,
+                    "date_to": date_to or None, "reference": reference or None}
+        return listing(rows, searched=searched)
+
+    account_q = Query("", description="Only entries on this reconciliation account, for example NOS-QNMK-01. Leave empty for all accounts.")
+    amount_from_q = Query(None, description="Smallest amount to include, for example 3275.40. Use the same value for amount_from and amount_to to find an exact amount.")
+    amount_to_q = Query(None, description="Largest amount to include, for example 3275.40.")
+    date_from_q = Query("", description="Earliest value date to include, YYYY-MM-DD.")
+    date_to_q = Query("", description="Latest value date to include, YYYY-MM-DD.")
+    reference_q = Query("", description="Part of the reference. Not case sensitive.")
+
+    @reg(app, "get", "/ledger/{entry_id}", "get_ledger_entry", "Get one ledger entry",
+         "Read one entry of the bank's own ledger: account, value date, amount, currency, direction, reference, narrative, status "
+         "(unmatched, matched or reversed), the batch it was posted in, when it was posted, the entries it is matched with, and "
+         "related_break_ids, the breaks that name it. Refused with 404 if the id is not a ledger entry (statement entries are read "
+         "with get_statement_entry).")
+    def get_ledger_entry(entry_id: str = entry_p):
+        e = d()["recon_ledger"].get(entry_id)
+        if not e:
+            raise not_found("ledger entry", entry_id, "Ledger entry ids look like LED-7101. Use search_ledger_entries to find them.")
+        return {**e, "related_break_ids": related_breaks(entry_id)}
+
+    @reg(app, "get", "/statements/{entry_id}", "get_statement_entry", "Get one statement entry",
+         "Read one entry of a correspondent bank's statement: account, value date, amount, currency, direction, reference, narrative, "
+         "status (unmatched or matched), the entries it is matched with, and related_break_ids, the breaks that name it. Refused with "
+         "404 if the id is not a statement entry (ledger entries are read with get_ledger_entry).")
+    def get_statement_entry(entry_id: str = entry_p):
+        e = d()["recon_statement"].get(entry_id)
+        if not e:
+            raise not_found("statement entry", entry_id, "Statement entry ids look like STM-8101. Use search_statement_entries to find them.")
+        return {**e, "related_break_ids": related_breaks(entry_id)}
+
+    @reg(app, "get", "/ledger", "search_ledger_entries", "Search ledger entries",
+         "Search the bank's ledger entries. All filters are optional and combine: account, amount range (amount_from, amount_to), "
+         "value date range (date_from, date_to) and part of the reference. Newest value date first. The answer repeats the filters "
+         "in searched, so you can say exactly what you looked for. An empty list (count 0) means no ledger entry matches. Use it to "
+         "look for the other side of a statement item when the break shows no candidate.")
+    def search_ledger_entries(account: str = account_q, amount_from: float = amount_from_q, amount_to: float = amount_to_q,
+                              date_from: str = date_from_q, date_to: str = date_to_q, reference: str = reference_q):
+        return search_entries("recon_ledger", account, amount_from, amount_to, date_from, date_to, reference)
+
+    @reg(app, "get", "/statements", "search_statement_entries", "Search statement entries",
+         "Search the entries of the correspondent banks' statements. All filters are optional and combine: account, amount range "
+         "(amount_from, amount_to), value date range (date_from, date_to) and part of the reference. Newest value date first. The "
+         "answer repeats the filters in searched. An empty list (count 0) means no statement entry matches. Use it to look for the "
+         "other side of a ledger item.")
+    def search_statement_entries(account: str = account_q, amount_from: float = amount_from_q, amount_to: float = amount_to_q,
+                                 date_from: str = date_from_q, date_to: str = date_to_q, reference: str = reference_q):
+        return search_entries("recon_statement", account, amount_from, amount_to, date_from, date_to, reference)
+
     @reg(app, "get", "/rules/{rule_id}", "get_reconciliation_rule", "Get a reconciliation rule",
          "Read the text of one matching or tolerance rule (id like RECON-RULE-001) so you can cite it. The rule ids are listed "
          "on every break.")

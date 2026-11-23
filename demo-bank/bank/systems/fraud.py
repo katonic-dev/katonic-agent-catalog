@@ -50,7 +50,7 @@ def build(ctx: Ctx):
             return {"kind": "card_payment", "id": item["id"], "card_id": t["card_id"], "card": card["masked_number"],
                     "date": t["date"], "time": t["time"], "amount": t["amount"], "currency": t["currency"],
                     "merchant": t["merchant"], "channel": t["channel"], "merchant_country": t.get("country", "XM"),
-                    "card_present": t.get("card_present", True), "status": t["status"]}
+                    "merchant_town": t.get("town", ""), "card_present": t.get("card_present", True), "status": t["status"]}
         p = d()["payments"][item["id"]]
         b = p["beneficiary"]
         return {"kind": "payment", "id": item["id"], "date": p["created"], "amount": p["amount"], "currency": p["currency"],

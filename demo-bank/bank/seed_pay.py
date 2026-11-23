@@ -57,6 +57,15 @@ RULES = {
 }
 
 
+# Why a rule applies to an investigation, by rule id. Investigations of a kind with no rule carry an empty list and say so.
+RULE_NOTES = {
+    "MTB-PAY-RULE-105": "The payment was sent with charges OUR, so a deduction by an intermediary bank is not allowed (charges rule).",
+    "MTB-PAY-RULE-106": "The payment came back, so the returned amount is credited to the sender and a new payment needs "
+                        "corrected details (returned payments rule).",
+}
+NO_RULE_NOTE = "No bank rule applies. The payment was correct and was credited late, not lost."
+
+
 def _bene(name, bank_code, bban, street, town, country, address=True):
     bank = BANK_BY_CODE[bank_code]
     return {"name": name, "iban": make_iban(country, bank_code, bban), "bic": bank[3], "bank_name": bank[1],
@@ -105,6 +114,7 @@ def build_payments(customers: dict, accounts: dict, tb: TxnBuilder, rng: random.
         "investigation_id": "INV-5001", "payment_id": "PAY-6001", "customer_id": "CUS-1014", "status": "open",
         "type": "beneficiary_not_received", "raised": d_ago(today, 4), "raised_by": "Contact centre",
         "claim": "The customer says her friend has not received the USD 1,850 sent 6 days ago and asks where it is.",
+        "rule_ids": [], "rule_note": NO_RULE_NOTE,
         "reply_drafts": []}
     # ---- INV-5002: arrived short, intermediary deducted charges (instructed OUR)
     b = _bene("Corrowick Alloy Works", "BRVN", "40550990001207", "Foundry Lane 31", "Corrowick, Brevnia", "XB")
@@ -123,6 +133,7 @@ def build_payments(customers: dict, accounts: dict, tb: TxnBuilder, rng: random.
         "investigation_id": "INV-5002", "payment_id": "PAY-6002", "customer_id": "CUS-1018", "status": "open",
         "type": "amount_short", "raised": d_ago(today, 5), "raised_by": "Business banking",
         "claim": "The supplier says USD 24,962.50 arrived, not USD 25,000. The customer asks why it is short.",
+        "rule_ids": ["MTB-PAY-RULE-105"], "rule_note": RULE_NOTES["MTB-PAY-RULE-105"],
         "reply_drafts": []}
     # ---- INV-5003: returned, account closed (AC04)
     b = _bene("Hartsfell Rentals", "QNMK", "88100340007725", "Quay Street 12", "Hartsfell, Quenmark", "XQ")
@@ -141,6 +152,7 @@ def build_payments(customers: dict, accounts: dict, tb: TxnBuilder, rng: random.
         "investigation_id": "INV-5003", "payment_id": "PAY-6003", "customer_id": "CUS-1006", "status": "open",
         "type": "payment_returned", "raised": d_ago(today, 2), "raised_by": "Contact centre",
         "claim": "The customer sees a credit of USD 3,200 and asks why his payment came back.",
+        "rule_ids": ["MTB-PAY-RULE-106"], "rule_note": RULE_NOTES["MTB-PAY-RULE-106"],
         "reply_drafts": []}
 
     # ---- earlier payments to the same beneficiaries (sources for repairs)

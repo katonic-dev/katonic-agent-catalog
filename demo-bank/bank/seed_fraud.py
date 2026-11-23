@@ -31,10 +31,11 @@ RULES = {
 
 
 def _card_tx(card_txns: dict, tid: str, card_id: str, today: date, ago: int, hour: str, amount: float,
-             merchant: str, channel: str, country: str = "XM", card_present: bool = True) -> str:
+             merchant: str, channel: str, country: str = "XM", card_present: bool | None = None, town: str = "Port Ilvane") -> str:
     card_txns[tid] = {"card_transaction_id": tid, "card_id": card_id, "date": d_ago(today, ago), "time": hour,
                       "amount": float(amount), "currency": "USD", "merchant": merchant, "channel": channel,
-                      "status": "posted", "disputed": False, "country": country, "card_present": card_present}
+                      "status": "posted", "disputed": False, "country": country, "town": town,
+                      "card_present": channel != "online" if card_present is None else card_present}
     return tid
 
 
@@ -86,9 +87,9 @@ def build_fraud(customers: dict, accounts: dict, cards: dict, card_txns: dict, p
 
     # ---- FRD-3001: card not present purchases abroad at night, customer was at home
     num, card = 1012, "CRD-2008"
-    t1 = _card_tx(card_txns, "CTX-2008-F01", card, today, 2, "02:14", 640.00, "Silverkeld Gadget Mart", "online", "QN", False)
-    t2 = _card_tx(card_txns, "CTX-2008-F02", card, today, 2, "02:31", 1150.00, "Norvik Duty Free Online", "online", "QN", False)
-    t3 = _card_tx(card_txns, "CTX-2008-F03", card, today, 2, "03:05", 429.90, "Kaldmoor Travel Gear", "online", "QN", False)
+    t1 = _card_tx(card_txns, "CTX-2008-F01", card, today, 2, "02:14", 640.00, "Silverkeld Gadget Mart", "online", "QN", False, "Silverkeld")
+    t2 = _card_tx(card_txns, "CTX-2008-F02", card, today, 2, "02:31", 1150.00, "Norvik Duty Free Online", "online", "QN", False, "Norvik")
+    t3 = _card_tx(card_txns, "CTX-2008-F03", card, today, 2, "03:05", 429.90, "Kaldmoor Travel Gear", "online", "QN", False, "Kaldmoor")
     _contact(contacts, 1, "CUS-1012", "call", today, 3, "inbound", "Statement date question",
              "Customer phoned at 22:40 from her registered home number to ask when her statement is issued. She said she "
              "was at home for the evening with a cold and not going out.", "Contact centre")

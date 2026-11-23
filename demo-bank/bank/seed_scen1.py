@@ -5,8 +5,23 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from .seed_base import COUNTRIES, TxnBuilder, d_ago
+from .seed_lend import installment
+
+# Monthly instalment of every loan. The values for LN-9003, LN-9005, LN-9101, LN-9102 and LN-9103 are the ones the account
+# statements and the collections calls show. LN-9002 is the debt service of LAP-8003: (18,000 interest + 60,000 principal) / 12.
+LOAN_INSTALMENTS = {
+    "LN-9001": installment(250000.0, 7.25, 60), "LN-9002": 6500.0, "LN-9003": 930.0, "LN-9004": installment(61200.0, 8.0, 33),
+    "LN-9005": 450.0, "LN-9101": 210.0, "LN-9102": 275.0, "LN-9103": 520.0,
+}
 
 LIST_NAME = "Meridia Consolidated Demonstration List (invented)"
+
+# the town of each merchant a card was used at (all in Meridia, the bank's home)
+MERCHANT_TOWNS = {
+    "Marlow Reach Grocers": "Marlow Reach", "Copperpot Cafe": "Port Ilvane", "Tallowby Pharmacy": "Tallowby",
+    "Lantern Books": "Port Ilvane", "Pennyfarthing Bakery": "Tallowby", "Ironwood Electronics Online": "Port Ilvane",
+    "Quickfuel Station 44": "Tallowby", "Harbourlight Cinema": "Port Ilvane",
+}
 
 
 def add_ids(customers: dict) -> None:
@@ -82,12 +97,15 @@ def build_loans_and_exposure(customers: dict, today: date) -> tuple[dict, dict]:
                     "currency": "USD", "principal": 12000.0, "outstanding": 4300.0, "status": "active",
                     "start_date": d_ago(today, 520), "maturity_date": d_ago(today, -300)},
     }
+    for lid, ln in loans.items():
+        ln["monthly_instalment"] = LOAN_INSTALMENTS[lid]
     exposure = {}
     for cid in customers:
         exposure[cid] = {"customer_id": cid, "currency": "USD", "loans": [], "limits": [], "collateral": []}
     for ln in loans.values():
         exposure[ln["customer_id"]]["loans"].append(
-            {k: ln[k] for k in ("loan_id", "product", "principal", "outstanding", "status", "maturity_date")})
+            {k: ln[k] for k in ("loan_id", "product", "principal", "outstanding", "monthly_instalment", "status",
+                                "maturity_date")})
     exposure["CUS-1019"]["collateral"].append(
         {"type": "vehicles", "description": "Five delivery vehicles listed in Schedule A of LN-9001", "value": 310000.0})
     exposure["CUS-1018"]["collateral"].append(
@@ -127,7 +145,8 @@ def build_cards(customers: dict, accounts: dict, today: date) -> tuple[dict, dic
         tid = tx_id or f"CTX-{card_id[4:]}-{counter['n']:03d}"
         ctx[tid] = {"card_transaction_id": tid, "card_id": card_id, "date": d_ago(today, ago), "time": hour,
                     "amount": float(amount), "currency": "USD", "merchant": merchant, "channel": channel,
-                    "status": status, "disputed": False}
+                    "status": status, "disputed": False, "country": "XM", "town": MERCHANT_TOWNS[merchant],
+                    "card_present": channel != "online"}
         return tid
 
     add_card("CRD-2001", "CUS-1002", "4821")
@@ -164,36 +183,46 @@ def build_cards(customers: dict, accounts: dict, today: date) -> tuple[dict, dic
 def build_screening(customers: dict, today: date) -> tuple[dict, dict]:
     wl = {}
 
-    def entry(eid, category, name, dob=None, yob=None, nat=None, idn="", aliases=(), reason="", related=()):
+    def entry(eid, category, name, dob=None, yob=None, nat=None, idn="", aliases=(), reason="", related=(),
+              place_of_birth="", address=""):
         wl[eid] = {"entry_id": eid, "list_name": LIST_NAME, "category": category, "name": name,
                    "aliases": list(aliases), "date_of_birth": dob, "year_of_birth": yob,
+                   "place_of_birth": place_of_birth, "address": address,
                    "nationality": nat, "nationality_name": COUNTRIES.get(nat or "", None),
                    "id_number": idn, "listed_on": d_ago(today, 900 + len(wl) * 31),
                    "reason": reason, "related_persons": list(related)}
 
     entry("WL-9001", "sanctions", "Wynn Castellano", "1962-02-02", 1962, "XB", "BRV-559120",
-          reason="Invented example: trade in restricted goods.")
+          reason="Invented example: trade in restricted goods.",
+          place_of_birth="Corrowick, Brevnia", address="Foundry Lane 40, Corrowick, Brevnia")
     entry("WL-9002", "sanctions", "Oscar Brindlemore", "1955-05-17", 1955, "XR", "ROV-220871",
-          reason="Invented example: fraud against a state fund.")
+          reason="Invented example: fraud against a state fund.",
+          place_of_birth="Duskmere, Rovaland", address="Saw Lane 22, Duskmere, Rovaland")
     entry("WL-9003", "sanctions", "Valdis Orrenmoor", "1971-09-30", 1971, "XQ", "QNP-4417-2290",
-          aliases=["V. Orrenmoor"], reason="Invented example: asset freezing order for arms brokering.")
+          aliases=["V. Orrenmoor"], reason="Invented example: asset freezing order for arms brokering.",
+          place_of_birth="Hartsfell, Quenmark", address="6 Cinder Quay, Port Ilvane, Meridia")
+    # the entry for Katrin Elsdottir knows only the country of birth and has no address
     entry("WL-9004", "sanctions", "Katrin Elsdottir", None, 1969, None, "",
-          reason="Invented example: shipping network front company. The record holds a birth year only.")
+          reason="Invented example: shipping network front company. The record holds a birth year only.",
+          place_of_birth="Tessaly")
     entry("WL-9005", "sanctions", "Anselm Drozdovic", "1980-01-09", 1980, "XR", "",
-          aliases=["Anselm Drozdovich", "A. Drozdowicz"], reason="Invented example: smuggling network.")
+          aliases=["Anselm Drozdovich", "A. Drozdowicz"], reason="Invented example: smuggling network.",
+          place_of_birth="Duskmere, Rovaland", address="Fenwick Row 8, Duskmere, Rovaland")
     entry("WL-9006", "pep", "Leopold Vanhollow", "1972-03-03", 1972, "XQ", "QNP-3300-1180",
           reason="Politically exposed person: Minister of Public Works, Quenmark.",
-          related=[{"name": "Perdita Vanhollow", "relationship": "spouse"}])
-    fillers = [("WL-9007", "sanctions", "Brannoch Ulverstone", "1966-08-09", "QP"),
-               ("WL-9008", "sanctions", "Marisol Quennell-Ardt", "1983-12-12", "QN"),
-               ("WL-9009", "sanctions", "Torvald Hasselgrave", "1959-01-27", "XA"),
-               ("WL-9010", "pep", "Edda Mournbrook", "1968-10-05", "XB"),
-               ("WL-9011", "sanctions", "Ignatius Calderwick", "1975-04-21", "QP"),
-               ("WL-9012", "sanctions", "Zenobia Larkfield", "1987-07-15", "XT"),
-               ("WL-9013", "pep", "Hadrian Pellowes", "1961-06-01", "XR"),
-               ("WL-9014", "sanctions", "Odalys Tramontane", "1992-02-28", "QN")]
-    for eid, cat, name, dob, nat in fillers:
-        entry(eid, cat, name, dob, int(dob[:4]), nat, f"LST-{eid[-4:]}", reason="Invented example entry.")
+          related=[{"name": "Perdita Vanhollow", "relationship": "spouse"}],
+          place_of_birth="Hartsfell, Quenmark", address="2 Larkspur Terrace, Port Ilvane, Meridia")
+    fillers = [("WL-9007", "sanctions", "Brannoch Ulverstone", "1966-08-09", "QP", "Gallowmere, Kharnovia", "Harbour Road 3, Gallowmere, Kharnovia"),
+               ("WL-9008", "sanctions", "Marisol Quennell-Ardt", "1983-12-12", "QN", "Silverkeld, Norvania", "Tern Street 17, Silverkeld, Norvania"),
+               ("WL-9009", "sanctions", "Torvald Hasselgrave", "1959-01-27", "XA", "Velmora, Aldoria", "Market Row 9, Velmora, Aldoria"),
+               ("WL-9010", "pep", "Edda Mournbrook", "1968-10-05", "XB", "Corrowick, Brevnia", ""),
+               ("WL-9011", "sanctions", "Ignatius Calderwick", "1975-04-21", "QP", "Gallowmere, Kharnovia", ""),
+               ("WL-9012", "sanctions", "Zenobia Larkfield", "1987-07-15", "XT", "Ambrel, Tessaly", "Kiln Row 11, Ambrel, Tessaly"),
+               ("WL-9013", "pep", "Hadrian Pellowes", "1961-06-01", "XR", "Duskmere, Rovaland", "Ministry Close 2, Duskmere, Rovaland"),
+               ("WL-9014", "sanctions", "Odalys Tramontane", "1992-02-28", "QN", "", "Gull Quay 5, Silverkeld, Norvania")]
+    for eid, cat, name, dob, nat, place, addr in fillers:
+        entry(eid, cat, name, dob, int(dob[:4]), nat, f"LST-{eid[-4:]}", reason="Invented example entry.",
+              place_of_birth=place, address=addr)
 
     alerts = {}
 
@@ -275,7 +304,8 @@ def build_aml(customers: dict, accounts: dict, tb: TxnBuilder, today: date) -> t
         alerts[aid] = {"alert_id": aid, "status": status, "customer_id": cid, "account_id": account_id,
                        "rule_id": rule, "period_start": d_ago(today, days_from), "period_end": d_ago(today, days_to),
                        "created": d_ago(today, max(days_to - 1, 0)), "transaction_ids": txn_ids,
-                       "summary": summary, "risk_score": score, "case_id": None, "closure": closure}
+                       "summary": summary, "risk_score": score, "case_id": None, "closure": closure,
+                       "investigation_drafts": []}
 
     # 3001 structuring
     a = acc(1020)
@@ -298,7 +328,7 @@ def build_aml(customers: dict, accounts: dict, tb: TxnBuilder, today: date) -> t
         ids.append(tb.add(a, ago - 1, back, "debit", "transfer_out", "Quillgate Trading", "Services",
                           counterparty_id="CPY-4002", country="XB", txn_id=f"TXN-S3002-{n}B"))
     alert("TMA-3002", "CUS-1021", a["account_id"], "MTB-AML-RULE-002", 21, 4, ids,
-          "Three credits of USD 39,000 to 52,500 each left the account the next day, keeping about 1.3 percent.", 82)
+          "Three credits of USD 39,000 to 52,500 each left the account the next day, keeping about 1.36 percent.", 82)
     # 3003 higher-risk jurisdiction
     a = acc(1022)
     ids = []

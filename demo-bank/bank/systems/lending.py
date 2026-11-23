@@ -14,37 +14,49 @@ TITLE = "Lending"
 LINE = "Loan applications, their documents, the credit policy and approved loans."
 
 
+SOURCE_HELP = ("Where the figure was read. Either a document id of this application, as listed by list_application_documents, for "
+               "example DOC-8203, or the word FORM when the figure is written on the application form itself.")
+
+
 class Figure(BaseModel):
-    name: str = Field(..., description="Figure name, for example average_monthly_turnover.")
+    name: str = Field(..., description="Figure name, for example average_monthly_turnover. Free text.")
     value: str = Field(..., description="Figure value with its unit, for example 51400 USD.")
-    source_document_id: str = Field(..., description="Document the figure comes from, for example DOC-8203, or FORM for the application form.")
+    source_document_id: str = Field(..., description=SOURCE_HELP)
 
 
 class MissingItems(BaseModel):
-    missing_items: list[str] = Field(default_factory=list, description="Required document types that are missing.")
-    extracted_figures: list[Figure] = Field(default_factory=list, description="Figures read from the documents and the form.")
+    missing_items: list[str] = Field(default_factory=list, description="Required document types that are missing. Each is a type from the "
+                                     "application's document checklist. For personal_loan: identity_document, payslips_3_months, "
+                                     "bank_statements_3_months, employment_letter. For business_loan_small: company_registration, "
+                                     "financial_statements, bank_statements_6_months, tax_return, ownership_declaration, directors_identity. "
+                                     "Leave the list empty if nothing is missing.")
+    extracted_figures: list[Figure] = Field(default_factory=list, description="Figures read from the documents and from the application form. "
+                                            "Each has a name, a value with its unit and a source: a document id or FORM.")
     notes: str = Field("", description="Anything else, for example a figure that differs between sources.")
     drafted_by: str = Field("agent", description="Who wrote the draft. Free text.")
 
 
 class Ratio(BaseModel):
-    name: str = Field(..., description="Ratio name, for example debt_service_cover.")
-    value: float = Field(..., description="Computed value.")
-    threshold: str = Field("", description="Policy threshold, for example at least 1.25.")
+    name: str = Field(..., description="Ratio name as the policy writes it: debt_to_income (personal_loan) or current_ratio, "
+                                       "debt_to_equity, debt_service_cover (business_loan_small). get_credit_policy lists them.")
+    value: float = Field(..., description="Computed value, for example 3.31.")
+    threshold: str = Field("", description="Policy threshold as written in the policy, for example at least 1.25.")
     calculation: str = Field("", description="How it was computed, with the figures used.")
 
 
 class FigureSource(BaseModel):
-    figure: str = Field(..., description="Figure name.")
-    value: str = Field(..., description="Value used.")
-    source_document_id: str = Field(..., description="Document id it was read from.")
+    figure: str = Field(..., description="Figure name, for example latest_year_ebitda. Free text.")
+    value: str = Field(..., description="Value used, with its unit, for example 258000 USD.")
+    source_document_id: str = Field(..., description=SOURCE_HELP)
 
 
 class CreditMemo(BaseModel):
     memo_text: str = Field(..., min_length=1, description="The memo, in plain sentences.")
     ratios: list[Ratio] = Field(default_factory=list, description="Ratios the policy names, with values.")
-    figure_sources: list[FigureSource] = Field(..., min_length=1, description="The source of every figure used.")
-    recommendation: Literal["approve", "decline", "refer"] = Field("refer", description="The recommendation for the credit committee.")
+    figure_sources: list[FigureSource] = Field(..., min_length=1, description="The source of every figure used. Each has a figure "
+                                               "name, the value used and a source: a document id or FORM for the application form.")
+    recommendation: Literal["approve", "decline", "refer"] = Field("refer", description="The recommendation for the credit committee: "
+                                                                   "approve, decline or refer (a person must look closer). The default is refer.")
     drafted_by: str = Field("agent", description="Who wrote the draft. Free text.")
 
 
@@ -123,8 +135,10 @@ def build(ctx: Ctx):
         return d()["credit_policy"]
 
     @reg(app, "post", "/applications/{application_id}/missing-items", "save_missing_items", "Save missing items and figures (draft)",
-         "Save the list of missing documents and the figures you extracted. This is a draft: stored with who wrote it, a timestamp and "
-         "a version number, earlier versions kept. Nothing is sent to the applicant.")
+         "Save the list of missing documents and the figures you extracted. Missing items are document types from the application's "
+         "checklist (for example tax_return). Each figure has a name, a value with its unit and a source: a document id of this "
+         "application (for example DOC-8203) or FORM when the figure is on the application form. This is a draft: stored with who wrote "
+         "it, a timestamp and a version number, earlier versions kept. Nothing is sent to the applicant.")
     def save_missing_items(body: MissingItems, application_id: str = app_p):
         a = app_or_404(application_id)
         v = st.add_draft(a, "missing_items_drafts", {"missing_items": body.missing_items,
@@ -133,8 +147,11 @@ def build(ctx: Ctx):
         return {"applied": True, "kind": "draft", "draft": v}
 
     @reg(app, "post", "/applications/{application_id}/credit-memo", "save_credit_memo", "Save a credit memo (draft)",
-         "Save a credit memo with its ratios and the source of every figure. This is a draft: stored with who wrote it, a timestamp "
-         "and a version number, earlier versions kept. It does not decide the application.")
+         "Save a credit memo with its ratios and the source of every figure. A ratio name is one the policy lists (debt_to_income, "
+         "current_ratio, debt_to_equity or debt_service_cover). The source of a figure is a document id of this application (for "
+         "example DOC-8302) or FORM when the figure is on the application form itself. The recommendation is approve, decline or "
+         "refer. This is a draft: stored with who wrote it, a timestamp and a version number, earlier versions kept. It does not "
+         "decide the application.")
     def save_credit_memo(body: CreditMemo, application_id: str = app_p):
         a = app_or_404(application_id)
         v = st.add_draft(a, "credit_memo_drafts", {"memo_text": body.memo_text, "ratios": [r.model_dump() for r in body.ratios],

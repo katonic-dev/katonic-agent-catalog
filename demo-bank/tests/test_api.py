@@ -85,7 +85,7 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 assert op["summary"].strip() and len(op["description"]) > 40, oid
                 for p in op.get("parameters", []):
                     assert p.get("description"), (oid, p["name"])
-    assert counts == {"core": 8, "cards": 7, "screening": 6, "aml": 8, "payments": 13, "lending": 11, "fraud": 5, "recon": 5,
+    assert counts == {"core": 8, "cards": 7, "screening": 6, "aml": 9, "payments": 13, "lending": 11, "fraud": 5, "recon": 9,
                       "news": 3}
     for forbidden in ("file_report", "submit_report", "file_sar"):
         assert forbidden not in seen
@@ -158,7 +158,9 @@ def test_no_real_country_codes(store):
 
 def test_scenario_ground_truth(client):
     r = client.get("/screening/alerts/SCR-2003", headers=H).json()
-    assert [x["result"] for x in r["field_comparison"] if x["field"] != "year_of_birth"] == ["match"] * 4
+    core_fields = ("name", "date_of_birth", "nationality", "id_number")
+    assert [x["result"] for x in r["field_comparison"] if x["field"] in core_fields] == ["match"] * 4
+    assert {x["field"]: x["result"] for x in r["field_comparison"]}["place_of_birth"] == "match"
     r = client.get("/screening/alerts/SCR-2001", headers=H).json()
     res = {x["field"]: x["result"] for x in r["field_comparison"]}
     assert res["date_of_birth"] == "differs" and res["nationality"] == "differs"

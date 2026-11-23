@@ -15,6 +15,8 @@ from bank.app import create_app  # noqa: E402
 KEY = "test-key-123"
 TODAY = "2026-11-24"
 SYSTEMS = ["core", "cards", "screening", "aml", "payments", "lending", "fraud", "recon", "news"]
+ALL_SYSTEMS = SYSTEMS + ["onboarding", "complaints", "collections", "audit", "itops", "legacy", "funds", "crm", "finance",
+                        "research"]
 H = {"X-API-Key": KEY}
 
 

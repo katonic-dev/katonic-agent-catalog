@@ -15,11 +15,11 @@ Licence: Apache-2.0.
 | core | `/core` | customers, accounts, transactions, contacts, credit exposure | 8 |
 | cards | `/cards` | cards, card payments, blocks, replacements, disputes | 7 |
 | screening | `/screening` | sanctions and politically-exposed-person alerts, the watchlist | 6 |
-| aml | `/aml` | transaction monitoring alerts, rules, counterparties, cases | 8 |
+| aml | `/aml` | transaction monitoring alerts and the investigations saved on them, rules, counterparties, cases | 9 |
 | payments | `/payments` | payments, investigations, the repair queue, rules, bank directory | 13 |
 | lending | `/lending` | loan applications, documents, credit policy, approved loans | 11 |
 | fraud | `/fraud` | fraud cases on card payments and payments, the rules that raise them, decisions | 5 |
-| recon | `/recon` | reconciliation breaks between the ledger and bank statements, matching rules, proposals, postings | 5 |
+| recon | `/recon` | reconciliation breaks between the ledger and bank statements, the ledger and statement entries (each readable and searchable), matching rules, proposals, postings | 9 |
 | news | `/news` | an invented press archive from two invented outlets, for adverse media screening | 3 |
 | onboarding | `/onboarding` | account opening applications and their documents, the bank's requirements, periodic reviews of existing customers | 12 |
 | complaints | `/complaints` | customer complaints, the complaints procedure, classifications, responses and redress | 6 |
@@ -47,7 +47,7 @@ Operations that only read are plain reads. Operations that write come in two kin
 
 This is a simulator with its own state. A write really changes it, and the answer says `"applied": true`. There is deliberately no operation that files a report.
 
-In all, 141 operations. Changes in the newer systems: `decide_fraud_case`, `post_break_resolution`, `decide_onboarding_application`, `complete_kyc_review`, `send_complaint_response`, `mark_call_reviewed` and `post_contribution_batch`. Drafts: the fraud case summary, the break proposal, the media screening summary, the onboarding file, the refreshed profile, the complaint classification, the complaint response, the call review and the evidence pack. The evidence pack gives no conclusion: the auditor concludes. The six newest systems add these drafts: an incident assessment, a post-incident review, legacy documentation, a converted program, a batch result, a meeting brief, finance commentary and a research report.
+In all, 146 operations. Changes in the newer systems: `decide_fraud_case`, `post_break_resolution`, `decide_onboarding_application`, `complete_kyc_review`, `send_complaint_response`, `mark_call_reviewed` and `post_contribution_batch`. Drafts: the fraud case summary, the break proposal, the media screening summary, the onboarding file, the refreshed profile, the complaint classification, the complaint response, the call review and the evidence pack. The evidence pack gives no conclusion: the auditor concludes. The monitoring system has a draft for the work on an alert before a person opens a case (`save_alert_investigation`): the findings with their evidence ids, the narrative and a recommendation. When a person opens a case from that alert, the latest narrative becomes the first narrative version of the case. The reconciliation system lets an agent read and search the ledger and statement entries behind a break (`get_ledger_entry`, `get_statement_entry`, `search_ledger_entries`, `search_statement_entries`), so it can show what it searched for. The six newest systems add these drafts: an incident assessment, a post-incident review, legacy documentation, a converted program, a batch result, a meeting brief, finance commentary and a research report.
 
 Three things to know about the newest systems:
 
@@ -122,6 +122,7 @@ Data operations, the MCP addresses and the admin routes need the key, as the hea
 | `DATA_DIR` | A writable folder. State is written there as one JSON file. |
 | `KATONIC_DATASET_PATH` | If `DATA_DIR` is not set and this is, state goes to `<KATONIC_DATASET_PATH>/demo-bank-state`. |
 | `BANK_WEBHOOKS` | A JSON list of subscriptions, each `{"event_kind": "...", "url": "...", "header_name": "...", "secret_value": "..."}`. |
+| `BANK_PUBLIC_SCHEME` | `https` or `http`. Forces the scheme in every address the bank prints. Set it to `https` when the bank sits behind a gateway that ends the secure connection early, and the landing page shows `http://` addresses. |
 
 With none of `DATA_DIR` and `KATONIC_DATASET_PATH`, the service writes no file at all. It never writes inside its own folder, so a read-only root filesystem is fine. State lives in memory. Subscriptions added through the API live in memory only and are never written to the state file, because they hold a secret.
 
@@ -132,14 +133,23 @@ These routes need the key.
 - `POST /admin/reset` puts the data back to the start.
 - `GET /admin/state` gives counts.
 - `GET /admin/events` shows what was sent and the outcome.
-- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, `incident`, `contribution-batch`, `client-meeting`, or `*`), a URL, a header name and a secret value.
-- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system. The three newest kinds make an incident in the itops system, a contribution batch in the funds system and a client meeting for tomorrow in the crm system.
+- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, `incident`, `contribution-batch`, `client-meeting`, `monitoring-alert`, or `*`), a URL, a header name and a secret value.
+- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system. The three newest kinds make an incident in the itops system, a contribution batch in the funds system and a client meeting for tomorrow in the crm system. The kind `monitoring-alert` makes an alert, with its transactions, in the aml system.
 
 For each matching subscription the service POSTs `{"message": "...", "event_type": "...", "item_id": "...", "system": "...", "demo_data": true}` with the secret header and a 10 second timeout. A failed delivery never fails the caller. The outcome is recorded in the events log. The message is plain sentences that say what arrived, its id and which system holds it.
 
 ## Connecting it to a platform
 
-The steps are being proven on a cluster and will be added.
+These steps were run on a development cluster of the Katonic platform on 24 November 2026.
+
+1. Deploy it. In App Studio, start a new app from this repository, branch `main`, with the main file `demo-bank/main.py`. The platform finds the framework by itself, installs `requirements.txt` from that folder and starts the service under the app's own address. Set the health check path to `/health`.
+2. Choose the app's access. Every access level except Public puts a person's sign-in page in front of the app, and the platform's own services cannot pass it. So the app is set to Public, and the service's own key protects it: set `BANK_API_KEY` as a secret setting. On a cluster that the internet can reach, the service is then reachable from outside with that key.
+3. Import a system as tools. In Control Room, Tools, Import OpenAPI, import from the URL of one system's document, for example `<the app's address>/cards/openapi.json`. Choose the API key sign-in with the header `X-API-Key`, and an access group. Each operation becomes a tool. Import one system at a time, so that an agent gets only the tools of the systems it needs.
+4. Attach the tools to an agent in Studio and ask it something. A call to a tool reaches the service and comes back with `"demo_data": true`.
+
+What was proven: the deployment, the import, and agents calling the tools. In that run the key check was off (`BANK_AUTH=off`) and the import used no sign-in, because the run was a first proof on a development cluster.
+
+What was not proven: registering a system's MCP address with the platform. The registration was accepted and then did not appear in the list of servers. The service itself answers MCP requests correctly.
 
 ## Notes for people who build on it
 

@@ -50,7 +50,7 @@ def build(ctx: Ctx):
         return listing(rows[:limit], total_matches=len(rows))
 
     @reg(app, "get", "/customers/{customer_id}", "get_customer", "Get one customer record",
-         "Read the full record of one customer: name, type, date of birth or registration details, nationality, address, "
+         "Read the full record of one customer: name, type, date of birth and place of birth (individuals) or registration details, nationality, address, "
          "identity number, risk rating, status and when the customer started and when the next KYC review is due. "
          "Use list_customer_accounts for the accounts.")
     def get_customer(customer_id: str = cust_id):
@@ -113,7 +113,8 @@ def build(ctx: Ctx):
         return listing(rows, customer_id=customer_id)
 
     @reg(app, "get", "/customers/{customer_id}/exposure", "get_customer_exposure", "Get a customer's credit exposure",
-         "Read the bank's credit exposure to one customer: loans with outstanding amounts, limits with drawn amount and "
+         "Read the bank's credit exposure to one customer: loans with outstanding amount and monthly_instalment (the amount due "
+         "each month, the same as on the customer's statements and in the collections data), limits with drawn amount and "
          "utilisation percent, collateral with value, and totals.")
     def get_customer_exposure(customer_id: str = cust_id):
         e = d()["exposure"].get(customer_id)

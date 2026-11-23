@@ -117,7 +117,7 @@ def test_operations_per_system_and_unique_across_all_nineteen(client):
             assert set(ids) == EXPECTED[s], s
     assert {s: counts[s] for s in NEW} == {"itops": 8, "legacy": 8, "funds": 10, "crm": 5, "finance": 4, "research": 6}
     assert sum(counts[s] for s in NEW) == 41
-    assert len(seen) == len(set(seen)) == 141
+    assert len(seen) == len(set(seen)) == 146
 
 
 def test_itops_and_legacy_have_no_operation_that_changes_a_system(client):
@@ -1094,6 +1094,6 @@ def test_scenarios_file_has_a_section_per_new_system_with_every_right_answer():
                    "MTG-1003", "2,743,079", "2,666,664", "338,325", "1,348,295", "1,388,881", "headcount", "FIL-6104", "398.9", "RSC-6003", "incident, contribution-batch"):
         assert needle in text, needle
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "nineteen systems" in readme and "141 operations" in readme and "thirteen" not in readme.lower()
+    assert "nineteen systems" in readme and "146 operations" in readme and "thirteen" not in readme.lower()
     for s in NEW:
         assert f"`/{s}`" in readme

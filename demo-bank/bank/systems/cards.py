@@ -62,7 +62,9 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/cards/{card_id}/transactions", "list_card_transactions", "List card payments",
          "List recent payments made with one card, newest first: id, date, time, amount, merchant, channel (chip, contactless, "
-         "online), status and whether it is already disputed.")
+         "online), status, whether it is already disputed, and where it was made: country (code, XM is Meridia, the home country), "
+         "town and card_present (true for chip and contactless, false for online). Use them to see whether earlier payments "
+         "were all at home.")
     def list_card_transactions(card_id: str = card_id, limit: int = Query(50, ge=1, le=200, description="Most rows to return.")):
         get_or_404(card_id)
         rows = [t for t in d()["card_transactions"].values() if t["card_id"] == card_id]

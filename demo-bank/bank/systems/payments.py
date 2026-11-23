@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from fastapi import Path, Query
+from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
 from .. import ibanutil
@@ -78,19 +78,32 @@ def build(ctx: Ctx):
         b = p["beneficiary"]
         return {"payment_id": p["payment_id"], "customer_id": p["customer_id"], "amount": p["amount"],
                 "currency": p["currency"], "created": p["created"], "status": p["status"],
-                "beneficiary_name": b["name"], "reference": p["reference"]}
+                "beneficiary_name": b["name"], "beneficiary_account": b["iban"], "reference": p["reference"]}
 
     @reg(app, "get", "/payments", "search_payments", "Search payments",
-         "Search payments by reference text, customer, status or earliest date. Each row has payment_id, customer, amount, "
-         "currency, created date, status (credited, returned, held, released, recall_requested), beneficiary name and reference.")
+         "Search payments by reference text, customer, status, earliest date, beneficiary name or beneficiary account. Each row has "
+         "payment_id, customer, amount, currency, created date, status (credited, returned, held, released, recall_requested), "
+         "beneficiary name, beneficiary account (the IBAN) and reference. To find earlier payments to the same beneficiary, filter "
+         "by beneficiary_name or beneficiary_account (or both, then a payment must match both).")
     def search_payments(reference: str | None = Query(None, description="Part of the payment reference or narrative."),
                         customer_id: str | None = Query(None, description="Customer id, for example CUS-1011."),
                         status: str | None = Query(None, description="Payment status, for example credited or held."),
                         date_from: str | None = Query(None, description="Earliest created date, YYYY-MM-DD."),
+                        beneficiary_name: str | None = Query(None, description="Part of the beneficiary name. Not case sensitive."),
+                        beneficiary_account: str | None = Query(None, description="The beneficiary account, an IBAN, for example "
+                                                                "XB82BRVN73201150000142. Spaces and case are ignored. A part of the "
+                                                                "IBAN of at least 6 characters also matches."),
                         limit: int = Query(25, ge=1, le=200, description="Most rows to return.")):
         rows = []
+        account = beneficiary_account.replace(" ", "").upper() if beneficiary_account else ""
+        if account and len(account) < 6:
+            raise HTTPException(422, "beneficiary_account must be a full IBAN or a part of at least 6 characters.")
         for p in d()["payments"].values():
             if reference and reference.lower() not in (p["reference"] + " " + p["narrative"]).lower():
+                continue
+            if beneficiary_name and beneficiary_name.strip().lower() not in p["beneficiary"]["name"].lower():
+                continue
+            if account and account not in p["beneficiary"]["iban"].replace(" ", "").upper():
                 continue
             if customer_id and p["customer_id"] != customer_id:
                 continue
@@ -116,10 +129,14 @@ def build(ctx: Ctx):
                         for x in d()["investigations"].values() if not status or x["status"] == status])
 
     @reg(app, "get", "/investigations/{investigation_id}", "get_payment_investigation", "Get one investigation in full",
-         "Read one investigation with the customer's claim, the full payment (timeline and messages) and any reply drafts.")
+         "Read one investigation with the customer's claim, the full payment (timeline and messages), any reply drafts and the bank "
+         "rules that apply to it: rule_ids, the full text of each rule in rules, and rule_note, which says why they apply. A late "
+         "credit has no rule (an empty list). Cite the rule ids in the reply.")
     def get_payment_investigation(investigation_id: str = inv_p):
         x = inv_or_404(investigation_id)
-        return {**x, "payment": d()["payments"][x["payment_id"]]}
+        rule_ids = x.get("rule_ids", [])
+        return {**x, "rule_ids": rule_ids, "rules": [d()["payment_rules"][r] for r in rule_ids if r in d()["payment_rules"]],
+                "payment": d()["payments"][x["payment_id"]]}
 
     @reg(app, "post", "/investigations/{investigation_id}/reply-draft", "save_investigation_reply",
          "Save a reply to the customer (draft)",
