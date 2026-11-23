@@ -77,4 +77,4 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 3. **A knowledge source.** Policies, procedures and product documents, indexed with each reader's permissions kept.
 4. **A file the user uploads** in the conversation.
 
-To try an agent before your own systems are connected, run the invented bank, Meridian Trust Bank. It is being added to this repository in the folder `demo-bank/`, and it offers the first two routes.
+To try an agent before your own systems are connected, run the invented bank in [`demo-bank/`](../demo-bank/README.md). It offers the first two routes, and [its scenario list](../demo-bank/SCENARIOS.md) gives the right answer for every case.

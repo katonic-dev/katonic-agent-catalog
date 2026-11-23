@@ -7,8 +7,9 @@ Meridian Trust Bank does not exist. These policies were written so that agents i
 | `MTB-POL-014-ai-and-model-risk-policy.md` | Artificial intelligence and model risk |
 | `MTB-POL-021-customer-information-and-data-sharing-policy.md` | Customer information and data sharing |
 | `MTB-POL-033-technology-risk-and-outsourcing-policy.md` | Technology risk and outsourcing |
+| `MTB-STD-041-third-party-security-and-resilience-standard.md` | Third-party security and resilience: what the bank requires of a supplier |
 
-The same three policies ship with the regulatory change desk in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk).
+The three policies also ship with the regulatory change desk in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk). The standard is what the Third-Party Risk Assessment agent marks a supplier against.
 
 ## How to use them
 
