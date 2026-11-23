@@ -2,13 +2,13 @@
 
 Meridian Trust Bank is invented, and so is every person, company, account and record in this service. Nothing here describes a real bank or a real customer.
 
-This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds nine systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems. Next to them it serves the public website of an invented regulator, which is not one of the bank's systems.
+This is one small service that plays the back-office systems of a bank, so that AI agents have something realistic to read from and act on. It holds thirteen systems with invented data. Each system has its own OpenAPI document, its own docs page and its own MCP address, the way a real bank keeps separate systems. Next to them it serves the public website of an invented regulator, which is not one of the bank's systems.
 
 Every JSON answer carries `"demo_data": true` at the top level, and every response carries the header `X-Demo-Data: invented`.
 
 Licence: Apache-2.0.
 
-## The nine systems
+## The thirteen systems
 
 | System | Path | What it holds | Operations |
 |---|---|---|---|
@@ -21,6 +21,10 @@ Licence: Apache-2.0.
 | fraud | `/fraud` | fraud cases on card payments and payments, the rules that raise them, decisions | 5 |
 | recon | `/recon` | reconciliation breaks between the ledger and bank statements, matching rules, proposals, postings | 5 |
 | news | `/news` | an invented press archive from two invented outlets, for adverse media screening | 3 |
+| onboarding | `/onboarding` | account opening applications and their documents, the bank's requirements, periodic reviews of existing customers | 12 |
+| complaints | `/complaints` | customer complaints, the complaints procedure, classifications, responses and redress | 6 |
+| collections | `/collections` | transcripts of collections calls, the conduct rules, call reviews | 5 |
+| audit | `/audit` | control tests of policy MTB-POL-033, tickets, change records, access reviews, recovery tests | 11 |
 
 For each system `<path>`:
 
@@ -37,7 +41,9 @@ Operations that only read are plain reads. Operations that write come in two kin
 
 This is a simulator with its own state. A write really changes it, and the answer says `"applied": true`. There is deliberately no operation that files a report.
 
-In all, 66 operations. A change in the new systems is deciding a fraud case (`decide_fraud_case`) and posting a reconciliation break (`post_break_resolution`). Drafts are the fraud case summary, the break proposal and the media screening summary.
+In all, 100 operations. Changes in the newer systems: `decide_fraud_case`, `post_break_resolution`, `decide_onboarding_application`, `complete_kyc_review`, `send_complaint_response` and `mark_call_reviewed`. Drafts: the fraud case summary, the break proposal, the media screening summary, the onboarding file, the refreshed profile, the complaint classification, the complaint response, the call review and the evidence pack. The evidence pack gives no conclusion: the auditor concludes.
+
+The audit tests are tied to clauses 2.2, 3.1, 6.1 and 6.2 of `banking/policy-library/MTB-POL-033`. Complaint dates use working days (Monday to Friday).
 
 The news system also serves each article as a plain web page at `/news/pages/<article id>`. It needs no key, so a link in a summary can be opened. It is not in the OpenAPI document. The `page_url` in an article carries the address.
 
@@ -86,6 +92,8 @@ cd demo-bank && pip install -r requirements.txt && uvicorn main:app --host 0.0.0
 
 Tests: `pip install -r requirements-dev.txt` then `pytest`.
 
+Behind a gateway, absolute addresses (landing page, news `page_url`, the regulator's feed) use the scheme in `X-Forwarded-Proto` when it is present, otherwise the request's own scheme.
+
 ## Sign-in
 
 Data operations, the MCP addresses and the admin routes need the key, as the header `X-API-Key: <key>` or as `Authorization: Bearer <key>`. Open without a key: `/`, `/health`, `/healthz`, the docs pages, the OpenAPI documents, the news article pages (`/news/pages/<id>`) and the regulator's website (`/regulator/...`). Each OpenAPI document declares the header key as its security scheme.
@@ -110,8 +118,8 @@ These routes need the key.
 - `POST /admin/reset` puts the data back to the start.
 - `GET /admin/state` gives counts.
 - `GET /admin/events` shows what was sent and the outcome.
-- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, or `*`), a URL, a header name and a secret value.
-- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system and a publication on the regulator's website.
+- `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, or `*`), a URL, a header name and a secret value.
+- `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system.
 
 For each matching subscription the service POSTs `{"message": "...", "event_type": "...", "item_id": "...", "system": "...", "demo_data": true}` with the secret header and a 10 second timeout. A failed delivery never fails the caller. The outcome is recorded in the events log. The message is plain sentences that say what arrived, its id and which system holds it.
 

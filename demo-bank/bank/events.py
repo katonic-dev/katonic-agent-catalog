@@ -9,17 +9,22 @@ import urllib.request
 
 from .ibanutil import make_iban
 from .seed_base import BANK_BY_CODE, d_ago
+from .seed_cmp import sim_complaint
+from .seed_col import sim_call
 from .seed_lend import installment
+from .seed_onb import sim_application as sim_onboarding, sim_review
 from .seed_pay import _bene
 from .seed_recon import sim_break
 from .seed_reg import sim_publication
 from .store import Store, now_iso
 
 KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application", "fraud-case",
-         "reconciliation-break", "regulator-publication"]
+         "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review", "complaint",
+         "collections-call"]
 SYSTEM_OF = {"screening-alert": "screening", "payment-repair": "payments", "payment-investigation": "payments",
              "loan-application": "lending", "fraud-case": "fraud", "reconciliation-break": "recon",
-             "regulator-publication": "regulator"}
+             "regulator-publication": "regulator", "onboarding-application": "onboarding", "kyc-review": "onboarding",
+             "complaint": "complaints", "collections-call": "collections"}
 TIMEOUT = 10
 
 
@@ -308,9 +313,36 @@ def _regulator(store: Store, n: int) -> tuple[str, str]:
     return sim_publication(store.data, store.settings.bank_today, n, store.next_number("sim_reg", 46))
 
 
+def _onboarding(store: Store, n: int) -> tuple[str, str]:
+    return sim_onboarding(store.data, store.settings.bank_today, n % 4, store.next_number("sim_onb", 1))
+
+
+def _kyc(store: Store, n: int) -> tuple[str, str]:
+    return sim_review(store.data, store.settings.bank_today, n % 4, store.next_number("sim_kyr", 1))
+
+
+def _complaint(store: Store, n: int) -> tuple[str, str]:
+    d, today = store.data, store.settings.bank_today
+
+    def add_tx(acc, days_ago, amount, direction, ttype, counterparty, narrative):
+        tid = f"TXN-{acc['account_id'].replace('ACC-', '').replace('-', '')}-S{store.next_number('sim_txn', 1):03d}"
+        d["transactions"][tid] = {"transaction_id": tid, "account_id": acc["account_id"], "date": d_ago(today, days_ago),
+                                  "amount": round(float(amount), 2), "currency": acc["currency"], "direction": direction, "type": ttype,
+                                  "counterparty": counterparty, "counterparty_id": "", "counterparty_country": "XM", "narrative": narrative}
+        acc["balance"] = round(acc["balance"] - amount, 2)
+        return tid
+
+    return sim_complaint(d, today, add_tx, n % 4, store.next_number("sim_cmp", 1))
+
+
+def _call(store: Store, n: int) -> tuple[str, str]:
+    return sim_call(store.data, store.settings.bank_today, n % 4, store.next_number("sim_cal", 1))
+
+
 MAKERS = {"screening-alert": _screening, "payment-repair": _repair, "payment-investigation": _investigation,
           "loan-application": _application, "fraud-case": _fraud, "reconciliation-break": _recon,
-          "regulator-publication": _regulator}
+          "regulator-publication": _regulator, "onboarding-application": _onboarding, "kyc-review": _kyc,
+          "complaint": _complaint, "collections-call": _call}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

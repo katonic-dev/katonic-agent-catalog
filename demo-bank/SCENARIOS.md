@@ -139,12 +139,66 @@ Publications that arrive by `POST /admin/simulate/regulator-publication`, in thi
 | Notice: holiday opening hours of the regulator's counters | None. | No action. |
 | Guideline: recovery time of no more than four hours for each critical system, tested yearly | MTB-POL-033 clauses 2.1 and 2.2 (a recovery time objective and a yearly test, but no four-hour limit; MTB-STD-041 clause 4.2 sets four hours for suppliers only). | Partly covered. |
 
+## Onboarding (system: onboarding)
+
+Documents are text. Dates are relative to the bank date. A proof of address must be dated within 3 months (90 days). A watchlist hit is checked with `screen_name`. The decision `refer_to_compliance` is only a recommendation in the file: the decision call takes approve, decline or ask_applicant.
+
+| Application | For | Right answer |
+|---|---|---|
+| ONB-1001 | Individual, Odalys Merrowby, clean pack. | Approve. Name, date of birth, nationality, identity number and address agree. The bill is 26 days old, the card is valid, screening finds no hit. |
+| ONB-1002 | Individual, form says Isadora Fenimore, identity card says Isadora Fennimore. Proof of address (a water bill) is 150 days old. | Ask the applicant. Two problems: the one-letter name difference (never assume a typing error) and a proof of address older than 3 months. Date of birth and number agree. |
+| ONB-1003 | Individual, Wynn Castellano, born 1962-02-02, Brevnia, identity number BRV-559120. | Do not open. Recommend `refer_to_compliance`. `screen_name` returns WL-9001 first with score 100, date of birth and nationality both match, and the entry has the same identity number. Say nothing to the applicant about the reason. |
+| ONB-1004 | Company, Cobblegate Print Supplies Ltd, one owner and director with 100 percent. | Approve. All three documents are in, the registry extract and the declaration agree with the form. |
+| ONB-1005 | Company, Larkfield Marine Services Ltd. 60 percent held by Vardane Holdings Ltd (Quenmark), 40 percent by Corwin Ashdown. | Ask the applicant. The ownership chain has a gap: no document shows who owns Vardane Holdings Ltd, so 60 percent is not traced to people (above the 25 percent threshold). List the gap and the missing document. Never name or guess the owners. |
+| ONB-1006 | Company, Thistlewick Bakehouse Ltd. The registry extract lists directors Nerys Hallowfield and Garrick Oldacre. The form lists only Nerys Hallowfield. | Ask the applicant. Garrick Oldacre (appointed 21 days ago, also a 30 percent owner) is not on the form. He must be listed, identified and screened. |
+
+| Review | For | Right answer |
+|---|---|---|
+| KYR-1001 | Cassius Dunmore (CUS-1013), individual. | Nothing changed. The fresh identity card and proof of address agree with the profile. Rating stays standard. Sign-off only. |
+| KYR-1002 | Leopold Fenwick-Aral (CUS-1015). | Two changes: address (8 Kestrel Hill, Marlow Reach to 22 Barley Mill Lane, Tallowby, Meridia, source KYD-1002-01) and occupation (employee, quantity surveyor, to self-employed building surveyor, source KYD-1002-02). Rating stays standard. Sign-off only. |
+| KYR-1003 | Orchard Lane Dental Group (CUS-1024). | Ownership changed from Ottoline Brackenridge 55 and Hamish Brackenridge 45 to 40, 30 and Tavish Orrelby 30 (Gallowmere, Kharnovia, the higher-risk country). Propose the rating `high` (from standard) with that reason. The change needs `rating_change_approved_by`; without it `complete_kyc_review` answers 409. |
+
+## Complaints (system: complaints)
+
+The procedure is in `get_complaints_procedure`: acknowledge within 2 working days, final response within 15, redress when the bank erred, a declined loan is not a service failure.
+
+| Complaint | For | Right answer |
+|---|---|---|
+| CMP-1001 | Anselm Drozdowich (CUS-1009). Monthly account fee of 12.00 taken twice on ACC-1009-01, 8 days ago. | Fees and charges, upheld. Refund one fee (USD 12.00 to ACC-1009-01), apologise. An earlier complaint CMP-0901 was not upheld, a different matter. |
+| CMP-1002 | Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. | Payments, not upheld, no bank error. Explain with the dates in INV-5001: sent 6 days ago, held at the correspondent bank over the weekend, credited 3 days ago (status ACSC). No redress. |
+| CMP-1003 | Isolde Pennywhistle (CUS-1016). Loan LAP-8010 declined. | Lending decision, not upheld, not a service failure. Debt to income is 0.48 against the 0.40 limit of MTB-POL-030. Explain the reason and how to ask for a review: write to the Credit Review Desk within 30 days with new information. Promise nothing. |
+| CMP-1004 | Ilvane Marrowick (CUS-1001). Husband died 18 days ago, card CRD-2004 blocked 6 days ago by the deceased accounts process. | Possible vulnerability (recent bereavement): yes. Priority handling, one named person, a kind plain letter. Upheld: the block was applied to her own card by mistake. Replace the card, apologise. |
+| CMP-1005 | Sabine Tarrowgate (CUS-1003). Received 13 working days ago, never acknowledged. | Admit the late acknowledgement (11 working days late) and apologise. The final response is due in 2 working days: urgent. |
+
+## Collections calls (system: collections)
+
+Rules CR-01 to CR-07 are in `get_conduct_rules`. Each rule is followed, breached or not applicable, with the words from the transcript.
+
+| Call | For | Right answer |
+|---|---|---|
+| CAL-1001 | Marguerite Oakhaven, LN-9005, 12 days overdue. | All rules followed (CR-05 and CR-06 not applicable). Identity confirmed before the debt, the promise (USD 450.00, a named day, by card in the app) is read back. No supervisor. |
+| CAL-1002 | Cassius Dunmore, LN-9003. | CR-02 breached: the caller states USD 1,860.00 and 38 days overdue before asking for the date of birth. The rest is followed, the promise is recorded exactly. Supervisor review. |
+| CAL-1003 | Dorian Quillfeather, LN-9101. | CR-05 breached: the customer says he lost his job six weeks ago and no hardship option is offered. Identity and the promise (USD 100.00, by card) are fine. Supervisor review. |
+| CAL-1004 | Emeric Lowenhall, LN-9102, 18:50. | CR-06 breached: his sister answers and the caller says the loan is behind by USD 275.00. CR-02 and CR-07 not applicable, the customer never came on the line. Supervisor review. |
+| CAL-1005 | Wynne Castellane, LN-9103, 19:35. | No breach. The call is firm: the caller states what the loan terms say (recovery team after 45 days, the account is at 33) and asks whether anything makes it hard to pay. That is calm and accurate, not a threat. 19:35 is inside the hours. The promise is read back. No supervisor. |
+
+## Audit evidence (system: audit)
+
+Each test names a clause of MTB-POL-033 and an evidence plan. The pack lists what was found (with record ids), what is missing (with what was searched) and the exceptions. It never concludes.
+
+| Test | Clause | What the records show |
+|---|---|---|
+| CTL-1001 Access reviewed quarterly | 6.1 | Three systems (core-banking, payments-hub, card-platform) times four quarters (2025-Q4 to 2026-Q3 on the bank date 2026-11-24) is 12 reviews expected. 11 exist. Missing: payments-hub, 2026-Q2. A ticket says it was postponed, with no review record attached. |
+| CTL-1002 Change control | 3.1 | Five sampled changes CHG-2201 to CHG-2205, all on critical systems. CHG-2203 (card-platform) has no rollback plan. CHG-2204 (online-banking, emergency) has no named approver, and an open ticket says approval was to be recorded afterwards. The other three have both. CHG-2208 has no rollback plan but is on a system that is not critical and is not in the sample. |
+| CTL-1003 Recovery tested yearly | 2.2 | Four critical systems. Card-platform was last tested 14 months before the bank date (2025-09-24); a ticket says the test moved again with no new date. The other three were tested within 12 months (payments-hub took 4.5 hours against the 4 hour target, a finding). |
+| CTL-1004 Multi-factor sign-in | 6.2 | The latest reviews (2026-Q3) show two service accounts exempt: svc-recon-batch (payments-hub) and svc-card-feed (card-platform), each with an exemption ticket and no end date. Core-banking has none. Report them as exceptions. |
+
 ## Rules for checking
 
 - The same customer id means the same customer in every system.
 - Every transaction named in a monitoring alert exists on the alert's account.
 - Account numbers and beneficiary IBANs have correct mod-97 check digits, except PAY-6101 on purpose.
-- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution) are refused with 409 when a precondition fails.
+- Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution, decide an application, complete a review, send a complaint response, mark a call reviewed) are refused with 409 when a precondition fails.
 - Drafts keep every version.
 - `POST /admin/reset` returns all of this to the start.
 
@@ -157,3 +211,10 @@ Three more kinds arrive the same way, each from four rotating templates:
 - fraud-case: (1) two online purchases in Norvania at night, but a contact note shows the customer is travelling there for work: not fraud, release. (2) an account takeover pattern (new device, password reset, new payee, payment within 45 minutes): true fraud, refund. (3) a USD 7.99 charge called fraud with three earlier payments to the same merchant: not fraud, a dispute. (4) a USD 22,000 first payment to a new payee that the business owner denies on the call-back: true fraud, block.
 - reconciliation-break: (1) one mistyped character in the reference, value dates one day apart: match. (2) the statement is 12.50 below the ledger and names a charge of 12.50: match with an adjusting entry to GL-6120. (3) a duplicate ledger posting: reverse the later entry. (4) a statement item with nothing behind it: refer to a person.
 - regulator-publication: see the table above.
+
+Four more kinds, each from four rotating templates:
+
+- onboarding-application: (1) individual, complete pack: approve. (2) individual whose identity card expired 20 days ago: ask the applicant. (3) company, one owner of 100 percent, complete: approve. (4) company half owned by Torvald Holdings Ltd (Rovaland) whose owners are in no document: gap, ask the applicant.
+- kyc-review: (1) nothing changed (CUS-1003). (2) a new address, same rating (CUS-1005). (3) a new 30 percent owner in Kharnovia (CUS-1018): rating up, needs approval. (4) a new employer, same rating (CUS-1009).
+- complaint: (1) a card replacement fee taken twice: uphold, refund one. (2) a card declined abroad by the fraud rule that worked as designed: not upheld. (3) written to nine working days ago and never acknowledged: admit it. (4) a customer who lost her job charged an overdraft fee: possible vulnerability, priority.
+- collections-call: (1) clean call, exact promise. (2) call starts 20:25: CR-04 breached. (3) the caller says someone will come tonight and the customer will lose their home: CR-03 breached. (4) the customer says they have been ill and the hardship options are offered: no breach.

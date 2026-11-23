@@ -33,7 +33,7 @@ async def list_tools_sse(base, system):
         async with ClientSession(streams[0], streams[1]) as session:
             await session.initialize()
             tools = (await session.list_tools()).tools
-            result = await session.call_tool(tools[0].name if False else "validate_iban" if system == "payments" else tools[0].name,
+            result = await session.call_tool("validate_iban" if system == "payments" else tools[0].name,
                                              {"iban": "XM00MRTB00000000000000"} if system == "payments" else {})
             return tools, result
 

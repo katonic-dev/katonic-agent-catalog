@@ -20,7 +20,7 @@ from urllib.parse import quote, urlencode
 from fastapi import FastAPI, Request
 from starlette.responses import Response, StreamingResponse
 
-from .common import Ctx, DemoJSONResponse, KEY_HEADER, key_is_valid
+from .common import Ctx, public_scheme, DemoJSONResponse, KEY_HEADER, key_is_valid
 from .config import INVENTED_NOTICE
 
 SUPPORTED = ["2024-11-05", "2025-03-26", "2025-06-18", "2025-11-25"]
@@ -182,7 +182,7 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
                                            "'Authorization: Bearer <key>'."}, status_code=401)
 
     def note_caller(request: Request) -> None:
-        _caller.set({"host": request.headers.get("host", ""), "scheme": request.url.scheme,
+        _caller.set({"host": request.headers.get("host", ""), "scheme": public_scheme(request),
                      "root_path": request.scope.get("root_path", "")})
 
     async def rpc_post(request: Request) -> Response:

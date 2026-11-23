@@ -9,7 +9,7 @@ from fastapi import Path, Query, Request
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-from ..common import Ctx, listing, make_subapp, not_found, reg
+from ..common import Ctx, public_scheme, listing, make_subapp, not_found, reg
 from ..config import INVENTED_NOTICE
 
 KEY = "news"
@@ -37,7 +37,7 @@ class ScreeningDraft(BaseModel):
 def _origin(request: Request) -> str:
     # an MCP call reaches this app from inside, so the caller's own prefix arrives in a header
     root = request.headers.get("x-public-root-path", request.scope.get("root_path", "")).rstrip("/")
-    return f"{request.url.scheme}://{request.headers.get('host', request.url.netloc)}{root}"
+    return f"{public_scheme(request)}://{request.headers.get('host', request.url.netloc)}{root}"
 
 
 def build(ctx: Ctx):

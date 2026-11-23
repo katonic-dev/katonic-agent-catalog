@@ -70,17 +70,17 @@ def build_loans_and_exposure(customers: dict, today: date) -> tuple[dict, dict]:
                     "currency": "USD", "principal": 250000.0, "outstanding": 250000.0, "status": "active",
                     "start_date": d_ago(today, 75), "maturity_date": d_ago(today, -1750)},
         "LN-9002": {"loan_id": "LN-9002", "customer_id": "CUS-1018", "product": "Equipment loan",
-                    "currency": "USD", "principal": 300000.0, "outstanding": 165000.0, "status": "active",
-                    "start_date": d_ago(today, 1500), "maturity_date": d_ago(today, -700)},
+                    "currency": "USD", "principal": 300000.0, "outstanding": 180000.0, "status": "active",
+                    "start_date": d_ago(today, 1500), "maturity_date": d_ago(today, -1095)},
         "LN-9003": {"loan_id": "LN-9003", "customer_id": "CUS-1013", "product": "Home loan",
                     "currency": "USD", "principal": 240000.0, "outstanding": 201500.0, "status": "active",
                     "start_date": d_ago(today, 1100), "maturity_date": d_ago(today, -5500)},
         "LN-9004": {"loan_id": "LN-9004", "customer_id": "CUS-1024", "product": "Equipment loan",
                     "currency": "USD", "principal": 90000.0, "outstanding": 61200.0, "status": "active",
                     "start_date": d_ago(today, 800), "maturity_date": d_ago(today, -1000)},
-        "LN-9005": {"loan_id": "LN-9005", "customer_id": "CUS-1012", "product": "Personal loan",
-                    "currency": "USD", "principal": 9000.0, "outstanding": 4300.0, "status": "active",
-                    "start_date": d_ago(today, 520), "maturity_date": d_ago(today, -400)},
+        "LN-9005": {"loan_id": "LN-9005", "customer_id": "CUS-1012", "product": "Car loan",
+                    "currency": "USD", "principal": 12000.0, "outstanding": 4300.0, "status": "active",
+                    "start_date": d_ago(today, 520), "maturity_date": d_ago(today, -300)},
     }
     exposure = {}
     for cid in customers:

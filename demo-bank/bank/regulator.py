@@ -15,7 +15,7 @@ from xml.sax.saxutils import escape
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, Response
 
-from .common import Ctx
+from .common import Ctx, public_scheme
 from .config import INVENTED_NOTICE
 from .seed_reg import REGULATOR_NAME
 
@@ -25,7 +25,7 @@ DESCRIPTION = ("The public website of an invented financial regulator. It publis
 
 def _origin(request: Request) -> str:
     root = request.scope.get("root_path", "").rstrip("/")
-    return f"{request.url.scheme}://{request.headers.get('host', request.url.netloc)}{root}"
+    return f"{public_scheme(request)}://{request.headers.get('host', request.url.netloc)}{root}"
 
 
 def _rfc822(day: str) -> str:

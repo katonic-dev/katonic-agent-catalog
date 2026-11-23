@@ -128,4 +128,9 @@ class Store:
             "open_reconciliation_breaks": openc("recon_breaks"),
             "news_articles": len(d["news_articles"]),
             "regulator_publications": len(d["regulator_publications"]),
+            "open_onboarding_applications": openc("onb_applications", val="received"),
+            "open_kyc_reviews": openc("kyc_reviews"),
+            "open_complaints": openc("complaints"),
+            "unreviewed_collections_calls": openc("collections_calls", val="unreviewed"),
+            "open_control_tests": openc("control_tests"),
         }

@@ -8,9 +8,13 @@ from datetime import date
 from .config import SEED
 from .seed_base import (build_accounts, build_background_transactions, build_banks, build_customers,
                         finalise_balances)
+from .seed_aud import build_audit
+from .seed_cmp import PROCEDURE, align_accounts, build_complaints
+from .seed_col import RULES as CONDUCT_RULES, add_loans, build_calls
 from .seed_fraud import build_fraud
 from .seed_lend import POLICY, build_applications, build_approved_loan
 from .seed_news import build_news
+from .seed_onb import REQUIREMENTS, build_onboarding, build_reviews
 from .seed_recon import RULES as RECON_RULES, build_recon
 from .seed_reg import build_publications
 from .seed_pay import PURPOSE_CODES, RULES, build_payments
@@ -34,6 +38,11 @@ def build_all(today: date) -> dict:
     approved_terms, loan_docs = build_approved_loan(today)
     fraud_rules, fraud_cases = build_fraud(customers, accounts, cards, card_txns, payments, contacts, tb, today)
     recon_accounts, recon_ledger, recon_statement, recon_breaks = build_recon(today)
+    add_loans(loans, exposure, today)
+    complaints = build_complaints(today, customers, accounts, tb, cards, applications, app_docs)
+    align_accounts(tb, accounts, today)
+    onb_apps, onb_docs = build_onboarding(today)
+    kyc_reviews, kyc_docs = build_reviews(customers, today)
     finalise_balances(accounts, tb.rows, rng)
     return {
         "banks": build_banks(), "customers": customers, "accounts": accounts, "transactions": tb.rows,
@@ -49,4 +58,9 @@ def build_all(today: date) -> dict:
         "recon_statement": recon_statement, "recon_breaks": recon_breaks,
         "news_articles": build_news(today), "media_screenings": {},
         "regulator_publications": build_publications(today),
+        "onb_applications": onb_apps, "onb_documents": onb_docs, "onb_requirements": REQUIREMENTS,
+        "kyc_reviews": kyc_reviews, "kyc_documents": kyc_docs,
+        "complaints": complaints, "complaints_procedure": PROCEDURE,
+        "collections_calls": build_calls(customers, today), "conduct_rules": CONDUCT_RULES,
+        **build_audit(today),
     }

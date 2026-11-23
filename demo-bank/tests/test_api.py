@@ -66,7 +66,7 @@ def test_openapi_documents_are_valid_303(client):
         first = doc["info"]["description"].split(".")[0]
         assert "invented" in first.lower(), system
         assert "ApiKeyAuth" in doc["components"]["securitySchemes"]
-        assert "anyOf" not in json.dumps(doc) or True
+        assert "anyOf" not in json.dumps(doc)
         assert '"type": "null"' not in json.dumps(doc)
 
 

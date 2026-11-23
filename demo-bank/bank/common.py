@@ -40,6 +40,12 @@ class DemoJSONResponse(JSONResponse):
         return super().render(content)
 
 
+def public_scheme(request: Request) -> str:
+    """The scheme the visitor used: the first X-Forwarded-Proto value if present, else the request's own."""
+    fwd = request.headers.get("x-forwarded-proto", "").split(",")[0].strip().lower()
+    return fwd if fwd in ("http", "https") else request.url.scheme
+
+
 def extract_key(request: Request) -> str:
     key = request.headers.get(KEY_HEADER, "").strip()
     if key:
