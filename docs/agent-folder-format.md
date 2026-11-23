@@ -80,6 +80,8 @@ state:
 | `server` | An MCP server from the Catalog | Yes |
 | `api` | An API you import from its OpenAPI file | Not yet. The build guide says how to connect it by hand |
 
+A need of the kind `api` also lists `operations`: the operations the agent's instructions rely on. Any API that offers them will do. The invented bank is one.
+
 ## instructions.md
 
 The agent's instructions, exactly as they go into the builder. Rules that hold for every agent here:
@@ -108,6 +110,8 @@ tests:
     checks:                           # what a program can decide from the reply
       - {check: does_not_say, any: ["years", "typically", "usually"]}
 ```
+
+A test that needs more than one message uses `turns`, a list of messages sent in order, in place of `input`. The checks apply to the reply to the last one.
 
 At least one test is in every state the agent can be in, and at least one asks for something the agent must refuse. A test counts as passed only when it passes five runs in a row: the same request can get two different answers.
 

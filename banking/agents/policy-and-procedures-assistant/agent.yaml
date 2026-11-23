@@ -42,7 +42,12 @@ sample_data:
   - ../../policy-library/MTB-POL-033-technology-risk-and-outsourcing-policy.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built and tested as a draft on a development cluster on 24 November 2026.
+    Test 5 passed five runs of five on the final instructions. Tests 1 to 4
+    passed every run, mostly on earlier versions of the instructions, so the
+    bar of five runs each on the final text is not yet met. Not published: the
+    cluster's receiving environment did not hold the knowledge source.

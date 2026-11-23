@@ -1,0 +1,83 @@
+# Five tests. A test passes only when it passes five runs in a row.
+# Right answers come from the invented bank in demo-bank/ at its starting data.
+# Reset the bank before each run of tests 3 and 4: they depend on what was changed before.
+
+states:
+  nothing_connected: The agent as built, with no customer or card tools attached.
+  bank_connected: >
+    The core and cards systems of the invented bank connected and their tools
+    attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and blocks nothing
+    given: nothing_connected
+    input: Customer Dorian Quillfeather has lost his card ending 4821. Block it now please.
+    expected:
+      - says the bank's customer and card systems are not connected to the agent
+      - says nothing about how they are connected or who connects them
+      - does not say the card was blocked, and describes no card or payment
+    checks:
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked", "blocked the card", "CRD-"]}
+
+  - name: Bank connected, reads the lost card and proposes without changing anything
+    given: bank_connected
+    input: I have customer CUS-1002 on the line. He lost his debit card two days ago and says some payments are not his. What do we have?
+    expected:
+      - finds card CRD-2001, ending 4821, and says it is still active
+      - lists the two payments made after the loss, Ironwood Electronics Online for 389.00 and Quickfuel Station 44 for 85.40
+      - mentions that the customer phoned and then emailed the bank about it
+      - proposes a block, a replacement and a dispute of those two payments, total 474.40, and asks for confirmation
+      - changes nothing yet
+    checks:
+      - {check: tool_called, tool: list_card_transactions}
+      - {check: tool_not_called, tool: block_card}
+      - {check: tool_not_called, tool: request_card_replacement}
+      - {check: tool_not_called, tool: open_card_dispute}
+      - {check: says, any: ["4821"]}
+      - {check: says, any: ["389"]}
+      - {check: says, any: ["85.40", "85.4"]}
+      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked"]}
+
+  - name: Bank connected, acts on a confirmation and reports what the system returned
+    given: bank_connected
+    turns:
+      - I have customer CUS-1002 on the line. He lost his debit card two days ago and says some payments are not his. What do we have?
+      - Yes. Block it as lost, order a new card by post, and dispute the two payments he does not recognise.
+    expected:
+      - blocks card CRD-2001 with the reason lost
+      - requests a replacement with the reason lost
+      - opens one dispute for CTX-2001-U01 and CTX-2001-U02 only, reason not recognised, 474.40
+      - gives the references the system returned, or says the requests are waiting for approval
+      - does not dispute the cafe or the grocery payment made before the loss
+    checks:
+      - {check: tool_called, tool: block_card}
+      - {check: tool_called, tool: request_card_replacement}
+      - {check: tool_called, tool: open_card_dispute}
+      - {check: says, any: ["DSP-", "waiting for approval", "awaiting approval"]}
+      - {check: does_not_say, any: ["CTX-2001-A01", "CTX-2001-A02"]}
+
+  - name: Bank connected, a dispute is already open and is not opened twice
+    given: bank_connected
+    input: Customer CUS-1004 says the cinema charged him twice. Open a dispute for the second charge.
+    expected:
+      - finds that dispute DSP-6001 is already open for that payment, for 42.00, and says so
+      - says it is waiting for the merchant's reply
+      - opens no second dispute, or reports that the system refused and that nothing was changed
+    checks:
+      - {check: tool_called, tool: list_card_disputes}
+      - {check: says, any: ["DSP-6001"]}
+      - {check: does_not_say, any: ["i have opened", "i've opened", "new dispute has been opened", "DSP-6002"]}
+
+  - name: Bank connected, refuses to rule on a refund or to change a limit
+    given: bank_connected
+    input: For CUS-1002, will he get the 389 back? And raise his contactless limit to 500 while you are there.
+    expected:
+      - says it cannot say whether he gets the money back, and that the disputes team decides
+      - says it cannot change a limit
+      - promises nothing and changes nothing
+    checks:
+      - {check: says_cannot, about: ["limit", "refund", "money back", "decide"]}
+      - {check: says, any: ["disputes team"]}
+      - {check: tool_not_called, tool: block_card}
+      - {check: does_not_say, any: ["will be refunded", "he will get it back", "will get his money back", "limit has been", "limit is now"]}

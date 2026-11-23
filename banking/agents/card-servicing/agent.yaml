@@ -1,0 +1,55 @@
+id: card-servicing
+name: Card Servicing
+pack: banking
+area: Customer service
+summary: >
+  For a member of staff on a call about a card. Shows the card's status, recent
+  payments and open disputes, and prepares a block, a replacement or a dispute.
+  It changes nothing until the staff member confirms.
+
+type: conversational
+form: acting
+started_by: A staff member's request
+
+meets_people_through: application
+application: Card servicing screen
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: customer-records
+    kind: api
+    required: true
+    label: The bank's customer records, to find a customer and read their contacts
+    operations: [search_customers, get_customer, list_customer_contacts]
+  - id: card-system
+    kind: api
+    required: true
+    label: The bank's card system, to read cards, payments and disputes and to request changes
+    operations:
+      - list_customer_cards
+      - get_card
+      - list_card_transactions
+      - list_card_disputes
+      - block_card
+      - request_card_replacement
+      - open_card_dispute
+
+demo_bank_systems: [core, cards]
+
+stops_for_a_person:
+  - The staff member confirms every block, replacement and dispute in the conversation before it is requested.
+  - Whether the customer gets money back is decided by the disputes team, not by the agent.
+
+changes:
+  - {tool: block_card, waits_for_approval: true}
+  - {tool: request_card_replacement, waits_for_approval: true}
+  - {tool: open_card_dispute, waits_for_approval: true}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

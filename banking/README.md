@@ -26,7 +26,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 11 | Collections Call Review | Summarises a collections call, checks it against the bank's conduct rules, and drafts the follow-up note | Workflow, scheduled | Sent to the supervisor | Planned |
 | | **Customer service** | | | | |
 | 12 | Banking Support | Drafts the reply to a customer's question from the bank's documents and the customer's own records | Conversational, acting | Chat | Planned |
-| 13 | Card Servicing | For a member of staff on a call: card status, recent transactions and open disputes, and the block, replacement or dispute request prepared | Conversational, acting | Card servicing screen | Planned |
+| 13 | [Card Servicing](agents/card-servicing/README.md) | For a member of staff on a call: card status, recent transactions and open disputes, and the block, replacement or dispute request prepared | Conversational, acting | Card servicing screen | Written, not yet built |
 | 14 | Complaint Handling | Classifies a complaint, gathers the customer's history, and drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Planned |
 | | **Payments operations** | | | | |
 | 15 | Payment Investigation | Traces a payment's status, lines up the messages, and drafts the reply to the customer or the other bank | Workflow, event-triggered | Payments desk | Planned |
@@ -34,7 +34,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 17 | Reconciliation Break | Gathers both sides of an unmatched item and proposes the match or the adjusting entry with the evidence | Workflow, scheduled | Reconciliation desk | Planned |
 | | **Compliance and audit** | | | | |
 | 18 | Regulatory Monitoring | Reports what a regulator has published on a subject and drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | In progress |
-| 19 | [Policy and Procedures Assistant](agents/policy-and-procedures-assistant/README.md) | Answers staff questions from the bank's own policies and procedures, citing the document | Conversational, answering | Chat | Written, not yet built |
+| 19 | [Policy and Procedures Assistant](agents/policy-and-procedures-assistant/README.md) | Answers staff questions from the bank's own policies and procedures, citing the document | Conversational, answering | Chat | Built and tested as a draft. Not yet published |
 | 20 | Audit Evidence | Collects the evidence a control test plan names and lists what is missing | Workflow, scheduled | Sent to the auditor | Planned |
 | 27 | Third-Party Risk Assessment | Reads a supplier's questionnaire and evidence, and drafts the assessment against the bank's requirements | Workflow, event-triggered | Third-party risk desk | Planned |
 | | **Finance and relationship management** | | | | |

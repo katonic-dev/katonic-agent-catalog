@@ -2,7 +2,11 @@
 # Right answers come from banking/policy-library/. Clause numbers are the documents' own.
 
 states:
-  nothing_connected: The agent as built, with no knowledge source attached.
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests. Without it the platform
+    answers by itself with a fixed message and the instructions are never used,
+    because an agent of this kind cannot run or be published with no source.
   sample_documents_attached: The three policies in banking/policy-library/ uploaded and attached as one knowledge source.
 
 tests:
@@ -67,5 +71,6 @@ tests:
       - {check: cites_source}
       - {check: says_cannot, about: ["approve", "exception", "grant", "decide"]}
       - {check: says, any: ["written agreement"]}
+      - {check: says, any: ["4.1"]}
       - {check: says, any: ["chief data officer"]}
-      - {check: does_not_say, any: ["you can send", "you may send", "go ahead", "i approve", "approved", "which customer", "customer's name"]}
+      - {check: does_not_say, any: ["you can send", "you may send", "go ahead", "i approve", "exception is approved", "exception approved", "which customer", "customer's name"]}
