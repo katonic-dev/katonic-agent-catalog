@@ -1,0 +1,48 @@
+id: policy-and-procedures-assistant
+name: Policy and Procedures Assistant
+pack: banking
+area: Compliance and audit
+summary: >
+  Answers staff questions from the bank's own policies and procedures, with a
+  citation for each statement. Says so when the documents do not hold the
+  answer. It takes no action and decides nothing.
+
+type: conversational
+form: answering
+started_by: A staff member's question
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  preset: knowledge_qa
+  tier: reasoning
+  skills:
+    - cite-with-sources@2.0
+
+needs:
+  - id: policy-library
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the bank's policies and procedures
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_bank_systems: []
+
+stops_for_a_person:
+  - It takes no action, so there is nothing to approve.
+  - A decision, an exception or one customer's case goes to the owner the policy names.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/MTB-POL-014-ai-and-model-risk-policy.md
+  - ../../policy-library/MTB-POL-021-customer-information-and-data-sharing-policy.md
+  - ../../policy-library/MTB-POL-033-technology-risk-and-outsourcing-policy.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

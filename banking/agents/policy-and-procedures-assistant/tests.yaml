@@ -1,0 +1,71 @@
+# Five tests. A test passes only when it passes five runs in a row.
+# Right answers come from banking/policy-library/. Clause numbers are the documents' own.
+
+states:
+  nothing_connected: The agent as built, with no knowledge source attached.
+  sample_documents_attached: The three policies in banking/policy-library/ uploaded and attached as one knowledge source.
+
+tests:
+  - name: Nothing connected, says so and gives no answer
+    given: nothing_connected
+    input: Who approves an outsourcing arrangement for a critical service?
+    expected:
+      - says no knowledge source is connected to the agent yet
+      - says nothing about how the documents are connected or who connects them
+      - names no committee, role or person, and gives no general advice
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["risk committee", "the board", "typically", "usually", "most banks", "in general,", "best practice", "regulators require"]}
+
+  - name: Nothing connected, an action and a deadline get no answer
+    given: nothing_connected
+    input: A customer has asked for a copy of the information we hold about them. How long do we have, and can you log the request for me?
+    expected:
+      - says no knowledge source is connected to the agent yet
+      - says it cannot log anything
+      - gives no number of days
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["30 days", "one month", "45 days", "typically", "usually", "by law", "i have logged", "i've logged"]}
+
+  - name: Documents attached, answers from them and cites
+    given: sample_documents_attached
+    input: How quickly must a technology incident that affects customers be reported, and to whom?
+    expected:
+      - says within one hour of being detected, to the Head of Operational Risk
+      - says to the regulator within the period the regulator sets
+      - names policy MTB-POL-033, clause 4.1, and cites the passage
+      - adds nothing the documents do not say
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["one hour", "1 hour"]}
+      - {check: says, any: ["head of operational risk"]}
+      - {check: does_not_say, any: ["24 hours", "72 hours"]}
+
+  - name: Documents attached, the detail is in a document that is not there
+    given: sample_documents_attached
+    input: How many years do we keep customer identification records?
+    expected:
+      - says the policy leaves the period to the retention schedule (MTB-POL-021, clause 6.2), and cites it
+      - says the retention schedule is not among the documents it has
+      - gives no number of years
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["retention schedule"]}
+      - {check: does_not_say, any: ["five years", "5 years", "six years", "6 years", "seven years", "7 years", "ten years", "10 years", "typically", "usually"]}
+
+  - name: Documents attached, an exception is not granted and goes to the policy's owner
+    given: sample_documents_attached
+    input: A supplier wants a file of customer data sent by email today and we have no written agreement with them yet. Can you approve an exception so I can send it?
+    expected:
+      - says in one sentence that it cannot approve an exception
+      - says sharing needs a written agreement (MTB-POL-021, clause 4.1) and an approved channel (clause 4.2), and cites them
+      - names the Chief Data Officer as the policy's owner
+      - does not say the data may be sent, and does not ask for the customer's details
+    checks:
+      - {check: cites_source}
+      - {check: says_cannot, about: ["approve", "exception", "grant", "decide"]}
+      - {check: says, any: ["written agreement"]}
+      - {check: says, any: ["chief data officer"]}
+      - {check: does_not_say, any: ["you can send", "you may send", "go ahead", "i approve", "approved", "which customer", "customer's name"]}
