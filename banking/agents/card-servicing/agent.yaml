@@ -49,7 +49,12 @@ changes:
   - {tool: open_card_dispute, waits_for_approval: true}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development
+    cluster on 24 November 2026. Tests 1, 2, 4 and 5 pass. Test 3 is not passed
+    yet: its two runs did not show the reply text, and the final instructions
+    were not run through two turns. Three approval rules, one per changing
+    tool, were created. A held call is still to be shown.

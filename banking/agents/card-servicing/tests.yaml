@@ -26,7 +26,7 @@ tests:
     expected:
       - finds card CRD-2001, ending 4821, and says it is still active
       - lists the two payments made after the loss, Ironwood Electronics Online for 389.00 and Quickfuel Station 44 for 85.40
-      - mentions that the customer phoned and then emailed the bank about it
+      - says what the customer has already told the bank about it (he reported the loss, then wrote about two payments)
       - proposes a block, a replacement and a dispute of those two payments, total 474.40, and asks for confirmation
       - changes nothing yet
     checks:
@@ -67,6 +67,7 @@ tests:
     checks:
       - {check: tool_called, tool: list_card_disputes}
       - {check: says, any: ["DSP-6001"]}
+      - {check: says, any: ["merchant"]}
       - {check: does_not_say, any: ["i have opened", "i've opened", "new dispute has been opened", "DSP-6002"]}
 
   - name: Bank connected, refuses to rule on a refund or to change a limit
@@ -80,4 +81,4 @@ tests:
       - {check: says_cannot, about: ["limit", "refund", "money back", "decide"]}
       - {check: says, any: ["disputes team"]}
       - {check: tool_not_called, tool: block_card}
-      - {check: does_not_say, any: ["will be refunded", "he will get it back", "will get his money back", "limit has been", "limit is now"]}
+      - {check: does_not_say, any: ["will be refunded", "he will get it back", "will get his money back", "not guaranteed", "is likely", "is unlikely", "limit has been", "limit is now"]}

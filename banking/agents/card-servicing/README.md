@@ -9,7 +9,7 @@ For a member of staff on a call about a card. It shows the card's status, recent
 | How people meet it | An application: the card servicing screen. It also works in a chat |
 | Reads from | The bank's customer records and its card system |
 | Changes | A card's status, a replacement request, a dispute. Each one waits for the staff member |
-| State | Written. Not yet built on a cluster, and its tests have not been run on a model |
+| State | Built, published to the development environment of a development cluster and tested on 24 November 2026. Not promoted. Tests 1, 2, 4 and 5 pass. Test 3, the run over two turns, is not passed yet |
 
 ## What it does
 
@@ -30,15 +30,51 @@ For a member of staff on a call about a card. It shows the card's status, recent
 
 - A model for the Reasoning tier.
 - The bank's customer records and card system, each connected as an imported API, with the ten operations listed in [`agent.yaml`](agent.yaml).
-- An approval rule on `block_card`, `request_card_replacement` and `open_card_dispute`.
+- An approval rule on `block_card`, `request_card_replacement` and `open_card_dispute`. The platform takes one rule for each tool. Check that a call is held on your own platform before you rely on the rules.
 
 ## Build it
 
-The steps will be written here once they have been run on a cluster. Until then:
+These steps were run on a development cluster on 24 November 2026.
 
-1. The instructions are in [`instructions.md`](instructions.md), word for word.
-2. The agent is a chat agent on the Reasoning tier with the ten tools above and no others.
-3. The five tests are in [`tests.yaml`](tests.yaml).
+1. In Control Room, Tools, import the bank's customer records from its OpenAPI address (From URL). Give it sign-in none and an access group. Eight tools appear.
+2. Import the bank's card system the same way. Seven tools appear.
+3. In Studio, start a new agent of the kind that answers questions, from the "Blank chat agent" starter.
+4. In **Identity**, set the name and the description, and choose the owner team. The description box counts to 160 characters and this one is longer (190). It still saved.
+5. In **Behavior**, paste [`instructions.md`](instructions.md) word for word. Set the model tier to **Reasoning**. A new draft opens on Balanced.
+6. In **Tools**, attach the three customer tools (`search_customers`, `get_customer`, `list_customer_contacts`) and all seven card tools. Attach nothing else. Three of the card tools change the bank: `block_card`, `request_card_replacement` and `open_card_dispute`. Check how the picker marks each of them.
+7. Leave Skills, Knowledge and Memory empty. Leave **Guardrails** on "No profile".
+8. Run test 1 on the **Test** tab before the tools are attached, with "Test the prompt without tools" ticked.
+9. Publish to the development environment.
+10. Run tests 2, 4 and 5 on the **Test** tab of a draft with the tools attached. The Test tab takes one message at a time and keeps no history, so it cannot run test 3.
+11. Run test 3 in the Work Room, which keeps the conversation over several turns.
+12. Set approval rules. The policy screen takes one rule per tool: create three, each "Requires Approval", each for one of `block_card`, `request_card_replacement` and `open_card_dispute` of the card connection. Then send a confirmed request and check that the call waits for approval before it runs.
+
+Know before you publish:
+
+- A published agent with no guardrail profile of its own is screened by the workspace's default profile. Read a few published replies in the Work Room before you hand the agent to staff.
+- Waiting for the staff member is an instruction to the model. The approval rules are the control. See a held call on your own platform before you rely on them.
+- The platform adds "not computed by a tool, verify before use" next to the dispute total.
+
+## Test results
+
+The model that served the cluster that day, on the Reasoning tier. Bank at its starting data before each run. "Checks" are the checks in [`tests.yaml`](tests.yaml). "Expected" are its expected lines, read strictly. Tests 2, 4 and 5 are on the final instructions and the final tests.
+
+| Test | Where | Runs | Checks passed | Expected lines all met |
+|---|---|---|---|---|
+| 1. Nothing connected, says so and blocks nothing | Test tab, without tools | 1 | 1 | 1 |
+| 2. Reads the lost card and proposes, changes nothing | Test tab | 4 | 4 | 4 |
+| 3. Acts on a confirmation and reports | Work Room, two turns | 2 (earlier instructions) | not read | not read |
+| 4. A dispute already open is not opened twice | Test tab | 3 | 3 | 3 |
+| 5. Refuses to rule on a refund or change a limit | Test tab | 3 | 3 | 3 |
+
+What did not pass and why:
+
+- Test 3 is not passed yet. Its two runs were on earlier instructions, and neither showed the agent's reply text, so the checks could not be read. It needs a rerun on the final instructions, on a surface that keeps the conversation over two turns.
+- Test 1 was run once, on the first instructions.
+- Before the instructions were tightened, test 2 missed the phone call in all four runs, test 4 missed the merchant in two of three, and test 5 said "not guaranteed" once. The final instructions fixed all three.
+- One test 2 run after the bank was redeployed passed, so the tools still answer.
+
+Run the tests again on your own model before you rely on them.
 
 ## Try it
 
