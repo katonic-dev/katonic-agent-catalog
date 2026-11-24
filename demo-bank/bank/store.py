@@ -179,6 +179,14 @@ class Store:
             self.counters[key] = n + 1
             return n
 
+    def next_free(self, key: str, start: int, taken, make) -> str:
+        """The next id that is not in use: a number the starting data already holds is skipped, never overwritten."""
+        with self.lock:
+            while True:
+                ident = make(self.next_number(key, start))
+                if ident not in taken:
+                    return ident
+
     def add_draft(self, item: dict, field: str, payload: dict, drafted_by: str) -> dict:
         with self.lock:
             versions = item.setdefault(field, [])

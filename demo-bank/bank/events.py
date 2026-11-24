@@ -112,7 +112,7 @@ def _screening(store: Store, n: int) -> tuple[str, str]:
 def _new_payment(store: Store, num: int, amount: float, bene: dict, status: str, bearer="SHA", purpose="", reference="",
                  messages=None, timeline=None) -> dict:
     d, today = store.data, store.settings.bank_today
-    pid = f"PAY-{6300 + store.next_number('sim_pay', 1)}"
+    pid = store.next_free("sim_pay", 1, d["payments"], lambda n: f"PAY-{6300 + n}")
     acc = d["accounts"][f"ACC-{num}-01"]
     d["payments"][pid] = {"payment_id": pid, "customer_id": f"CUS-{num}", "debit_account_id": acc["account_id"],
                           "amount": amount, "currency": "USD", "created": today.isoformat(), "status": status,
@@ -231,7 +231,7 @@ def _application(store: Store, n: int) -> tuple[str, str]:
 
 def _contact_note(store: Store, cid: str, channel: str, ago: int, direction: str, subject: str, summary: str, by: str) -> str:
     d, today = store.data, store.settings.bank_today
-    key = f"CNT-{store.next_number('contact', 5100)}"
+    key = store.next_free("contact", 5100, d["contacts"], lambda n: f"CNT-{n}")
     d["contacts"][key] = {"contact_id": key, "customer_id": cid, "channel": channel, "date": d_ago(today, ago),
                           "direction": direction, "subject": subject, "summary": summary, "recorded_by": by,
                           "drafted_by": by, "version": 1}

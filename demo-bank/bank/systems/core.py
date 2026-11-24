@@ -129,8 +129,7 @@ def build(ctx: Ctx):
         if customer_id not in d()["customers"]:
             raise not_found("customer", customer_id, "Use search_customers to find the id.")
         with st.lock:
-            n = st.next_number("contact", 5100)
-            cid = f"CNT-{n}"
+            cid = st.next_free("contact", 5100, d()["contacts"], lambda n: f"CNT-{n}")
             version = 1 + sum(1 for c in d()["contacts"].values()
                               if c["customer_id"] == customer_id and c.get("drafted_at"))
             rec = {"contact_id": cid, "customer_id": customer_id, "channel": body.channel,
