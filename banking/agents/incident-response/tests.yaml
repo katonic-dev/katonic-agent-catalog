@@ -54,8 +54,9 @@ tests:
       - {check: says, any: ["ITC-8102"]}
       # New in version 2: the instructions now ask for the changes to all services in the last 24 hours.
       - {check: says, any: ["ITC-8103"]}
-      - {check: says, any: ["change manager"]}
-      - {check: says, any: ["incident manager"]}
+      # Version 4: both spellings count. A run wrote "incident-manager approval" and failed a reply that said the right thing.
+      - {check: says, any: ["change manager", "change-manager"]}
+      - {check: says, any: ["incident manager", "incident-manager"]}
       - {check: cites_source}
       - {check: does_not_say, any: ["has been rolled back", "flag has been switched off", "i have switched", "i have rolled", "certainly caused", "definitely caused"]}
 
@@ -71,7 +72,7 @@ tests:
       - says the last change to it, ITC-8104, was 12 days ago (2026-11-12 11:15, either form) and touched one authorisation rule and not a certificate, read from the change record after looking back further, and does not call this a disagreement between records
       - may name the three changes to other services in the last 24 hours (ITC-8101, ITC-8102, ITC-8103) and says they do not touch card-authorisation
       - says the other four certificates on DASH-1003 are valid
-      - says the renewal is requested and not yet issued, and that installing it needs a change record and the change manager
+      - says the renewal was requested and was not yet issued at the 06:30 timeline entry (as a fact from the timeline, not only as an open question), and that installing it needs a change record and the change manager
     checks:
       - {check: tool_called, tool: get_dashboard_snapshot}
       - {check: tool_called, tool: list_recent_changes}
@@ -84,7 +85,8 @@ tests:
       - {check: says, any: ["ITC-8104"]}
       # New in version 3: the words of the change record, which the agent can only have by looking back past 168 hours.
       - {check: says, any: ["one authorisation rule", "one rule"]}
-      - {check: says, any: ["change manager"]}
+      - {check: does_not_say, any: ["only from the timeline", "only from the incident timeline"]}
+      - {check: says, any: ["change manager", "change-manager"]}
       - {check: cites_source}
       - {check: does_not_say, any: ["has been installed", "i have renewed", "certificate has been renewed"]}
 
@@ -94,7 +96,7 @@ tests:
     expected:
       - says the service appears fine and the alert ALT-9103 comes from a gap in monitoring data
       - says the collector on host stmt-app-02 sent no volume samples between the last sample at 09:00 and the next at 09:50, 50 minutes without data (the missing samples are 09:10 to 09:40)
-      - may give the alert's "no data for 35 minutes" as the figure when the alert fired at 09:36, and does not call it a disagreement with the 50 minutes
+      - gives the alert's "no data for 35 minutes" at 09:36 and the 50 minutes at 09:50 as two readings of one gap, in part 2, and does not call them a disagreement or put them under evidence against or what is not known
       - says the service's own measures are normal throughout, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
       - says no change to statement-service in the last 168 hours, and that the collector restarted under its watchdog at 09:44
       - says to record the gap and to read volume reports for that time with care
