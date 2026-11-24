@@ -159,6 +159,53 @@ def test_simulated_alerts_are_readable_and_their_figures_agree(client, store):
     assert case["narratives"][0]["narrative"] == "Structuring."
 
 
+def test_alert_priority_rule_is_written_down_and_every_seeded_alert_carries_its_priority(client):
+    a = get(client, "/aml/alerts/TMA-3003")
+    rule = a["priority_rule"]
+    assert rule["name"] == "Alert priority rule" and "risk score alone" in rule["rule"] and "risk rating does not change it" in rule["rule"]
+    assert "80 or more" in rule["high"] and "60 to 79" in rule["medium"] and "under 60" in rule["low"]
+    assert all("investigator looks at the alert" in rule[p] for p in ("high", "medium", "low"))
+    bands = [(b["priority"], b["min_score"], b["max_score"]) for b in rule["bands"]]
+    assert bands == [("high", 80, 100), ("medium", 60, 79), ("low", 0, 59)]
+    assert (a["risk_score"], a["priority"]) == (74, "medium")
+    # each seeded alert, open or closed, carries the priority the rule gives its score, in the list and in full
+    want = {"TMA-3001": (86, "high"), "TMA-3002": (82, "high"), "TMA-3003": (74, "medium"), "TMA-3004": (52, "low"),
+            "TMA-2901": (55, "low"), "TMA-2902": (50, "low")}
+    rows = {r["alert_id"]: r for r in get(client, "/aml/alerts")["items"]}
+    assert {k: (r["risk_score"], r["priority"]) for k, r in rows.items()} == want
+    for aid, (score, word) in want.items():
+        full = get(client, f"/aml/alerts/{aid}")
+        assert (full["risk_score"], full["priority"]) == (score, word) and full["priority_rule"] == rule
+        band = next(b for b in rule["bands"] if b["priority"] == word)
+        assert band["min_score"] <= score <= band["max_score"]
+    history = get(client, "/aml/customers/CUS-1020/alerts")["alerts"]
+    assert {h["alert_id"]: h["priority"] for h in history} == {"TMA-3001": "high", "TMA-2901": "low"}
+
+
+def test_alert_priority_follows_the_bands_at_their_edges(store):
+    from bank.seed_scen1 import alert_priority
+    assert [alert_priority(s) for s in (100, 80, 79, 60, 59, 0)] == ["high", "high", "medium", "medium", "low", "low"]
+    assert all(a["priority"] == alert_priority(a["risk_score"]) for a in store.data["monitoring_alerts"].values())
+
+
+def test_simulated_alerts_carry_the_priority_the_rule_gives_their_score(client, store):
+    got = []
+    for _ in range(4):
+        i = post(client, "/admin/simulate/monitoring-alert")["item_id"]
+        a = get(client, f"/aml/alerts/{i}")
+        assert store.data["monitoring_alerts"][i]["priority"] == a["priority"] and a["priority_rule"]["name"] == "Alert priority rule"
+        got.append((a["rule_id"][-3:], a["risk_score"], a["priority"]))
+    assert got == [("001", 84, "high"), ("002", 80, "high"), ("003", 58, "low"), ("004", 46, "low")]
+    listed = {r["alert_id"]: r["priority"] for r in get(client, "/aml/alerts?status=open")["items"]}
+    assert [listed[f"TMA-310{n}"] for n in (1, 2, 3, 4)] == ["high", "high", "low", "low"]
+
+
+def test_an_alert_stored_without_a_priority_gets_it_from_its_score(client, store):
+    del store.data["monitoring_alerts"]["TMA-3002"]["priority"]
+    assert get(client, "/aml/alerts/TMA-3002")["priority"] == "high"
+    assert next(r for r in get(client, "/aml/alerts")["items"] if r["alert_id"] == "TMA-3002")["priority"] == "high"
+
+
 def test_monitoring_alert_can_be_subscribed_to_and_counted(client):
     r = post(client, "/admin/subscriptions", {"event_kind": "monitoring-alert", "url": "http://127.0.0.1:9/x"})
     assert r["subscription"]["event_kind"] == "monitoring-alert"

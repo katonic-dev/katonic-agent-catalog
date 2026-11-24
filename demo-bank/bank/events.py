@@ -19,6 +19,7 @@ from .seed_onb import sim_application as sim_onboarding, sim_review
 from .seed_pay import NO_RULE_NOTE, RULE_NOTES, _bene
 from .seed_recon import sim_break
 from .seed_reg import sim_publication
+from .seed_scen1 import alert_priority
 from .store import Store, now_iso
 
 KINDS = ["screening-alert", "payment-repair", "payment-investigation", "loan-application", "fraud-case",
@@ -408,7 +409,8 @@ def _monitoring(store: Store, n: int) -> tuple[str, str]:
     d["monitoring_alerts"][aid] = {"alert_id": aid, "status": "open", "customer_id": cid, "account_id": acc["account_id"],
                                    "rule_id": rule, "period_start": d_ago(today, days[0]), "period_end": d_ago(today, days[1]),
                                    "created": d_ago(today, max(days[1] - 1, 0)), "transaction_ids": ids, "summary": summary,
-                                   "risk_score": score, "case_id": None, "closure": None, "investigation_drafts": []}
+                                   "risk_score": score, "priority": alert_priority(score), "case_id": None, "closure": None,
+                                   "investigation_drafts": []}
     return aid, (f"A new monitoring alert {aid} has arrived in the aml system for customer {cid} ({d['customers'][cid]['name']}). "
                  f"The rule {rule} fired: {summary} It is open and needs an investigation. "
                  f"Read it with get_monitoring_alert in the aml system.")

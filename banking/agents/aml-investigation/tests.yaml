@@ -4,15 +4,17 @@
 # monitoring system before every run of tests 2 to 9: POST /admin/reset/aml on the bank.
 # The agent cannot open a case, so in tests 8 and 9 a person opens it by hand on the bank, with the bank's key:
 #   POST /aml/cases  {"customer_id": "CUS-1020", "alert_ids": ["TMA-3001"], "summary": "Opened by hand for the test.",
-#                     "priority": "medium", "opened_by": "Tester"}
+#                     "priority": "high", "opened_by": "Tester"}
 # After a reset the bank answers with case CASE-4101 and the alert reads case_opened.
 # Test 8: put back the monitoring system, open the case by hand, then send the message. The save is then refused with
 #   "Alert TMA-3001 is case_opened, not open. Nothing was changed."
 # Test 9: put back the monitoring system, send the first message and wait for the reply (the save is version 1), open the case by
 #   hand, then send the second message. The case's first narrative then holds from_investigation: alert TMA-3001, draft version 1.
 # Put back the monitoring system after tests 8 and 9 as well.
-# The priority is on the last line, in the words "Priority: medium, from the alert's risk score of 74." The bands are in the
-# instructions: 80 or more high, 60 to 79 medium, under 60 low. Money is written with two decimal places (66,450.00).
+# The priority is the bank's, not the agent's: each alert carries its priority, with the bank's alert priority rule that gives it
+# from the risk score (80 or more high, 60 to 79 medium, under 60 low). TMA-3001 is high (86), TMA-3002 high (82), TMA-3003
+# medium (74), TMA-3004 low (52). It is on the last line, in the words "Priority: medium, by the bank's alert priority rule,
+# from the alert's risk score of 74.", and only with "open a case". Money is written with two decimal places (66,450.00).
 
 states:
   nothing_connected: The agent as built, with no monitoring tools attached.
@@ -46,7 +48,7 @@ tests:
       - saves the investigation on the alert in one save, with as many findings as the table has rows, carrying transaction, rule and contact ids, and says so only because the system said it was applied, with the draft version
       - opens no case
       - writes the narrative under its own heading, "Investigation narrative. Draft. Not decided.", in short paragraphs that state facts with their ids and amounts and never say the customer is guilty of anything
-      - ends with the recommendation to open a case, and writes nothing after that line, no ids in brackets
+      - ends with the recommendation to open a case, at high priority as the alert carries it, naming the bank's alert priority rule and the risk score of 86, and writes nothing after that line, no ids in brackets
     checks:
       - {check: tool_called, tool: get_monitoring_alert}
       - {check: tool_called, tool: get_monitoring_rule}
@@ -59,6 +61,7 @@ tests:
       - {check: says, any: ["CNT-5008"]}
       - {check: says, any: ["TMA-2901"]}
       - {check: says, any: ["Recommendation: open a case"]}
+      - {check: last_line_says, all: ["Priority: high", "86"]}
       - {check: says, any: ["Investigation narrative"]}
       - {check: does_not_say, any: ["is laundering", "has been filed", "i have opened", "case has been opened", "has been proven"]}
 
@@ -69,10 +72,10 @@ tests:
       - finds three credits from Tallowmere Holdings (48,000, 52,500, 39,000) that each left the next day to Quillgate Trading
       - reads both counterparty records
       - reads the call note CNT-5009, where the customer could not name its clients
-      - works out the share kept from the transactions, one sentence each with both figures: USD 1,900 of USD 139,500, 1.36 percent, as the alert says, and each round kept 1.25, 1.33 and 1.54 percent (600 of 48,000, 700 of 52,500, 600 of 39,000)
+      - "works out the share kept from the transactions, one sentence each with both figures: USD 1,900 of USD 139,500, 1.36 percent, as the alert says, and each round kept 1.25, 1.33 and 1.54 percent (600 of 48,000, 700 of 52,500, 600 of 39,000)"
       - does not call the alert's 1.36 percent unclear or not reconciled
       - saves the investigation on the alert with the recommendation to open a case
-      - ends with the recommendation to open a case, at high priority from the alert's risk score of 82
+      - ends with the recommendation to open a case, at high priority as the alert carries it, naming the bank's alert priority rule and the risk score of 82
     checks:
       - {check: tool_called, tool: get_counterparty}
       - {check: says, any: ["Tallowmere"]}
@@ -86,7 +89,7 @@ tests:
       - {check: says, any: ["139,500", "139500"]}
       - {check: tool_called, tool: save_alert_investigation}
       - {check: says, any: ["Recommendation: open a case"]}
-      - {check: last_line_says, any: ["Priority: high"]}
+      - {check: last_line_says, all: ["Priority: high", "82"]}
       - {check: says, any: ["Investigation narrative"]}
       - {check: does_not_say, any: ["not reconciled", "is laundering", "has been filed", "i have opened", "case has been opened"]}
 
@@ -100,7 +103,7 @@ tests:
       - says the customer's trade plausibly needs freight
       - keeps the article ids ART-6003 and ART-6004 out of the ids it saves with its findings, and names them in the narrative
       - saves the investigation on the alert
-      - recommends opening a case at medium priority, on the last line and from the alert's risk score of 74, and calls nothing proven
+      - recommends opening a case at medium priority, on the last line, as the alert carries it, naming the bank's alert priority rule and the risk score of 74, not high from the counterparty's rating, and calls nothing proven
     checks:
       - {check: tool_called, tool: get_counterparty}
       - {check: tool_called, tool: search_news}
@@ -127,6 +130,7 @@ tests:
       - finds the USD 98,000 festival contract advance the day before
       - says the records explain the activity, and recommends no case
       - saves the investigation on the alert with the recommendation no case, and says so only because the system said it was applied
+      - gives no priority line, because the priority (low, risk score 52) goes only with "open a case"
     checks:
       - {check: tool_called, tool: list_customer_contacts}
       - {check: tool_called, tool: list_account_transactions}

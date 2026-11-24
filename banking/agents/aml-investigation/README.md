@@ -21,7 +21,7 @@ Builds the case file for a transaction monitoring alert and drafts the narrative
 - Saves the findings, the narrative and a recommendation on the alert as a draft. When a person opens a case from the alert, the latest saved narrative becomes the first narrative of the case.
 - Names an article in the narrative and keeps its id out of the saved ids, because the system takes only ids of transactions, alerts, rules, contacts and counterparties there.
 - Says what the system said when it refuses a save, for example because the alert is no longer open, and does not claim anything was saved.
-- Ends with one recommendation line: open a case, no case, or what to ask for. The system holds only open a case and no case, so a line that asks for something is not saved.
+- Ends with one recommendation line: open a case, no case, or what to ask for. With open a case it gives the priority the alert carries, by the bank's alert priority rule, and the alert's risk score. It works out no priority of its own. The system holds only open a case and no case, so a line that asks for something is not saved.
 
 ## What it does not do
 
@@ -51,9 +51,9 @@ The steps will be written here once they have been run on a cluster. Until then:
 
 Against the invented bank at its starting data:
 
-- `TMA-3001`: structuring. Brightwater Cash and Carry Ltd made seven cash deposits of USD 9,100 to 9,800 in 10 days, total USD 66,450, each under the USD 10,000 threshold. Earlier deposits were USD 1,400 to 3,100. Open a case.
-- `TMA-3002`: pass-through. Three credits (USD 48,000, 52,500, 39,000) from Tallowmere Holdings each left the next day to Quillgate Trading, keeping about 1.36 percent (USD 1,900 of USD 139,500). The customer could not name its clients. Open a case.
-- `TMA-3003`: higher-risk country. Four payments to Karn Harbour Freight Agency in Kharnovia, total USD 53,250, a new counterparty with no contract. Open a case at medium priority, and say that the contract and invoices are missing. Nothing is proven.
+- `TMA-3001`: structuring. Brightwater Cash and Carry Ltd made seven cash deposits of USD 9,100 to 9,800 in 10 days, total USD 66,450, each under the USD 10,000 threshold. Earlier deposits were USD 1,400 to 3,100. Open a case at high priority (risk score 86).
+- `TMA-3002`: pass-through. Three credits (USD 48,000, 52,500, 39,000) from Tallowmere Holdings each left the next day to Quillgate Trading, keeping about 1.36 percent (USD 1,900 of USD 139,500). The customer could not name its clients. Open a case at high priority (risk score 82).
+- `TMA-3003`: higher-risk country. Four payments to Karn Harbour Freight Agency in Kharnovia, total USD 53,250, a new counterparty with no contract. Open a case at medium priority (risk score 74), and say that the contract and invoices are missing. Nothing is proven.
 - `TMA-3004`: a benign payroll spike. 41 payroll payments against an average of 22, because 19 seasonal staff were hired, as the owner said 45 days before. No case. The recommendation saved on the alert is no case.
 
 Everyone and everything in the invented bank is invented.

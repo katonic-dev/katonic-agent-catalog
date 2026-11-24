@@ -8,6 +8,7 @@ from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
 from ..common import Ctx, conflict, listing, make_subapp, not_found, reg
+from ..seed_scen1 import ALERT_PRIORITY_RULE, alert_priority
 from ..store import now_iso
 
 KEY = "aml"
@@ -75,24 +76,30 @@ def build(ctx: Ctx):
             raise not_found("monitoring alert", aid, "Use list_monitoring_alerts to find ids.")
         return a
 
+    def priority(a):
+        # an alert carries its priority; one stored before the rule existed gets it from its score
+        return a.get("priority") or alert_priority(a["risk_score"])
+
     def row(a):
-        return {k: a[k] for k in ("alert_id", "status", "customer_id", "account_id", "rule_id", "period_start",
-                                  "period_end", "summary", "risk_score", "case_id")}
+        return {**{k: a[k] for k in ("alert_id", "status", "customer_id", "account_id", "rule_id", "period_start",
+                                     "period_end", "summary", "risk_score")}, "priority": priority(a), "case_id": a["case_id"]}
 
     @reg(app, "get", "/alerts", "list_monitoring_alerts", "List monitoring alerts",
          "List transaction monitoring alerts: alert_id, status (open, case_opened, closed), customer, account, rule fired, period, "
-         "a one-line summary and a risk score.")
+         "a one-line summary, a risk score and the priority (high, medium or low) the bank's alert priority rule gives that score.")
     def list_monitoring_alerts(status: Literal["open", "case_opened", "closed"] | None = Query(None, description="Only alerts with this status.")):
         return listing([row(a) for a in d()["monitoring_alerts"].values() if not status or a["status"] == status])
 
     @reg(app, "get", "/alerts/{alert_id}", "get_monitoring_alert", "Get one monitoring alert in full",
-         "Read one alert: the rule that fired (with its text), the period, the customer and account, the full records of the "
-         "transactions involved and investigation_drafts, the investigations saved so far with save_alert_investigation (every "
+         "Read one alert: the rule that fired (with its text), the period, the customer and account, the risk score, the priority "
+         "(high, medium or low) with priority_rule, the bank's written rule that gives the priority from the score and says what each "
+         "priority means for handling, the full records of the transactions involved and investigation_drafts, the investigations saved so far with save_alert_investigation (every "
          "version, the latest last). Check the transactions and the customer's contacts before deciding.")
     def get_monitoring_alert(alert_id: str = alert_id):
         a = alert_or_404(alert_id)
         txs = [d()["transactions"][t] for t in a["transaction_ids"] if t in d()["transactions"]]
-        return {**a, "investigation_drafts": a.get("investigation_drafts", []), "rule": d()["aml_rules"][a["rule_id"]],
+        return {**a, "priority": priority(a), "priority_rule": ALERT_PRIORITY_RULE,
+                "investigation_drafts": a.get("investigation_drafts", []), "rule": d()["aml_rules"][a["rule_id"]],
                 "customer_name": d()["customers"][a["customer_id"]]["name"], "transactions": txs}
 
     @reg(app, "post", "/alerts/{alert_id}/investigation", "save_alert_investigation", "Save an alert investigation (draft)",

@@ -257,6 +257,27 @@ def build_screening(customers: dict, today: date) -> tuple[dict, dict]:
     return wl, alerts
 
 
+# The bank's rule for the priority of a monitoring alert (invented). Every alert carries the priority this rule gives its score.
+ALERT_PRIORITY_RULE = {
+    "name": "Alert priority rule",
+    "rule": "The priority of a monitoring alert comes from its risk score alone (0 to 100), by the bands below. A customer's or a "
+            "counterparty's risk rating does not change it. The priority says how soon an investigator looks at the alert. It is "
+            "not a finding about the customer.",
+    "high": "A risk score of 80 or more. An investigator looks at the alert first, ahead of every medium and low alert.",
+    "medium": "A risk score of 60 to 79. An investigator looks at the alert after the high alerts, in the order the alerts arrived.",
+    "low": "A risk score under 60. An investigator looks at the alert after the high and medium alerts.",
+    "bands": [{"priority": "high", "min_score": 80, "max_score": 100}, {"priority": "medium", "min_score": 60, "max_score": 79},
+              {"priority": "low", "min_score": 0, "max_score": 59}]}
+
+
+def alert_priority(score: float) -> str:
+    """The priority the bank's alert priority rule gives a risk score."""
+    for band in ALERT_PRIORITY_RULE["bands"]:
+        if score >= band["min_score"]:
+            return band["priority"]
+    return "low"
+
+
 def build_aml(customers: dict, accounts: dict, tb: TxnBuilder, today: date) -> tuple[dict, dict, dict, dict, dict]:
     rules = {
         "MTB-AML-RULE-001": {"rule_id": "MTB-AML-RULE-001", "name": "Cash deposits just under the reporting threshold",
@@ -304,7 +325,7 @@ def build_aml(customers: dict, accounts: dict, tb: TxnBuilder, today: date) -> t
         alerts[aid] = {"alert_id": aid, "status": status, "customer_id": cid, "account_id": account_id,
                        "rule_id": rule, "period_start": d_ago(today, days_from), "period_end": d_ago(today, days_to),
                        "created": d_ago(today, max(days_to - 1, 0)), "transaction_ids": txn_ids,
-                       "summary": summary, "risk_score": score, "case_id": None, "closure": closure,
+                       "summary": summary, "risk_score": score, "priority": alert_priority(score), "case_id": None, "closure": closure,
                        "investigation_drafts": []}
 
     # 3001 structuring
