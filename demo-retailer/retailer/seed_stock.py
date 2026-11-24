@@ -251,10 +251,9 @@ _BATCHES = [
       ("RM-58152", 8, 2, "AG-4403 and AG-4404"), ("RM-58160", 6, 1, "AG-4404"), ("RM-58168", 4, 1, "AG-4404"),
       ("RM-58180", 2, 1, "AG-4404")]),
     ("BT-44032", "AG-4403", 5, 330, (200, 0), [("S-102", 3, 160, 21), ("S-106", 3, 60, 9)], []),
-    ("BT-44012", "AG-4401", 20, 420, (240, 4), [("S-101", 18, 180, 96), ("S-102", 18, 120, 71)],
-     [("RM-58147", 9, 2, "AG-4401"), ("RM-58158", 7, 1, "AG-4401"), ("RM-58180", 2, 1, "AG-4401")]),
-    ("BT-55011", "CH-5501", 15, 12, (60, 2), [("S-104", 14, 40, 31), ("S-107", 14, 48, 37), ("S-108", 13, 12, 8)],
-     [("RM-58136", 13, 1, "CH-5501"), ("RM-58160", 6, 1, "CH-5501")]),
+    ("BT-44012", "AG-4401", 20, 420, (240, 1), [("S-101", 18, 180, 96), ("S-102", 18, 120, 71)],
+     [("RM-58180", 2, 1, "AG-4401")]),
+    ("BT-55011", "CH-5501", 15, 12, (60, 0), [("S-104", 14, 40, 31), ("S-107", 14, 48, 37), ("S-108", 13, 12, 8)], []),
 ]
 BOX_NOTE = ("One pack of this line goes into every Weekly grocery box (AG-4404), so an order for the box is on the "
             "list when its box was packed from this batch.")
@@ -322,6 +321,7 @@ def build_stock(today: date, orders: dict) -> dict:
 
 # ---------------------------------------------------------------- what arrives
 
+# The orders of the first two templates are on no other batch record, so a unit is never on two batches.
 # recalled-batch. Four templates, in turn: line, best before in days, fulfilment centre (received, picked), stores, orders, reason
 _SIM_RECALLS = [
     ("AG-4401", 400, (120, 3), [("S-103", 12, 60, 22), ("S-108", 12, 48, 17)],
