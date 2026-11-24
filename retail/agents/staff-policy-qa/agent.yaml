@@ -39,9 +39,14 @@ sample_data:
   - ../../policy-library/staff-handbook.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Tested as a draft on a development cluster on 24 November 2026, with the
+    Staff Handbook in a knowledge source. Three runs of each test. Seven of the
+    eight tests pass three runs in a row. On the eighth (a question about one
+    person's pay) the substance was right in every run: it went to the People
+    team, with no figure. Half the runs still tripped a check phrase. The
+    agent is not published: the cluster it was tested on could not publish an
+    agent that reads a knowledge source.

@@ -9,7 +9,7 @@ The one assistant every colleague uses. It holds no documents and no systems of 
 | How people meet it | Chat |
 | Reads from | Nothing of its own. It calls six specialist agents |
 | Changes | Nothing. It has no tool that acts |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster with three of its six specialists. It called the right specialist every time |
 
 ## The six specialists
 
@@ -46,7 +46,7 @@ In [`agent.yaml`](agent.yaml) each specialist is a need of the kind `agent`. Tha
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026, with three of the six specialists attached.
 
 1. Build and publish the six specialists first, each from its own folder.
 2. In Katonic Studio, create a new agent of the kind that manages other agents.
@@ -57,7 +57,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Built with three of the six specialists attached: Invoice Matching, Food Safety Record Check and Guest Feedback Analysis. The three question-and-answer specialists were not published on that cluster, so they could not be attached.
+- The three tests that could run pass three runs in a row. The five that need a missing specialist could not pass.
+- For a request whose specialist was missing, the assistant called nobody, named the missing specialist and gave no answer of its own.
+- In the Work Room the replies were delivered and the page showed that a specialist was called. It did not show which one: the name is in the reply's first line.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

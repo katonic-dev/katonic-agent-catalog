@@ -39,9 +39,15 @@ sample_data:
   - ../../policy-library/store-procedures-manual.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Tested as a draft on a development cluster on 24 November 2026. Three runs
+    of each test. Seven of the eight tests pass three runs in a row on the
+    instructions here. The eighth asks about an allergen, which belongs to
+    another document: no run named an allergen, and one run in three left
+    out the name of the document the question belongs to. The test ran with
+    all four company documents in one knowledge source, which is harder than
+    the build guide's own source for this agent. Not published: the cluster
+    could not publish an agent that reads a knowledge source.

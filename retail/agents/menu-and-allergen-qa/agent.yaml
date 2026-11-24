@@ -39,9 +39,14 @@ sample_data:
   - ../../policy-library/allergen-matrix-v4.1.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Tested as a draft on a development cluster on 24 November 2026. Three runs
+    of each test. All eight tests pass three runs in a row on the instructions
+    here (five runs in a row is the bar for tests_passed). In one earlier run
+    the search did not return a dish's row and the agent said the dish was
+    not in the matrix, which was untrue; it still refused to call the dish
+    safe. Not published: the cluster could not publish an agent that reads a
+    knowledge source.

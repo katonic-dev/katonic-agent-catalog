@@ -65,10 +65,16 @@ stops_for_a_person:
 changes: []
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. It can only be tried once the six specialists are
-    built.
+    Built as a chat agent with three specialists attached (Invoice Matching,
+    Food Safety Record Check, Guest Feedback Analysis) and published to the
+    development environment of a development cluster on 24 November 2026.
+    The three question-and-answer specialists were not published there, so
+    they could not be attached and the five tests that need them could not
+    pass. The three tests that could run pass three runs in a row. For a
+    request whose specialist was missing it called nobody, named the missing
+    specialist and gave no answer of its own. A leave question was never
+    sent to the food safety specialist.

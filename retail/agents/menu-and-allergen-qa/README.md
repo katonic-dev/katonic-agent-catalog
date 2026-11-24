@@ -9,7 +9,7 @@ Answers a crew member's question about a dish by reading out the dish's row in t
 | How people meet it | An application: the store website. It also works in a chat |
 | Reads from | A knowledge source that holds the Allergen Matrix and menu specifications |
 | Changes | Nothing. It has no tool that acts |
-| State | Written. Not yet built on a platform |
+| State | Tested as a draft on a development cluster. All eight tests pass three runs in a row. Not published |
 
 ## What it does
 
@@ -35,7 +35,7 @@ Answers a crew member's question about a dish by reading out the dish's row in t
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way as a draft on a development cluster on 24 November 2026. It was not published there.
 
 1. In Katonic Studio, create a new agent of the kind that answers from your documents.
 2. In Identity, give it a name and a description, and choose the owner team.
@@ -48,7 +48,13 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- All eight tests pass three runs in a row.
+- In one earlier run the search did not return a dish's row, and the agent said the dish was not in the matrix. That was untrue. It still refused to call the dish safe. The answer is only as good as the search behind it.
+- The agent was tested as a draft and is not published.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

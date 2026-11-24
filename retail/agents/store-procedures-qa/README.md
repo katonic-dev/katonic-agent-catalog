@@ -9,7 +9,7 @@ Answers a store or restaurant colleague's question from the company's own Store 
 | How people meet it | An application: the store website. It also works in a chat |
 | Reads from | A knowledge source that holds the Store Procedures Manual |
 | Changes | Nothing. It has no tool that acts |
-| State | Written. Not yet built on a platform |
+| State | Tested as a draft on a development cluster. Seven of eight tests pass three runs in a row. Not published |
 
 ## What it does
 
@@ -34,7 +34,7 @@ Answers a store or restaurant colleague's question from the company's own Store 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way as a draft on a development cluster on 24 November 2026. It was not published there.
 
 1. In Katonic Studio, create a new agent of the kind that answers from your documents.
 2. In Identity, give it a name and a description, and choose the owner team.
@@ -47,7 +47,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row.
+- The eighth asks about an allergen, which belongs to another document. No run named an allergen. One run in three left out the name of the document the question belongs to.
+- The test ran with all four company documents in one knowledge source. With the first text the agent answered the allergen question from the other document, so give this agent a source that holds only the procedures manual.
+- The agent was tested as a draft and is not published.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
