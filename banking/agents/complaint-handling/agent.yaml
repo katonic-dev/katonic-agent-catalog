@@ -1,0 +1,61 @@
+id: complaint-handling
+name: Complaint Handling
+pack: banking
+area: Customer service
+summary: >
+  Classifies a customer's complaint, gathers the customer's history and the
+  records it points at, and drafts the response and the entry for the
+  complaints log, with the dates the bank's procedure sets. The complaints
+  officer approves the response. The agent sends nothing.
+
+type: workflow
+form: event-triggered
+started_by: A complaint arriving at the bank. The bank's complaints system can announce one through its event for new complaints
+
+meets_people_through: application
+application: Complaints desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the complaint's id and reads the reply.
+needs:
+  - id: complaints-system
+    kind: api
+    required: true
+    label: The bank's complaints system, to read a complaint with its linked records and the complaints procedure, and to save a draft classification and a draft response
+    operations:
+      - get_complaint
+      - get_complaints_procedure
+      - save_complaint_classification
+      - save_complaint_response
+  - id: customer-records
+    kind: api
+    required: true
+    label: The bank's customer records, to read the customer's record
+    operations:
+      - get_customer
+
+demo_bank_systems: [complaints, core]
+
+stops_for_a_person:
+  - The complaints officer approves every response and sends it. The agent sends none.
+  - Redress is credited only when the officer sends the response. The agent proposes the amount and the account.
+  - A card replacement, a refund and the name and direct line of the person who answers are done or added by a person.
+  - A customer who may be vulnerable is handled by one named person. The agent flags the customer with the reason and does not diagnose.
+
+# Saving a classification and a response are drafts kept with their author, a
+# time and a version number. Nothing is sent and no money moves.
+changes:
+  - {tool: save_complaint_classification, waits_for_approval: false}
+  - {tool: save_complaint_response, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/complaints/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

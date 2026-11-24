@@ -1,0 +1,273 @@
+{
+  "$comment": "What makes the generic case desk the complaints desk. Start it with DESK_CONFIG pointing at this file. Needs the settings-driven case desk engine. The bank (Meridian Trust Bank), its customers, their records and their complaints are invented.",
+  "desk": {
+    "id": "complaints",
+    "name": "Complaints desk",
+    "caseNoun": "complaint",
+    "caseNounPlural": "complaints",
+    "draftNoun": "response",
+    "deciderRole": "complaints officer",
+    "tagline": "Complaints in, a drafted review with the dates the procedure sets, a draft response and a log entry for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a complaint",
+    "issuedVerb": "Response approved by",
+    "arrivedVia": {
+      "feed": "the bank's complaints system",
+      "officer": "the complaints team"
+    }
+  },
+  "case": {
+    "heading": "THE COMPLAINT",
+    "metaFields": [
+      "reference",
+      "customer",
+      "channel"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [],
+    "showText": "text",
+    "textHeading": "The complaint, as the desk holds it",
+    "noTextShown": "The desk holds no text for this complaint. The agent reads it from the complaints system.",
+    "noTextNote": "No text was supplied with this case. Work from the complaint the case names, read from the bank's complaints system.",
+    "askPlaceholder": "For example: which record shows when the card was blocked?",
+    "searchPlaceholder": "Search by customer, id or subject",
+    "demoNote": "Demo data: the bank, its customers, their records and these complaints are invented. Nothing here is a real complaint.",
+    "listFields": [
+      "subject"
+    ],
+    "chipFields": [],
+    "listTitleLines": 2,
+    "jumpLabel": "The complaint",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "due": {
+    "field": "received_on",
+    "standardDays": 15,
+    "expeditedDays": 15,
+    "workingDays": true
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the complaints team (the form at the top of the list)",
+      "Sent by the bank's complaints system when a complaint arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Title",
+        "hint": "The customer and the complaint id, for example Anselm Drozdowich (CMP-1001). The queue shows this.",
+        "required": true
+      },
+      {
+        "key": "reference",
+        "label": "Complaint id",
+        "hint": "For example CMP-1001.",
+        "required": true
+      },
+      {
+        "key": "customer",
+        "label": "Customer",
+        "hint": "The name and the customer id, for example Anselm Drozdowich (CUS-1009).",
+        "required": true
+      },
+      {
+        "key": "subject",
+        "label": "What it is about",
+        "hint": "The subject as the complaints system gives it.",
+        "required": true
+      },
+      {
+        "key": "channel",
+        "label": "Channel",
+        "hint": "How the complaint reached the bank",
+        "required": true,
+        "options": [
+          "email",
+          "call",
+          "letter",
+          "branch"
+        ],
+        "shownAs": "by {value}"
+      },
+      {
+        "key": "received_on",
+        "label": "Received on",
+        "hint": "The day the complaint reached the bank. The queue shows the day the final response is due, 15 working days later (Monday to Friday, the day of receipt not counted).",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "The complaint and what the desk knows of it",
+        "hint": "The customer's own words, with the dates and the linked records, as short labelled lines.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A customer's complaint has arrived at the bank's complaints desk. Work on the complaint named in the case below. Classify it, gather the customer's history and the records it points at, and draft the response to the customer and the entry for the complaints log, with the dates the bank's complaints procedure sets. You send nothing, you move no money and you decide nothing: a complaints officer approves the response.\n\nRead the complaint, the complaints procedure and the customer record from the bank's systems before you write anything, and use only ids the systems return. Give every fact with its record id or its procedure clause. Where the customer and the records disagree, show both and choose neither. Never fill a gap, never state a cause the records do not give, and say nothing about the customer that the records do not show. A customer who may be vulnerable is flagged with the reason the records give, and never diagnosed. Admit a late or missing acknowledgement in the response and apologise for it. Offer redress only where the procedure allows it.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the classification and the response were saved to the bank's complaints system, and as which versions, using only what the system's replies said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft review. For the complaints officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per fact or procedural point. Put no vertical bar inside a cell.\n| # | Point | Claim or rule | The records show | Source | Mark | Note |\n# is 1, 2, 3 in order. Point is the fact or the procedural point. Claim or rule is what the customer says, or the rule of the complaints procedure. The records show is what the records say, in a few words, with the dates and amounts. Source is the record id (a complaint, account, transaction, card, payment, investigation, loan application or earlier complaint) or the procedure clause. Mark is exactly one of: supports the complaint, does not support it, procedure point, needs a person, in lower case. Note says why, and what the officer should check.\n4. A blank line, then the heading \"Draft response to the customer. Not sent.\" and the text of the response: plain paragraphs, no table, no list, no line that starts with a vertical bar.\n5. A blank line, then the heading \"Entry for the complaints log.\" and the entry on one line.\n6. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most eight, with no count of the marks (the desk counts them from the table): the customer, the complaint id, the channel and the date received; the category and the severity, then the priority in words (normal; priority handling, because the customer may be vulnerable; or urgent, because a time limit is near or missed); whether the customer may be vulnerable, and why; the outcome you propose, in one line with the evidence; the redress you propose, with the amount and the account, or none; the dates the procedure sets, with whether the acknowledgement was on time; then the \"Saved:\" line.\nRows: one row for each fact the customer states that the records can confirm or contradict, then one row for each procedural point that applies: the time limits, the rule on the late acknowledgement where it applies, the rule on redress, the rule on credit decisions where the complaint is about a declined loan, the rule on a possibly vulnerable customer, and the name and direct line of the person who answers further questions. Mark a row supports the complaint when the records back what the customer says; does not support it when the records contradict it or explain it; procedure point for a rule, a date or a time limit; needs a person for anything the records do not show, anything a person must do before the response is sent, and anything only a person can decide.\nThe response to the customer follows the procedure's list of what a response must contain, in this order: what the customer complained about, in the order the customer raised it; what the bank found, with the dates and amounts that prove it, and whether the complaint is upheld, partly upheld or not upheld; what the bank will do, and by when; a clear apology where the bank was at fault, and a clear explanation without blame where it was not; the customer's right to escalate, written in full as the procedure gives it, without the word \"(invented)\"; and the person who answers further questions. The records give no name or direct line, so where the response names the person who answers further questions, write exactly [name and direct line to be added before this is sent], and close with \"Yours sincerely,\" and the lines \"Complaints team\" and \"Meridian Trust Bank\". Write to the customer by full name, in plain sentences, and say \"we\" for the bank. Promise only what the records or the procedure support, or what a person will do and the response says who: never state a cause the records do not give. Where the customer may be vulnerable, begin with a line of sympathy for what the customer told the bank, keep a kind plain tone, name no condition, use no standard wording, and say that one person will deal with the matter. Admit a late or missing acknowledgement and apologise for it. Offer redress only where the procedure allows it, and never to end a complaint.\nThe log entry gives the category, the dates, the outcome, any redress, and says that the person who approves the response is named when it is approved.\nThe \"Proposal:\" line starts \"approve the response\". Its first sentence is the outcome in at most eight words, for example \"approve the response: upheld.\" If priority handling applies, because the customer may be vulnerable or a time limit is near or missed, the second sentence starts \"Priority handling:\" and says why. Any redress and the other detail follow in later sentences. Write plain statements and do not write in the first person, except in the response to the customer. Write every date as in 18 Nov 2026, never as 2026-11-18, in the table, the response and the log entry.",
+    "sections": [
+      "Summary",
+      "Draft review",
+      {
+        "heading": "Draft response to the customer. Not sent.",
+        "title": "Draft response to the customer",
+        "hint": "Not sent. Add the name and direct line of the person who answers where the square brackets are, then approve."
+      },
+      {
+        "heading": "Entry for the complaints log.",
+        "title": "Entry for the complaints log",
+        "hint": "For the bank's complaints system. The person who approves is named when the response is approved."
+      }
+    ],
+    "marks": {
+      "supports the complaint": "Supports the complaint",
+      "does not support it": "Does not support it",
+      "procedure point": "Procedure point",
+      "needs a person": "Needs a person"
+    },
+    "markTones": {
+      "supports the complaint": "warn",
+      "does not support it": "none",
+      "procedure point": "none",
+      "needs a person": "person"
+    },
+    "markHints": {
+      "supports the complaint": "The records back what the customer says. This is not yet the outcome: the bank may not be at fault",
+      "does not support it": "The records differ from what the customer says, or explain it. The customer may still be right about the rest",
+      "procedure point": "A rule, a date or a time limit of the complaints procedure",
+      "needs a person": "The records do not show it, or only a person can do or decide it. It is not a failure"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft review",
+    "rowLabels": {
+      "source": "Claim or rule",
+      "policy": "The records show",
+      "citation": "Source",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "sideBySide": true,
+    "proposalFirst": true,
+    "markIcons": {
+      "supports the complaint": "=",
+      "does not support it": "≠",
+      "procedure point": "§",
+      "needs a person": "◆"
+    },
+    "tallyLabels": {
+      "supports the complaint": "for the complaint",
+      "does not support it": "against it",
+      "procedure point": "procedure",
+      "needs a person": "left to a person"
+    }
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Approve the response",
+      "proposalPrefix": "approve the response",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve version {version}{edited} of the response and the log entry, in your name. The desk sends nothing and credits nothing: the response is sent, and any redress credited, from the bank's complaints system. The response itself is on the card called Draft response to the customer, under the table. Use Edit the text to add the name and direct line of the person who answers."
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "proposalPrefix": "refer",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority, for example the complaints team lead. Name them and give the reason."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the review",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the officer",
+    "sent_back": "Being redone",
+    "issued": "Response approved",
+    "referred": "Referred on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk sends no response and credits no redress: the complaints officer does that in the bank's complaints system, after approving it here.",
+    "columns": [
+      "case_id",
+      "title",
+      "reference",
+      "customer",
+      "subject",
+      "channel",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "reference",
+      "customer",
+      "subject",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "reference": "Id",
+      "customer": "Customer",
+      "subject": "Subject",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Response versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a complaint cannot decide it. Any other complaints officer can. You can still ask the agent to redo the review.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as approved. Nothing further happens on this desk. The complaints officer sends the response, and credits any redress, from the bank's complaints system.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs."
+  },
+  "decisionLabels": {
+    "issued": "Approved the response",
+    "referred": "Referred on",
+    "sent_back": "Asked the agent to redo the review",
+    "removed": "Removed from the desk"
+  }
+}
