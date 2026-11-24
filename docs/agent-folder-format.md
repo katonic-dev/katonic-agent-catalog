@@ -60,7 +60,8 @@ demo_bank_systems: []
 stops_for_a_person:
   - It takes no action. A question about a person's own case goes to the right team.
 
-# What it can change, and which of those wait for approval.
+# What it can change, and which of those wait for approval. A draft it saves
+# is listed too, with waits_for_approval false. A search sent as a POST is not.
 changes: []                     # for example: [{tool: block_card, waits_for_approval: true}]
 
 # Where it stands. Only what has been run counts.

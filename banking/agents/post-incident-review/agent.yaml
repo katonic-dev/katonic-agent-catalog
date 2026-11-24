@@ -44,10 +44,10 @@ stops_for_a_person:
   - A person decides what the review finally says, and approves it. The agent marks nothing approved.
   - Where the records do not settle the cause, the agent lists the candidates and a person decides which one to pursue.
 
-# The only write is a draft review, kept with its author, a time and a version
-# number. It changes no incident, no change record and no service. The agent
-# makes no change in the bank's systems, so the list is empty.
-changes: []
+# Saving a review is a draft kept with its author, a time and a version
+# number. It changes no incident, no change record and no service.
+changes:
+  - {tool: save_post_incident_review, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

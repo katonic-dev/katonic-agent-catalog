@@ -5,10 +5,12 @@ on:
     branches: [main]
     paths:
       - "demo-bank/**"
+      - "banking/agents/**/agent.yaml"
       - ".github/workflows/demo-bank-tests.yml"
   pull_request:
     paths:
       - "demo-bank/**"
+      - "banking/agents/**/agent.yaml"
 
 permissions:
   contents: read

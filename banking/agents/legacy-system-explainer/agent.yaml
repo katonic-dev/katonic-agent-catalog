@@ -39,10 +39,10 @@ stops_for_a_person:
   - The engineer decides what to believe and what to keep. A meaning the agent marks as low confidence or as not known is for the people who ran the system to confirm.
   - The agent says what code does and never that a rule is right or a bug.
 
-# The only write is a draft piece of documentation, kept with its author, a
-# time and a version number. It changes nothing in the old system. The agent
-# makes no change, so the list is empty.
-changes: []
+# Saving a piece of documentation is a draft kept with its author, a time
+# and a version number. It changes nothing in the old system.
+changes:
+  - {tool: save_legacy_documentation, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

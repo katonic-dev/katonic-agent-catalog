@@ -50,10 +50,10 @@ stops_for_a_person:
   - Press coverage that touches a client is raised with the right people at the bank, such as compliance, before the meeting. The agent only points it out.
   - The agent contacts no client and no colleague, and changes no record.
 
-# The only write is a draft brief on the meeting, kept with its author, a time
-# and a version number. It sends nothing and changes nothing else. The agent
-# makes no change in the bank's records, so the list is empty.
-changes: []
+# Saving a meeting brief is a draft kept with its author, a time and a
+# version number. It sends nothing and changes nothing else.
+changes:
+  - {tool: save_meeting_brief, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

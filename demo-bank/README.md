@@ -104,7 +104,7 @@ Behind a prefix (the application gateway removes the prefix before the request a
 cd demo-bank && pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8080 --root-path /apps/demo-bank
 ```
 
-Tests: `pip install -r requirements-dev.txt` then `pytest`.
+Tests: `pip install -r requirements-dev.txt` then `pytest`. One test file, `tests/test_agent_folders.py`, checks every agent folder in `../banking/agents` against the bank: each operation an agent names must exist in a system it lists, and each operation that writes must be listed under the agent's `changes`.
 
 Behind a gateway, absolute addresses (landing page, news `page_url`, the regulator's feed) use the scheme in `X-Forwarded-Proto` when it is present, otherwise the request's own scheme.
 

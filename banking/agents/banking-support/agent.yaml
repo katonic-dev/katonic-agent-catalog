@@ -43,11 +43,11 @@ stops_for_a_person:
   - A refund, a reversal, a waiver or any change to an account or a customer detail is decided and made by the bank's staff through the bank's usual process. The agent changes nothing.
   - A question about another customer's account is not answered. It goes through the bank's usual process for such a request.
 
-# The only write is a draft note on the customer's contact history, kept with
-# its author, a time and a version number. It sends nothing and changes
-# nothing else. The agent makes no change in the bank's records, so the list is
-# empty.
-changes: []
+# Adding a contact note is a draft note on the customer's contact history,
+# kept with its author, a time and a version number. It sends nothing and
+# changes nothing else.
+changes:
+  - {tool: add_contact_note, waits_for_approval: false}
 
 sample_data:
   - ../../policy-library/MTB-PRD-051-current-account-terms-and-fees.md

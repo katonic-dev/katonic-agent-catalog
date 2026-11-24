@@ -50,10 +50,10 @@ stops_for_a_person:
   - Whether a flagged old behaviour is kept or changed is for the engineer and the owner of the rule. A rule marked in a comment as needing sign-off is named as such.
   - The agent has no way to run code in the invented bank. Unless the platform gives it one, every check is made by reading, and the draft says so.
 
-# The only write is a draft conversion, kept with its author, a time and a
-# version number. It changes nothing in the old system and installs nothing. The
-# agent makes no change, so the list is empty.
-changes: []
+# Saving a conversion is a draft kept with its author, a time and a version
+# number. It changes nothing in the old system and installs nothing.
+changes:
+  - {tool: save_converted_program, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

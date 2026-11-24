@@ -36,10 +36,11 @@ stops_for_a_person:
   - A question the warehouse cannot answer goes to whoever holds that data. The agent says what is missing and does not estimate.
   - A change to a budget, an actual or any ledger entry is made by finance through the bank's own process. The agent only reads.
 
-# The agent only reads. The one write is a draft commentary, kept with its
-# author, a time and a version number. It publishes nothing and changes no
-# figure, so the list is empty.
-changes: []
+# Saving a commentary is a draft kept with its author, a time and a version
+# number. It publishes nothing and changes no figure. Everything else the
+# agent does is a read.
+changes:
+  - {tool: save_finance_commentary, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

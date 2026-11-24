@@ -45,10 +45,10 @@ stops_for_a_person:
   - The auditor reads the evidence pack and concludes whether the control works. The agent gives no conclusion and marks no test as passed or failed.
   - Whether an exception matters is for the auditor. The agent states what the records show.
 
-# The only write is a draft evidence pack, kept with its author, a time and a
-# version number. It changes no test status and sends nothing. The agent makes
-# no change in the bank's records, so the list is empty.
-changes: []
+# Saving an evidence pack is a draft kept with its author, a time and a
+# version number. It changes no test status and sends nothing.
+changes:
+  - {tool: save_evidence_pack, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

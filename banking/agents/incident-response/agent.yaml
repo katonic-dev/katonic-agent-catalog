@@ -49,10 +49,10 @@ stops_for_a_person:
   - Where a runbook step needs the incident manager or the change manager, a person runs it. The agent only says what the runbook says.
   - The agent does not close the incident or change its severity.
 
-# The only write is a draft assessment note on the incident, kept with its
-# author, a time and a version number. It changes no service. The agent makes
-# no change in the bank's systems, so the list is empty.
-changes: []
+# Saving an assessment is a draft note on the incident, kept with its author,
+# a time and a version number. It changes no service.
+changes:
+  - {tool: save_incident_assessment, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false

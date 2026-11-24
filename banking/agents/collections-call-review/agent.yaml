@@ -40,10 +40,10 @@ stops_for_a_person:
   - Whether a breach is serious, and what happens to the caller, is for the supervisor. The agent states what the transcript shows.
   - Anything said to the customer afterwards is for the bank's staff. The agent contacts no customer.
 
-# The only write is a draft call review, kept with its author, a time and a
-# version number. The call stays unreviewed. The agent makes no change in the
-# bank's records, so the list is empty.
-changes: []
+# Saving a call review is a draft kept with its author, a time and a version
+# number. The call stays unreviewed.
+changes:
+  - {tool: save_call_review, waits_for_approval: false}
 
 state:
   built_on_a_cluster: false
