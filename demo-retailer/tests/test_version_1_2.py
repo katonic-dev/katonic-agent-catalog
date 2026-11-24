@@ -1128,7 +1128,7 @@ def test_the_openapi_documents_describe_version_1_2(client):
     counts = {}
     for system in ("orders", "care", "purchasing"):
         doc = client.get(f"/{system}/openapi.json").json()
-        assert doc["openapi"] == "3.0.3" and doc["info"]["version"] == "1.3.0" and "invented" in doc["info"]["description"]
+        assert doc["openapi"] == "3.0.3" and doc["info"]["version"] == "1.4.0" and "invented" in doc["info"]["description"]
         ops = [op for item in doc["paths"].values() for op in item.values()]
         counts[system] = len(ops)
         for op in ops:
@@ -1171,7 +1171,7 @@ def test_the_operations_version_1_added_to_keep_their_paths_and_shapes(client):
 
 def test_the_landing_page_and_the_counts_show_version_1_2(client):
     text = client.get("/").text
-    assert "The twelve systems" in text and "/orders/openapi.json" in text and "/orders/mcp" in text
+    assert "The fourteen systems" in text and "/orders/openapi.json" in text and "/orders/mcp" in text
     for words in ("online orders", "return requests not decided", "customer tickets open", "complaints open",
                   "public reviews unanswered", "delivery notes", "supplier questions open"):
         assert words in text

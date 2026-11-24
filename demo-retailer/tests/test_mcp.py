@@ -35,6 +35,8 @@ READ_CALLS = {
     "stock": ("get_batch_trace", {"batch_id": "BT-44031"}, "status", "recalled"),
     "pricing": ("get_promotion", {"promotion_id": "PM-3101"}, "sku", "FZ-5601"),
     "loyalty": ("get_member", {"member_id": "LM-2011"}, "age_check_passed", False),
+    "people": ("get_draft_roster", {"roster_id": "RS-261130-S103"}, "site_id", "S-103"),
+    "franchise": ("get_franchisee", {"franchisee_id": "FR-02"}, "company", "Wickersham-Ode Pizza Partners Ltd"),
 }
 
 
@@ -68,7 +70,7 @@ def check_system(client, system, tools, result):
 
 
 def test_every_system_has_one_read_call_in_the_table():
-    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 12
+    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 14
 
 
 @pytest.mark.parametrize("system", ALL_SYSTEMS)
@@ -86,8 +88,8 @@ def test_every_operation_is_an_mcp_tool_and_a_read_works_sse(live_server, client
 
 
 def test_the_tool_names_of_each_door_are_the_openapi_operation_ids(client):
-    expected = {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
-                "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10}
+    expected = {"stores": 11, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
+                "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10, "people": 5, "franchise": 4}
     for system, n in expected.items():
         body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
         tools = client.post(f"/{system}/mcp", json=body, headers={"X-API-Key": KEY}).json()["result"]["tools"]

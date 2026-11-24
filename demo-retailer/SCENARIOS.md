@@ -2,7 +2,7 @@
 
 Rowanmere Group is invented, and so is every record here. This file lists each scenario, what it is for, and the right answer. Use it to mark an agent's work.
 
-All dates are relative to the retailer date (today, or `RETAILER_TODAY`). The tests fix it at `2026-11-24`, so the period is `2026-10`. Amounts are US dollars. Value added tax in Meridia is 15 percent. Every number below was read back from the running service by `tests/test_operations.py`, `tests/test_version_1_1.py`, `tests/test_version_1_2.py`, `tests/test_version_1_3.py` and `tests/test_events.py`.
+All dates are relative to the retailer date (today, or `RETAILER_TODAY`). The tests fix it at `2026-11-24`, so the period is `2026-10`. Amounts are US dollars. Value added tax in Meridia is 15 percent. Every number below was read back from the running service by `tests/test_operations.py`, `tests/test_version_1_1.py`, `tests/test_version_1_2.py`, `tests/test_version_1_3.py`, `tests/test_version_1_4.py` and `tests/test_events.py`.
 
 ## The company (system: stores)
 
@@ -875,6 +875,180 @@ The programme has 42,600 members: 27,300 opted in to marketing email, 15,800 to 
 
 The campaign brief template is version 1.0, eleven sections. A right brief follows them in order, takes the audience size from the programme's totals, never plans to reach more than 27,300 members by email or 15,800 through the app, names the past campaign most like it with its figures, and says so when that campaign returned less than a dollar for each dollar. An offer with an age-restricted line goes to adults only, and to no more than 31,900 members. `save_campaign_brief` refuses the rest with 422. A brief is a draft: the marketing lead owns it, and nothing is sent to a member.
 
+## Draft rosters (system: people)
+
+The people system holds next week's draft roster of four restaurants and two stores. Next week is the Monday to Sunday after the retailer date: with the retailer date 2026-11-24 it runs from 2026-11-30 to 2026-12-06. Every roster has twelve colleagues: four shift managers and eight team members, two of them young workers. Colleagues appear by id and role, never by name. The colleague id is `C-`, the three digits of the site and a number from 01 to 12: 01 to 04 are the shift managers, 08 and 12 are the young workers, and 01 to 05 and 10 hold a first aid certificate.
+
+A restaurant trades from 11:00 to 22:00 and a store from 07:00 to 22:00, every day. The shifts follow one pattern. In a restaurant: early 10:00 to 16:00 with no break, middle 12:00 to 20:00 and late 16:00 to 23:00, each with a break of 30 minutes. In a store: early 06:30 to 14:30, middle 10:00 to 18:00 and late 14:30 to 22:30, each with a break of 30 minutes. The planted cases are the shifts that leave the pattern.
+
+`get_working_time_rules` serves the rules: Working Time and Staffing Rules, version 1.2. The same text is `retail/policy-library/working-time-and-staffing-rules-v1.2.md`. Rules WT-1 to WT-8 are the working time rules of Meridia, an invented country, as the company states them. Rules SR-1 to SR-3 are the company's own staffing rules. Hours are counted from the start of a shift to its end, and a figure exactly on a limit keeps the rule.
+
+| Rule | Title | The rule |
+|---|---|---|
+| WT-1 | Maximum shift length | No shift is longer than 10 hours. |
+| WT-2 | Rest between shifts | A colleague has at least 11 hours of rest between the end of one shift and the start of the next. |
+| WT-3 | Maximum weekly hours | A colleague is rostered for no more than 48 hours in a roster week. |
+| WT-4 | Break | A shift longer than 6 hours has a break of at least 30 minutes. |
+| WT-5 | Young workers: shift length | No shift of a young worker is longer than 8 hours. |
+| WT-6 | Young workers: weekly hours | A young worker is rostered for no more than 40 hours in a roster week. |
+| WT-7 | Young workers: early and late hours | No shift of a young worker starts before 06:00 or ends after 22:00. |
+| WT-8 | Weekly rest day | A colleague has at least one day with no shift in a roster week. |
+| SR-1 | A shift manager on every trading hour | A shift manager is on shift at every time between the site's opening time and its closing time. |
+| SR-2 | Two people to open and to close | At least 2 colleagues are on shift at the site's opening time, and at least 2 at its closing time. |
+| SR-3 | A trained first aider on site | A colleague with a current first aid certificate is on shift at every time between the site's opening time and its closing time. The roster marks each first aider. |
+
+The six rosters. Three hold two breaches each, and three hold none:
+
+| Roster | Site | Colleagues | Shifts | Breaches |
+|---|---|---|---|---|
+| RS-261130-R014 | R-014 | 12 | 54 | 2 |
+| RS-261130-R022 | R-022 | 12 | 53 | 0 |
+| RS-261130-R047 | R-047 | 12 | 53 | 2 |
+| RS-261130-R063 | R-063 | 12 | 54 | 0 |
+| RS-261130-S103 | S-103 | 12 | 54 | 2 |
+| RS-261130-S106 | S-106 | 12 | 55 | 0 |
+
+The six breaches, and no others. A check that lists a seventh is wrong:
+
+| Roster | Rule | Colleague | Shift | Day | What the roster shows |
+|---|---|---|---|---|---|
+| RS-261130-R014 | WT-2 | C-01407 | SH-R014-19 | wednesday | 10 hours 30 minutes of rest: Tuesday's shift ends at 23:30 and Wednesday's starts at 10:00 |
+| RS-261130-R014 | WT-4 | C-01409 | SH-R014-39 | friday | a shift of 7 hours, 16:00 to 23:00, with no break |
+| RS-261130-R047 | SR-1 |  |  | sunday | no shift manager on shift from 16:00 to 17:00 |
+| RS-261130-R047 | WT-7 | C-04712 | SH-R047-46 | saturday | a young worker's shift ends at 23:00 |
+| RS-261130-S103 | SR-2 | C-10301 | SH-S103-25 | thursday | one colleague on shift at the opening time, 07:00 |
+| RS-261130-S103 | WT-3 | C-10306 |  |  | 49 hours in the week |
+
+- `RS-261130-R014`, WT-2: `C-01407` works `SH-R014-16` on Tuesday 2026-12-01 from 16:30 to 23:30 and `SH-R014-19` on Wednesday 2026-12-02 from 10:00 to 16:00. The rest is 10 hours 30 minutes, and the rule asks for 11 hours. The breach is listed on the later shift.
+- `RS-261130-R014`, WT-4: `C-01409` works `SH-R014-39` on Friday 2026-12-04 from 16:00 to 23:00, 7 hours, with a break of 0 minutes. A shift longer than 6 hours has a break of at least 30 minutes.
+- `RS-261130-R047`, WT-7: `C-04712` is a young worker and works `SH-R047-46` on Saturday 2026-12-05 from 16:00 to 23:00. No shift of a young worker ends after 22:00.
+- `RS-261130-R047`, SR-1: on Sunday 2026-12-06 the shift manager `C-04703` works `SH-R047-47` from 10:00 to 16:00 and the shift manager `C-04704` works `SH-R047-53` from 17:00 to 23:00. No shift manager is on shift from 16:00 to 17:00. A first aider, `C-04710`, is on shift in that hour, so SR-3 is kept.
+- `RS-261130-S103`, WT-3: `C-10306` is rostered for 49 hours: five shifts of 8 hours and one of 9 hours, on Saturday 2026-12-05 from 06:30 to 15:30 (`SH-S103-42`). The rule allows 48. The breach is about the whole week, so it names no shift and no day. The colleague has Thursday off, so WT-8 is kept.
+- `RS-261130-S103`, SR-2: on Thursday 2026-12-03 only `C-10301` (`SH-S103-25`, 06:30 to 14:30) is on shift at the opening time, 07:00. The next colleagues, `C-10305` and `C-10307`, start at 08:00. The rule asks for two at the opening time.
+
+`RS-261130-R022` keeps every rule and sits on the plain pattern. Two rosters keep every rule and sit exactly on a limit in three places each. None of these is a breach:
+
+- `RS-261130-R063`: C-06307 has exactly 11 hours of rest between Tuesday (ends 23:00) and Wednesday (starts 10:00): WT-2 is kept.
+- `RS-261130-R063`: C-06312, a young worker, has a Saturday shift of exactly 8 hours that ends at exactly 22:00: WT-5 and WT-7 are kept.
+- `RS-261130-R063`: C-06304 has a Saturday shift of exactly 10 hours, 13:00 to 23:00: WT-1 is kept.
+- `RS-261130-S106`: C-10606 is rostered for exactly 48 hours: WT-3 is kept.
+- `RS-261130-S106`: On Thursday exactly two colleagues, C-10601 and C-10605, are on shift at the opening time, 07:00: SR-2 is kept.
+- `RS-261130-S106`: C-10608, a young worker, is rostered for exactly 40 hours: WT-6 is kept.
+
+Every roster also sits on two limits of the pattern itself: an early shift in a restaurant is exactly 6 hours with no break (WT-4 asks for a break only when a shift is longer than 6 hours), and a young worker's middle shift is exactly 8 hours (WT-5).
+
+`save_roster_check` saves the list of breaches as a draft. It has no field for a change to the roster. `publish_roster` is the manager's change: it is refused with 409 until a check is saved.
+
+## Shift logs (system: stores)
+
+The stores system holds yesterday's shift log of six sites: with the retailer date 2026-11-24 the logs are for 2026-11-23. An entry has an id, a time, a category and the text a shift manager wrote. The entry id is `LE-`, the site without its hyphen, the month and day, and the number of the entry. Colleagues appear by id. Most entries are finished business. The log does not say which entries are still open: that is read from the text. The six logs hold 76 entries, and 23 of them are still open at the end of the day.
+
+An entry is still open when its own text says that something has not been done yet or is to happen after the shift. The entry that needs doing first is the open entry that names the earliest time on the next day. A handover note says what happened, what is open and what needs doing first, and holds nothing that is not in the log.
+
+| Site | Log date | Entries | Still open | Needs doing first |
+|---|---|---|---|---|
+| `R-014` | 2026-11-23 | 14 | LE-R014-1123-06, LE-R014-1123-08, LE-R014-1123-09, LE-R014-1123-10, LE-R014-1123-12 | LE-R014-1123-09 |
+| `R-031` | 2026-11-23 | 12 | LE-R031-1123-04, LE-R031-1123-05, LE-R031-1123-07, LE-R031-1123-11 | LE-R031-1123-07 |
+| `R-058` | 2026-11-23 | 13 | LE-R058-1123-06, LE-R058-1123-08, LE-R058-1123-09 | LE-R058-1123-09 |
+| `R-104` | 2026-11-23 | 11 | LE-R104-1123-03, LE-R104-1123-07, LE-R104-1123-08, LE-R104-1123-10 | LE-R104-1123-07 |
+| `S-101` | 2026-11-23 | 13 | LE-S101-1123-03, LE-S101-1123-05, LE-S101-1123-07, LE-S101-1123-09 | LE-S101-1123-09 |
+| `S-104` | 2026-11-23 | 13 | LE-S104-1123-06, LE-S104-1123-07, LE-S104-1123-09 | LE-S104-1123-06 |
+
+What each open entry leaves open:
+
+- `R-014` `LE-R014-1123-06` (14:30, delivery): the packaging delivery was two cases of medium boxes short, and the supplier has not been told.
+- `R-014` `LE-R014-1123-08` (16:00, staffing_gap): `C-01411` is off sick for tomorrow's late shift at 16:00, and there is no cover yet.
+- `R-014` `LE-R014-1123-09` (17:45, equipment_fault): the make-line chiller read 6.5 °C, the stock is in the walk-in chiller, and the engineer comes tomorrow between 08:00 and 10:00.
+- `R-014` `LE-R014-1123-10` (18:30, complaint): a guest asked for a refund for a missing side, and the restaurant manager has not called back.
+- `R-014` `LE-R014-1123-12` (21:10, task): the deep clean of the dough mixer was not done and is left for the opening shift.
+- `R-031` `LE-R031-1123-04` (13:05, complaint): the restaurant manager is to call the guest who found a hair in a wrap, and has not done so.
+- `R-031` `LE-R031-1123-05` (14:10, equipment_fault): the drinks machine leaks at the base and is not in the maintenance log.
+- `R-031` `LE-R031-1123-07` (16:20, delivery): the produce delivery was refused, and the new delivery comes tomorrow at 07:30.
+- `R-031` `LE-R031-1123-11` (22:45, task): the packaging stock count is not finished: cups and lids are still to count.
+- `R-058` `LE-R058-1123-06` (15:45, task): the allergen folder at the counter is version 4.0, and version 4.1 has not been put out.
+- `R-058` `LE-R058-1123-08` (18:20, equipment_fault): the freezer door alarm sounds on and off, and the engineer is booked for tomorrow at 14:00.
+- `R-058` `LE-R058-1123-09` (19:30, complaint): a guest says she was charged twice, 23.80 each time, and the restaurant manager checks the card report tomorrow at 09:00.
+- `R-104` `LE-R104-1123-03` (11:30, task): two letters of the sign are not lit, and there is no date for the repair.
+- `R-104` `LE-R104-1123-07` (16:05, staffing_gap): nobody is rostered to open with the shift manager tomorrow at 10:00.
+- `R-104` `LE-R104-1123-08` (17:40, delivery): 10 kg of onions were missing from the produce delivery, and the supplier has not been told.
+- `R-104` `LE-R104-1123-10` (21:30, cash_difference): till 2 counted 22.00 over, and the restaurant manager has not been told.
+- `S-101` `LE-S101-1123-03` (08:30, equipment_fault): self-checkout 3 is out of use, and the engineer is due tomorrow before 12:00.
+- `S-101` `LE-S101-1123-05` (11:00, delivery): a cage of yoghurts was refused at 9 °C, and the credit claim has not been raised.
+- `S-101` `LE-S101-1123-07` (13:50, task): last week's promotion posters are still in the front window.
+- `S-101` `LE-S101-1123-09` (16:40, complaint): a customer with a chipped jar wants a call back tomorrow before 10:00.
+- `S-104` `LE-S104-1123-06` (13:00, staffing_gap): only one colleague is rostered to unload tomorrow's delivery at 06:30.
+- `S-104` `LE-S104-1123-07` (14:20, complaint): the shelf-edge label for the washing powder has not been corrected.
+- `S-104` `LE-S104-1123-09` (17:00, equipment_fault): freezer 4 showed −14 °C, the stock is in freezer 5, and the engineer has given no time.
+
+Entries that look like trouble and are finished, so they are not open:
+
+- `R-014` `LE-R014-1123-04`: oven 2 stopped and was restarted at 12:48. `LE-R014-1123-13`: till 1 counted 4.50 over and it was recorded.
+- `R-031` `LE-R031-1123-03`: a colleague arrived late and the gap was covered. `LE-R031-1123-09`: till 2 counted 35.00 short, and it was recorded and reported to the restaurant manager at 19:55.
+- `R-058` `LE-R058-1123-04`: the card reader froze and has worked since 13:50. `LE-R058-1123-07`: the late shift ran one short until cover came in.
+- `R-104` `LE-R104-1123-05`: the hot holding cabinet read 61 °C, the food was discarded and it read 66 °C at 14:30.
+- `S-101` `LE-S101-1123-08`: a colleague went home ill and the bakery counter closed early.
+- `S-104` `LE-S104-1123-11`: till 5 counted 48.00 short, and it was recorded and reported to the store manager at 20:25.
+
+`get_shift_log` without a date gives the latest log a site has. A site with no log answers 404. `save_handover_note` saves the note as a draft: a line that rests on an entry the log does not hold is refused with 422, and so is an entry under `do_first` that is not under `still_open`.
+
+## Incident accounts (system: stores)
+
+The stores system holds six accounts of accidents and incidents, each as a colleague wrote it in free text. No colleague and no guest is named. The report form follows procedure SP-15 of the Store Procedures Manual, version 3.1 (`retail/policy-library/store-procedures-manual.md`), which the service does not hold. Clause 15.1: an accident to a crew member or a guest is reported to the shift manager at once. Clause 15.2: the shift manager completes the incident form before the end of the shift, and a burn, a cut needing more than a plaster, a fall, or any report of a guest becoming ill is also reported to the area manager by phone the same day. Clause 15.3: nobody admits fault or discusses compensation with a guest, the guest's contact details are taken, and the guest is told the restaurant manager will call.
+
+The right answers for the form, and the clauses that set a next step:
+
+| Account | Site | Incident date | Type | Who was affected | Time | First aid | Shift manager told | Area manager phoned the same day | Clauses |
+|---|---|---|---|---|---|---|---|---|---|
+| IA-2611-01 | R-014 | 2026-11-23 | fall | crew_member | 14:20 | yes | yes | yes | 15.1, 15.2 |
+| IA-2611-02 | R-047 | 2026-11-22 | burn | crew_member | 19:05 | yes | yes | yes | 15.1, 15.2 |
+| IA-2611-03 | S-104 | 2026-11-21 | near_miss | nobody | not given | no | yes | no | 15.2 |
+| IA-2611-04 | R-031 | 2026-11-20 | cut | guest | 20:15 | yes | yes | yes | 15.1, 15.2, 15.3 |
+| IA-2611-05 | S-101 | 2026-11-19 | property_damage | nobody | 06:50 | no | no | no | 15.2 |
+| IA-2611-06 | R-058 | 2026-11-18 | guest_illness | guest | 13:25 | not_said | yes | yes | 15.1, 15.2, 15.3 |
+
+- `IA-2611-01`: a crew member slipped on a wet floor by the dish wash and fell. A fall is on the list of clause 15.2, so the area manager is phoned the same day.
+- `IA-2611-02`: a crew member burned a forearm on the door of oven 1. A burn is on the list of clause 15.2.
+- `IA-2611-03`: a stack of crates fell in the stockroom and hit nobody. Nobody was hurt, so clause 15.1 sets no step and clause 15.2 asks for the form only. The account gives no time ("this morning"), so the time is left empty and listed as not in the account. The procedure says nothing more about a near miss.
+- `IA-2611-04`: a guest cut her palm on a cracked glass, and it needed a pad and a bandage: a cut needing more than a plaster. Clause 15.3 applies. The guest left before her phone number was taken, so her contact details are listed as not in the account. Who pays for her taxi is not for the report to answer.
+- `IA-2611-05`: a supplier's lorry hit the door post of the loading bay. Nobody was hurt. Damage to property is not on the list of clause 15.2, so the procedure asks for the form only. The colleague has told nobody yet.
+- `IA-2611-06`: a guest said her lips were swelling after eating half of a wrap and went to hospital. A report of a guest becoming ill is on the list of clause 15.2, and clause 15.3 applies. The account does not say whether first aid was given. Whether the wrap held the allergen, and whose fault it was, are not for the report to say.
+
+`save_incident_report` saves the form as a draft. It is refused with 422 when the date is not the account's date, when the area manager is to be phoned and no step cites clause 15.2, and when a guest was affected and no step cites clause 15.3. `submit_incident_report` is the manager's change: it is refused with 409 until a form is saved. Safety decisions are the manager's.
+
+## Franchisees and their questions (system: franchise)
+
+Three companies run the three franchised restaurants:
+
+| Franchisee | Company | Since | Restaurant |
+|---|---|---|---|
+| FR-01 | Brindle-Crake Foods Ltd | 2019 | R-090 |
+| FR-02 | Wickersham-Ode Pizza Partners Ltd | 2021 | R-104 |
+| FR-03 | Ostrand-Pell Quick Meals Ltd | 2023 | R-117 |
+
+The franchise system also holds seventeen questions franchisees have asked, for trying an agent that answers from the Franchise Operations Manual, version 3.0 (`retail/policy-library/franchise-operations-manual-v3.0.md`) and the Brand Standards, version 2.0 (`retail/policy-library/brand-standards-v2.0.md`). The service holds neither document and no answer. Twelve questions are answered by a section of the manual or by a brand standard. Three are answered by neither: the right answer says so and sends the question to the franchise team (section 7.4). Two are about the franchise agreement itself: the manual gives no answer to them, and they go to the franchise team at `franchise.team@rowanmere.example` (section 7.1).
+
+| Question | Franchisee | Asked on | Kind | Where the answer is | The question | The answer in short |
+|---|---|---|---|---|---|---|
+| FQ-2611-01 | FR-01 | 2026-11-04 | answered | 1.2 | By when do I have to send the weekly sales report? | By 12:00 on the Tuesday after the week ends. The week runs Monday to Sunday. |
+| FQ-2611-02 | FR-03 | 2026-11-05 | answered | 1.1, 1.3 | What do I pay in royalty, and when is the invoice due? | 6 percent of net sales, and 3 percent to the national marketing fund. The invoice is sent on the 5th and is payable by the 20th. |
+| FQ-2611-03 | FR-02 | 2026-11-06 | answered | 2.1 | How many audits will my restaurant get in a year, and will I be told before one? | Two a year. An audit is not announced. |
+| FQ-2611-04 | FR-01 | 2026-11-08 | answered | 2.2, 2.3 | We scored 19 on the last audit. What happens now? | 19 is below the pass score of 20 out of 24. An action plan goes to the area manager within 14 days, and the restaurant is audited again within 60 days. |
+| FQ-2611-05 | FR-03 | 2026-11-09 | answered | 2.4 | I think the auditor scored one item wrongly. Can I ask for the score to be looked at again? | Yes: in writing to the Head of Franchise Operations, within 7 days of receiving the audit report. |
+| FQ-2611-06 | FR-02 | 2026-11-11 | answered | 3.2, 3.4 | Can I put a local dish on my menu? | Up to three local items, each with the menu team's written approval asked for at least 30 days ahead. It is not sold until it is in the Allergen Matrix. |
+| FQ-2611-07 | FR-01 | 2026-11-12 | answered | 3.3 | Can I charge more than the recommended price for a pizza? | Yes, up to 10 percent above the recommended price list. During a national promotion the promoted items are sold at the promotion price. |
+| FQ-2611-08 | FR-03 | 2026-11-14 | answered | 4.2 | Can I print my own flyers for the neighbourhood? | Local marketing uses the artwork on the brand portal. Own artwork needs the marketing team's approval first, which takes up to 10 working days. |
+| FQ-2611-09 | FR-02 | 2026-11-15 | answered | 4.1 | How much do I have to spend on local marketing? | At least 1 percent of net sales each year, with the receipts kept for the yearly review. |
+| FQ-2611-10 | FR-01 | 2026-11-17 | answered | 5.2, 5.3 | My restaurant opened in 2019. When is it due a refit, and who pays for it? | Every 7 years from opening or the last refit, so 2026 for a restaurant opened in 2019. The franchisee pays, and the property team approves the plans before work starts. |
+| FQ-2611-11 | FR-03 | 2026-11-18 | answered | 6.3 | My produce supplier did not deliver this morning. Can I buy from the shop down the road? | Milk, fresh produce and ice may be bought from a local shop for up to 3 days. The supply team is told within 24 hours of the first purchase. |
+| FQ-2611-12 | FR-02 | 2026-11-19 | answered | BS-5.2 | A national promotion ended on Sunday. How long do I have to take the posters down? | Within 24 hours of the end of the promotion. That is brand standard 5.2. Section 2.5 of the manual says the Brand Standards apply in full. |
+| FQ-2611-13 | FR-01 | 2026-11-20 | silent | nowhere | Can I close early on a public holiday? | The manual and the brand standards do not say what hours a franchised restaurant trades on a public holiday. The question goes to the franchise team (section 7.4). |
+| FQ-2611-14 | FR-03 | 2026-11-21 | silent | nowhere | Can I sign up with a delivery app of my own choice? | The manual and the brand standards say nothing about delivery apps. The question goes to the franchise team (section 7.4). |
+| FQ-2611-15 | FR-02 | 2026-11-21 | silent | nowhere | When the uniform design changes, who pays for the new uniforms? | The manual and the brand standards do not say who pays for a new uniform. Brand standard 2.2 says only that the full uniform is worn. The question goes to the franchise team (section 7.4). |
+| FQ-2611-16 | FR-01 | 2026-11-22 | franchise_agreement | 7.1 | My agreement runs out in 2029. How do I renew it, and will the terms change? | Renewal is a matter of the franchise agreement itself. The manual gives no answer. The question goes to the franchise team. |
+| FQ-2611-17 | FR-03 | 2026-11-23 | franchise_agreement | 7.1 | Can I sell my restaurant to another operator, and could a second Rowanmere Kitchen open inside my territory? | The sale or transfer of a franchise and the territory are matters of the franchise agreement itself. The manual gives no answer. The question goes to the franchise team. |
+
+A section is written as in the manual, for example 1.2. `BS-5.2` is brand standard 5.2. The franchise system has four operations and all of them read: an agent answers in the conversation and saves nothing.
+
 ## Simulated arrivals
 
 `POST /admin/simulate/<kind>` makes one new item from four rotating templates per kind. The fifth call uses the first template again with new ids.
@@ -985,6 +1159,20 @@ stock-count. One more stock count in the stock system, `SC-2611-01` and so on, c
 3. `S-107`, chilled lines. Loss 40.86 on sales of 2,836.20: 1.44 percent. Within tolerance, and no line is beyond it.
 4. `S-105`, personal care lines. Loss 29.97 on sales of 851.64: 3.52 percent. Beyond tolerance, and all of the loss is in one line, `PC-6604` (15.00 percent).
 
+shift-end. Each call makes the day's shift log of one more site in the stores system, with no handover note. The log is for the retailer date. The fifth call uses the first template again, for the day before:
+
+1. `R-022`, 7 entries. Nothing is open, and nothing needs doing first.
+2. `S-106`, 7 entries. Two entries are open: `LE-S106-1124-02` (the bread delivery was three trays short and the bakery has not been told) and `LE-S106-1124-04` (a chiller cabinet door does not close, engineer tomorrow at 08:30). `LE-S106-1124-04` needs doing first.
+3. `R-047`, 6 entries. One entry is open: `LE-R047-1124-03` (the toilet check sheets ran out and the new ones have not arrived). It names no time, so the log gives nothing to do first.
+4. `S-102`, 8 entries. Three entries are open: `LE-S102-1124-03` (the bottle return machine is out of use with no repair date), `LE-S102-1124-04` (the store manager is to call a customer tomorrow before 11:00) and `LE-S102-1124-05` (nobody is rostered for the kiosk tomorrow from 07:00 to 09:00). `LE-S102-1124-05` needs doing first.
+
+incident-account. Each call makes one more incident account in the stores system, written on the retailer date, with no report form. Its id is `IA-2611-51`, `IA-2611-52` and so on:
+
+1. `R-022`: a crew member nicked a thumb on the slicer and a plaster was enough. Type `cut`, `crew_member`, time 11:55. A cut that needs no more than a plaster is not on the list of clause 15.2, so the area manager is not phoned. Clauses 15.1 and 15.2.
+2. `S-107`: a customer fell at the entrance. Type `fall`, `guest`, time 16:05. The area manager is phoned the same day. Clauses 15.1, 15.2 and 15.3.
+3. `R-063`: a pan of hot oil fell and hit nobody. Type `near_miss`, `nobody`, no time given. The area manager is not phoned. Clause 15.2.
+4. `R-071`: a guest phoned to say he was sick after a meal. Type `guest_illness`, `guest`, time 10:25. The area manager is phoned the same day. Clauses 15.1, 15.2 and 15.3.
+
 The fifth call of each kind uses the first template again with a new id.
 
 ## Rules for checking
@@ -994,6 +1182,8 @@ The fifth call of each kind uses the first template again with a new id.
 - What version 1.1 added changes no record. Each of its four writes saves a draft only: a visit report, a lease summary, a performance review, a refund and discount audit. A person checks every one of them.
 - What version 1.2 added follows one pattern: an agent saves a draft (a ticket reply, a complaint classification and response, a review reply, a return assessment, a fraud review, a discrepancy claim, a supplier reply), and a named person makes the change (send, publish, approve, refuse, release, hold). Each of the nine changes is refused with 409 until its draft is saved.
 - What version 1.3 added follows the same pattern: an agent saves a draft (a product description, a product data check, a search terms analysis, a replenishment plan, a shrink analysis, a recall pack, price recommendations, a promotion review, a range review pack, a demand plan note, product suggestions, a campaign brief), and a named person makes the change (publish a description, approve a replenishment plan, issue a recall notice, approve price changes). Each of the four changes is refused with 409 until its draft is saved.
+- What version 1.4 added follows the same pattern: an agent saves a draft (a roster check, a handover note, an incident report form), and a named manager makes the change (publish a roster, submit an incident report). Each of the two changes is refused with 409 until its draft is saved. A handover note has no change of its own: the outgoing manager checks and signs it. The franchise system only reads.
+- Which shifts break a rule, which log entries are still open, what an incident report form should hold and where a franchisee's question is answered are in this file and are never served.
 - Which listings do not match their specification, which lines run out or are overstocked, which stores and lines are beyond tolerance, what the pricing rules allow, what a promotion added up to, which lines are below a threshold and what a member should be shown are in this file and are never served. The service serves the records and the rules, and an agent works the answer out.
 - Which article answers a ticket, how a complaint is classified, which reviews go to a person, what a return or a fraud review should propose and what a delivery note should claim are in this file and are never served.
 - `POST /admin/reset` returns all of this to the start. `POST /admin/reset/<system>` returns only what that one system has changed, and the arrivals made for it.

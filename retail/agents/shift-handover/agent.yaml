@@ -1,0 +1,52 @@
+id: shift-handover
+name: Shift Handover
+pack: retail
+area: Store operations
+summary: >
+  Drafts the handover note for the next shift from the day's log of a store
+  or a restaurant: what happened, what is still open, and what needs doing
+  first. Every line rests on an entry of the log, and nothing is added that
+  the log does not hold. It saves the note as a draft. The outgoing manager
+  checks and signs it.
+
+type: workflow
+form: scheduled
+started_by: "A clock, at the end of the trading day, for each site. A person can also name a site and a day"
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: store-records
+    kind: api
+    required: true
+    label: "The company's store and restaurant records, to read a site's shift log for a day and to save a handover note as a draft"
+    operations:
+      - get_shift_log
+      - save_handover_note
+
+demo_retailer_systems: [stores]
+
+stops_for_a_person:
+  - "The outgoing manager checks and signs the note. The agent signs nothing."
+  - "What is done about an open entry, and by whom, is for the manager of the next shift. The agent gives the entry and the time it names."
+  - "Whether food was safe, whether equipment may be used and anything about a colleague's conduct are for the manager. The agent repeats what the log says."
+
+# Saving a note is a draft kept as a version on the log, with its author. It changes no entry.
+changes:
+  - {tool: save_handover_note, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. Which entries are still open is a reading of
+    free text. The scheduled form, one run for each site at the end of the
+    day, is not written yet.

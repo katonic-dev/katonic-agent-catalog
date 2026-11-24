@@ -8,14 +8,17 @@ from .seed_care import build_care
 from .seed_care_desk import build_care_desk
 from .seed_catalogue import build_catalogue
 from .seed_food import build_food
+from .seed_franchise import build_franchise
 from .seed_loyalty import build_loyalty
 from .seed_orders import build_orders
+from .seed_people import build_people
 from .seed_perf import build_performance
 from .seed_pricing import build_pricing
 from .seed_property import build_property
 from .seed_purch import build_purchasing
 from .seed_purch_more import build_more
 from .seed_range import SKUS
+from .seed_shifts import build_shifts
 from .seed_stock import build_stock, line_position
 from .seed_stores import build_sites
 from .seed_tills import build_tills
@@ -35,4 +38,6 @@ def build_all(today: date) -> dict:
     loyalty = build_loyalty(today, catalogue["catalogue_products"])
     return {"sites": build_sites(), **build_visits(today), **build_food(today), **build_care(today),
             **build_care_desk(today), **purchasing, **build_property(today), **build_performance(today), **tills,
-            **orders, **catalogue, **stock, **pricing, **loyalty}
+            **orders, **catalogue, **stock, **pricing, **loyalty,
+            # version 1.4: rosters, shift logs, incident accounts and the franchise records
+            **build_people(today), **build_shifts(today), **build_franchise(today)}

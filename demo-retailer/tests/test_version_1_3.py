@@ -1304,7 +1304,7 @@ def test_the_openapi_documents_of_the_four_systems(client):
     seen = {}
     for system in NEW_SYSTEMS:
         doc = client.get(f"/{system}/openapi.json").json()
-        assert doc["openapi"] == "3.0.3" and doc["info"]["version"] == "1.3.0" and "invented" in doc["info"]["description"].split(".")[0].lower()
+        assert doc["openapi"] == "3.0.3" and doc["info"]["version"] == "1.4.0" and "invented" in doc["info"]["description"].split(".")[0].lower()
         assert "anyOf" not in json.dumps(doc) and '"type": "null"' not in json.dumps(doc)
         for path, item in doc["paths"].items():
             for method, op in item.items():
@@ -1386,13 +1386,13 @@ def test_the_drafts_of_version_1_3_are_described_for_a_tool_and_write_through(cl
 
 def test_the_landing_page_and_the_readme_show_version_1_3(client):
     text = client.get("/").text
-    assert "The twelve systems" in text
+    assert "The fourteen systems" in text
     for system in NEW_SYSTEMS:
         assert f"/{system}/openapi.json" in text and f"/{system}/mcp" in text and f"/{system}/sse" in text
     for label in ("product listings", "stock lines", "price file lines", "loyalty members", "batches recalled"):
         assert label in text, label
     readme = (Path(__file__).resolve().parent.parent / "README.md").read_text(encoding="utf-8")
-    assert "## The twelve systems" in readme and "In all, 131 operations" in readme
+    assert "## The fourteen systems" in readme and "In all, 146 operations" in readme
     for system in NEW_SYSTEMS:
         doc = client.get(f"/{system}/openapi.json").json()
         ops = [op["operationId"] for item in doc["paths"].values() for op in item.values()]

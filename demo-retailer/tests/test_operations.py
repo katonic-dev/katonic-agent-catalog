@@ -5,6 +5,7 @@ import json
 import pytest
 
 from bodies_1_3 import CALLS_1_3
+from bodies_1_4 import CALLS_1_4
 from conftest import ALL_SYSTEMS, H
 
 PERIOD = "2026-10"
@@ -144,6 +145,8 @@ CALLS = {
 }
 # version 1.3: the catalogue, stock, pricing and loyalty systems, each change after the draft it needs
 CALLS.update(CALLS_1_3)
+# version 1.4: the people and franchise systems, and the shift logs and incident accounts of the stores system
+CALLS.update(CALLS_1_4)
 
 
 def test_every_operation_of_every_system_is_called_once_and_answers_200(client):

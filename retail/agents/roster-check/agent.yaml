@@ -1,0 +1,60 @@
+id: roster-check
+name: Roster Check
+pack: retail
+area: People and compliance
+summary: >
+  Checks a draft roster against the working time rules and the company's own
+  staffing rules, and lists each breach with the rule, the colleague and the
+  shift. It saves the check as a draft. It allocates no shift, moves no shift
+  and rates no one. The manager who owns the roster changes it and publishes
+  it.
+
+type: workflow
+form: api
+started_by: "A call from the rostering tool with a roster number. A person can also name a roster"
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for. The rostering
+# tool calls it through the platform's public API with a roster number.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: people
+    kind: api
+    required: true
+    label: "The company's rostering records, to read a draft roster with its colleagues and shifts and the working time and staffing rules, and to save a check as a draft"
+    operations:
+      - list_draft_rosters
+      - get_draft_roster
+      - get_working_time_rules
+      - save_roster_check
+
+demo_retailer_systems: [people]
+
+stops_for_a_person:
+  - "The manager who owns the roster changes it. The agent proposes no change, moves no shift and gives no shift to anyone."
+  - "The manager publishes the roster. The agent has no way to publish one."
+  - "Nothing about a colleague's performance or conduct comes from this agent. A roster shows shifts, not people."
+  - "What the rules should be is for the company. The agent follows the rules as the records give them."
+
+# Saving a check is a draft kept as a version on the roster, with its author. It changes no shift.
+changes:
+  - {tool: save_roster_check, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/working-time-and-staffing-rules-v1.2.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. It reads the rules through the people system.
+    The same rules are a document in the policy library. The working time
+    rules there are the company's statement of the rules of an invented
+    country.

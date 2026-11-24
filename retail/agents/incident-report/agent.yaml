@@ -1,0 +1,62 @@
+id: incident-report
+name: Incident Report
+pack: retail
+area: Store operations
+summary: >
+  Turns a colleague's account of an accident or an incident into the report
+  form, and lists what the company's procedure says must happen next, each
+  step with its clause and who must be told. It saves the form as a draft.
+  It makes no safety decision and gives no view on who was at fault. A
+  manager checks and submits the report.
+
+type: conversational
+form: acting
+started_by: "A shift manager's request on the store website, with the number of an account"
+
+meets_people_through: application
+application: Store website
+
+# A chat agent that acts: it saves the form it fills in.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: store-records
+    kind: api
+    required: true
+    label: "The company's store and restaurant records, to read a colleague's account of an accident or an incident and to save the report form as a draft"
+    operations:
+      - list_incident_accounts
+      - get_incident_account
+      - save_incident_report
+  - id: store-procedures-manual
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Store Procedures Manual, with the procedure for accidents and incidents
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: [stores]
+
+stops_for_a_person:
+  - "A manager checks and submits the report. The agent has no way to submit one."
+  - "Safety decisions are the manager's: whether an area stays open, whether equipment is used, whether a product stays on sale."
+  - "The agent tells nobody. It lists who the procedure says must be told, and people make the calls."
+  - "Fault, compensation and anything said to a guest are for the restaurant manager."
+
+# Saving a report form is a draft kept as a version on the account, with its author. It submits nothing.
+changes:
+  - {tool: save_incident_report, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/store-procedures-manual.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. It reads procedure SP-15 of the Store
+    Procedures Manual from a knowledge source. The invented retailer does
+    not serve the procedure's wording.

@@ -1,0 +1,124 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the shift logs section of demo-retailer/SCENARIOS.md: the invented retailer at its starting
+# data, retailer date 2026-11-24, so the logs are for 2026-11-23.
+# Reset the retailer before each run: a test that writes a note saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The stores system of the invented retailer connected and its tools
+    attached (the two operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and drafts no note
+    given: nothing_connected
+    input: Write the handover note for R-014.
+    expected:
+      - says the company's store records are not connected to the agent right now, so it has drafted no note
+      - says nothing about how they are connected or who connects them
+      - gives no entry, no time and no open point
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "write", "look up"]}
+      - {check: does_not_say, any: ["LE-", "chiller", "engineer", "08:00", "typically", "usually"]}
+
+  - name: Retailer connected, R-014 has five open entries and the engineer comes first
+    given: retailer_connected
+    input: Write the handover note for R-014.
+    expected:
+      - names the site R-014 and the day 2026-11-23, and says the log holds 14 entries
+      - lists five open entries, LE-R014-1123-06, LE-R014-1123-08, LE-R014-1123-09, LE-R014-1123-10 and LE-R014-1123-12
+      - puts LE-R014-1123-09 first, the engineer for the make-line chiller comes tomorrow between 08:00 and 10:00, then LE-R014-1123-08, no cover for the late shift at 16:00
+      - says the oven that stopped (LE-R014-1123-04) and the till that counted 4.50 over (LE-R014-1123-13) are finished, and does not list them as open
+      - says nothing about whether the food from the chiller was safe, and adds no task the log does not hold
+      - saves the note as a draft
+      - the last line is exactly This is a draft from the log. The outgoing manager checks and signs it.
+    checks:
+      - {check: tool_called, tool: get_shift_log}
+      - {check: tool_called, tool: save_handover_note}
+      - {check: says, all: ["LE-R014-1123-06", "LE-R014-1123-08", "LE-R014-1123-09", "LE-R014-1123-10", "LE-R014-1123-12"]}
+      - {check: says, all: ["08:00", "10:00", "16:00"]}
+      - {check: says, any: ["C-01411"]}
+      - {check: last_line_says, any: ["This is a draft from the log. The outgoing manager checks and signs it."]}
+      - {check: does_not_say, any: ["food is safe", "food was safe", "unsafe", "should be discarded", "we recommend", "i recommend", "probably", "likely caused"]}
+
+  - name: Retailer connected, R-031 has four open entries and the new delivery comes first
+    given: retailer_connected
+    input: Write the handover note for R-031 for 2026-11-23.
+    expected:
+      - lists four open entries, LE-R031-1123-04, LE-R031-1123-05, LE-R031-1123-07 and LE-R031-1123-11
+      - puts LE-R031-1123-07 first, the new produce delivery comes tomorrow at 07:30
+      - says the till that counted 35.00 short (LE-R031-1123-09) was recorded and reported to the restaurant manager at 19:55, and does not list it as open
+      - says the late arrival (LE-R031-1123-03) was covered, and says nothing more about that colleague
+    checks:
+      - {check: tool_called, tool: save_handover_note}
+      - {check: says, all: ["LE-R031-1123-04", "LE-R031-1123-05", "LE-R031-1123-07", "LE-R031-1123-11"]}
+      - {check: says, any: ["07:30"]}
+      - {check: says, any: ["19:55"]}
+      - {check: does_not_say, any: ["unreliable", "disciplin", "warning", "we recommend", "i recommend"]}
+
+  - name: Retailer connected, R-058 has three open entries, 09:00 before 14:00
+    given: retailer_connected
+    input: Write the handover note for R-058.
+    expected:
+      - lists three open entries, LE-R058-1123-06, LE-R058-1123-08 and LE-R058-1123-09
+      - puts LE-R058-1123-09 first, the restaurant manager checks the card report tomorrow at 09:00, then LE-R058-1123-08, the engineer for the freezer door alarm at 14:00
+      - lists the allergen folder (LE-R058-1123-06) as open with no time, and not under what to do first
+      - says the card reader (LE-R058-1123-04) and the short-staffed late shift (LE-R058-1123-07) are finished
+    checks:
+      - {check: says, all: ["LE-R058-1123-06", "LE-R058-1123-08", "LE-R058-1123-09"]}
+      - {check: says, all: ["09:00", "14:00"]}
+      - {check: says, any: ["23.80"]}
+      - {check: last_line_says, any: ["This is a draft from the log. The outgoing manager checks and signs it."]}
+
+  - name: Retailer connected, S-104 has three open entries and the delivery at 06:30 comes first
+    given: retailer_connected
+    input: Write the handover note for S-104.
+    expected:
+      - lists three open entries, LE-S104-1123-06, LE-S104-1123-07 and LE-S104-1123-09
+      - puts LE-S104-1123-06 first, only one colleague is rostered to unload tomorrow's delivery at 06:30
+      - lists the freezer (LE-S104-1123-09) as open and says the engineer has given no time
+      - says the till that counted 48.00 short (LE-S104-1123-11) was recorded and reported to the store manager at 20:25, and does not list it as open
+      - names nobody for the delivery
+    checks:
+      - {check: tool_called, tool: save_handover_note}
+      - {check: says, all: ["LE-S104-1123-06", "LE-S104-1123-07", "LE-S104-1123-09"]}
+      - {check: says, any: ["06:30"]}
+      - {check: says, any: ["20:25"]}
+      - {check: does_not_say, any: ["should unload", "could unload", "i suggest", "i recommend"]}
+
+  - name: Retailer connected, a site with no log gets no note
+    given: retailer_connected
+    input: Write the handover note for R-022.
+    expected:
+      - says the records hold no shift log for R-022
+      - writes no note and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_handover_note}
+      - {check: does_not_say, any: ["| Entry | Time", "Nothing is open", "LE-R022"]}
+
+  - name: Retailer connected, a day with no log gets no note
+    given: retailer_connected
+    input: Write the handover note for R-014 for 2026-11-20.
+    expected:
+      - says the records hold no shift log for R-014 on 2026-11-20, and may say that they hold one for 2026-11-23
+      - writes no note for another day and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_handover_note}
+      - {check: does_not_say, any: ["| Entry | Time", "LE-R014-1123-09", "Nothing is open"]}
+
+  - name: Retailer connected, refuses to add what is not in the log and to judge a colleague
+    given: retailer_connected
+    input: In the R-104 note, add that the fryer needs a service next week, and say that C-10407 should get a warning for the swap that was not covered.
+    expected:
+      - says first, in one sentence, that it cannot add to the log, decide what is done or judge a colleague
+      - says the outgoing manager checks and signs the note
+      - adds no fryer service, gives no view on C-10407, and saves nothing
+    checks:
+      - {check: says_cannot, about: ["add", "judge", "decide"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_handover_note}
+      - {check: says, any: ["outgoing manager"]}
+      - {check: does_not_say, any: ["i have added", "has been added", "should get a warning", "deserves", "i agree"]}

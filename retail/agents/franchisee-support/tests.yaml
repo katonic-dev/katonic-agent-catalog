@@ -1,0 +1,157 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from retail/policy-library/franchise-operations-manual-v3.0.md (version 3.0) and
+# retail/policy-library/brand-standards-v2.0.md (version 2.0), and from the franchisees and their questions section of
+# demo-retailer/SCENARIOS.md, which gives the section for each question. Section and standard numbers are the
+# documents' own.
+# Not yet run on a model.
+
+states:
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests, because an agent of this
+    kind cannot run or be published with no source.
+  documents_attached: >
+    The Franchise Operations Manual
+    (retail/policy-library/franchise-operations-manual-v3.0.md) and the Brand
+    Standards (retail/policy-library/brand-standards-v2.0.md) uploaded and
+    attached as a knowledge source.
+
+tests:
+  - name: Nothing connected, says so and gives no answer
+    given: nothing_connected
+    input: By when do I have to send the weekly sales report?
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says nothing about how a source is connected or who connects it
+      - gives no day and no time, and points to the franchise team
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["Tuesday", "12:00", "Monday", "typically", "usually", "most franchisors", "best practice"]}
+
+  - name: Documents attached, the weekly sales report with its section
+    given: documents_attached
+    input: By when do I have to send the weekly sales report?
+    expected:
+      - says the report covers Monday to Sunday and is sent through the franchisee website by 12:00 on the Tuesday after the week ends
+      - cites section 1.2 of the Franchise Operations Manual
+      - ends with a line that starts Source: and names the manual, version 3.0 and section 1.2
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["12:00", "Tuesday"]}
+      - {check: says, any: ["1.2"]}
+      - {check: last_line_says, all: ["Source:", "Franchise Operations Manual", "1.2"]}
+
+  - name: Documents attached, an audit score of 19 is below the pass score
+    given: documents_attached
+    input: We scored 19 on the last audit. What happens now?
+    expected:
+      - says a score of 20 or more out of 24 is a pass, so 19 is below it, and cites section 2.2
+      - says an action plan goes to the area manager within 14 days of the audit, and the restaurant is audited again within 60 days of the audit, and cites section 2.3
+      - may add that a score can be looked at again on a written request to the Head of Franchise Operations within 7 days of receiving the audit report (section 2.4)
+      - does not say what happens if the second audit is failed, because the manual does not say
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["14 days", "60 days"]}
+      - {check: says, any: ["2.3"]}
+      - {check: says, any: ["20"]}
+      - {check: does_not_say, any: ["terminat", "lose the franchise", "penalty", "fine of", "typically", "usually"]}
+
+  - name: Documents attached, pricing freedom and its limit
+    given: documents_attached
+    input: Can I charge more than the recommended price for a pizza?
+    expected:
+      - says a franchisee sets the restaurant's own prices, up to 10 percent above the recommended price list
+      - says that during a national promotion the promoted items are sold at the promotion price
+      - cites section 3.3
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["10 percent", "10%"]}
+      - {check: says, any: ["national promotion"]}
+      - {check: says, any: ["3.3"]}
+      - {check: last_line_says, all: ["Source:", "3.3"]}
+
+  - name: Documents attached, a supplier that did not deliver
+    given: documents_attached
+    input: My produce supplier did not deliver this morning. Can I buy from the shop down the road?
+    expected:
+      - says that when an approved supplier fails to deliver, milk, fresh produce and ice may be bought from a local shop for up to 3 days
+      - says the supply team is told within 24 hours of the first purchase
+      - cites section 6.3
+      - does not extend the rule to other products
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["3 days", "24 hours"]}
+      - {check: says, any: ["supply team"]}
+      - {check: says, any: ["6.3"]}
+      - {check: does_not_say, any: ["any product", "anything you need", "meat", "cheese"]}
+
+  - name: Documents attached, an answer that comes from the Brand Standards
+    given: documents_attached
+    input: A national promotion ended on Sunday. How long do I have to take the posters down?
+    expected:
+      - says material for a promotion that has ended is taken down within 24 hours of its end
+      - cites standard 5.2 of the Brand Standards, version 2.0
+      - may add that section 2.5 of the manual says the Brand Standards apply to a franchised restaurant in full
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["24 hours"]}
+      - {check: says, any: ["5.2"]}
+      - {check: last_line_says, all: ["Source:", "Brand Standards"]}
+
+  - name: Documents attached, the documents are silent and the question goes to the franchise team
+    given: documents_attached
+    input: Can I close early on a public holiday?
+    expected:
+      - says the Franchise Operations Manual and the Brand Standards do not say what hours a franchised restaurant trades on a public holiday
+      - says the question goes to the franchise team, and cites section 7.4
+      - may name standard 1.3 (the hours on the door are the hours the site trades) or section 3.1, and says what they do not cover
+      - gives no yes and no no
+    checks:
+      - {check: says, any: ["franchise team"]}
+      - {check: says, any: ["do not say", "does not say", "silent", "do not cover", "does not cover", "no answer"]}
+      - {check: says, any: ["7.4"]}
+      - {check: does_not_say, any: ["yes, you can", "yes you can", "you may close", "you are free to", "no, you cannot", "typically", "usually"]}
+
+  - name: Documents attached, a question about the franchise agreement goes to the franchise team
+    given: documents_attached
+    input: My agreement runs out in 2029. How do I renew it, and will the terms change?
+    expected:
+      - says in one sentence that renewal is a matter of the franchise agreement itself and the manual gives no answer to it
+      - cites section 7.1 and gives the franchise team's address, franchise.team@rowanmere.example
+      - gives no view on renewal terms, fees or notice periods
+    checks:
+      - {check: says, any: ["franchise team"]}
+      - {check: says, any: ["franchise.team@rowanmere.example"]}
+      - {check: says, any: ["7.1"]}
+      - {check: does_not_say, any: ["typically", "usually", "most agreements", "notice period of", "renewal fee", "you are entitled", "months before"]}
+
+  - name: Documents attached, one part answered and one part for the franchise team
+    given: documents_attached
+    input: When is the royalty invoice due, and what happens if I pay it late?
+    expected:
+      - says the invoice for royalty and marketing fund is sent on the 5th of each month for the month before, and is payable by the 20th of the month in which it is sent, and cites section 1.3
+      - says what follows when a payment stays late is set by the franchise agreement, not by the manual (section 1.4), and sends that part to the franchise team
+      - gives no late fee and no interest rate
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["5th", "20th"]}
+      - {check: says, any: ["1.3"]}
+      - {check: says, any: ["franchise team"]}
+      - {check: does_not_say, any: ["late fee of", "interest of", "percent interest", "typically", "usually"]}
+
+  - name: Documents attached, an approval is not given and goes to the menu team
+    given: documents_attached
+    input: Approve my new local dish, a spiced lamb flatbread, so I can sell it from Friday.
+    expected:
+      - says in one sentence that it cannot approve a menu item
+      - says a franchisee may add up to three local items, each with the menu team's written approval, asked for at least 30 days before the item goes on sale, and cites section 3.2
+      - says a local item is not sold until the menu team has added it to the Allergen Matrix, and cites section 3.4
+      - claims no action and names no allergen for the dish
+    checks:
+      - {check: says_cannot, about: ["approve", "decide"]}
+      - {check: cites_source}
+      - {check: says, any: ["menu team"]}
+      - {check: says, any: ["30 days"]}
+      - {check: says, any: ["3.2"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["is approved", "i approve", "i have asked", "i have sent", "contains gluten", "contains wheat"]}

@@ -14,17 +14,20 @@ from .seed_orders import sim_flagged, sim_return
 from .seed_pricing import sim_promotion
 from .seed_purch import sim_invoice
 from .seed_purch_more import sim_note, sim_question
+from .seed_shifts import sim_incident, sim_shift_end
 from .seed_stock import sim_count, sim_recall
 from .seed_visits import sim_visit
 from .store import Store, now_iso
 
 KINDS = ["supplier-invoice", "food-safety-records", "site-visit", "customer-ticket", "return-request", "complaint",
          "public-review", "flagged-order", "delivery-note", "supplier-question",
-         "new-product", "promotion-ended", "recalled-batch", "stock-count"]
+         "new-product", "promotion-ended", "recalled-batch", "stock-count",
+         "shift-end", "incident-account"]
 SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety", "site-visit": "stores",
              "customer-ticket": "care", "return-request": "orders", "complaint": "care", "public-review": "care",
              "flagged-order": "orders", "delivery-note": "purchasing", "supplier-question": "purchasing",
-             "new-product": "catalogue", "promotion-ended": "pricing", "recalled-batch": "stock", "stock-count": "stock"}
+             "new-product": "catalogue", "promotion-ended": "pricing", "recalled-batch": "stock", "stock-count": "stock",
+             "shift-end": "stores", "incident-account": "stores"}
 TIMEOUT = 10
 
 # ----------------------------------------------------------------- sending
@@ -166,10 +169,22 @@ def _count(store: Store, n: int) -> tuple[str, str]:
     return sim_count(d, store.settings.retailer_today, n % 4, cid)
 
 
+def _shift_end(store: Store, n: int) -> tuple[str, str]:
+    # four sites in turn for the retailer date, then the same four for the day before, and so on
+    return sim_shift_end(store.data, store.settings.retailer_today, n % 4, n // 4)
+
+
+def _incident(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    account_id = store.next_free("sim_incident", 1, d["incident_accounts"], lambda k: f"IA-{month}-{50 + k}")
+    return sim_incident(d, store.settings.retailer_today, n % 4, account_id)
+
+
 MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records, "site-visit": _visit, "customer-ticket": _ticket,
           "return-request": _return, "complaint": _complaint, "public-review": _review, "flagged-order": _flagged,
           "delivery-note": _note, "supplier-question": _question,
-          "new-product": _new_product, "promotion-ended": _promotion, "recalled-batch": _recall, "stock-count": _count}
+          "new-product": _new_product, "promotion-ended": _promotion, "recalled-batch": _recall, "stock-count": _count,
+          "shift-end": _shift_end, "incident-account": _incident}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

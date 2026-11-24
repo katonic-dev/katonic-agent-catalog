@@ -1,0 +1,57 @@
+id: franchisee-support
+name: Franchisee Support
+pack: retail
+area: Restaurant and franchise operations
+summary: >
+  Answers a franchisee's question from the company's Franchise Operations
+  Manual and its Brand Standards, with the section or the standard cited,
+  and says so when they are silent. It informs. Anything about the
+  franchise agreement itself goes to the franchise team.
+
+type: conversational
+form: answering
+started_by: A franchisee's question
+
+meets_people_through: application
+application: Franchisee website
+
+platform:
+  kind: chat
+  preset: knowledge_qa
+  tier: reasoning
+
+needs:
+  - id: franchise-operations-manual
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Franchise Operations Manual
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+  - id: brand-standards
+    kind: knowledge_source
+    required: true
+    label: The company's Brand Standards, in the same knowledge source or in a second one
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: []
+
+stops_for_a_person:
+  - It takes no action, so there is nothing to approve.
+  - Anything about the franchise agreement itself goes to the franchise team. The agent does not explain an agreement.
+  - An approval the manual gives to a team (a local menu item, own artwork, a local price promotion, a local supplier, refit plans) is that team's. The agent states the rule.
+  - A question the manual and the standards do not answer goes to the franchise team.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/franchise-operations-manual-v3.0.md
+  - ../../policy-library/brand-standards-v2.0.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The invented retailer's franchise system holds
+    seventeen questions franchisees have asked, for trying the agent. The
+    agent itself reads no system.

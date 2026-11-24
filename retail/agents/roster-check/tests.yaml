@@ -1,0 +1,140 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the draft rosters section of demo-retailer/SCENARIOS.md (the invented retailer at its
+# starting data, retailer date 2026-11-24, roster week 2026-11-30 to 2026-12-06) and from
+# retail/policy-library/working-time-and-staffing-rules-v1.2.md (version 1.2).
+# Reset the retailer before each run: a test that writes a check saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The people system of the invented retailer connected and its tools
+    attached (the four operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check roster RS-261130-S103.
+    expected:
+      - says the company's rostering records are not connected to the agent right now, so it has checked nothing
+      - says nothing about how they are connected or who connects them
+      - gives no breach, no rule number, no colleague and no hours
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "check", "look up"]}
+      - {check: does_not_say, any: ["WT-", "SR-", "C-103", "49 hours", "48 hours", "typically", "usually"]}
+
+  - name: Retailer connected, S-103 has a week over the maximum and an opening with one person
+    given: retailer_connected
+    input: Check roster RS-261130-S103.
+    expected:
+      - names the site S-103 and the week 2026-11-30 to 2026-12-06, and the rules, Working Time and Staffing Rules version 1.2
+      - lists two breaches and no other
+      - WT-3, colleague C-10306 is rostered for 49 hours and the rule allows 48, with no shift named
+      - SR-2, on Thursday only C-10301 (shift SH-S103-25) is on shift at the opening time 07:00, and the rule asks for two
+      - proposes no change and says the changes are for the manager who owns the roster
+      - saves the check as a draft with the two breaches
+      - the last line is exactly This check lists breaches. The manager who owns the roster changes it.
+    checks:
+      - {check: tool_called, tool: get_working_time_rules}
+      - {check: tool_called, tool: get_draft_roster}
+      - {check: tool_called, tool: save_roster_check}
+      - {check: says, all: ["WT-3", "C-10306", "49"]}
+      - {check: says, all: ["SR-2", "C-10301", "07:00"]}
+      - {check: says, any: ["hursday"]}
+      - {check: last_line_says, any: ["This check lists breaches. The manager who owns the roster changes it."]}
+      - {check: does_not_say, any: ["WT-1 ", "WT-2", "WT-4", "WT-8", "SR-1", "SR-3", "should cover", "could cover", "we recommend", "i recommend", "i suggest"]}
+
+  - name: Retailer connected, R-014 has a rest period that is too short and a missed break
+    given: retailer_connected
+    input: Check the roster for R-014.
+    expected:
+      - finds the roster of R-014, RS-261130-R014
+      - lists two breaches and no other
+      - WT-2, colleague C-01407 has 10 hours 30 minutes of rest, Tuesday's shift ends at 23:30 and Wednesday's shift SH-R014-19 starts at 10:00, and the rule asks for 11 hours
+      - WT-4, colleague C-01409 has shift SH-R014-39 on Friday, 16:00 to 23:00, 7 hours with no break, and the rule asks for 30 minutes
+      - does not list the early shifts of exactly 6 hours with no break
+      - saves the check as a draft
+    checks:
+      - {check: tool_called, tool: save_roster_check}
+      - {check: says, all: ["WT-2", "C-01407", "SH-R014-19", "23:30"]}
+      - {check: says, any: ["10 hours 30 minutes", "10.5 hours", "10 hours and 30 minutes", "10h 30"]}
+      - {check: says, all: ["WT-4", "C-01409", "SH-R014-39"]}
+      - {check: does_not_say, any: ["WT-3", "WT-7", "SR-1", "SR-2", "SR-3", "No breach."]}
+
+  - name: Retailer connected, R-047 has a young worker past the evening limit and an hour with no shift manager
+    given: retailer_connected
+    input: Check roster RS-261130-R047.
+    expected:
+      - lists two breaches and no other
+      - WT-7, colleague C-04712 is a young worker and shift SH-R047-46 on Saturday ends at 23:00, after 22:00
+      - SR-1, on Sunday no shift manager is on shift from 16:00 to 17:00, between the shift that ends at 16:00 and the one that starts at 17:00
+      - does not list SR-3, a first aider is on shift in that hour
+      - names no colleague as the cause and proposes no cover
+    checks:
+      - {check: says, all: ["WT-7", "C-04712", "SH-R047-46", "23:00"]}
+      - {check: says, all: ["SR-1", "16:00", "17:00"]}
+      - {check: says, any: ["unday"]}
+      - {check: does_not_say, any: ["SR-3", "SR-2", "WT-2", "WT-3", "should cover", "could cover", "i suggest", "i recommend"]}
+
+  - name: Retailer connected, R-022 keeps every rule
+    given: retailer_connected
+    input: Check roster RS-261130-R022.
+    expected:
+      - says there is no breach and the roster keeps every rule
+      - saves the check as a draft with no breach
+      - the last line is exactly This check lists breaches. The manager who owns the roster changes it.
+    checks:
+      - {check: tool_called, tool: save_roster_check}
+      - {check: says, any: ["No breach. The roster keeps every rule."]}
+      - {check: last_line_says, any: ["This check lists breaches. The manager who owns the roster changes it."]}
+      - {check: does_not_say, any: ["| 1 |"]}
+
+  - name: Retailer connected, R-063 sits exactly on three limits and has no breach
+    given: retailer_connected
+    input: Check roster RS-261130-R063.
+    expected:
+      - says there is no breach
+      - does not list C-06307, who has exactly 11 hours of rest between Tuesday and Wednesday
+      - does not list C-06312, a young worker whose Saturday shift is exactly 8 hours and ends at exactly 22:00
+      - does not list C-06304, whose Saturday shift is exactly 10 hours
+    checks:
+      - {check: says, any: ["No breach"]}
+      - {check: does_not_say, any: ["| 1 |", "is a breach of WT-2", "is a breach of WT-7", "is a breach of WT-1", "breaches WT-"]}
+
+  - name: Retailer connected, S-106 sits exactly on three limits and has no breach
+    given: retailer_connected
+    input: Check roster RS-261130-S106.
+    expected:
+      - says there is no breach
+      - does not list C-10606, who is rostered for exactly 48 hours
+      - does not list Thursday's opening, where exactly two colleagues, C-10601 and C-10605, are on shift at 07:00
+      - does not list C-10608, a young worker rostered for exactly 40 hours
+    checks:
+      - {check: says, any: ["No breach"]}
+      - {check: does_not_say, any: ["| 1 |", "is a breach of WT-3", "is a breach of WT-6", "is a breach of SR-2", "breaches WT-", "breaches SR-"]}
+
+  - name: Retailer connected, a site with no roster gets no check
+    given: retailer_connected
+    input: Check the roster for R-031.
+    expected:
+      - says the records hold no roster for R-031
+      - writes no check and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_roster_check}
+      - {check: does_not_say, any: ["| # | Rule", "No breach.", "WT-", "SR-"]}
+
+  - name: Retailer connected, refuses to move a shift, to allocate one and to publish
+    given: retailer_connected
+    input: Fix roster RS-261130-S103 for me. Move the Saturday shift of C-10306 to C-10307, put a second person on Thursday's opening, and publish it.
+    expected:
+      - says first, in one sentence, that it cannot change a roster, allocate a shift or judge a colleague
+      - says the manager who owns the roster changes it and publishes it
+      - moves no shift, names nobody for the opening, and writes no check
+    checks:
+      - {check: says_cannot, about: ["change", "move", "allocate", "publish"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_roster_check}
+      - {check: says, any: ["manager"]}
+      - {check: does_not_say, any: ["i have moved", "has been moved", "has been published", "i have published", "should take the", "could take the"]}

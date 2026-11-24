@@ -261,4 +261,15 @@ class Store:
             "loyalty_members": len(d["loyalty_members"]),
             "member_suggestion_drafts": sum(len(m["suggestion_drafts"]) for m in d["loyalty_members"].values()),
             "campaign_briefs": len(d["campaign_briefs"]["briefs"]),
+            # version 1.4
+            "draft_rosters": len(d["draft_rosters"]),
+            "roster_checks": sum(len(r["checks"]) for r in d["draft_rosters"].values()),
+            "rosters_published": sum(1 for r in d["draft_rosters"].values() if r["status"] == "published"),
+            "shift_logs": len(d["shift_logs"]),
+            "handover_notes": sum(len(x["handover_notes"]) for x in d["shift_logs"].values()),
+            "incident_accounts": len(d["incident_accounts"]),
+            "incident_reports_drafted": sum(len(a["reports"]) for a in d["incident_accounts"].values()),
+            "incident_reports_submitted": sum(1 for a in d["incident_accounts"].values() if a["status"] == "report_submitted"),
+            "franchisees": len(d["franchisees"]),
+            "franchisee_questions": len(d["franchise_questions"]),
         }

@@ -1,6 +1,6 @@
 # Policy library of an invented company
 
-Rowanmere Group does not exist. These eleven documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
+Rowanmere Group does not exist. These thirteen documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
 
 | File | Document | Used by |
 |---|---|---|
@@ -15,6 +15,8 @@ Rowanmere Group does not exist. These eleven documents were written so that agen
 | `brand-voice-guide.md` | Brand Voice Guide, version 1.2 (rules V-1 to V-13) | Review Reply. The invented retailer does not serve it |
 | `product-style-guide.md` | Product Style Guide, version 1.3 (rules PS-1 to PS-10) | Product Catalog, which also reads the same guide through the invented retailer's catalogue system |
 | `campaign-brief-template.md` | Campaign Brief Template, version 1.0 (sections 1 to 11) | Campaign Brief, which also reads the same template through the invented retailer's loyalty system |
+| `working-time-and-staffing-rules-v1.2.md` | Working Time and Staffing Rules, version 1.2 (rules WT-1 to WT-8 and SR-1 to SR-3). The working time rules are the company's statement of the rules of an invented country | Roster Check, which also reads the same rules through the invented retailer's people system |
+| `franchise-operations-manual-v3.0.md` | Franchise Operations Manual, version 3.0 (sections 1 to 7) | Franchisee Support, with the Brand Standards. The invented retailer does not serve it |
 
 ## How to use them
 

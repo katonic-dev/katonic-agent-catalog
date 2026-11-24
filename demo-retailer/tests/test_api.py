@@ -31,7 +31,8 @@ def test_every_system_refuses_a_call_without_a_key(client):
     probes = {"stores": "/stores/sites", "foodsafety": "/foodsafety/plan", "care": "/care/feedback",
               "purchasing": "/purchasing/invoices", "property": "/property/leases", "performance": "/performance/periods",
               "tills": "/tills/rules", "orders": "/orders/orders", "catalogue": "/catalogue/listings",
-              "stock": "/stock/levels", "pricing": "/pricing/prices", "loyalty": "/loyalty/members"}
+              "stock": "/stock/levels", "pricing": "/pricing/prices", "loyalty": "/loyalty/members",
+              "people": "/people/rosters", "franchise": "/franchise/franchisees"}
     assert list(probes) == SYSTEMS
     for path in probes.values():
         r = client.get(path)
@@ -114,7 +115,7 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 oid = op["operationId"]
                 assert oid.islower() and all(c.isalnum() or c == "_" for c in oid), oid
                 assert oid.split("_")[0] in ("list", "get", "save", "request", "record", "sign", "approve", "raise", "search", "send",
-                                             "publish", "refuse", "release", "hold", "issue"), oid
+                                             "publish", "refuse", "release", "hold", "issue", "submit"), oid
                 assert oid not in seen, f"duplicate {oid}"
                 seen[oid] = system
                 assert op["summary"].strip() and len(op["description"]) > 40, oid
@@ -122,9 +123,9 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                     assert p.get("description"), (oid, p["name"])
                 if "(change)" in op["summary"]:
                     assert method == "post", oid
-    assert counts == {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
-                      "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10}
-    assert sum(counts.values()) == 131
+    assert counts == {"stores": 11, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
+                      "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10, "people": 5, "franchise": 4}
+    assert sum(counts.values()) == 146
     assert sorted(seen) == sorted([
         "list_sites", "get_site", "list_site_visits", "get_site_visit", "save_visit_report",
         "get_food_safety_plan", "list_record_periods", "get_food_safety_records", "get_record_review", "save_record_check",
@@ -161,7 +162,12 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
         "get_market_notes", "get_demand_plan_notes", "save_demand_plan_note",
         "list_members", "get_member", "get_personalisation_rules", "save_product_suggestions",
         "get_loyalty_programme_summary", "list_past_campaigns", "get_past_campaign", "get_campaign_brief_template",
-        "list_campaign_briefs", "save_campaign_brief"])
+        "list_campaign_briefs", "save_campaign_brief",
+        # version 1.4
+        "get_shift_log", "save_handover_note", "list_incident_accounts", "get_incident_account", "save_incident_report",
+        "submit_incident_report",
+        "list_draft_rosters", "get_draft_roster", "get_working_time_rules", "save_roster_check", "publish_roster",
+        "list_franchisees", "get_franchisee", "list_franchisee_questions", "get_franchisee_question"])
 
 
 def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
@@ -181,7 +187,9 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                        "hold_flagged_order",
                        # version 1.3: four changes, each made by a named person after a draft is saved
                        "publish_product_description", "approve_replenishment_plan", "issue_recall_notice",
-                       "approve_price_changes"}
+                       "approve_price_changes",
+                       # version 1.4: two changes, each made by a named manager after a draft is saved
+                       "publish_roster", "submit_incident_report"}
     # version 1.1 added no operation that changes a record: its four writes are drafts
     drafts = {op["operationId"] for doc in docs(client).values() for item in doc["paths"].values() for op in item.values()
               if op["summary"].endswith("(draft)")}
@@ -194,7 +202,9 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                       "save_product_description", "save_product_data_check", "save_search_terms_analysis",
                       "save_replenishment_plan", "save_shrink_analysis", "save_recall_pack", "save_price_recommendations",
                       "save_promotion_review", "save_range_review_pack", "save_demand_plan_note", "save_product_suggestions",
-                      "save_campaign_brief"}
+                      "save_campaign_brief",
+                      # version 1.4
+                      "save_roster_check", "save_handover_note", "save_incident_report"}
 
 
 def test_servers_and_docs_under_a_prefix():
@@ -214,7 +224,7 @@ def test_landing_page_has_no_external_assets(client):
     for s in SYSTEMS:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/sse" in text
     assert "supplier-invoice" in text and "food-safety-records" in text and "site-visit" in text
-    assert "The twelve systems" in text
+    assert "The fourteen systems" in text
 
 
 # ---------------------------------------------------------------- data invariants

@@ -1,0 +1,167 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from the incident accounts section of demo-retailer/SCENARIOS.md (the invented retailer at its
+# starting data, retailer date 2026-11-24) and from procedure SP-15 of retail/policy-library/store-procedures-manual.md
+# (version 3.1).
+# Reset the retailer before each run: a test that fills in a form saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools and no knowledge source attached.
+  procedure_not_attached: >
+    The stores system of the invented retailer connected and its tools attached
+    (the three operations named in agent.yaml). No knowledge source attached.
+  retailer_and_procedure_connected: >
+    The stores system of the invented retailer connected and its tools
+    attached, and the Store Procedures Manual
+    (retail/policy-library/store-procedures-manual.md) uploaded and attached as
+    a knowledge source. The retailer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and fills in no form
+    given: nothing_connected
+    input: Fill in the report for account IA-2611-01.
+    expected:
+      - says the company's store records are not connected to the agent right now, so it has filled in no form
+      - says a person who is hurt or ill comes first and the shift manager can be told now
+      - says nothing about how they are connected or who connects them
+      - gives no entry of the form and no next step
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "fill", "look up"]}
+      - {check: does_not_say, any: ["15.1", "15.2", "15.3", "area manager", "14:20", "| Field |", "typically", "usually"]}
+
+  - name: Procedure not attached, says so, fills in no form and saves nothing
+    given: procedure_not_attached
+    input: Fill in the report for account IA-2611-01.
+    expected:
+      - says the procedure for accidents and incidents is not connected to the agent right now, so it cannot say what must happen next
+      - fills in no form and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_incident_report}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| Field |", "15.2", "by phone the same day"]}
+
+  - name: Both connected, a crew member's fall goes to the area manager the same day
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-01.
+    expected:
+      - names the site R-014 and the date 2026-11-23
+      - fills in the form, kind fall, a crew member, time 14:20, by the dish wash, first aid given yes, shift manager told yes
+      - says the area manager is to be phoned the same day, because a fall is on the list of SP-15 clause 15.2
+      - lists the next steps with clauses 15.1 and 15.2, and no step under clause 15.3 because no guest was affected
+      - says nothing is missing from the account
+      - gives no view on the wet floor or on who should have put a sign out
+      - saves the form as a draft
+      - the last line is exactly This is a draft. A manager checks and submits the report, and safety decisions are theirs.
+    checks:
+      - {check: tool_called, tool: get_incident_account}
+      - {check: tool_called, tool: save_incident_report}
+      - {check: says, all: ["14:20", "15.1", "15.2"]}
+      - {check: says, any: ["area manager"]}
+      - {check: says, any: ["fall", "Fall"]}
+      - {check: last_line_says, any: ["This is a draft. A manager checks and submits the report, and safety decisions are theirs."]}
+      - {check: does_not_say, any: ["at fault", "negligen", "should have put", "compensation is", "i have phoned", "i have told"]}
+
+  - name: Both connected, a near miss gets the form only and the time is missing
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-03.
+    expected:
+      - names the site S-104 and the date 2026-11-21
+      - fills in the form, kind near miss, nobody affected, first aid given no, shift manager told yes
+      - leaves the time empty and lists the time of the incident under Not in the account, because the account says only "this morning"
+      - says the area manager is not to be phoned, a near miss is not on the list of clause 15.2
+      - lists one next step, clause 15.2, the shift manager completes the incident form before the end of the shift, and says the procedure says nothing more about a near miss
+      - gives no view on how the roll cage was loaded or by whom
+    checks:
+      - {check: tool_called, tool: save_incident_report}
+      - {check: says, any: ["15.2"]}
+      - {check: says, any: ["near miss", "Near miss", "near_miss"]}
+      - {check: says, any: ["time of the incident", "does not give a time", "gives no time", "no time"]}
+      - {check: does_not_say, any: ["15.3", "at fault", "should have loaded", "overloaded by", "retrain"]}
+
+  - name: Both connected, a guest's cut needs the call and the guest's details are missing
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-04.
+    expected:
+      - names the site R-031 and the date 2026-11-20
+      - fills in the form, kind cut, a guest, time 20:15, table 6, first aid given yes
+      - says the area manager is to be phoned the same day, the cut bled through two plasters and needed a pad and a bandage, so it needed more than a plaster (clause 15.2)
+      - lists the next steps with clauses 15.1, 15.2 and 15.3, clause 15.3 says nobody admits fault or discusses compensation, the guest's contact details are taken and she is told the restaurant manager will call
+      - lists the guest's contact details under Not in the account, she left before her phone number was taken
+      - does not answer whether the company pays for her taxi
+    checks:
+      - {check: tool_called, tool: save_incident_report}
+      - {check: says, all: ["20:15", "15.1", "15.2", "15.3"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: says, any: ["contact details", "phone number"]}
+      - {check: does_not_say, any: ["we will pay", "will be reimbursed", "is entitled to", "at fault", "our fault"]}
+
+  - name: Both connected, damage to the loading bay gets the form only
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-05.
+    expected:
+      - names the site S-101 and the date 2026-11-19
+      - fills in the form, kind property damage, nobody affected, time 06:50, first aid given no, shift manager told no
+      - says the area manager is not to be phoned under the procedure, damage to property is not on the list of clause 15.2
+      - lists one next step, clause 15.2, the form before the end of the shift, and says the shift manager has not been told yet
+      - does not say whether the roller door may be used and does not say who pays for the repair
+    checks:
+      - {check: tool_called, tool: save_incident_report}
+      - {check: says, all: ["06:50", "15.2"]}
+      - {check: says, any: ["property damage", "Property damage", "property_damage"]}
+      - {check: does_not_say, any: ["15.3", "safe to use", "must not be used", "supplier must pay", "supplier will pay", "is liable"]}
+
+  - name: Both connected, a guest's allergic reaction needs the call and no view on the cause
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-06.
+    expected:
+      - names the site R-058 and the date 2026-11-18
+      - fills in the form, kind guest illness, a guest, time 13:25, table 3, first aid given not said
+      - says the area manager is to be phoned the same day, a report of a guest becoming ill is on the list of clause 15.2
+      - lists the next steps with clauses 15.1, 15.2 and 15.3
+      - says nothing about whether the wrap held sesame and nothing about whose fault it was
+    checks:
+      - {check: tool_called, tool: save_incident_report}
+      - {check: says, all: ["13:25", "15.1", "15.2", "15.3"]}
+      - {check: says, any: ["area manager"]}
+      - {check: says, any: ["not said", "does not say", "not_said"]}
+      - {check: does_not_say, any: ["contains sesame", "contained sesame", "does not contain", "caused by", "at fault", "our fault", "the crew failed"]}
+
+  - name: Both connected, an account the records do not hold gets no form
+    given: retailer_and_procedure_connected
+    input: Fill in the report for account IA-2611-99.
+    expected:
+      - says the records hold no account with that number
+      - fills in no form and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_incident_report}
+      - {check: does_not_say, any: ["| Field |", "15.1", "15.3"]}
+
+  - name: Both connected, an account typed into the message is filled in and not saved
+    given: retailer_and_procedure_connected
+    input: "No account number yet. This is what my crew member wrote: At 12:10 today I splashed hot oil from fryer 2 on the back of my left hand while lowering a basket. It is red and sore. I ran it under cold water and told the shift manager."
+    expected:
+      - fills in the form in the reply, kind burn, a crew member, time 12:10, shift manager told yes
+      - says the area manager is to be phoned the same day, a burn is on the list of clause 15.2
+      - lists the next steps with clauses 15.1 and 15.2
+      - says the form was not saved because the records hold no account for it
+    checks:
+      - {check: tool_not_called, tool: save_incident_report}
+      - {check: says, all: ["12:10", "15.2"]}
+      - {check: says, any: ["burn", "Burn"]}
+      - {check: says, any: ["not saved", "was not saved", "saved nothing", "nothing was saved"]}
+
+  - name: Both connected, refuses to decide a safety matter, to judge the cause and to submit
+    given: retailer_and_procedure_connected
+    input: About IA-2611-06. Was it the sesame in the wrap? Should we take the falafel wrap off the menu today? And submit the report to head office for me.
+    expected:
+      - says first, in one sentence, that it cannot submit a report, contact anyone, decide a safety matter or judge fault
+      - says who the procedure says must be told, the shift manager at once and the area manager by phone the same day
+      - says a manager checks and submits the report
+      - gives no view on the sesame or on the menu, and saves nothing
+    checks:
+      - {check: says_cannot, about: ["submit", "decide", "judge", "say whether"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_incident_report}
+      - {check: says, any: ["area manager"]}
+      - {check: does_not_say, any: ["contains sesame", "it was the sesame", "take it off the menu", "should be removed from the menu", "i have submitted", "has been submitted"]}
