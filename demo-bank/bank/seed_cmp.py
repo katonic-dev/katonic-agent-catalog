@@ -51,6 +51,11 @@ PROCEDURE = {
         {"category": "service_and_staff", "covers": "Delay, wrong information, manner of staff, promises not kept."},
         {"category": "accounts", "covers": "Opening, closing, statements, interest and account terms."},
         {"category": "other", "covers": "Anything that fits none of the above."}],
+    "severity": {
+        "rule": "Severity is how serious the matter is for the customer. Give the highest level whose description fits.",
+        "low": "A small sum or an inconvenience, and the customer can still use the account and the card.",
+        "medium": "The customer was without money or a service for a time, or a time limit of this procedure was missed.",
+        "high": "The customer cannot reach their money or their card, or the customer may be vulnerable."},
     "time_limits": {
         "acknowledge": "Within 2 working days of receipt. The acknowledgement says who deals with the complaint and when to expect an answer.",
         "final_response": "Within 15 working days of receipt.",
@@ -120,7 +125,8 @@ def build_complaints(today: date, customers: dict, accounts: dict, tb, cards: di
     _add_loan_application(applications, app_docs, customers, today)
     # CMP-1004: a card blocked by mistake by the deceased accounts process
     cards["CRD-2004"].update(status="blocked", block_reason="other", blocked_by="Deceased accounts desk", blocked_at=f"{d_ago(today, 6)}T10:12:00+00:00",
-                             block_note="Blocked by the deceased accounts process after a death was recorded on the household.")
+                             block_note="Blocked by the deceased accounts process after a death was recorded on the household. The process is for "
+                                        "cards held by the person who died. This card is held by CUS-1001, who reported the death.")
 
     base = last_working_day(today)
     rec_1, rec_2, rec_3, rec_4, rec_5 = (add_working_days(base, -n) for n in (4, 3, 5, 2, 13))

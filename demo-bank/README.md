@@ -57,7 +57,7 @@ Three things to know about the newest systems:
 
 The `legacy` estate is separate from the core system: its customers and account numbers are its own and are not the records of `core`. The `crm` holdings are not stored: they are read from `core`, `lending` and `funds` on every call, so the totals agree with those systems.
 
-The audit tests are tied to clauses 2.2, 3.1, 6.1 and 6.2 of `banking/policy-library/MTB-POL-033`. Complaint dates use working days (Monday to Friday).
+The audit tests are tied to clauses 2.2, 3.1, 6.1 and 6.2 of `banking/policy-library/MTB-POL-033`. Complaint dates use working days (Monday to Friday). A complaint is returned with its linked records read from the other systems: a linked card names the customer who holds it (`customer_id`) and carries its block note, and a linked payment carries its timeline and the inbound status reports held for it (`status_reports`, for example the code ACSC and the date credited). The complaints procedure gives a rule for severity: what makes a complaint low, medium or high.
 
 The news system also serves each article as a plain web page at `/news/pages/<article id>`. It needs no key, so a link in a summary can be opened. It is not in the OpenAPI document. The `page_url` in an article carries the address.
 

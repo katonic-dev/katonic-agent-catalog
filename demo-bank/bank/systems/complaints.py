@@ -78,10 +78,14 @@ def build(ctx: Ctx):
         ln, dd = c["linked"], d()
         out = {"accounts": [{k: dd["accounts"][i][k] for k in ("account_id", "product", "currency", "status", "balance")} for i in ln["account_ids"]],
                "transactions": [dd["transactions"][i] for i in ln["transaction_ids"]],
-               "cards": [{k: dd["cards"][i].get(k, "") for k in ("card_id", "masked_number", "status", "block_reason", "blocked_by", "blocked_at", "block_note")}
+               "cards": [{k: dd["cards"][i].get(k, "") for k in ("card_id", "customer_id", "masked_number", "status", "block_reason", "blocked_by",
+                                                                 "blocked_at", "block_note")}
                          for i in ln["card_ids"]],
                "payments": [{"payment_id": p["payment_id"], "amount": p["amount"], "currency": p["currency"], "status": p["status"],
-                             "created": p["created"], "timeline": p["timeline"]} for p in (dd["payments"][i] for i in ln["payment_ids"])],
+                             "created": p["created"], "timeline": p["timeline"],
+                             "status_reports": [{"message_id": m["message_id"], "type": m["type"], "date": m["date"], "summary": m["summary"],
+                                                 **m["key_fields"]} for m in p["messages"] if m["direction"] == "inbound"]}
+                            for p in (dd["payments"][i] for i in ln["payment_ids"])],
                "payment_investigations": [{k: dd["investigations"][i][k] for k in ("investigation_id", "status", "type", "raised", "claim")}
                                           for i in ln["investigation_ids"]],
                "loans": [dd["loans"][i] for i in ln["loan_ids"]],
@@ -108,7 +112,8 @@ def build(ctx: Ctx):
     @reg(app, "get", "/complaints/{complaint_id}", "get_complaint", "Get one complaint in full",
          "Read one complaint: the customer's own words, the channel, the date received, the dates the procedure sets (acknowledgement and final "
          "response due, whether the acknowledgement was late or never sent, working days left), the linked records read from the other systems "
-         "(accounts, the transactions named, cards, payments and investigations, loans and loan applications), the customer's earlier complaints "
+         "(accounts, the transactions named, cards with the customer who holds each, payments with their timeline and the status reports received "
+         "for them, investigations, loans and loan applications), the customer's earlier complaints "
          "with their outcome, and any saved classifications and response drafts. Read the procedure with get_complaints_procedure.")
     def get_complaint(complaint_id: str = cmp_p):
         c = cmp_or_404(complaint_id)
@@ -122,7 +127,7 @@ def build(ctx: Ctx):
                 "response_drafts": c["response_drafts"], "sent": c["sent"]}
 
     @reg(app, "get", "/procedure", "get_complaints_procedure", "Get the complaints procedure",
-         "Read the bank's complaints procedure: the categories, the time limits (acknowledge within 2 working days, final response within 15 working "
+         "Read the bank's complaints procedure: the categories, the rule for severity (low, medium or high), the time limits (acknowledge within 2 working days, final response within 15 working "
          "days), what a response must contain, when redress applies and how much, the rule on declined loans, how vulnerable customers are handled "
          "and the customer's right to escalate to the ombudsman.")
     def get_complaints_procedure():

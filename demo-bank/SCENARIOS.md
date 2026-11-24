@@ -176,14 +176,16 @@ Documents are text. Dates are relative to the bank date. A proof of address must
 
 ## Complaints (system: complaints)
 
-The procedure is in `get_complaints_procedure`: acknowledge within 2 working days, final response within 15, redress when the bank erred, a declined loan is not a service failure.
+The procedure is in `get_complaints_procedure`: acknowledge within 2 working days, final response within 15, redress when the bank erred, a declined loan is not a service failure. Its rule for severity: low for a small sum or an inconvenience while the customer can still use the account and the card, medium when the customer was without money or a service for a time or a time limit of the procedure was missed, high when the customer cannot reach their money or their card or may be vulnerable. The highest level that fits is the severity.
+
+`get_complaint` returns the linked records read from the other systems. A linked card comes with the `customer_id` of its holder and its block note. A linked payment comes with its timeline and, in `status_reports`, the inbound status reports the payments system holds for it (message id, type, date, summary and the fields of the report, such as `status` and `credited_on`).
 
 | Complaint | For | Right answer |
 |---|---|---|
-| CMP-1001 | Anselm Drozdowich (CUS-1009). Monthly account fee of 12.00 taken twice on ACC-1009-01, 8 days ago. | Fees and charges, upheld. Refund one fee (USD 12.00 to ACC-1009-01), apologise. An earlier complaint CMP-0901 was not upheld, a different matter. |
-| CMP-1002 | Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. | Payments, not upheld, no bank error. Explain with the dates in INV-5001: sent 6 days ago, held at the correspondent bank over the weekend, credited 3 days ago (status ACSC). No redress. |
+| CMP-1001 | Anselm Drozdowich (CUS-1009). Monthly account fee of 12.00 taken twice on ACC-1009-01, 8 days ago. | Fees and charges, severity low (a small sum, and he can still use the account), upheld. Refund one fee (USD 12.00 to ACC-1009-01), apologise. An earlier complaint CMP-0901 was not upheld, a different matter. |
+| CMP-1002 | Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. | Payments, not upheld, no bank error. Explain with the dates in the timeline of PAY-6001 (investigation INV-5001 is open): sent 6 days ago, held at the correspondent bank over the weekend, credited 3 days ago. The status report MSG-6001-2 on the linked payment gives status ACSC and the date credited. No redress. |
 | CMP-1003 | Isolde Pennywhistle (CUS-1016). Loan LAP-8010 declined. | Lending decision, not upheld, not a service failure. Debt to income is 0.48 against the 0.40 limit of MTB-POL-030. Explain the reason and how to ask for a review: write to the Credit Review Desk within 30 days with new information. Promise nothing. |
-| CMP-1004 | Ilvane Marrowick (CUS-1001). Husband died 18 days ago, card CRD-2004 blocked 6 days ago by the deceased accounts process. | Possible vulnerability (recent bereavement): yes. Priority handling, one named person, a kind plain letter. Upheld: the block was applied to her own card by mistake. Replace the card, apologise. |
+| CMP-1004 | Ilvane Marrowick (CUS-1001). Husband died 18 days ago, card CRD-2004 blocked 6 days ago by the deceased accounts process. | Possible vulnerability (recent bereavement): yes. Priority handling, one named person, a kind plain letter. Upheld: the block was applied to her own card by mistake. The linked card names its holder, CUS-1001, and the block note says the process is for cards held by the person who died. Replace the card, apologise. |
 | CMP-1005 | Sabine Tarrowgate (CUS-1003). Received 13 working days ago, never acknowledged. | Admit the late acknowledgement (11 working days late) and apologise. The final response is due in 2 working days: urgent. |
 
 ## Collections calls (system: collections)

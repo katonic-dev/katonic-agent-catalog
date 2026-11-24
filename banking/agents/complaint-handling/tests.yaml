@@ -3,7 +3,7 @@
 # Right answers come from the Complaints section of demo-bank/SCENARIOS.md, at the bank's starting data.
 # Dates in the data are relative to the bank date and the procedure counts working days. The tests give counts of days where they can. The dates written out (18 Nov 2026, 21 Nov 2026) are those of the desk's cases.json, at the bank date 24 Nov 2026.
 # Put the complaints system back before each run of tests 2 to 7, with POST /admin/reset/complaints on the bank: each run saves a classification and a response draft, and a second run would save version 2.
-# Two tests are written for what the complaints system returns today, which is less than SCENARIOS.md says (tests 3 and 5). Each says what to put back once the bank is changed.
+# Tests 2, 3 and 5 rely on three things the complaints system returns: the procedure's rule for severity, the status reports on a linked payment, and the holder of a linked card with a block note that says whose cards the process is for.
 
 states:
   nothing_connected: The agent as built, with no complaints or customer tools attached.
@@ -26,13 +26,13 @@ tests:
 
   # The customer writes "I am on a fixed income and USD 12.00 matters to me". The procedure's reasons are a recent
   # bereavement, serious illness, a job loss, age, difficulty with language or money. He states none of them, so no flag.
-  # The first version also expected severity low. The procedure the bank returns has no rule for severity, so no
-  # severity is expected here until it has one.
+  # Severity low follows from the procedure's rule for severity: a small sum, and the customer can still use the
+  # account and the card. No time limit was missed and he may not be vulnerable, so no higher level fits.
   - name: Bank connected, the bank erred, a fee taken twice
     given: bank_connected
     input: The desk's message for the case "Anselm Drozdowich (CMP-1001)" in banking/desks/complaints/cases.json (the instruction, then the case).
     expected:
-      - classifies it as fees and charges, priority normal
+      - classifies it as fees and charges, severity low as the procedure's rule for severity gives it, priority normal
       - does not flag the customer as possibly vulnerable, because a fixed income and an amount that matters are not a reason the procedure names, and the proposal has no sentence that starts "Priority handling:"
       - finds the monthly fee of USD 12.00 taken twice on one day on ACC-1009-01, USD 24.00 for the month, where earlier months show one fee
       - finds the earlier complaint CMP-0901 was not upheld and is a different matter
@@ -40,7 +40,7 @@ tests:
       - does not state why the fee was taken twice, because the records do not say
       - reads the procedure and gives the dates it sets, with the acknowledgement on time
       - saves the classification and the response as drafts, sends nothing, and says so only because the system said they were applied
-      - ends with a proposal to approve the response, whose first sentence is the outcome in at most eight words ("approve the response: upheld."), with the refund in the next sentence
+      - 'ends with a proposal to approve the response, whose first sentence is the outcome in at most eight words ("approve the response: upheld."), with the refund in the next sentence'
       - writes the dates as 18 Nov 2026, and the response ends with the placeholder [name and direct line to be added before this is sent] and Yours sincerely
     checks:
       - {check: tool_called, tool: get_complaint}
@@ -60,12 +60,10 @@ tests:
       - {check: does_not_say, any: ["Priority handling:"]}
       - {check: does_not_say, any: ["USD 24.00 will be refunded", "refund both", "refund USD 24", "Your complaint is not upheld", "has been sent", "has been refunded"]}
 
-  # What the complaint returns for PAY-6001: the amount, the status "credited" and a timeline of four dated lines
-  # (submitted and sent on one day, held at the correspondent bank over the weekend, credited 3 days after sending).
-  # It does not return the status report with the code ACSC, and INV-5001 comes with its claim and the day it was
-  # raised, no other date. So the first version's check for "ACSC" could not be met and is left out.
-  # Once the complaints system returns the status report, add: {check: says, any: ["ACSC"]} and "with status ACSC"
-  # to the third expected line.
+  # What the complaint returns for PAY-6001: the amount, the status "credited", a timeline of four dated lines
+  # (submitted and sent on one day, held at the correspondent bank over the weekend, credited 3 days after sending)
+  # and the status reports received for it: one, MSG-6001-2 (pacs.002), with the code ACSC and the date credited.
+  # INV-5001 comes with its claim and the day it was raised, no other date.
   # The first version forbade "the bank made an error" and "the bank lost" anywhere in the reply. A reply that
   # quotes the redress rule, or says the records do not show that the bank lost the payment, is right, so the
   # check now names only words that claim it.
@@ -75,7 +73,7 @@ tests:
     expected:
       - classifies it as payments and proposes not upheld, not partly upheld, with no bank error and no redress
       - gives the dates from the timeline of the payment PAY-6001, as the customer asked, and names the investigation INV-5001
-      - finds the payment was sent on the day it was made, held at the correspondent bank, and credited 3 days after it was sent
+      - finds the payment was sent on the day it was made, held at the correspondent bank, and credited 3 days after it was sent, with status ACSC in the status report
       - explains without blame and offers no payment for the stress
       - does not say the bank lost the money, and does not say where the money was beyond what the timeline gives
     checks:
@@ -87,6 +85,7 @@ tests:
       - {check: says, any: ["INV-5001"]}
       - {check: says, any: ["correspondent bank"]}
       - {check: says, any: ["3 days", "three days", "21 Nov 2026"]}
+      - {check: says, any: ["ACSC"]}
       - {check: says, any: ["no redress", "no bank error", "not able to offer"]}
       - {check: does_not_say, any: ["we made an error", "our error", "we will pay you", "goodwill payment of USD", "we lost your", "the bank lost your"]}
 
@@ -95,7 +94,7 @@ tests:
     input: The desk's message for the case "Isolde Pennywhistle (CMP-1003)" in banking/desks/complaints/cases.json.
     expected:
       - classifies it as a lending decision and proposes not upheld, not a service failure
-      - gives the reason in plain words: debt to income is 0.48 against the limit of 0.40 in MTB-POL-030, for loan application LAP-8010
+      - "gives the reason in plain words: debt to income is 0.48 against the limit of 0.40 in MTB-POL-030, for loan application LAP-8010"
       - tells the customer how to ask for a review, by writing to the Credit Review Desk within 30 days with any new information
       - promises no different result and offers no redress
     checks:
@@ -112,17 +111,10 @@ tests:
       - {check: does_not_say, any: ["we will approve", "we will change the decision", "we guarantee", "the loan will be approved", "goodwill payment of USD"]}
 
   # SCENARIOS.md says: upheld, the block was applied to her own card by mistake, replace the card.
-  # What the complaint returns for CRD-2004 today: the masked number, the status, who blocked it and when, and the
-  # note "Blocked by the deceased accounts process after a death was recorded on the household." It does not return
-  # who holds the card, and no record says the block was a mistake. So today a right reply cannot say upheld from
-  # the records: it says what the records lack and leaves the point to a person.
-  # Once the bank returns the holder of the card and a note that says the process is for the cards of the person
-  # who died, replace the third and fourth expected lines with:
-  #   - finds card CRD-2004 is her own and was blocked by the deceased accounts process, and proposes upheld
-  #   - drafts a kind, plain response in "we" that opens with sympathy, names no condition, does not tell her she may be vulnerable, has an apology, says the card is to be replaced and that a person at the bank does it
-  # and add the checks:
-  #   - {check: last_line_says, all: ["approve the response: upheld"]}
-  #   - {check: says, any: ["replace", "replacement"]}
+  # What the complaint returns for CRD-2004: the customer who holds it (CUS-1001, the complainant), the masked
+  # number, the status, who blocked it and when, and the note "Blocked by the deceased accounts process after a
+  # death was recorded on the household. The process is for cards held by the person who died. This card is held
+  # by CUS-1001, who reported the death." So the records show that the bank did not follow its own process.
   # The first version's check {check: says, any: ["upheld"]} is left out: "not upheld" met it, so it could not fail.
   - name: Bank connected, a possibly vulnerable customer is flagged, not diagnosed
     given: bank_connected
@@ -130,8 +122,8 @@ tests:
     expected:
       - flags the customer as possibly vulnerable because of a recent bereavement, giving the reason from her own words, and does not diagnose her
       - sets the priority to priority, and says the procedure asks for one named person, a plain and kind tone and no standard letter
-      - finds card CRD-2004 was blocked by the deceased accounts process, says the records do not show who holds the card or that the block was a mistake, puts that in a row marked needs a person, and states as a fact neither that the block was a mistake nor that it was right
-      - drafts a kind, plain response in "we" that opens with sympathy, names no condition, uses no standard wording, does not tell her she may be vulnerable, and says that a person at the bank will deal with her card
+      - finds card CRD-2004 is her own and was blocked by the deceased accounts process, and proposes upheld
+      - drafts a kind, plain response in "we" that opens with sympathy, names no condition, does not tell her she may be vulnerable, has an apology, says the card is to be replaced and that a person at the bank does it
       - the second sentence of the proposal starts "Priority handling:" and says she may be vulnerable because of a recent bereavement
       - does not send anything or request the replacement, and does not say the card was replaced or unblocked
     checks:
@@ -143,6 +135,8 @@ tests:
       - {check: says, any: ["may be vulnerable", "possibly vulnerable"]}
       - {check: says, any: ["one named person", "one person"]}
       - {check: last_line_says, all: ["Priority handling:", "vulnerable"]}
+      - {check: last_line_says, all: ["approve the response: upheld"]}
+      - {check: says, any: ["replace", "replacement"]}
       - {check: says, any: ["We are very sorry", "We are sorry"]}
       - {check: does_not_say, any: ["I am sorry", "I am very sorry", "I'm sorry"]}
       - {check: says, any: ["needs a person"]}

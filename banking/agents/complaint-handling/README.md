@@ -51,10 +51,10 @@ The steps will be written here once they have been run on a cluster. Until then:
 
 Against the invented bank at its starting data:
 
-- `CMP-1001`: Anselm Drozdowich (CUS-1009). The monthly account fee of USD 12.00 was taken twice on ACC-1009-01. Fees and charges, upheld. Refund one fee, USD 12.00, and apologise. An earlier complaint, CMP-0901, was not upheld and is a different matter.
-- `CMP-1002`: Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. Payments, not upheld, no bank error. Explain with the dates in the payment and in INV-5001. No redress.
+- `CMP-1001`: Anselm Drozdowich (CUS-1009). The monthly account fee of USD 12.00 was taken twice on ACC-1009-01. Fees and charges, severity low, upheld. Refund one fee, USD 12.00, and apologise. An earlier complaint, CMP-0901, was not upheld and is a different matter.
+- `CMP-1002`: Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. Payments, not upheld, no bank error. Explain with the dates in the timeline of the payment, which was credited 3 days after it was sent, with status ACSC in its status report. The investigation INV-5001 is open. No redress.
 - `CMP-1003`: Isolde Pennywhistle (CUS-1016). Loan LAP-8010 was declined. Lending decision, not upheld, not a service failure: debt to income is 0.48 against the 0.40 limit of MTB-POL-030. Explain the reason and how to ask for a review. Promise nothing.
-- `CMP-1004`: Ilvane Marrowick (CUS-1001). Her husband died 18 days ago and her card CRD-2004 was blocked by the deceased accounts process. Possibly vulnerable, a recent bereavement. Priority, one named person, a kind plain letter. Upheld: replace the card and apologise.
+- `CMP-1004`: Ilvane Marrowick (CUS-1001). Her husband died 18 days ago and her card CRD-2004 was blocked by the deceased accounts process. Possibly vulnerable, a recent bereavement. Priority, one named person, a kind plain letter. Upheld: the card is her own and the process is for the cards of the person who died. The card is to be replaced, by a person, with an apology.
 - `CMP-1005`: Sabine Tarrowgate (CUS-1003). Received 13 working days ago and never acknowledged. Admit the acknowledgement is 11 working days late and apologise. The final response is due in 2 working days, so it is urgent. The customer says she has held her account for more than ten years. The customer record does not show that.
 
 Everyone and everything in the invented bank is invented.

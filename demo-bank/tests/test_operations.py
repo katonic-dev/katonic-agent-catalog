@@ -473,6 +473,26 @@ def test_cmp_2_late_payment_explained_by_the_investigation(client):
     assert get(client, "/payments/investigations/INV-5001")["type"] == "beneficiary_not_received"
 
 
+def test_cmp_2_linked_payment_carries_its_status_reports(client):
+    pay = get(client, "/complaints/complaints/CMP-1002")["linked_records"]["payments"][0]
+    reports = pay["status_reports"]
+    assert [r["message_id"] for r in reports] == ["MSG-6001-2"] and reports[0]["type"] == "pacs.002"
+    credited = next(t for t in pay["timeline"] if t["status"] == "credited")
+    assert reports[0]["status"] == "ACSC" and reports[0]["credited_on"] == reports[0]["date"] == credited["date"]
+    assert "credited to the beneficiary" in reports[0]["summary"] and "direction" not in reports[0] and "key_fields" not in reports[0]
+    # the same report the payments system holds, and only the inbound ones: the message the bank sent is not a status report
+    full = get(client, "/payments/payments/PAY-6001")
+    inbound = [m for m in full["messages"] if m["direction"] == "inbound"]
+    assert len(full["messages"]) == 2 and len(inbound) == 1
+    assert inbound[0]["message_id"] == "MSG-6001-2" and inbound[0]["key_fields"] == {"status": "ACSC", "credited_on": credited["date"]}
+    assert "messages" not in pay
+
+
+def test_complaint_with_no_payment_or_card_has_empty_lists(client):
+    ln = get(client, "/complaints/complaints/CMP-1001")["linked_records"]
+    assert ln["payments"] == [] and ln["cards"] == []
+
+
 def test_cmp_3_declined_loan_is_not_a_service_failure(client):
     c = get(client, "/complaints/complaints/CMP-1003")
     la = c["linked_records"]["loan_applications"][0]
@@ -494,6 +514,30 @@ def test_cmp_4_bereaved_customer_whose_card_was_blocked(client):
     assert "husband died" in c["customer_words"] and c["channel"] == "branch"
     assert get(client, "/cards/cards/CRD-2004")["status"] == "blocked"
     assert "vulnerable" in get(client, "/complaints/procedure")["vulnerable_customers"]
+
+
+def test_cmp_4_linked_card_names_its_holder_and_the_note_says_whose_cards_the_process_is_for(client):
+    c = get(client, "/complaints/complaints/CMP-1004")
+    card = c["linked_records"]["cards"][0]
+    # the card is the complainant's own, and the records say so
+    assert card["customer_id"] == c["customer_id"] == "CUS-1001"
+    assert card["customer_id"] == get(client, "/cards/cards/CRD-2004")["customer_id"]
+    note = card["block_note"]
+    assert note.startswith("Blocked by the deceased accounts process after a death was recorded on the household.")
+    assert "The process is for cards held by the person who died." in note
+    assert "This card is held by CUS-1001, who reported the death." in note
+    assert card["blocked_by"] == "Deceased accounts desk" and card["block_reason"] == "other"
+
+
+def test_complaints_procedure_has_a_rule_for_severity(client):
+    sev = get(client, "/complaints/procedure")["severity"]
+    assert set(sev) == {"rule", "low", "medium", "high"} and "highest level" in sev["rule"]
+    assert "small sum" in sev["low"] and "can still use the account and the card" in sev["low"]
+    assert "without money or a service" in sev["medium"] and "time limit" in sev["medium"]
+    assert "cannot reach" in sev["high"] and "may be vulnerable" in sev["high"]
+    # the levels are the ones a classification accepts, and the closed complaint in the history carries one of them
+    old = get(client, "/complaints/complaints/CMP-0901")["classifications"][0]
+    assert old["severity"] == "low" and old["severity"] in sev
 
 
 def test_cmp_5_never_acknowledged_after_thirteen_working_days(client):
