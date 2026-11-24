@@ -9,7 +9,7 @@ Finds the lines that run out before their next delivery, works out the cases to 
 | How people meet it | An application: the pricing and replenishment desk. It also works in a chat |
 | Reads from | The company's stock system: stock on hand, recent sales, supply terms with open orders, and the replenishment rules. The purchasing system: the supplier's record |
 | Changes | Saves its plan as a draft, with draft purchase orders. The draft places no order |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. A question about one line is answered rightly. The whole weekly plan is not reliable: it was right in five runs of ten |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Finds the lines that run out before their next delivery, works out the cases to 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the stock system and the purchasing system from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/stock/openapi.json` and `/purchasing/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,17 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 and 25 November 2026, three runs of each test.
+
+- A question about one line is answered rightly: three tests pass three runs in a row and a fourth passes two of three.
+- The whole weekly plan is not reliable. It was saved right in five runs of ten across the texts tried, and in two runs of three on the instructions here.
+- The five lines that run out are nearly always in the plan. The fault is extra lines that do not run out: in one run five lines with 15 to 19 days of cover were ordered against 10 days to delivery.
+- Comparing days of cover with days to delivery over sixty lines is arithmetic the model does without a tool. A step in code that does the comparison is the cure. It is not built.
+- One sentence was added after the first round: name an open order by its reference.
+- One test asks two things and its checks want four, so it fails on a right answer. The check needs the change.
+- The reply in the Work Room, on the published agent, was delivered. The plan it saved was wrong in the way described above.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

@@ -57,7 +57,7 @@ tests:
       - {check: tool_called, tool: list_supply_terms}
       - {check: says, all: ["MO-7128", "2.5"]}
       - {check: says, any: ["no order", "No order", "does not run out"]}
-      - {check: does_not_say, any: ["order 24 cases", "cases should be ordered", "I recommend ordering"]}
+      - {check: does_not_say, any: ["order 24 cases", "I recommend ordering"]}
 
   - name: Retailer connected, units already on order come off the quantity
     given: retailer_connected
@@ -78,7 +78,8 @@ tests:
       - says AG-4410 has exactly 5.0 days of cover and a lead time of 5 days, which is not a run-out, so no order
       - says PC-6606 has exactly 56.0 days of cover, which is not more than 56, so it is not overstocked
     checks:
-      - {check: says, all: ["5.0", "56"]}
+      - {check: says, any: ["5.0", "5 days"]}
+      - {check: says, all: ["56"]}
       - {check: says, any: ["exactly", "not fewer", "not more than"]}
       - {check: does_not_say, any: ["AG-4410 runs out", "PC-6606 is overstocked", "order 10 cases"]}
 

@@ -51,10 +51,17 @@ changes:
   - {tool: save_replenishment_plan, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The pricing and replenishment desk is planned
-    and not yet written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. A question about one line is answered rightly.
+    The whole weekly plan was saved right in five runs of ten across the
+    texts tried, and in two runs of three on the instructions here: the five
+    lines that run out are nearly always there, and the fault is extra lines
+    that do not run out. Comparing days of cover with days to delivery over
+    sixty lines is arithmetic the model does without a tool. A step in code
+    that does the comparison is the cure; it is not built. One test asks two
+    things and its checks want four, so it fails on a right answer.
