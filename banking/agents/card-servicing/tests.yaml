@@ -1,4 +1,4 @@
-# Five tests. A test passes only when it passes five runs in a row.
+# Seven tests. A test passes only when it passes five runs in a row. Tests 6 and 7 are for the card servicing screen and have not been run on a model yet.
 # Right answers come from the invented bank in demo-bank/ at its starting data.
 # Reset the bank before each run of tests 3 and 4: they depend on what was changed before.
 
@@ -82,3 +82,57 @@ tests:
       - {check: says, any: ["disputes team"]}
       - {check: tool_not_called, tool: block_card}
       - {check: does_not_say, any: ["will be refunded", "he will get it back", "will get his money back", "not guaranteed", "is likely", "is unlikely", "limit has been", "limit is now"]}
+
+  - name: Bank connected, writes the reply in the card servicing screen's set shape and changes nothing
+    given: bank_connected
+    input: >
+      A member of the bank's staff is on a call with a customer about a card. Read the card, its payments, its
+      disputes and the customer's contacts from the bank's systems, then reply in this shape and in no other: the
+      heading "Summary" with at most five lines; the heading "Draft proposal. For the member of staff. Nothing is
+      changed until it is confirmed."; a table with the columns # | Item | Date and place | The records show |
+      Records | Mark | Note, whose Mark is one of: to change, nothing to do, already in hand, ask the customer; then
+      one last line that starts "Proposal:". Change nothing in this reply.
+      THE CALL. Call: 24 Nov 2026. Customer id: CUS-1002. Card id: CRD-2001. What the customer says: He lost his
+      debit card two days ago and says some payments on it are not his.
+    expected:
+      - starts with the heading Summary and has at most five lines under it
+      - has the heading Draft proposal. For the member of staff. Nothing is changed until it is confirmed.
+      - has a table with the seven columns in the order given, one row for the card, one for each of the two payments made after the loss, and a row for each contact, with a mark from the four given
+      - marks the two payments after the loss to change and the two payments before it nothing to do
+      - ends with one line that starts Proposal:, which names the block, the replacement and the dispute of CTX-2001-U01 and CTX-2001-U02 with the total 474.40
+      - changes nothing
+    checks:
+      - {check: tool_called, tool: list_card_transactions}
+      - {check: tool_not_called, tool: block_card}
+      - {check: tool_not_called, tool: request_card_replacement}
+      - {check: tool_not_called, tool: open_card_dispute}
+      - {check: says, any: ["Proposal:"]}
+      - {check: says, any: ["| # | Item"]}
+      - {check: says, any: ["474.40", "474.4"]}
+      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked"]}
+
+  - name: Bank connected, carries out what the card servicing screen confirmed, reading the state first
+    given: bank_connected
+    input: >
+      The member of staff has confirmed the proposal below, on the call with the customer. Carry out exactly what it
+      says and nothing else. Read the card, its payments and its disputes first and do nothing that is already done.
+      Reply with a line that starts "Outcome:", then one list item for each action with what the system returned or
+      that it is waiting for approval.
+      THE CALL. Customer id: CUS-1002. Card id: CRD-2001.
+      THE PROPOSAL AS CONFIRMED. Proposal: block card CRD-2001 (lost), request a replacement for CRD-2001 (lost, by
+      post) and dispute CTX-2001-U01 and CTX-2001-U02 (not recognised), USD 474.40 in total.
+    expected:
+      - reads the card, its payments and its disputes before it changes anything
+      - blocks card CRD-2001 with the reason lost
+      - requests a replacement for CRD-2001 with the reason lost, delivery by post
+      - opens one dispute for CTX-2001-U01 and CTX-2001-U02 only, reason not recognised, 474.40
+      - starts with a line that starts Outcome:, then reports each action with the reference or status the system returned, or that it is waiting for approval
+      - does nothing that was not in the confirmed proposal, and says nothing about whether the customer gets money back
+    checks:
+      - {check: tool_called, tool: get_card}
+      - {check: tool_called, tool: block_card}
+      - {check: tool_called, tool: request_card_replacement}
+      - {check: tool_called, tool: open_card_dispute}
+      - {check: says, any: ["Outcome:"]}
+      - {check: says, any: ["DSP-", "waiting for approval", "awaiting approval"]}
+      - {check: does_not_say, any: ["CTX-2001-A01", "CTX-2001-A02", "will be refunded", "will get his money back", "is likely"]}

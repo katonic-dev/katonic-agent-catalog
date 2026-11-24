@@ -60,3 +60,5 @@ state:
     On the second turn of test 3 each change was held for approval and nothing
     was carried out. The decision by a second approver was not tried, so the
     held calls are not yet shown to run after approval.
+    The section "When the card servicing screen sends the case" at the end of the
+    instructions, and tests 6 and 7 for it, have not been run on a model yet.

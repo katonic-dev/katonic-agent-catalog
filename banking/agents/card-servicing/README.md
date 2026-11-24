@@ -9,7 +9,7 @@ For a member of staff on a call about a card. It shows the card's status, recent
 | How people meet it | An application: the card servicing screen. It also works in a chat |
 | Reads from | The bank's customer records and its card system |
 | Changes | A card's status, a replacement request, a dispute. Each one waits for the staff member |
-| State | Built, published to the development environment of a development cluster and tested on 24 November 2026. Not promoted. Tests 2, 3, 4 and 5 pass in the Work Room on the final instructions (three runs each); test 1 passes on the Test tab. A held call was seen: with an approval rule on each changing tool that applies to every team, each change waits for approval and nothing is carried out until a second person decides. That decision was not tried |
+| State | Built, published to the development environment of a development cluster and tested on 24 November 2026. Not promoted. Tests 2, 3, 4 and 5 pass in the Work Room on the final instructions (three runs each); test 1 passes on the Test tab. A held call was seen: with an approval rule on each changing tool that applies to every team, each change waits for approval and nothing is carried out until a second person decides. That decision was not tried. The section "When the card servicing screen sends the case" at the end of the instructions, and the two tests for it (6 and 7), have not been run on a model yet |
 
 ## What it does
 

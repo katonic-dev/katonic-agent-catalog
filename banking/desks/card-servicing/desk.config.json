@@ -1,0 +1,284 @@
+{
+  "$comment": "What makes the generic case desk the card servicing screen. Start it with DESK_CONFIG pointing at this file. Needs the settings-driven case desk engine at a version that reads decisions[].act (a decision the agent carries out). The bank (Meridian Trust Bank), its customers and their cards are invented.",
+  "desk": {
+    "id": "card-servicing",
+    "name": "Card servicing screen",
+    "caseNoun": "call",
+    "caseNounPlural": "calls",
+    "draftNoun": "proposal",
+    "deciderRole": "member of staff",
+    "tagline": "A member of staff on a call about a card: what the records show, a proposal to read to the customer, one confirmation, and what the bank's systems then returned.",
+    "addLabel": "Add a call",
+    "arrivedVia": {
+      "feed": "the contact centre's system",
+      "officer": "the member of staff"
+    },
+    "issuedVerb": "Confirmed by"
+  },
+  "case": {
+    "heading": "THE CALL",
+    "metaFields": [
+      "topic",
+      "card"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "customer"
+    ],
+    "showText": "text",
+    "textHeading": "The call, as the desk holds it",
+    "noTextShown": "The desk holds no note of this call. The agent reads the card, its payments, its disputes and the customer's contacts from the bank's systems.",
+    "noTextNote": "No note of the call was supplied. Work from the card and the customer the case names, read from the bank's systems.",
+    "askPlaceholder": "For example: which payment is the customer asking about?",
+    "searchPlaceholder": "Search by customer, card or topic",
+    "demoNote": "Demo data: the bank, its customers and their cards are invented. Nothing here is a real card.",
+    "listFields": [
+      "topic",
+      "card"
+    ],
+    "chipFields": [],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "jumpLabel": "The call"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "intake": {
+    "ways": [
+      "Entered by the member of staff on the call (the form at the top of the list)",
+      "Sent by the contact centre's system when a call about a card starts (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "hint": "Who is calling and the card, for example: Dorian Quillfeather, card ending 4821. The ids go in their own fields.",
+        "required": true
+      },
+      {
+        "key": "topic",
+        "label": "What the call is about",
+        "hint": "Choose the nearest. The agent still reads the records.",
+        "required": true,
+        "options": [
+          "Lost or stolen card",
+          "Card about to expire",
+          "Charge queried",
+          "Something else"
+        ]
+      },
+      {
+        "key": "card",
+        "label": "Card id",
+        "hint": "For example CRD-2001. Never type a full card number.",
+        "required": true
+      },
+      {
+        "key": "customer",
+        "label": "Customer id",
+        "shownAs": "Customer {value}",
+        "hint": "For example CUS-1002.",
+        "required": true
+      },
+      {
+        "key": "received_on",
+        "label": "Date of the call",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "The call, as noted",
+        "required": false,
+        "type": "textarea",
+        "hint": "What the customer says, in plain sentences. No card numbers, PINs or security codes."
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A member of the bank's staff is on a call with a customer about a card. The case below is the call: who the customer is, which card, and what the customer says. Read the customer, the card, its recent payments, its disputes and the customer's recent contacts with the bank from the bank's systems before you write anything. Then propose what the records support: a block, a replacement, a dispute, or no change at all. Change nothing in this reply: call none of the tools that block a card, request a replacement or open a dispute. The member of staff reads the proposal to the customer, may edit it, and confirms it. Only then is it carried out.\n\nUse only ids the systems return. Refer to a card by its id and its last four digits and never by any longer number. Every finding carries its evidence: the card id, the payment id, the dispute id or the contact id. Give every amount and date as the system gives it. Never fill a gap: where the records do not settle a point, say so and mark the row ask the customer.\n\nWhat to propose. A block when the customer reports the card lost or stolen, or the records show misuse. A replacement when the card is lost, stolen or damaged, or expires within the next month. A dispute only for payments the customer says are not theirs, one dispute for all of them, with every payment named by id and the total. Never propose a dispute for a payment that is already disputed: say that it is in hand. Never decide whether the customer gets money back, who is liable or whether a payment was fraud: the disputes team decides. Where the right answer is that nothing should change, say so.\n\nReply in this shape and in no other.\nWrite every date as a date, never as a count of days ago: 22 Nov 2026. Write a card's expiry as its month: Oct 2028. Write a time as 19:55.\nWrite plain statements. Do not write in the first person.\n1. The heading \"Summary\", then at most five lines with no blank line between them and no count of marks (the desk counts the marks from the table): who the customer is and which card (id and last four digits) and what the customer says; what the records show about the card and about the payments or disputes the call is about; what the customer has already told the bank, through which contact and when (contact id and date); what the records do not settle, when there is anything.\n2. A blank line, then the heading \"Draft proposal. For the member of staff. Nothing is changed until it is confirmed.\"\n3. A Markdown table with exactly these seven columns and one row per finding. Put no vertical bar inside a cell.\n| # | Item | Date and place | The records show | Records | Mark | Note |\n# is 1, 2, 3 in order. Rows in this order: the card; each payment that matters (those the customer questions first, then others that bear on the case, newest first); each open dispute on the card, or one row that says none is open; what the customer has already told the bank, one row for each contact that bears on it. Item is what the row is about: the card, a payment (the merchant and the amount, for example \"Ironwood Electronics Online, USD 389.00\"), the payments to one merchant, a dispute, or a contact. Date and place: for a payment the date, the time, how it was made and the town (\"22 Nov 2026, 19:55, online, Port Ilvane\"); for a dispute the date it was opened; for a contact the date and the channel; for the card the expiry month; empty when there is nothing to give. The records show is the value in a few words. Records is the ids the row rests on. Mark is exactly one of: to change, nothing to do, already in hand, ask the customer, in lower case. Note says why, and what the member of staff should check.\nMarks: to change when the proposal changes something because of this row; nothing to do when the row needs nothing; already in hand when a dispute or a replacement already exists for it, so that nothing new may be opened; ask the customer when only the customer can settle the point.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it. It is exactly one of: the actions to carry out, each with its card id and reason, in this form: \"block card CRD-2001 (lost), request a replacement for CRD-2001 (lost, by post) and dispute CTX-2001-U01 and CTX-2001-U02 (not recognised), USD 474.40 in total.\" (the block reasons are lost, stolen, fraud, customer request; the replacement reasons are lost, stolen, damaged, expiring, with by post or at a branch; the dispute reasons are not recognised, duplicate charge, goods not received, wrong amount); or \"no change.\" followed by the reason in one or two sentences; or \"refer to the disputes team:\" followed by what the records do not settle and what was checked. Never write that anything has been blocked, ordered or disputed.",
+    "marks": {
+      "to change": "To change",
+      "nothing to do": "Nothing to do",
+      "already in hand": "Already in hand",
+      "ask the customer": "Ask the customer"
+    },
+    "markTones": {
+      "to change": "warn",
+      "nothing to do": "plain",
+      "already in hand": "info",
+      "ask the customer": "none"
+    },
+    "markHints": {
+      "to change": "The proposal changes something because of this row",
+      "nothing to do": "The row needs nothing",
+      "already in hand": "A dispute or a replacement already exists for it. Nothing new is opened",
+      "ask the customer": "Only the customer can settle this point. Ask them"
+    },
+    "rowLabels": {
+      "source": "Date and place",
+      "policy": "The records show",
+      "citation": "Records",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "proposalFirst": true,
+    "proposalPrefix": "Proposal:"
+  },
+  "decisions": [
+    {
+      "id": "confirm",
+      "label": "Confirm and carry out",
+      "proposalPrefix": [
+        "block",
+        "request",
+        "dispute",
+        "open a dispute",
+        "carry out"
+      ],
+      "outcome": "issued",
+      "needsNote": false,
+      "noteLabel": "Note for the register (optional)",
+      "noteHint": "The agent carries out exactly the proposal as you confirm it, with any edit you made. It reads the current state first and does nothing that is already done. Each change then waits for a second person to approve it.",
+      "hint": "Confirms version {version}{edited} of the proposal, in your name, and sends it to the agent to carry out through the bank's systems. Each change then waits for a second person to approve it.",
+      "act": {
+        "instruction": "The member of staff has confirmed the proposal below, on the call with the customer. Carry out exactly what it says and nothing else: each action on the card it names, for the payments it names, with the reason it gives. If the member of staff edited the proposal, carry out the edited proposal.\n\nRead the card, its payments and its disputes from the bank's systems first, and do nothing that is already done: where the card is already blocked, a replacement is already requested or a payment is already disputed, say so and give what the system holds, and do not ask again. Make each change through its own tool, one at a time. After each change read what the system returned. Say that a change was done only if the system says it was applied, and give the reference it returned: a dispute id such as DSP-6002, a replacement id such as RPL-7001. A block has no reference: say that the card is now blocked. If the system refuses, say what it said and that nothing was changed. If the platform holds a change for approval by a second person, say that it is waiting for approval and has not been carried out yet. Decide nothing about money: whether the customer gets money back is for the disputes team.\n\nReply in this shape and in no other. Write plain statements. Do not write in the first person.\n1. One line that starts \"Outcome:\" and says in one sentence where things stand: all carried out, some waiting for approval, or some not carried out.\n2. A blank line, then one list item for each action, in the order of the proposal, each starting with a dash: the action, the card, and what the system returned (the reference, the new status, the refusal, or that it is waiting for approval).\n3. A blank line, then one or two sentences on what happens next, for the member of staff to tell the customer. Write nothing after them.",
+        "title": "What the bank's systems returned",
+        "waitingWords": [
+          "waiting for approval",
+          "awaiting approval",
+          "held for approval"
+        ],
+        "followUp": "The member of staff asks for the outcome again. Read the current state of each request named in the earlier outcome below from the bank's systems: the card's status, the replacement and the dispute. Change nothing and request nothing. Report what each one now shows, with the reference the system holds. Say that a request is waiting for approval only if the system still shows it waiting. When every request has been carried out, say so, and do not use the words waiting for approval. Reply in the same shape as the earlier outcome: a line that starts \"Outcome:\", one list item for each action, then what happens next.",
+        "doneStatus": "carried_out",
+        "waitingStatus": "waiting_approval",
+        "failedStatus": "not_carried_out",
+        "askAgainLabel": "Ask for the outcome again",
+        "retryLabel": "Try again",
+        "workingNote": "The agent is carrying out what you confirmed. This page refreshes on its own.",
+        "waitingNote": "Not carried out yet. Each change waits for a second person to approve it. Ask again to see the references once they have approved it.",
+        "doneNote": "",
+        "failedNote": "The agent did not carry this out. Your confirmation is recorded and nothing is lost. Try again sends the same request: the agent reads the current state first, so nothing is done twice."
+      }
+    },
+    {
+      "id": "no_change",
+      "label": "No change",
+      "proposalPrefix": [
+        "no change"
+      ],
+      "outcome": "no_action",
+      "needsNote": true,
+      "noteLabel": "What the customer was told",
+      "noteHint": "Records that nothing was changed. Nothing is sent to the agent."
+    },
+    {
+      "id": "refer",
+      "label": "Refer to the disputes team",
+      "proposalPrefix": [
+        "refer to the disputes team"
+      ],
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "What the disputes team should look at",
+      "noteHint": "For the team that decides on money. Say what the customer claims and what the records show. Nothing is sent to the agent."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the proposal",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the member of staff",
+    "sent_back": "Being redone",
+    "issued": "Confirmed",
+    "no_action": "No change",
+    "referred": "Referred to the disputes team",
+    "removed": "Removed",
+    "acting": "Carrying out",
+    "waiting_approval": "Waiting for approval",
+    "carried_out": "Carried out",
+    "not_carried_out": "Not carried out"
+  },
+  "closedStatuses": [
+    "no_action",
+    "referred",
+    "removed"
+  ],
+  "register": {
+    "heading": "Every decision, and every answer of the agent to a confirmed one, in the order they came. The desk changes nothing in the bank itself: the agent does, through its tools, and a second person approves each change on the platform.",
+    "columns": [
+      "case_id",
+      "title",
+      "topic",
+      "card",
+      "customer",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "outcome",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "card",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "outcome",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Call",
+      "card": "Card",
+      "customer": "Customer",
+      "decision": "Decision or status",
+      "decided_by": "By",
+      "decided_at": "When",
+      "note": "Note",
+      "outcome": "What the systems returned",
+      "draft_versions": "Proposal versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": false,
+    "redraftOnSendBack": true
+  },
+  "next": {
+    "issued": "Recorded as confirmed, in your name. The agent carries it out through the bank's systems, and what they returned is in the card above.",
+    "no_action": "Recorded. Nothing was changed and nothing was sent to the agent.",
+    "referred": "Recorded as referred, with the note you wrote. Whether the customer gets money back is for the disputes team to decide."
+  },
+  "decisionLabels": {
+    "issued": "Confirmed",
+    "no_action": "No change",
+    "referred": "Referred to the disputes team",
+    "sent_back": "Asked the agent to redo the proposal",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "waiting_approval": "Waiting",
+    "not_carried_out": "Not carried out"
+  }
+}

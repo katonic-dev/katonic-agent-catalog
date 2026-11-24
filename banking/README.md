@@ -66,7 +66,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Complaints desk](desks/complaints/README.md) | Complaint Handling | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Payments desk](desks/payments/README.md) | Payment Investigation, Payment Exception Repair | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Reconciliation desk](desks/reconciliation/README.md) | Reconciliation Break | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
-| Card servicing screen | Card Servicing | Planned |
+| [Card servicing screen](desks/card-servicing/README.md) | Card Servicing | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Research desk](desks/research/README.md) | Equity Research Report | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 

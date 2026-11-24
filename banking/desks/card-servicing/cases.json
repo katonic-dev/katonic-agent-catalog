@@ -1,0 +1,37 @@
+{
+  "$comment": "Four invented card servicing calls for the demo, from the invented bank Meridian Trust Bank. Lost card with two payments the customer does not recognise (CUS-1002, CRD-2001). Card about to expire (CUS-1003, CRD-2002). Double charge with a dispute already open (CUS-1004, CRD-2003). A charge called fraud that repeats a subscription, where nothing should be changed (CUS-1006, CRD-2006). The dates are as at the bank date 2026-11-24: start the invented bank with BANK_TODAY=2026-11-24 so that the records the agent reads agree with them. Each case names only what the call holds: the agent reads the rest from the bank's systems.",
+  "cases": [
+    {
+      "title": "Dorian Quillfeather, card ending 4821",
+      "topic": "Lost or stolen card",
+      "card": "CRD-2001",
+      "customer": "CUS-1002",
+      "received_on": "2026-11-24",
+      "text": "THE CALL\nCall: 24 Nov 2026, inbound, a member of staff is on the line\nCustomer: Dorian Quillfeather (CUS-1002)\nCard: CRD-2001, debit card ending 4821\n\nWHAT THE CUSTOMER SAYS\nHe lost his debit card two days ago and says some payments on it are not his.\n\nWHAT THE AGENT READS\nThe card, its payments, its disputes and the customer's recent contacts, from the bank's systems."
+    },
+    {
+      "title": "Sabine Tarrowgate, card ending 7316",
+      "topic": "Card about to expire",
+      "card": "CRD-2002",
+      "customer": "CUS-1003",
+      "received_on": "2026-11-24",
+      "text": "THE CALL\nCall: 24 Nov 2026, inbound, a member of staff is on the line\nCustomer: Sabine Tarrowgate (CUS-1003)\nCard: CRD-2002, debit card ending 7316\n\nWHAT THE CUSTOMER SAYS\nShe is calling about her card. It runs out soon and she travels next month. She asks what can be done.\n\nWHAT THE AGENT READS\nThe card, its payments, its disputes and the customer's recent contacts, from the bank's systems."
+    },
+    {
+      "title": "Emeric Lowenhall, card ending 2059",
+      "topic": "Charge queried",
+      "card": "CRD-2003",
+      "customer": "CUS-1004",
+      "received_on": "2026-11-24",
+      "text": "THE CALL\nCall: 24 Nov 2026, inbound, a member of staff is on the line\nCustomer: Emeric Lowenhall (CUS-1004)\nCard: CRD-2003, debit card ending 2059\n\nWHAT THE CUSTOMER SAYS\nHe says the cinema charged him twice for one booking and asks for a dispute to be opened for the second charge.\n\nWHAT THE AGENT READS\nThe card, its payments, its disputes and the customer's recent contacts, from the bank's systems."
+    },
+    {
+      "title": "Oskar Brindlemoor, card ending 6670",
+      "topic": "Charge queried",
+      "card": "CRD-2006",
+      "customer": "CUS-1006",
+      "received_on": "2026-11-24",
+      "text": "THE CALL\nCall: 24 Nov 2026, inbound, a member of staff is on the line\nCustomer: Oskar Brindlemoor (CUS-1006)\nCard: CRD-2006, debit card ending 6670\n\nWHAT THE CUSTOMER SAYS\nHe says the USD 11.99 charge from Streamline Video Club on his card is fraud and asks for his money back. He says he never signed up to anything.\n\nWHAT THE AGENT READS\nThe card, its payments, its disputes and the customer's recent contacts, from the bank's systems."
+    }
+  ]
+}
