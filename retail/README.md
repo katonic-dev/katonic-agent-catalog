@@ -65,7 +65,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 
 | Desk | Agents behind it | State |
 |---|---|---|
-| Food safety desk | Food Safety Record Check | Being moved into this pack |
+| [Food safety desk](desks/food-safety/README.md) | Food Safety Record Check | Written. Run against the stand-in platform on 24 November 2026: twenty scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against a real agent |
 | Accounts payable desk | Supplier Query, Delivery Discrepancy, Invoice Matching | Planned |
 | Customer care desk | Customer Service, Returns Processing, Complaint Handling, Review Reply | Planned |
 | Loss prevention desk | Fraud Prevention, Shrink Analysis, Refund and Discount Audit | Planned |

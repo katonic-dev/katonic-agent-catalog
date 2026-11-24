@@ -1,0 +1,296 @@
+{
+  "$comment": "What makes the generic case desk the food safety desk of Rowanmere Kitchen. Start it with DESK_CONFIG pointing at this file and DESK_LIBRARY_DIR at retail/policy-library. Needs the settings-driven case desk engine. Rowanmere Group, its restaurants, their readings and the food safety plan are invented. Nothing here is food safety guidance.",
+  "desk": {
+    "id": "food-safety",
+    "name": "Food safety desk",
+    "caseNoun": "record check",
+    "caseNounPlural": "record checks",
+    "draftNoun": "findings",
+    "deciderRole": "food safety lead",
+    "tagline": "A month of records for each restaurant, the deviations from the food safety plan listed for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a record check",
+    "issuedVerb": "Monthly review signed by",
+    "documentLinkLabel": "Download the signed review",
+    "arrivedVia": {
+      "feed": "the records system",
+      "officer": "an area manager"
+    }
+  },
+  "case": {
+    "heading": "THE FOOD SAFETY RECORDS",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "town",
+      "period"
+    ],
+    "queryFields": [
+      "plan"
+    ],
+    "detailFields": [
+      "area_manager",
+      "plan"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this record check. Ask the restaurant manager for them.",
+    "noTextNote": "No records were supplied with this record check. Say so, write one row marked \"missing entry\" that says the whole period is missing, and propose asking the restaurant manager for the records.",
+    "libraryHeading": "THE FOOD SAFETY PLAN",
+    "libraryNoun": "food safety plan",
+    "libraryInstruction": "The desk has looked up the company's food safety plan in \"{library}\" for you. Its text is below. Take every limit and every check schedule from it, and cite the section number. Where the plan sets no limit for a reading, say so and use no limit from anywhere else. Do not say that no food safety plan is connected.",
+    "askPlaceholder": "For example: on which dates was the make-line chiller above its limit?",
+    "searchPlaceholder": "Search by restaurant or town",
+    "demoNote": "Demo data: Rowanmere Kitchen, its restaurants, their readings and the food safety plan are invented. Nothing here is food safety guidance.",
+    "listFields": [
+      "town"
+    ],
+    "chipFields": [],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "replyHeading": "Restaurant manager's corrective actions",
+    "replyLabel": "The corrective actions the restaurant manager recorded (they are added to the records)",
+    "replyButton": "Add the corrective actions and check again",
+    "replyNote": "The restaurant manager has recorded corrective actions. They are at the end of the records. List every deviation again and say, for each one, whether a corrective action is now recorded.",
+    "replyEvent": "added the restaurant manager's corrective actions"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "checks"
+  },
+  "intake": {
+    "ways": [
+      "Entered by an area manager (the form at the top of the list)",
+      "Sent by the system that holds the restaurants' records (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Restaurant",
+        "hint": "The site id and the restaurant's name, as the queue shows it. For example R-071 Rowanmere Kitchen Netmakers Row.",
+        "required": true
+      },
+      {
+        "key": "town",
+        "label": "Town",
+        "required": true
+      },
+      {
+        "key": "street",
+        "label": "Street",
+        "required": false
+      },
+      {
+        "key": "period",
+        "label": "Period",
+        "hint": "The month the records cover, for example October 2026.",
+        "required": true
+      },
+      {
+        "key": "area_manager",
+        "label": "Area manager",
+        "required": false
+      },
+      {
+        "key": "plan",
+        "label": "Plan to check against",
+        "hint": "The desk uses this to find the plan in the library.",
+        "default": "Food Safety Plan, version 5.0",
+        "required": false
+      },
+      {
+        "key": "text",
+        "label": "Records for the period",
+        "hint": "The logs for the month: a heading in capitals, a line that starts Columns: and names the columns, then one line per day or per delivery.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A month of food safety records for one restaurant has arrived at the food safety desk. Check every reading and every entry against the food safety plan, whose text is given below. List what the records show. Work from this message only: read nothing from any system and save nothing, because the desk keeps the findings. Write no line about saving a draft. Change no record. Do not say whether any food was safe: that is decided by the restaurant manager and the food safety lead. Write plain statements and do not write in the first person.\n\nThe records are four logs. The cold storage log, the hot holding log and the cooking and cleaning log each have one line per day, and the delivery log has one line per delivery. The line that starts \"Columns:\" above each log names its columns in order, and each column is one check. (blank) in the cleaning column means there is no signed daily cleaning entry for that day. MISSED means the check was recorded as not made. A reading equal to a limit is inside the limit.\n\nFirst, under the heading \"Summary\", write at most five lines: the restaurant with its town, the period, the number of days of records and the number of deliveries. The message carries no review status, so leave it out. Put no count of marks or of deviations in the Summary. The desk counts them from the table.\n\nThen, under the heading \"Draft findings. For review by the food safety lead. Not signed.\", write a Markdown table with exactly these seven columns:\n| # | Check | Plan reference and limit | What the records show | Dates | Mark | Food safety lead should check |\n- #: 1, 2, 3 and so on, in order.\n- Check: the unit or the check, for example \"Make-line chiller\", \"Hot holding cabinet\", \"Daily cleaning sign-off\", \"Chilled delivery\".\n- Plan reference and limit: the section of the food safety plan and the limit or schedule it sets, in the plan's own figures.\n- What the records show: each reading outside the limit with its value, or the number of entries missing or checks not made.\n- Dates: every date concerned, and the time of day for a reading.\n- Mark: exactly one of: repeated deviation, outside the limit, missing entry, missed check, within the plan. Lower case.\n- Food safety lead should check: what a person should verify or decide.\nDo not put a vertical bar inside a cell.\nWrite one row for each unit or check that has any deviation, and no row for a unit or check that has none. Count the readings outside the limit for each unit across the whole month before choosing its mark.\n- \"outside the limit\": one or two readings on that unit are outside the plan's limit.\n- \"repeated deviation\": three or more readings on the same piece of equipment (a chiller, a freezer or the hot holding cabinet) are outside the limit in the month. Section 6.2 of the plan then applies: name the section in the last column and say that the food safety lead decides whether the unit stays in use. This mark is for readings on equipment only. It is never used for cleaning entries, missed checks or deliveries.\n- \"missing entry\": a day with no signed daily cleaning entry.\n- \"missed check\": a check recorded as MISSED.\n- A delivery item outside its limit that is recorded as accepted is a deviation under section 4.3 of the plan: mark it \"outside the limit\" and say in the last column that the plan requires the item to be refused.\nIf the records end with corrective actions recorded by the restaurant manager, say in the last column of each row whether a corrective action is now recorded for it.\nEnd the table with one closing row whose Check cell is \"All other checks\", which names the checks that had no deviation, with the mark \"within the plan\". If nothing in the month deviates, the table has only that row.\n\nLast, write one line that starts \"Proposed next step:\" and is exactly one of: \"approve: no deviations, sign the monthly review\"; \"ask the restaurant manager for corrective actions:\" followed by a numbered list of what the restaurant manager must record, one item for each deviation; or \"refer to the food safety lead under section 6.2:\" followed by the unit with three or more readings outside the limit, and then the numbered list of corrective actions still to be recorded. Write nothing after that line.",
+    "sections": [
+      "Summary",
+      "Draft findings"
+    ],
+    "marks": {
+      "repeated deviation": "Repeated deviation",
+      "outside the limit": "Outside the limit",
+      "missing entry": "Missing entry",
+      "missed check": "Missed check",
+      "within the plan": "Within the plan"
+    },
+    "markTones": {
+      "repeated deviation": "err",
+      "outside the limit": "warn",
+      "missing entry": "warn",
+      "missed check": "warn",
+      "within the plan": "ok"
+    },
+    "markHints": {
+      "repeated deviation": "Three or more readings outside the limit on the same unit in the month (plan section 6.2)",
+      "outside the limit": "One or two readings on the unit are outside the plan's limit",
+      "missing entry": "A day with no signed daily cleaning entry (plan section 5.3)",
+      "missed check": "A check recorded as not made (plan section 1.2)",
+      "within the plan": "No deviation in the month"
+    },
+    "proposalPrefix": "Proposed next step:",
+    "passMark": "within the plan",
+    "reviewHeading": "Draft findings",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "rowLabels": {
+      "source": "Plan",
+      "policy": "The records",
+      "citation": "Dates",
+      "check": "Check"
+    }
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Sign the monthly review",
+      "proposalPrefix": "approve",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Signs the monthly review and records version {version}{edited} of the findings in your name."
+    },
+    {
+      "id": "request_info",
+      "label": "Ask the restaurant manager for corrective actions",
+      "proposalPrefix": "ask the restaurant manager",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What the restaurant manager must record",
+      "noteHint": "This text goes into the note to the restaurant manager, one item to a line. The record check waits here until the corrective actions are added."
+    },
+    {
+      "id": "refer",
+      "label": "Record a decision on the unit (plan 6.2)",
+      "proposalPrefix": "refer to the food safety lead",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Your decision on the unit, and why",
+      "noteHint": "Say whether the unit stays in use or is taken out of use until it is serviced. The desk records your decision. It does not tell the restaurant."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to check the records again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Checking",
+    "for_review": "For review",
+    "sent_back": "Being checked again",
+    "issued": "Review signed",
+    "info_requested": "Waiting for the manager",
+    "referred": "Unit decision recorded",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every action taken on a record check, in the order it was taken: signed reviews, requests for corrective actions, decisions on a unit, requests to check again, and removals. The desk decides nothing about food: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "town",
+      "street",
+      "period",
+      "area_manager",
+      "plan",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "library",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "period",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Restaurant",
+      "town": "Town",
+      "period": "Period",
+      "decision": "Action",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions",
+      "letter_number": "Note sent"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a record check cannot decide it. Any other food safety lead can. You can still ask the agent to check the records again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Signing while a deviation is listed needs a reason",
+    "reasonToApproveUnmetLabel": "Why you are signing although a deviation is listed",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "The monthly review is signed. Nothing further happens on this desk.",
+    "info_requested": "When the restaurant manager has recorded the corrective actions, add them here. The agent lists the deviations again and the record check comes back for review.",
+    "referred": "Your decision on the unit is recorded. The restaurant acts on it. This desk records nothing further."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Food safety records: corrective actions needed",
+      "linkLabel": "Note to the restaurant manager",
+      "prefix": "CA",
+      "days": 1,
+      "dateStyle": "long",
+      "toField": "title",
+      "opening": "The monthly review of the records below found deviations from the food safety plan with no corrective action recorded. This note does not say whether any food was safe.",
+      "fields": [
+        "town",
+        "period"
+      ],
+      "list": "note",
+      "listHeading": "What to record",
+      "dateLine": "Please record them by {until}.",
+      "body": [
+        "The food safety plan, section 6.1, asks for a corrective action for every deviation within 24 hours: what was done with the food, what was done with the equipment, and who was told.",
+        "Record them in the restaurant's log and quote {number}."
+      ],
+      "signature": "Food Safety and Quality, Rowanmere Kitchen (an invented company, for demonstration)"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Signed the monthly review",
+    "info_requested": "Asked for corrective actions",
+    "referred": "Recorded a decision on the unit",
+    "sent_back": "Asked the agent to check again",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}
