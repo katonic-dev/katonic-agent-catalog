@@ -34,7 +34,7 @@ tests:
       - H1 2026 revenue 438.6 (415.2, +5.6 percent), operating profit 51.9, profit 38.6, EPS 19.3, interim dividend 7.0, each with FIL-6102
       - says nothing was restated
       - consensus updated 5 Sep 2026, after the filing, FY2026 revenue 880.0, EPS 37.3, and says the filing and consensus agree
-      - price to earnings shown as "Result: 16.2 times" and "Working: 5.80 / 0.357", on the full-year EPS and not on the half-year EPS
+      - 'price to earnings shown as "Result: 16.2 times" and "Working: 5.80 / 0.357", on the full-year EPS and not on the half-year EPS'
       - every figure carries its unit and its period, also in a bracket and in a note, for example "USD 842.3 million (FY2024: USD 801.9 million)", and the exchange is named without a bracketed note
       - saves the draft and says so only because the system said it was applied
       - gives no rating, no target and no call to buy or sell

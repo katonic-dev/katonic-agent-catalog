@@ -6,11 +6,13 @@ on:
     paths:
       - "demo-bank/**"
       - "banking/agents/**/agent.yaml"
+      - "banking/agents/**/tests.yaml"
       - ".github/workflows/demo-bank-tests.yml"
   pull_request:
     paths:
       - "demo-bank/**"
       - "banking/agents/**/agent.yaml"
+      - "banking/agents/**/tests.yaml"
 
 permissions:
   contents: read

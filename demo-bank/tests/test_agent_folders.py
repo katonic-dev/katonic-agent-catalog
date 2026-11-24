@@ -21,6 +21,7 @@ if not AGENTS.is_dir():
 POST_READS = {"screen_name", "run_finance_query"}
 
 AGENT_FILES = sorted(AGENTS.glob("*/agent.yaml"))
+TEST_FILES = sorted(AGENTS.glob("*/tests.yaml"))
 
 
 def load(path):
@@ -50,6 +51,19 @@ def bank():
 
 def test_there_are_agent_folders():
     assert len(AGENT_FILES) >= 30
+    assert [p.parent.name for p in TEST_FILES] == [p.parent.name for p in AGENT_FILES], "an agent folder has no tests.yaml"
+
+
+@pytest.mark.parametrize("path", TEST_FILES, ids=lambda p: p.parent.name)
+def test_a_tests_file_can_be_read_and_every_test_is_complete(path):
+    doc = load(path)  # a line that is not valid YAML fails here, with its line number
+    states = doc["states"]
+    names = [test["name"] for test in doc["tests"]]
+    assert names and len(names) == len(set(names)), "a test name is used twice"
+    for test in doc["tests"]:
+        assert test["given"] in states, f"{test['name']}: the state {test['given']} is not described under states"
+        assert ("input" in test) != ("turns" in test), f"{test['name']}: a test has one input or a list of turns, not both"
+        assert test["expected"] and test["checks"], f"{test['name']}: nothing is expected or nothing is checked"
 
 
 def test_the_post_reads_exist_and_are_not_marked_as_changes(bank):

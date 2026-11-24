@@ -32,7 +32,7 @@ tests:
       - finds the earlier payment PAY-6050 to the same beneficiary, same name and same bank, credited
       - proposes to replace the IBAN with XB82BRVN73201150000142 and names PAY-6050 as the source
       - checks that the corrected IBAN is valid, and searches the payments by the corrected IBAN, which finds PAY-6050 only
-      - writes the first row with the held and the corrected value on separate lines (Held: and Corrected:), and the rule and its source on separate lines (Rule: and Source: PAY-6050)
+      - 'writes the first row with the held and the corrected value on separate lines (Held: and Corrected:), and the rule and its source on separate lines (Rule: and Source: PAY-6050)'
       - the summary holds no count of marks and is not in the first person
       - saves the draft and ends with a proposal to approve the repair
     checks:
