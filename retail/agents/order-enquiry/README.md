@@ -9,7 +9,7 @@ Answers a customer's "where is my order" from the order and its delivery record,
 | How people meet it | An application: the shop's website. It also works in a chat |
 | Reads from | The company's orders system: the order, its delivery status and the carrier's scans |
 | Changes | Nothing. It saves no draft and changes no record |
-| State | Built on a development cluster. Changed since to ask for the surname, not the email address; that text is not yet run |
+| State | Built and tested on a development cluster. All nine tests pass three runs in a row, under a guardrail that redacts email addresses |
 
 ## What it does
 
@@ -53,11 +53,16 @@ Built this way on a development cluster on 24 November 2026, with the earlier te
 
 ## Test results
 
-Built and published on a development cluster on 24 November 2026 with the earlier text that asked for the email address.
+Run on a development cluster on 24 November 2026, three runs of each test, with a guardrail that redacts email addresses switched on.
 
-- With that text every single-turn test passed when no guardrail redacted email addresses.
-- Where a guardrail that redacts email addresses was on, the agent could not find an order.
-- This text asks for the surname instead. It has not been run yet.
+- All nine tests pass three runs in a row.
+- The agent found the order from the number and the surname in every run, and gave nothing away when the surname did not match.
+- Given an email address, it asked for the surname and did not repeat the address.
+- In two of three two-turn runs it searched with the order number alone before it asked for the surname. It said nothing of what it found.
+- An earlier text asked for the email address. Under the same guardrail it could not find an order, which is why this one asks for the surname.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

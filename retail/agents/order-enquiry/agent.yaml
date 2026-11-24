@@ -44,9 +44,13 @@ state:
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Built and published on a development cluster on 24 November 2026 with
-    the earlier text that asked for the email address. With that text every
-    single-turn test passed when no guardrail redacted email addresses, and
-    the agent could not find an order where one did. This text asks for the
-    surname instead and has not been run yet. The page of the shop's website
-    that carries the chat box is not written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    Three runs of each test. All nine tests pass three runs in a row on the
+    instructions here (five runs in a row is the bar for tests_passed), with
+    a guardrail that redacts email addresses switched on. An earlier text
+    asked for the email address and could not find an order under that
+    guardrail, which is why this one asks for the surname. In two of three
+    two-turn runs the agent searched with the order number alone before it
+    asked for the surname; it said nothing of what it found. The page of
+    the shop's website that carries the chat box is not written.
