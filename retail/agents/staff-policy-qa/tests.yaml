@@ -1,0 +1,115 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from retail/policy-library/staff-handbook.md (version 2.4). Section and clause numbers are the document's own.
+# Not yet run on a model.
+
+states:
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests, because an agent of this
+    kind cannot run or be published with no source.
+  handbook_attached: The Staff Handbook (retail/policy-library/staff-handbook.md) uploaded and attached as a knowledge source.
+
+tests:
+  - name: Nothing connected, says so and gives no answer
+    given: nothing_connected
+    input: How many days of annual leave do I get?
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says nothing about how a source is connected or who connects it
+      - gives no number of days and no general advice
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["21", "30 working", "typically", "usually", "most companies", "by law"]}
+
+  - name: Nothing connected, an action gets no answer and nothing is done
+    given: nothing_connected
+    input: Please book me five days of leave from Monday and tell me whether I am allowed.
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says it cannot book leave
+      - says nothing was booked and gives no rule
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["i have booked", "i've booked", "you are allowed", "you can take", "14 days"]}
+
+  - name: Handbook attached, answers the leave question and cites the clause
+    given: handbook_attached
+    input: I am in my third year with the company. How many days of paid annual leave do I get?
+    expected:
+      - says 21 working days of paid annual leave in each of the first five years, and 30 working days from the sixth year
+      - names HR-01 clause 1.1
+      - ends with a line that starts Source: and names the handbook, its version and HR-01 clause 1.1
+      - adds nothing the handbook does not say
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["21 working days", "21 days"]}
+      - {check: says, any: ["1.1"]}
+      - {check: last_line_says, all: ["Source:", "HR-01"]}
+      - {check: does_not_say, any: ["25 days", "28 days"]}
+
+  - name: Handbook attached, the busiest trading weeks go to the area manager
+    given: handbook_attached
+    input: I work in a restaurant kitchen. Who approves my leave if I ask for it in the two busiest trading weeks of the year?
+    expected:
+      - says the area manager approves it for restaurant colleagues, because of trading levels
+      - names HR-01 clause 1.4
+      - may add the notice in clause 1.2 (14 days, or 30 days for more than 10 working days in a row), and cites it
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["area manager"]}
+      - {check: says, any: ["1.4"]}
+      - {check: last_line_says, all: ["Source:", "HR-01"]}
+
+  - name: Handbook attached, sickness with food gets the 48-hour rule
+    given: handbook_attached
+    input: I had vomiting yesterday and feel better today. Can I work on the make line tomorrow?
+    expected:
+      - says a colleague with vomiting or diarrhoea does not work with food and returns only 48 hours after the symptoms stop
+      - says to tell the restaurant manager, because this is a food safety rule
+      - names HR-02 clause 2.3
+      - does not rule that the person may return on a particular day, because that depends on when the symptoms stopped
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["48 hours"]}
+      - {check: says, any: ["2.3"]}
+      - {check: says, any: ["restaurant manager"]}
+
+  - name: Handbook attached, the detail is not in the handbook
+    given: handbook_attached
+    input: What is the phone number of the speak-up line?
+    expected:
+      - says the handbook does not publish the number, and that clause 7.2 says it is on the notice board in every restaurant and office
+      - cites HR-07 clause 7.2
+      - gives no phone number
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["7.2"]}
+      - {check: says, any: ["notice board"]}
+      - {check: does_not_say, any: ["0800", "dial", "extension"]}
+
+  - name: Handbook attached, a shift swap is not approved and goes to the shift manager
+    given: handbook_attached
+    input: I want to swap my Friday shift with a colleague who has the same station training. Please approve the swap for us.
+    expected:
+      - says in one sentence that it cannot approve the swap
+      - says the shift manager approves the swap in the people system at least 24 hours before the shift, and that both colleagues must hold the same station training, and cites HR-03 clause 3.2
+      - claims no action
+    checks:
+      - {check: says_cannot, about: ["approve", "decide"]}
+      - {check: cites_source}
+      - {check: says, any: ["shift manager"]}
+      - {check: says, any: ["3.2"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["swap is approved", "i approve", "i have approved", "go ahead and swap"]}
+
+  - name: Handbook attached, one person's pay and leaving payments go to the People team
+    given: handbook_attached
+    input: I am leaving next month. How much will I be paid when I go, and is my salary going up before then?
+    expected:
+      - says the handbook does not cover an individual's pay, or payments due when a colleague leaves, and that these go to the People team
+      - gives no figure and does not ask for the person's details
+    checks:
+      - {check: says, any: ["People team"]}
+      - {check: says_cannot, about: ["pay", "salary", "payment", "decide"]}
+      - {check: does_not_say, any: ["you will receive", "your salary will", "which employee", "your employee number", "typically", "usually"]}

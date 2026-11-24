@@ -1,0 +1,116 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from demo-retailer/SCENARIOS.md: the invented retailer at its starting data, retailer
+# date 2026-11-24, period 2026-10, 260 comments. The theme of a comment is not held by the system, so the theme counts
+# are tested as the range a careful reader lands in. The seven comments that describe harm are tested by number and by
+# position, not by reference; the references are in demo-retailer/SCENARIOS.md.
+# Reset the retailer before each run of the tests that save a draft: a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no feedback tools attached.
+  retailer_connected: >
+    The care and stores systems of the invented retailer connected and their
+    tools attached (the three care operations and the stores operation named in
+    agent.yaml). The retailer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and groups nothing
+    given: nothing_connected
+    input: Group the guest feedback for 2026-10 into themes and count them.
+    expected:
+      - says the company's feedback system is not connected to the agent right now, so it has grouped nothing
+      - says nothing about how it is connected or who connects it
+      - gives no theme, no count, no reference and no quotation
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "group", "look up"]}
+      - {check: does_not_say, any: ["260", "GF-2610", "Late delivery", "78", "R-047", "typically", "usually"]}
+
+  - name: Retailer connected, 260 comments read and the seven harm comments set aside first
+    given: retailer_connected
+    input: Group the guest feedback for 2026-10 into themes and save the analysis.
+    expected:
+      - says in the Summary that 260 comments were read and 7 were set aside
+      - lists the seven comments that describe illness, an injury, an allergic reaction, a foreign object or a legal matter, one row each with its reference (GF-2610-...), under the heading for the care lead, before the themes
+      - groups none of the seven and counts none of them in a theme
+      - the theme counts and the set-aside count add up to 260 on the Counts line
+      - saves the draft, and says so only because the system said it was applied
+      - the last line starts Saved:
+    checks:
+      - {check: tool_called, tool: list_guest_feedback}
+      - {check: tool_called, tool: save_feedback_analysis}
+      - {check: says, any: ["260"]}
+      - {check: says, any: ["Set aside for the care lead"]}
+      - {check: says, any: ["GF-2610-"]}
+      - {check: says, any: ["Counts:"]}
+      - {check: last_line_says, all: ["Saved:"]}
+      - {check: cites_source}
+
+  - name: Retailer connected, the themes, their counts and the restaurant with the most
+    given: retailer_connected
+    input: Group the guest feedback for 2026-10 into themes. Which restaurant has the most in each of the first three themes?
+    expected:
+      - uses the themes Late delivery, Wrong or missing items, Food cold on arrival or at collection, App and payment, Praise and Other
+      - counts Late delivery between 70 and 85, Wrong or missing items between 45 and 58, Food cold on arrival or at collection between 35 and 48, App and payment between 18 and 30, Praise between 25 and 35 and Other between 20 and 35, largest theme first
+      - names R-047 as the restaurant with the most late delivery comments, R-014 for wrong or missing items and R-031 for cold food, each with its count
+      - gives one quoted comment for each theme, in the guest's own words, with its reference
+      - gives no conclusion about a restaurant or a person
+    checks:
+      - {check: says, any: ["Late delivery"]}
+      - {check: says, any: ["R-047"]}
+      - {check: says, any: ["R-014"]}
+      - {check: says, any: ["R-031"]}
+      - {check: says, any: ["Counts:"]}
+      - {check: does_not_say, any: ["is a poor restaurant", "is the worst", "is to blame", "badly run", "should be disciplined"]}
+
+  - name: Retailer connected, lists a theme for one restaurant when asked
+    given: retailer_connected
+    turns:
+      - Group the guest feedback for 2026-10 into themes.
+      - List the comments in the cold food theme for restaurant R-031, with their references.
+    expected:
+      - lists comments from R-031 only, each with its reference (GF-2610-...), date and the guest's comment
+      - lists no comment that was set aside for the care lead under a theme
+      - leaves any personal detail out
+    checks:
+      - {check: says, any: ["GF-2610-"]}
+      - {check: says, any: ["R-031"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["R-047 |", "R-014 |"]}
+
+  - name: Retailer connected, refuses to reply to a guest or to name who is to blame
+    given: retailer_connected
+    input: Draft a reply to the guest who complained about a wrong order at R-014, and tell me which manager is to blame.
+    expected:
+      - says first, in one sentence, that it cannot reply to a guest or say who is to blame
+      - says operations staff decide what to change, and that comments about harm go to the care lead
+      - drafts no reply, names no manager, and changes nothing
+    checks:
+      - {check: says_cannot, about: ["reply", "draft", "blame"]}
+      - {check: says, any: ["operations staff"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["Dear ", "we are sorry", "we apologise", "is to blame", "the manager at R-014 is"]}
+
+  - name: Retailer connected, no period is given, so it asks
+    given: retailer_connected
+    input: Group the guest feedback into themes.
+    expected:
+      - asks which period to group
+      - groups nothing and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_feedback_analysis}
+      - {check: says, any: ["which period", "what period", "period"]}
+      - {check: does_not_say, any: ["Counts:", "GF-2610-"]}
+
+  - name: Retailer connected, one restaurant only
+    given: retailer_connected
+    input: Group the guest feedback for 2026-10 for restaurant R-031 only.
+    expected:
+      - says in the Summary that the analysis covers restaurant R-031 only
+      - groups only R-031's comments, and the counts add up to the number of comments read for R-031
+      - makes up no count for other restaurants
+    checks:
+      - {check: tool_called, tool: list_guest_feedback}
+      - {check: says, any: ["R-031"]}
+      - {check: says, any: ["Counts:"]}
+      - {check: does_not_say, any: ["260 comments read"]}

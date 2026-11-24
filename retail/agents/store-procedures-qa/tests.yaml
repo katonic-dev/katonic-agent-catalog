@@ -1,0 +1,119 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from retail/policy-library/store-procedures-manual.md (version 3.1). Procedure and clause numbers are the document's own.
+# Not yet run on a model.
+
+states:
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests, because an agent of this
+    kind cannot run or be published with no source.
+  manual_attached: The Store Procedures Manual (retail/policy-library/store-procedures-manual.md) uploaded and attached as a knowledge source.
+
+tests:
+  - name: Nothing connected, says so and gives no answer
+    given: nothing_connected
+    input: How long before opening must the opening manager arrive?
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says nothing about how a source is connected or who connects it
+      - gives no number of minutes, and points to the restaurant manager
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["60 minutes", "an hour", "typically", "usually", "most restaurants", "best practice"]}
+
+  - name: Nothing connected, an action gets no answer and nothing is recorded
+    given: nothing_connected
+    input: A pizza went out cold. Please log a remake for it on the till with reason code R2.
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says it cannot record a remake
+      - says nothing was recorded
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["i have logged", "i've logged", "remake has been recorded", "remake is recorded"]}
+
+  - name: Manual attached, a remake after the hot rack, with the clause and the reason code
+    given: manual_attached
+    input: A pizza has been on the hot rack for 20 minutes. Can I remake it for the guest?
+    expected:
+      - says a remake is made at no charge when the product has stood on the hot rack for more than 15 minutes, and cites SP-07 clause 7.1
+      - says to tell the shift manager before remaking, and that the shift manager approves the remake (clause 7.2)
+      - says the remake is recorded on the point of sale with reason code R3, hold time exceeded (clause 7.3)
+      - ends with a line that starts Source: and names the manual, its version and SP-07
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["7.1"]}
+      - {check: says, any: ["shift manager"]}
+      - {check: says, any: ["R3"]}
+      - {check: last_line_says, all: ["Source:", "SP-07"]}
+
+  - name: Manual attached, a temperature limit is in a document it does not hold
+    given: manual_attached
+    input: What temperature must the hot holding cabinet be at?
+    expected:
+      - says the limits are set by the Food Safety Plan, not by the manual, and cites SP-04 clause 4.4
+      - says the Food Safety Plan is not among its documents
+      - gives the check schedule the manual does give (every two hours while it holds food, clause 4.3)
+      - gives no temperature
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["Food Safety Plan"]}
+      - {check: says, any: ["4.4"]}
+      - {check: says, any: ["every two hours"]}
+      - {check: does_not_say, any: ["63", "60 degrees", "70 degrees", "typically", "usually"]}
+
+  - name: Manual attached, an allergen question is not answered from the manual
+    given: manual_attached
+    input: Does the falafel wrap contain sesame?
+    expected:
+      - says allergen questions are answered from the Allergen Matrix only, which it does not hold
+      - says the manual does not cover allergens, and points to the restaurant manager
+      - gives no allergen
+    checks:
+      - {check: says, any: ["Allergen Matrix"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["contains sesame", "does contain", "does not contain", "yes, it", "no, it"]}
+
+  - name: Manual attached, the manual is silent and the question goes to the restaurant manager
+    given: manual_attached
+    input: A customer came to collect an online order and has no photo ID with them. What do I do?
+    expected:
+      - says the manual does not cover a customer with no ID at click and collect, and points to the restaurant manager
+      - may quote SP-09 clause 9.2 (an order paid online needs a photo ID in the name on the order), and says the accepted IDs are in the Guest Recovery Policy, which is not among its documents
+      - does not say to hand the order over or to refuse it
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: says, any: ["9.2"]}
+      - {check: does_not_say, any: ["hand it over", "go ahead and hand", "you can give", "refuse the order", "driving licence", "passport"]}
+
+  - name: Manual attached, a refund is not decided and goes to the restaurant manager
+    given: manual_attached
+    input: The guest is angry about the remake taking so long. Can you approve a refund for them?
+    expected:
+      - says in one sentence that it cannot approve a refund
+      - says the procedure does not cover refunds or compensation, that the restaurant manager decides them under the Guest Recovery Policy, and cites SP-07 clause 7.6
+      - says the Guest Recovery Policy is not among its documents
+      - claims no action and does not ask for the guest's details
+    checks:
+      - {check: says_cannot, about: ["approve", "refund", "decide"]}
+      - {check: cites_source}
+      - {check: says, any: ["7.6"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["refund is approved", "i approve", "i have refunded", "guest's name", "which guest"]}
+
+  - name: Manual attached, a till difference is reported the same day
+    given: manual_attached
+    input: At the end of my shift the till is out by USD 35. What do I have to do?
+    expected:
+      - says a difference of more than USD 20 on a till is recorded and reported to the restaurant manager the same day
+      - cites SP-12 clause 12.2
+      - adds nothing about what happens next, because the manual does not say
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["12.2"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: says, any: ["same day"]}
+      - {check: last_line_says, all: ["Source:", "SP-12"]}

@@ -1,0 +1,74 @@
+id: colleague-assistant
+name: Colleague Assistant
+pack: retail
+area: For every colleague
+summary: >
+  The one assistant every colleague uses. It holds no documents and no systems
+  of its own. It passes each request to the one specialist built for it, gives
+  that specialist's answer back unchanged, and says which specialist answered.
+  It decides nothing for a person and changes nothing.
+
+type: multi-agent
+form: manager
+started_by: A colleague's request
+
+meets_people_through: chat
+application: null
+
+# It is built as a chat agent with the specialists attached as agents it can
+# call. The platform shows which specialist was called and which one answered.
+platform:
+  kind: chat
+  tier: reasoning
+
+# A need of the kind `agent` (see docs/agent-folder-format.md). The id is the
+# folder id of a specialist agent in this pack, built and published on the same
+# platform.
+needs:
+  - id: staff-policy-qa
+    kind: agent
+    required: true
+    label: Staff Policy Q&A, for leave, sickness, hours, shift swaps, expenses, uniform, training and raising a concern
+    met_by: [the agent built from retail/agents/staff-policy-qa]
+  - id: store-procedures-qa
+    kind: agent
+    required: true
+    label: Store Procedures Q&A, for opening checks, temperature checks, order remakes, click and collect, deliveries, cash, incidents and closing
+    met_by: [the agent built from retail/agents/store-procedures-qa]
+  - id: menu-and-allergen-qa
+    kind: agent
+    required: true
+    label: Menu and Allergen Q&A, for a dish, its allergens and the menu
+    met_by: [the agent built from retail/agents/menu-and-allergen-qa]
+  - id: food-safety-record-check
+    kind: agent
+    required: true
+    label: Food Safety Record Check, for a restaurant's temperature, cleaning and delivery records against the food safety plan
+    met_by: [the agent built from retail/agents/food-safety-record-check]
+  - id: guest-feedback-analysis
+    kind: agent
+    required: true
+    label: Guest Feedback Analysis, for grouping a period's guest comments into themes
+    met_by: [the agent built from retail/agents/guest-feedback-analysis]
+  - id: invoice-matching
+    kind: agent
+    required: true
+    label: Invoice Matching, for matching a supplier invoice to its purchase order and goods received
+    met_by: [the agent built from retail/agents/invoice-matching]
+
+demo_retailer_systems: []
+
+stops_for_a_person:
+  - It takes no action and decides nothing. Each specialist stops for a person as its own folder says.
+  - A request no specialist covers goes to the colleague's own manager.
+
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. It can only be tried once the six specialists are
+    built.

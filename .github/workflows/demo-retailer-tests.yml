@@ -1,0 +1,38 @@
+name: demo-retailer tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "demo-retailer/**"
+      - "retail/agents/**/agent.yaml"
+      - "retail/agents/**/tests.yaml"
+      - ".github/workflows/demo-retailer-tests.yml"
+  pull_request:
+    paths:
+      - "demo-retailer/**"
+      - "retail/agents/**/agent.yaml"
+      - "retail/agents/**/tests.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: demo-retailer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Test
+        run: pytest -q

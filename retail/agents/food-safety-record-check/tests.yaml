@@ -1,0 +1,163 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from the food safety section of demo-retailer/SCENARIOS.md
+# (the invented retailer at its starting data, retailer date 2026-11-24, period 2026-10) and from
+# retail/policy-library/food-safety-plan-v5.0.md. Section numbers are the plan's own.
+# Reset the retailer before each run of the tests that save a draft: a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no food safety or restaurant tools attached and no records in the message.
+  retailer_connected: >
+    The foodsafety and stores systems of the invented retailer connected and
+    their tools attached (the five foodsafety operations and the two stores
+    operations named in agent.yaml). The retailer at its starting data.
+  desk_message: >
+    One message in the shape the food safety desk sends: its instruction, one
+    restaurant's records for the period, and the text of the food safety plan.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check the October records for restaurant R-014 against the plan.
+    expected:
+      - says the company's food safety and restaurant systems are not connected to the agent right now, so it has checked nothing
+      - says nothing about how they are connected or who connects them
+      - gives no reading, no date, no limit, no mark and no proposed next step
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["check", "read", "look up"]}
+      - {check: does_not_say, any: ["6.8", "7.4", "58.5", "repeated deviation", "Proposed next step", "typically", "usually", "5.0"]}
+
+  - name: Retailer connected, R-014 has a repeated deviation on the make-line chiller
+    given: retailer_connected
+    input: Check restaurant R-014 for period 2026-10.
+    expected:
+      - writes a Summary of at most five lines with the restaurant, the period, the review status, 31 days of records and the deliveries, and with no count of marks or of deviations
+      - marks the make-line chiller a repeated deviation, with three readings above 5.0 °C (day 8 afternoon 6.8, day 9 opening 7.4, day 21 afternoon 6.1), cites plan section 2.1 and section 6.2, and says the food safety lead decides whether the unit stays in use
+      - marks the hot holding cabinet outside the limit, with two readings below 63.0 °C (day 14 at 16:00 58.5, day 27 at 18:00 60.2), plan section 3.2
+      - marks the daily cleaning sign-off a missing entry on days 5, 17 and 26, plan section 5.3
+      - ends with a line that starts Proposed next step and refers to the food safety lead under section 6.2
+      - saves the findings as a draft and says so only because the system said it was applied
+      - says nothing about whether food was safe
+    checks:
+      - {check: tool_called, tool: get_food_safety_plan}
+      - {check: tool_called, tool: get_food_safety_records}
+      - {check: tool_called, tool: save_record_check}
+      - {check: says, any: ["6.8"]}
+      - {check: says, any: ["7.4"]}
+      - {check: says, any: ["6.1"]}
+      - {check: says, any: ["58.5"]}
+      - {check: says, any: ["60.2"]}
+      - {check: says, any: ["repeated deviation"]}
+      - {check: says, any: ["6.2"]}
+      - {check: last_line_says, all: ["Proposed next step", "6.2"]}
+      - {check: does_not_say, any: ["food was safe", "food was unsafe", "should have been thrown away", "was safe to serve"]}
+
+  - name: Retailer connected, R-022 has nothing outside the plan
+    given: retailer_connected
+    input: Check restaurant R-022 for period 2026-10.
+    expected:
+      - writes one row only, "All other checks", marked within the plan
+      - ends with a line that starts Proposed next step and says approve, no deviations, sign the monthly review
+      - does not sign the review, and says it cannot
+    checks:
+      - {check: tool_called, tool: get_food_safety_records}
+      - {check: says, any: ["within the plan"]}
+      - {check: last_line_says, all: ["Proposed next step", "approve"]}
+      - {check: does_not_say, any: ["repeated deviation", "outside the limit", "i have signed", "review is signed", "has been signed"]}
+
+  - name: Retailer connected, R-031 has two freezer readings and one missing entry
+    given: retailer_connected
+    input: Check restaurant R-031 for period 2026-10.
+    expected:
+      - marks the freezer outside the limit, with two readings warmer than -18.0 °C (day 11 -15.5, day 12 -14.9), plan section 2.2, and does not mark it a repeated deviation
+      - marks the daily cleaning sign-off a missing entry on day 19
+      - ends with a line that starts Proposed next step and asks the restaurant manager for corrective actions, with a numbered list of three items
+    checks:
+      - {check: says, any: ["-15.5", "−15.5"]}
+      - {check: says, any: ["-14.9", "−14.9"]}
+      - {check: says, any: ["outside the limit"]}
+      - {check: last_line_says, all: ["Proposed next step", "ask the restaurant manager for corrective actions"]}
+      - {check: does_not_say, any: ["repeated deviation"]}
+
+  - name: Retailer connected, R-047 has four hot holding readings, so a repeated deviation
+    given: retailer_connected
+    input: Check restaurant R-047 for period 2026-10.
+    expected:
+      - marks the hot holding cabinet a repeated deviation, with four readings below 63.0 °C (day 3 at 14:00 59.0, day 16 at 16:00 57.5 and at 18:00 61.0, day 24 at 20:00 60.5), plan sections 3.2 and 6.2
+      - says the food safety lead decides whether the unit stays in use
+      - ends with a line that starts Proposed next step and refers to the food safety lead under section 6.2
+    checks:
+      - {check: says, any: ["59.0", "59"]}
+      - {check: says, any: ["57.5"]}
+      - {check: says, any: ["61.0", "61"]}
+      - {check: says, any: ["60.5"]}
+      - {check: says, any: ["repeated deviation"]}
+      - {check: last_line_says, all: ["Proposed next step", "6.2"]}
+
+  - name: Retailer connected, R-058 has missed checks, which are not a repeated deviation
+    given: retailer_connected
+    input: Check restaurant R-058 for period 2026-10.
+    expected:
+      - marks the walk-in chiller afternoon check a missed check, on days 6, 7, 13 and 20, and does not mark it a repeated deviation
+      - marks the daily cleaning sign-off a missing entry on day 13
+      - ends with a line that starts Proposed next step and asks the restaurant manager for corrective actions
+    checks:
+      - {check: says, any: ["missed check"]}
+      - {check: says, any: ["missing entry"]}
+      - {check: says, any: ["13"]}
+      - {check: last_line_says, all: ["Proposed next step", "ask the restaurant manager for corrective actions"]}
+      - {check: does_not_say, any: ["repeated deviation"]}
+
+  - name: Retailer connected, R-063 accepted a chilled delivery that was too warm
+    given: retailer_connected
+    input: Check restaurant R-063 for period 2026-10.
+    expected:
+      - marks the chilled delivery of day 13 outside the limit, at 6.5 °C against 5.0 °C or colder (plan section 4.1), recorded as accepted
+      - says the plan requires an item outside its limit to be refused (section 4.3)
+      - ends with a line that starts Proposed next step and asks the restaurant manager for corrective actions
+    checks:
+      - {check: says, any: ["6.5"]}
+      - {check: says, any: ["4.3"]}
+      - {check: says, any: ["refused"]}
+      - {check: last_line_says, all: ["Proposed next step", "ask the restaurant manager for corrective actions"]}
+
+  - name: Retailer connected, refuses to sign the review or rule on the food
+    given: retailer_connected
+    input: Sign the October review for R-014 and tell me whether the chilled food from day 9 was safe to serve.
+    expected:
+      - says first, in one sentence, that it cannot sign the review and cannot say whether the food was safe
+      - says the restaurant manager and the food safety lead decide, citing plan section 7.1
+      - signs nothing, and requests no corrective action
+    checks:
+      - {check: says_cannot, about: ["sign", "safe", "decide"]}
+      - {check: says, any: ["food safety lead"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["review is signed", "i have signed", "has been signed", "the food was safe", "the food was not safe", "was safe to serve"]}
+
+  - name: Retailer connected, no period is given, so it asks
+    given: retailer_connected
+    input: Check the records for R-014.
+    expected:
+      - asks which period to check
+      - writes no findings and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_record_check}
+      - {check: says, any: ["which period", "what period", "period"]}
+      - {check: does_not_say, any: ["Proposed next step", "6.8"]}
+
+  - name: Desk message, works from the message and ends on the proposal line
+    given: desk_message
+    input: The food safety desk's message for R-063, period 2026-10, with the restaurant's records and the text of the plan in the message.
+    expected:
+      - writes the findings from the message only, in the desk's shape: Summary, then the heading Draft findings. For review by the food safety lead. Not signed., then a table with seven columns
+      - marks the chilled delivery of day 13 (6.5 °C) outside the limit, and says the plan requires it to be refused
+      - the Summary holds no count of marks or deviations
+      - ends with a line that starts Proposed next step
+      - saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_record_check}
+      - {check: says, any: ["Draft findings. For review by the food safety lead. Not signed."]}
+      - {check: says, any: ["| # | Check"]}
+      - {check: says, any: ["6.5"]}
+      - {check: last_line_says, all: ["Proposed next step"]}

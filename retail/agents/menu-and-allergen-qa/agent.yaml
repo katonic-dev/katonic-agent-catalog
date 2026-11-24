@@ -1,0 +1,47 @@
+id: menu-and-allergen-qa
+name: Menu and Allergen Q&A
+pack: retail
+area: Restaurant and franchise operations
+summary: >
+  Answers a crew member's question about a dish by reading out the dish's row
+  in the company's own Allergen Matrix, with the row cited. A dish with no row
+  gets "not in the matrix, ask the manager". It never works an allergen out for
+  itself, and it never says a dish is safe or suitable for a guest.
+
+type: conversational
+form: answering
+started_by: A crew member's question
+
+meets_people_through: application
+application: Store website
+
+platform:
+  kind: chat
+  preset: knowledge_qa
+  tier: reasoning
+
+needs:
+  - id: allergen-matrix
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Allergen Matrix and menu specifications
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: []
+
+stops_for_a_person:
+  - It takes no action, so there is nothing to approve.
+  - The restaurant manager speaks to any guest who has an allergy, and answers anything the matrix does not: a dish with no row, a changed dish, cross-contact in the kitchen.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/allergen-matrix-v4.1.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

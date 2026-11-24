@@ -1,0 +1,65 @@
+id: food-safety-record-check
+name: Food Safety Record Check
+pack: retail
+area: Restaurant and franchise operations
+summary: >
+  Reads a restaurant's temperature, cleaning and delivery records for a period
+  and lists every reading outside the limits of the company's food safety plan
+  and every entry that is missing, with the plan's section and the dates. The
+  restaurant manager and the food safety lead decide every corrective action.
+  It signs nothing and says nothing about whether food was safe.
+
+type: workflow
+form: scheduled
+started_by: >
+  A clock: once a month, for the period just ended. The food safety desk can
+  also send one restaurant's case, with its records and the plan in the message
+
+meets_people_through: application
+application: Food safety desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: food-safety-records
+    kind: api
+    required: true
+    label: The company's food safety system, to read the plan, the records and the review status, and to save findings as a draft
+    operations:
+      - get_food_safety_plan
+      - list_record_periods
+      - get_food_safety_records
+      - get_record_review
+      - save_record_check
+  - id: store-records
+    kind: api
+    required: true
+    label: The company's store and restaurant list, to give a restaurant's name, town and area manager
+    operations: [list_sites, get_site]
+
+demo_retailer_systems: [foodsafety, stores]
+
+stops_for_a_person:
+  - The restaurant manager records a corrective action for every deviation, and the food safety lead reviews it.
+  - Three or more readings outside the limit on the same equipment go to the food safety lead, who decides whether the unit stays in use (plan section 6.2).
+  - The monthly review is signed by a person. The agent has no operation that signs it or that asks for corrective actions.
+  - Whether any food was safe is for the restaurant manager and the food safety lead. The agent does not say.
+
+# Saving findings is a draft kept as a version with its author. It changes no status.
+changes:
+  - {tool: save_record_check, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/food-safety-plan-v5.0.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. This version reads the plan and the records through
+    the company's food safety system, and the food safety desk's case message
+    is handled in the last section of the instructions. Neither has been run.

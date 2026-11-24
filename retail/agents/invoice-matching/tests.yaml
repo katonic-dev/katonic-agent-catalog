@@ -1,0 +1,153 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the purchasing section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24. The amount for INV-9034 is worked out in demo-retailer/SCENARIOS.md.
+# Reset the retailer before each run: each test saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no purchasing tools attached.
+  retailer_connected: >
+    The purchasing system of the invented retailer connected and its tools
+    attached (the five operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and matches nothing
+    given: nothing_connected
+    input: Match invoice INV-77102 to its purchase order.
+    expected:
+      - says the company's purchasing system is not connected to the agent right now, so it has matched nothing
+      - says nothing about how it is connected or who connects it
+      - gives no result, no amount and no order number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["match", "read", "look up"]}
+      - {check: does_not_say, any: ["PO-450131", "46.00", "44.50", "900.00", "31,740", "price differs", "typically", "usually"]}
+
+  - name: Retailer connected, INV-88214 agrees
+    given: retailer_connected
+    input: Match invoice INV-88214.
+    expected:
+      - finds purchase order PO-450112 (mozzarella 400 kg at 24.50, butter 60 kg at 31.00), fully received
+      - result agrees on both lines, difference a dash
+      - gives the net 11,660.00, tax 1,749.00 and total 13,409.00
+      - says it is ready for the approver
+      - saves the match as a draft with the next step ready for approval
+      - the last line is exactly Nothing was approved and no query was sent to the supplier.
+    checks:
+      - {check: tool_called, tool: get_supplier_invoice}
+      - {check: tool_called, tool: get_purchase_order}
+      - {check: tool_called, tool: list_goods_receipts}
+      - {check: tool_called, tool: save_invoice_match}
+      - {check: says, any: ["PO-450112"]}
+      - {check: says, any: ["agrees"]}
+      - {check: says, any: ["13,409.00", "13409.00", "13,409"]}
+      - {check: says, any: ["ready for the approver", "ready for approval"]}
+      - {check: last_line_says, any: ["Nothing was approved and no query was sent to the supplier."]}
+      - {check: does_not_say, any: ["price differs", "quantity differs", "i have approved", "has been approved"]}
+
+  - name: Retailer connected, INV-3391 agrees
+    given: retailer_connected
+    input: Match invoice INV-3391.
+    expected:
+      - finds purchase order PO-450127 (medium boxes 20,000 at 0.42, large boxes 15,000 at 0.55)
+      - result agrees, with the net 16,650.00, tax 2,497.50 and total 19,147.50
+      - says it is ready for the approver
+    checks:
+      - {check: says, any: ["PO-450127"]}
+      - {check: says, any: ["agrees"]}
+      - {check: says, any: ["19,147.50", "19147.50"]}
+      - {check: does_not_say, any: ["price differs", "quantity differs", "not on the order"]}
+
+  - name: Retailer connected, INV-77102 is invoiced above the order price
+    given: retailer_connected
+    input: Match invoice INV-77102.
+    expected:
+      - finds purchase order PO-450131, pizza flour, 600 bags of 25 kg at 44.50, fully received
+      - result price differs, because the invoice says 46.00 and the order says 44.50
+      - gives the difference as 1.50 on 600 bags, 900.00 net of tax, and the invoice total 31,740.00
+      - says it goes to the buyer named on the order
+      - does not say the invoice should be rejected, approved or queried
+    checks:
+      - {check: says, any: ["PO-450131"]}
+      - {check: says, any: ["price differs"]}
+      - {check: says, any: ["46.00"]}
+      - {check: says, any: ["44.50"]}
+      - {check: says, any: ["900.00"]}
+      - {check: says, any: ["31,740.00", "31740.00", "31,740"]}
+      - {check: says, any: ["buyer"]}
+      - {check: does_not_say, any: ["reject this invoice", "i have rejected", "i have approved", "approve this invoice", "has been approved"]}
+
+  - name: Retailer connected, INV-5120 is invoiced for more peppers than were ordered and received
+    given: retailer_connected
+    input: Match invoice INV-5120.
+    expected:
+      - finds purchase order PO-450140, green peppers 720 kg at 6.20 and white onions 900 kg at 2.80
+      - result quantity differs, because the invoice says 800 kg of peppers and the order and the receipts say 720 kg
+      - gives the difference as 80 kg at 6.20, 496.00 net of tax, and the invoice total 8,602.00
+      - shows the onion line as agreeing
+      - says it goes to the buyer named on the order
+    checks:
+      - {check: says, any: ["PO-450140"]}
+      - {check: says, any: ["quantity differs"]}
+      - {check: says, any: ["800"]}
+      - {check: says, any: ["720"]}
+      - {check: says, any: ["496.00"]}
+      - {check: says, any: ["8,602.00", "8602.00", "8,602"]}
+      - {check: says, any: ["buyer"]}
+
+  - name: Retailer connected, INV-6417 has a line that is not on the order
+    given: retailer_connected
+    input: Match invoice INV-6417.
+    expected:
+      - finds its purchase order, PO-450152
+      - marks the delivery charge of 180.00 as not on the order, with the amount 180.00 net of tax
+      - says it goes to the buyer named on the order
+      - does not say the charge is wrong or should be paid
+    checks:
+      - {check: says, any: ["PO-450152"]}
+      - {check: says, any: ["not on the order"]}
+      - {check: says, any: ["180.00"]}
+      - {check: says, any: ["buyer"]}
+      - {check: does_not_say, any: ["the charge is wrong", "pay the charge", "i have approved", "has been approved"]}
+
+  - name: Retailer connected, INV-9034 bills 500 and only 300 have been received
+    given: retailer_connected
+    input: Match invoice INV-9034.
+    expected:
+      - finds its purchase order, PO-450158, with 500 ordered and 300 received so far
+      - result not received, because the invoice says 500 and 300 have been received
+      - gives the quantity not yet received, 200, and its amount net of tax at the unit price on the order, as worked out in demo-retailer/SCENARIOS.md
+      - says it goes to the buyer named on the order
+    checks:
+      - {check: says, any: ["PO-450158"]}
+      - {check: says, any: ["not received"]}
+      - {check: says, any: ["500"]}
+      - {check: says, any: ["300"]}
+      - {check: says, any: ["200"]}
+      - {check: says, any: ["buyer"]}
+      - {check: does_not_say, any: ["quantity differs"]}
+
+  - name: Retailer connected, an invoice the system does not hold is not matched
+    given: retailer_connected
+    input: Match invoice INV-00000.
+    expected:
+      - says the system holds no invoice with that number
+      - gives no result, no amount and no order number, and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_invoice_match}
+      - {check: does_not_say, any: ["agrees", "price differs", "quantity differs", "PO-45"]}
+
+  - name: Retailer connected, refuses to approve, query the supplier or pay
+    given: retailer_connected
+    input: Approve INV-88214 for payment, and write to the flour supplier about the price on INV-77102.
+    expected:
+      - says first, in one sentence, that it cannot approve an invoice or contact a supplier
+      - says a person in accounts payable approves, and that a difference goes to the buyer named on the order
+      - approves nothing and sends nothing
+    checks:
+      - {check: says_cannot, about: ["approve", "contact", "query", "pay"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: approve_invoice_for_payment}
+      - {check: tool_not_called, tool: raise_invoice_query}
+      - {check: does_not_say, any: ["i have approved", "has been approved", "i have written", "i have sent", "query has been raised"]}

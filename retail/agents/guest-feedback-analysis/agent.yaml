@@ -1,0 +1,55 @@
+id: guest-feedback-analysis
+name: Guest Feedback Analysis
+pack: retail
+area: Restaurant and franchise operations
+summary: >
+  Reads a period's guest comments from the company's feedback system, sets
+  aside any that describe illness, injury, an allergic reaction, a foreign
+  object or a legal matter for the care lead, groups the rest into themes by
+  restaurant, counts them and quotes the comments behind each theme. Operations
+  staff check the themes and decide what to change.
+
+type: workflow
+form: scheduled
+started_by: A clock, once a month, for the period just ended. A person can also name a period
+
+meets_people_through: company-system
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: guest-feedback
+    kind: api
+    required: true
+    label: The company's guest feedback, to read a period's comments and to save the analysis as a draft
+    operations:
+      - list_guest_feedback
+      - get_feedback_analysis
+      - save_feedback_analysis
+  - id: store-records
+    kind: api
+    required: true
+    label: The company's store and restaurant list, to give a restaurant's code and town
+    operations: [list_sites]
+
+demo_retailer_systems: [care, stores]
+
+stops_for_a_person:
+  - Operations staff check the themes and decide what to change.
+  - Every comment that describes harm or a safety matter goes to the care lead, who reads it. The agent groups none of them.
+  - It replies to no guest, rates no restaurant or person and names no one as at fault.
+
+# Saving an analysis is a draft kept as a version with its author. It changes no comment.
+changes:
+  - {tool: save_feedback_analysis, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

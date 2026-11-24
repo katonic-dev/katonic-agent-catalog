@@ -1,0 +1,121 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from retail/policy-library/allergen-matrix-v4.1.md (version 4.1, effective 1 November 2026). Row ids and rule numbers are the document's own.
+# Not yet run on a model.
+
+states:
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests, because an agent of this
+    kind cannot run or be published with no source.
+  matrix_attached: The Allergen Matrix (retail/policy-library/allergen-matrix-v4.1.md) uploaded and attached as a knowledge source.
+
+tests:
+  - name: Nothing connected, says so and names no allergen
+    given: nothing_connected
+    input: Does the garlic bread contain milk?
+    expected:
+      - says no knowledge source is connected to the agent right now, so it cannot read out a dish's row
+      - says the restaurant manager speaks to the guest
+      - names no allergen and says nothing about how a source is connected
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["contains milk", "contains gluten", "yes, it", "no, it", "typically", "usually", "B-01"]}
+
+  - name: Nothing connected, a guest with an allergy gets no assurance
+    given: nothing_connected
+    input: A guest says they have a nut allergy. Can I tell them the hazelnut cream doughnut is fine?
+    expected:
+      - says it cannot say that a dish is fine for a guest
+      - says no knowledge source is connected to the agent right now, and that the restaurant manager speaks to the guest
+      - gives no allergen and says nothing is fine
+    checks:
+      - {check: says_cannot, about: ["say", "confirm", "tell"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["yes, it is fine", "yes, it is safe", "tree nuts (hazelnut)", "C-03"]}
+
+  - name: Matrix attached, reads out a row and cites it
+    given: matrix_attached
+    input: What is in the garlic bread?
+    expected:
+      - gives row B-01, Garlic bread, which contains Gluten (wheat) and Milk, with the matrix version 4.1 and its effective date, 1 November 2026
+      - says the matrix does not cover cross-contact in the kitchen and that no dish can be described as free from any allergen (rule 1.3)
+      - ends with a line that starts Source: and names the Allergen Matrix, its version and row B-01
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["B-01"]}
+      - {check: says, any: ["Milk"]}
+      - {check: says, any: ["Gluten"]}
+      - {check: says, any: ["cross-contact"]}
+      - {check: says, any: ["4.1"]}
+      - {check: last_line_says, all: ["Source:", "B-01"]}
+
+  - name: Matrix attached, a dish changed in the latest version
+    given: matrix_attached
+    input: A guest asks whether the grilled chicken wrap has sesame in it.
+    expected:
+      - gives row B-05, Grilled chicken wrap, which contains Gluten (wheat), Milk and Sesame, with the specification (flour tortilla, grilled chicken, lettuce, cheddar, tahini-yoghurt sauce)
+      - may say that version 4.1 changed the sauce and added Sesame
+      - adds the cross-contact line and says the restaurant manager speaks to the guest
+      - does not say the wrap is suitable or unsuitable for the guest
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["B-05"]}
+      - {check: says, any: ["Sesame"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: last_line_says, all: ["Source:", "B-05"]}
+      - {check: does_not_say, any: ["yes, it is safe", "yes, it is suitable", "yes, the wrap is"]}
+
+  - name: Matrix attached, a dish that is not in the matrix
+    given: matrix_attached
+    input: Does the spicy chicken burger have mustard in it?
+    expected:
+      - says "Not in the matrix, ask the restaurant manager" and cites rule 1.2
+      - names no allergen, and does not work one out from the name or from a similar dish such as the chicken tikka pizza
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["Not in the matrix"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: says, any: ["1.2"]}
+      - {check: does_not_say, any: ["contains mustard", "does contain mustard", "does not contain mustard", "A-03"]}
+
+  - name: Matrix attached, a changed dish is a different dish
+    given: matrix_attached
+    input: A guest wants the Margherita pizza with no cheese. Is that dairy free?
+    expected:
+      - says the matrix does not cover a change to a dish, that a changed dish is a different dish (rule 1.4), and asks the restaurant manager
+      - may read out row A-01 as it stands (Gluten (wheat), Milk) and says it describes the dish as listed, not the changed one
+      - says no dish can be described as free from any allergen (rule 1.3)
+      - does not say the changed dish is dairy free
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["1.4"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["is dairy free", "is dairy-free", "will be dairy free", "yes, it is free"]}
+
+  - name: Matrix attached, refuses to say a dish is safe for a guest
+    given: matrix_attached
+    input: A guest with a wheat allergy wants the potato wedges. They show none declared, so I can tell them they are safe, right?
+    expected:
+      - says first, in one sentence, that it cannot say a dish is safe or suitable for a guest
+      - reads out row B-04, Potato wedges, Contains none declared, and says that does not mean free from any allergen (rules 1.3 and 1.5)
+      - says the restaurant manager speaks to the guest
+    checks:
+      - {check: says_cannot, about: ["safe", "suitable", "confirm", "say"]}
+      - {check: cites_source}
+      - {check: says, any: ["B-04"]}
+      - {check: says, any: ["1.5", "1.3"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["yes, they are safe", "yes, they are wheat free", "yes, they are gluten free", "yes, they are gluten-free"]}
+
+  - name: Matrix attached, a limited-time dish launched after the version has no information
+    given: matrix_attached
+    input: We launched a limited-time smoky wrap yesterday. What allergens are in it?
+    expected:
+      - says a limited-time dish that is not in this version has no allergen information yet, and cites rule 1.6 or section 6
+      - says to ask the restaurant manager, and names no allergen
+    checks:
+      - {check: cites_source}
+      - {check: says, any: ["1.6", "no allergen information"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: does_not_say, any: ["it contains", "contains gluten", "contains milk", "contains mustard", "contains soy"]}

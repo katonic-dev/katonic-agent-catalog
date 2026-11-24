@@ -1,0 +1,58 @@
+id: invoice-matching
+name: Invoice Matching
+pack: retail
+area: Finance and loss prevention
+summary: >
+  Matches a supplier invoice to its purchase order and to the goods received
+  against it, line by line, and lists what does not agree, with each
+  difference as an amount net of tax. It saves the match as a draft for
+  accounts payable. It approves nothing, queries no supplier and pays nothing.
+  A person in accounts payable decides.
+
+type: workflow
+form: event-triggered
+started_by: A new supplier invoice arriving in the purchasing system. A person can also name an invoice
+
+meets_people_through: application
+application: Accounts payable desk
+
+# Built as a chat agent from instructions.md, which is what the tests run. workflow.yaml
+# holds the same job as four steps. Use either.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: purchasing
+    kind: api
+    required: true
+    label: The company's purchasing system, to read supplier invoices, purchase orders and goods received, and to save a match as a draft
+    operations:
+      - list_supplier_invoices
+      - get_supplier_invoice
+      - get_purchase_order
+      - list_goods_receipts
+      - save_invoice_match
+
+demo_retailer_systems: [purchasing]
+
+stops_for_a_person:
+  - A person in accounts payable approves every invoice for payment. The agent has no operation that approves one.
+  - A difference goes to the buyer named on the purchase order. Whether a supplier is queried is decided by a person. The agent has no operation that raises a query.
+  - There is no tolerance. Whether a small difference is accepted is for a person.
+
+# Saving a match is a draft kept as a version with its author. It changes no status.
+# The two operations that change an invoice (approve for payment, raise a query) are left out of this agent on purpose.
+changes:
+  - {tool: save_invoice_match, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. workflow.yaml holds the four-step form. An earlier
+    version of it was run with the order register pasted into the second
+    step. It has not been run in the form written here, which reads the
+    order through the purchasing system.

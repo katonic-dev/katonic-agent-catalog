@@ -1,0 +1,47 @@
+id: staff-policy-qa
+name: Staff Policy Q&A
+pack: retail
+area: People and compliance
+summary: >
+  Answers a colleague's question about workplace policy from the company's own
+  Staff Handbook, with the clause cited, and says so when the handbook is
+  silent. It decides nothing and changes nothing. An exception, or anything
+  about one person's pay or contract, goes to the People team.
+
+type: conversational
+form: answering
+started_by: A colleague's question
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  preset: knowledge_qa
+  tier: reasoning
+
+needs:
+  - id: staff-handbook
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Staff Handbook
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: []
+
+stops_for_a_person:
+  - It takes no action, so there is nothing to approve.
+  - An exception to a clause, and anything about one person's pay, contract or visa status, goes to the People team.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/staff-handbook.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

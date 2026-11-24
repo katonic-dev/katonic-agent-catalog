@@ -1,0 +1,229 @@
+# Invoice Matching, as four steps.
+#
+# An earlier version of this form was run with the purchase order register pasted
+# into the second step. It has NOT been run in this form: here the order and the
+# goods received are read through the purchasing system. The step prompts are
+# rewritten for the invented company, and the shape follows
+# banking/agents/regulatory-monitoring/workflow.yaml as far as it fits.
+#
+# The four steps:
+#   1. read the invoice
+#   2. compare it with the purchase order and the goods received
+#   3. write the result for accounts payable (a draft, nothing approved)
+#   4. a person approves (outside the workflow: the workflow ends at a held draft)
+#
+# What is provisional until it is built on a platform:
+# - The paths of the two read steps. They name the operations of the purchasing
+#   system of demo-retailer/ (get_supplier_invoice, get_purchase_order,
+#   list_goods_receipts); match them to the paths in its OpenAPI document.
+# - The trigger. A new invoice announces itself through the retailer's
+#   supplier-invoice event, or a person starts the run with an invoice number.
+# - Saving the draft match (save_invoice_match). The workflow's last step writes
+#   the result as text; saving it as a draft is a call the platform's tool step
+#   makes, or a person does it from the desk.
+# - The model name. Pin one that answers on your platform.
+type: workflow_dag
+version: 1
+canvas:
+  width: 1280
+  height: 460
+nodes:
+  - id: n_input
+    kind: in
+    position:
+      x: 120
+      'y': 80
+    width: null
+    title: A supplier invoice arrives
+    sub: ''
+    badge: null
+    config:
+      source: webhook
+      field: invoice_number
+  - id: n_read_invoice
+    kind: http
+    position:
+      x: 380
+      'y': 80
+    width: null
+    title: Read the invoice from the purchasing system
+    sub: ''
+    badge: null
+    config:
+      method: GET
+      url: '{{purchasing_url}}/supplier-invoices/{{n_input.invoice_number}}'
+      timeout_seconds: 30
+  - id: n_step1
+    kind: llm
+    position:
+      x: 640
+      'y': 80
+    width: null
+    title: 1. Read the invoice
+    sub: ''
+    badge: null
+    config:
+      tier: balanced
+      model: your-model-name   # pin a model that answers on your platform
+      prompt: |-
+        Read the supplier invoice below. Write out its fields and nothing else: invoice number, supplier, invoice date, the purchase order number printed on it, then each line as item | unit | quantity | unit price (USD) | amount (USD), then the net amount, the value added tax and the total. Copy every figure exactly as written. Where a field is missing, write "not stated". Do not judge the invoice and do not compare it with anything yet.
+
+        The invoice, as the purchasing system holds it:
+        $n_read_invoice.body
+      model_funding_source: byok
+  - id: n_read_order
+    kind: http
+    position:
+      x: 900
+      'y': 80
+    width: null
+    title: Read the purchase order from the purchasing system
+    sub: ''
+    badge: null
+    config:
+      method: GET
+      url: '{{purchasing_url}}/purchase-orders/{{n_read_invoice.purchase_order_number}}'
+      timeout_seconds: 30
+  - id: n_read_receipts
+    kind: http
+    position:
+      x: 1160
+      'y': 80
+    width: null
+    title: Read the goods received against the order
+    sub: ''
+    badge: null
+    config:
+      method: GET
+      url: '{{purchasing_url}}/goods-receipts?po_number={{n_read_invoice.purchase_order_number}}'
+      timeout_seconds: 30
+  - id: n_step2
+    kind: llm
+    position:
+      x: 1420
+      'y': 80
+    width: null
+    title: 2. Compare with the order and the goods received
+    sub: ''
+    badge: null
+    config:
+      tier: balanced
+      model: your-model-name   # pin a model that answers on your platform
+      prompt: |-
+        Take the invoice fields written in the step before. Set each invoice line beside its purchase order line and the goods received: item, quantity invoiced, quantity ordered, quantity received so far, unit price invoiced, unit price ordered. Write the comparison as a table. An invoice line whose item is on no line of the order is "not on the order". If the purchasing system returned no purchase order, say so and stop. Do not decide anything yet.
+
+        The invoice fields:
+        $n_step1.output
+
+        The purchase order, as the purchasing system holds it (read only):
+        Status of the read: $n_read_order.status
+        $n_read_order.body
+
+        The goods received against the order:
+        $n_read_receipts.body
+      model_funding_source: byok
+  - id: n_step3
+    kind: llm
+    position:
+      x: 1680
+      'y': 80
+    width: null
+    title: 3. Write the result for accounts payable
+    sub: ''
+    badge: null
+    config:
+      tier: balanced
+      model: your-model-name   # pin a model that answers on your platform
+      prompt: |-
+        From the comparison in the step before, write the result for accounts payable.
+
+        Start with the heading "Match prepared for accounts payable. Nothing approved." Then give: the invoice number, the supplier, the purchase order and the invoice total including value added tax, in USD.
+
+        Then one line "Result:" that is exactly one of: agrees, price differs, quantity differs, not on the order, not received, several differences, no purchase order found.
+        - A unit price on the invoice that differs from the order is a price difference. The amount is the price gap times the quantity invoiced, net of tax.
+        - A quantity invoiced above the quantity ordered is a quantity difference. The amount is the extra quantity times the unit price on the order, net of tax.
+        - A quantity invoiced within the quantity ordered but above the quantity received so far is not received. The amount is the quantity not yet received times the unit price on the order, net of tax.
+        - A line whose item is on no line of the order is not on the order. The amount is the net amount of the line.
+        - There is no tolerance.
+        For each difference, give the line, what the invoice says, what the order says, what was received and the amount in USD net of tax.
+
+        Then one line "For the approver:" that says either "ready to approve" or "send to the buyer", with the reason in one sentence. A difference goes to the buyer named on the order.
+
+        The last line is exactly: Nothing was approved and no query was sent to the supplier.
+
+        The comparison:
+        $n_step2.output
+      model_funding_source: byok
+  - id: n_done
+    kind: out
+    position:
+      x: 1940
+      'y': 80
+    width: null
+    title: 4. A person approves (accounts payable)
+    sub: ''
+    badge: null
+    config: {}
+edges:
+  - id: e1
+    source: n_input
+    target: n_read_invoice
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e2
+    source: n_read_invoice
+    target: n_step1
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e3
+    source: n_step1
+    target: n_read_order
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e4
+    source: n_read_order
+    target: n_read_receipts
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e5
+    source: n_read_receipts
+    target: n_step2
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e6
+    source: n_step2
+    target: n_step3
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+  - id: e7
+    source: n_step3
+    target: n_done
+    source_handle: right
+    target_handle: left
+    label: null
+    animated: false
+    condition: null
+selected_node_id: null
+stats:
+  step_count: 7
+  avg_time_s: 0
+  cost_per_run_usd: 0
+inspector: null

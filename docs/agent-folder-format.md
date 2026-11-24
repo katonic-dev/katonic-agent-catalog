@@ -24,7 +24,7 @@ Every agent in this catalog has one folder, and every folder has the same files.
 ```yaml
 id: policy-and-procedures-assistant      # the folder name; lower case, hyphens
 name: Policy and Procedures Assistant
-pack: banking
+pack: banking                   # banking | retail
 area: Compliance and audit
 summary: >
   One or two sentences: what it does, for whom.
@@ -36,7 +36,7 @@ form: answering                 # answering | acting | scheduled | event-trigger
 started_by: A staff member's question
 
 # How people meet it. An application is the layer above the form, not a form.
-meets_people_through: chat      # chat | application | bank-system
+meets_people_through: chat      # chat | application | bank-system (banking) | company-system (retail)
 application: null               # the desk or app, when meets_people_through is application
 
 # Which builder it opens in on the platform.
@@ -54,6 +54,7 @@ needs:
     met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
 
 # Which systems of the invented bank it reads when you try it. Empty if none.
+# In the retail pack the field is demo_retailer_systems, for the invented retailer.
 demo_bank_systems: []
 
 # What a person decides. Every agent has at least one line here.
@@ -72,7 +73,7 @@ state:
   notes: ""
 ```
 
-### The four kinds of need
+### The kinds of need
 
 | Kind | What it is | Can a Catalog template state it today |
 |---|---|---|
@@ -80,8 +81,9 @@ state:
 | `connector` | A knowledge connector, such as SharePoint | Yes |
 | `server` | An MCP server from the Catalog | Yes |
 | `api` | An API you import from its OpenAPI file | Not yet. The build guide says how to connect it by hand |
+| `agent` | Another agent of this catalog that a manager agent passes work to | Not as a need. The build guide says how to attach it by hand |
 
-A need of the kind `api` also lists `operations`: the operations the agent's instructions rely on. Any API that offers them will do. The invented bank is one.
+A need of the kind `api` also lists `operations`: the operations the agent's instructions rely on. Any API that offers them will do. The invented bank and the invented retailer each offer theirs.
 
 ## instructions.md
 

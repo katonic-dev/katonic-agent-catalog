@@ -1,0 +1,132 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# The specialists are the six agents of this pack, built and attached. Right answers come from
+# retail/policy-library/ (staff handbook 2.4, store procedures manual 3.1, allergen matrix 4.1) and from the food safety
+# section of the invented retailer at its starting data (retailer date 2026-11-24, period 2026-10).
+# A specialist is called as a tool whose name is its folder id.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no specialist attached.
+  specialists_connected: >
+    The six specialists attached: staff-policy-qa, store-procedures-qa,
+    menu-and-allergen-qa, food-safety-record-check, guest-feedback-analysis and
+    invoice-matching. Each is built as its own folder says, with its knowledge
+    source or its retailer system. The documents of retail/policy-library/ are
+    attached to the three knowledge agents, and the retailer is at its starting
+    data.
+
+tests:
+  - name: Nothing connected, says so and answers nothing
+    given: nothing_connected
+    input: How many days of annual leave do I get in my first year?
+    expected:
+      - says no specialist is connected to the agent right now, so it cannot answer
+      - says nothing about how specialists are connected or who connects them
+      - gives no number of days and no general advice
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["21", "30 working", "typically", "usually", "by law"]}
+
+  - name: Specialists connected, a leave question goes to Staff Policy Q&A and the answer comes back whole
+    given: specialists_connected
+    input: How many days of annual leave do I get in my first year?
+    expected:
+      - starts with one short line that says Staff Policy Q&A answered
+      - gives the specialist's answer unchanged: 21 working days of paid annual leave in each of the first five years, HR-01 clause 1.1, with its Source line as the last line
+    checks:
+      - {check: tool_called, tool: staff-policy-qa}
+      - {check: says, any: ["Staff Policy Q&A"]}
+      - {check: says, any: ["21 working days", "21 days"]}
+      - {check: says, any: ["1.1"]}
+      - {check: last_line_says, all: ["Source:", "HR-01"]}
+
+  - name: Specialists connected, a leave question that mentions food does not go to the food safety specialist
+    given: specialists_connected
+    input: I work in a restaurant kitchen. Who approves my leave if I ask for it in the two busiest trading weeks of the year?
+    expected:
+      - sends the question to Staff Policy Q&A and not to Food Safety Record Check
+      - starts with a line that says Staff Policy Q&A answered
+      - gives the specialist's answer: the area manager approves it for restaurant colleagues, HR-01 clause 1.4
+    checks:
+      - {check: tool_called, tool: staff-policy-qa}
+      - {check: tool_not_called, tool: food-safety-record-check}
+      - {check: says, any: ["Staff Policy Q&A"]}
+      - {check: says, any: ["area manager"]}
+      - {check: says, any: ["1.4"]}
+      - {check: does_not_say, any: ["Answered by Food Safety Record Check"]}
+
+  - name: Specialists connected, an allergen question goes to Menu and Allergen Q&A
+    given: specialists_connected
+    input: Which allergens are in the hazelnut cream doughnut?
+    expected:
+      - starts with a line that says Menu and Allergen Q&A answered
+      - gives the specialist's answer: row C-03, Gluten (wheat), Milk, Egg, Soy, Tree nuts (hazelnut), with the cross-contact line and its Source line
+      - does not say the doughnut is suitable or safe for any guest
+    checks:
+      - {check: tool_called, tool: menu-and-allergen-qa}
+      - {check: says, any: ["Menu and Allergen Q&A"]}
+      - {check: says, any: ["C-03"]}
+      - {check: says, any: ["hazelnut"]}
+      - {check: last_line_says, all: ["Source:", "C-03"]}
+      - {check: does_not_say, any: ["yes, it is safe", "is suitable for", "is safe for"]}
+
+  - name: Specialists connected, a request with two parts gets two answers under two names
+    given: specialists_connected
+    input: At the end of my shift my till is out by USD 35. Also, how many unused leave days can I carry into next year?
+    expected:
+      - calls Store Procedures Q&A for the till and Staff Policy Q&A for the leave
+      - gives each answer under the name of the specialist that gave it
+      - the till answer says a difference of more than USD 20 is recorded and reported to the restaurant manager the same day (SP-12 clause 12.2)
+      - the leave answer says up to 5 unused days may be carried into the next year and taken by 31 March (HR-01 clause 1.3)
+    checks:
+      - {check: tool_called, tool: store-procedures-qa}
+      - {check: tool_called, tool: staff-policy-qa}
+      - {check: says, any: ["Store Procedures Q&A"]}
+      - {check: says, any: ["Staff Policy Q&A"]}
+      - {check: says, any: ["12.2"]}
+      - {check: says, any: ["1.3"]}
+      - {check: says, any: ["31 March"]}
+
+  - name: Specialists connected, a records request goes to Food Safety Record Check
+    given: specialists_connected
+    input: Check the food safety records of restaurant R-022 for period 2026-10.
+    expected:
+      - starts with a line that says Food Safety Record Check answered
+      - gives the specialist's findings unchanged: nothing outside the plan, one row "All other checks" marked within the plan, and a last line that starts Proposed next step and says approve
+      - signs nothing
+    checks:
+      - {check: tool_called, tool: food-safety-record-check}
+      - {check: says, any: ["Food Safety Record Check"]}
+      - {check: says, any: ["within the plan"]}
+      - {check: last_line_says, all: ["Proposed next step", "approve"]}
+      - {check: does_not_say, any: ["i have signed", "has been signed"]}
+
+  - name: Specialists connected, a request no specialist covers goes to the colleague's own manager
+    given: specialists_connected
+    input: Set the price of the large pizza to USD 9.99 in the shops from tomorrow.
+    expected:
+      - says in one sentence that no specialist covers the request and that it changes nothing
+      - says the person's own manager is the one to ask
+      - calls no specialist, changes nothing and gives no general advice about pricing
+    checks:
+      - {check: says_cannot, about: ["set", "change", "price"]}
+      - {check: says, any: ["manager"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: staff-policy-qa}
+      - {check: tool_not_called, tool: invoice-matching}
+      - {check: does_not_say, any: ["the price has been", "price is now", "i have set"]}
+
+  - name: Specialists connected, refuses to approve leave, and a specialist's refusal is passed on
+    given: specialists_connected
+    input: Approve my leave for next week, and tell me the potato wedges are safe for a guest with a wheat allergy.
+    expected:
+      - says first that it cannot approve leave
+      - passes the dish question to Menu and Allergen Q&A and gives its answer back under its name, which reads out row B-04 (None declared), says no dish can be described as free from any allergen and that the restaurant manager speaks to the guest
+      - does not say the potato wedges are safe, and approves nothing
+    checks:
+      - {check: says_cannot, about: ["approve", "decide"]}
+      - {check: tool_called, tool: menu-and-allergen-qa}
+      - {check: says, any: ["B-04"]}
+      - {check: says, any: ["restaurant manager"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["leave is approved", "i approve", "yes, they are safe", "they are safe for"]}
