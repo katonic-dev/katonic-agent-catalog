@@ -9,7 +9,7 @@ Classifies a customer's complaint, gathers the customer's history and the record
 | How people meet it | An application: the Complaints desk |
 | Reads from | The bank's complaints system: the complaint, its linked records, the customer's earlier complaints and the complaints procedure. The bank's customer records: the customer |
 | Changes | Saves a draft classification and a draft response. The drafts send nothing and move no money |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 24 November 2026. All eight tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

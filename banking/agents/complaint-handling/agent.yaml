@@ -55,7 +55,8 @@ sample_data:
   - ../../desks/complaints/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 24 November 2026. Not promoted. All eight tests pass five runs in a row on the fourth version of the instructions: test 1 with no tools, tests 2 to 8 in the Work Room with the desk's own message, a new conversation for each run, the complaints system put back before each. The first version passed three of eight; what changed is in the instructions and tests of this folder, the desk's instruction, and the bank's complaint records (whose card a linked card is, a payment's status reports, a severity rule). For tests 2, 3, 5 and 7 the replies were checked by script on the summary, the marks, the proposal line and the checks, with the wording spot-read; for tests 1, 4, 6 and 8 three of the five runs were read word for word. Not covered by a test: the bereavement case proposes a goodwill payment in every run, which the procedure allows. Not tried: the desk calling this agent, and a complaint arriving starting it.
