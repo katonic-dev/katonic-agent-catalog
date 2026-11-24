@@ -140,6 +140,8 @@ For each matching subscription the service POSTs `{"message": "...", "event_type
 
 ## Connecting it to a platform
 
+The same steps with screenshots: [docs/install-on-katonic.md](docs/install-on-katonic.md)
+
 These steps were run on a development cluster of the Katonic platform on 24 November 2026.
 
 1. Deploy it. In App Studio, start a new app from this repository, branch `main`, with the main file `demo-bank/main.py`. The platform finds the framework by itself, installs `requirements.txt` from that folder and starts the service under the app's own address. Set the health check path to `/health`.
