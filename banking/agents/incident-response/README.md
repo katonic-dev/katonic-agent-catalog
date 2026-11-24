@@ -9,7 +9,7 @@ For an open incident, it gathers the dashboards and metrics, the recent changes 
 | How people meet it | Through the bank's own system: the assessment is a draft note on the incident |
 | Reads from | The bank's IT operations system: incidents, metrics, dashboards, changes and runbooks |
 | Changes | Nothing in the bank. It saves the assessment as a draft note |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 24 November 2026. Three of six tests pass five runs in a row; the three long assessments passed four, two and one of five. Every safety check passed in every run. Not on the Catalog shelf |
 
 ## The three specialists
 
