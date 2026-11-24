@@ -67,7 +67,7 @@ The AML Investigation agent saves its investigation on the alert as a draft: fin
 
 ## Which engine it needs
 
-It needs the case desk engine ([katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk)) in a version that reads `DESK_CONFIG` and the `routing` setting with per-kind `decisions`, `marks`, `markLabels`, `markTones` and `rowLabels`, the section cards of `draft.sections`, the `info` and `plain` mark tones and links in rows, and that supports `DESK_AGENT_ID` and `demo-replies.json` in a settings folder. That engine version is not published yet. An earlier engine ignores `routing`, and every case would go to one agent with one instruction.
+It needs the case desk engine ([katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk)) in a version that reads `DESK_CONFIG` and the `routing` setting with per-kind `decisions`, `marks`, `markLabels`, `markTones` and `rowLabels`, the section cards of `draft.sections`, the `info` and `plain` mark tones and links in rows, and that supports `DESK_AGENT_ID` and `demo-replies.json` in a settings folder. That engine version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2), and is not in `main` yet: until it is merged, clone that branch. An earlier engine ignores `routing`, and every case would go to one agent with one instruction.
 
 ## Run it
 

@@ -136,6 +136,14 @@
       "policy": "The supplier says",
       "citation": "Evidence",
       "check": "Reason"
+    },
+    "proposalNames": {
+      "marks": [
+        "not met",
+        "partly met",
+        "not answered"
+      ],
+      "by": "source"
     }
   },
   "decisions": [

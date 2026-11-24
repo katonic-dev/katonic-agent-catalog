@@ -71,7 +71,7 @@ The dates and the ages in days in the cases are as at the bank date 2026-11-24. 
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_LIBRARY_DIR`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, the `routing` setting with `decisions` and `marks` for each kind, `draft.markTones` with the `person` tone, `draft.rowLabels.check`, `draft.plainSource`, `draft.passMark`, `rules.reasonToApproveUnmet`, `letters.<outcome>.dateStyle`, `intake.fields[].options`, and the `case.queryFields` and `decisions[].proposalPrefix` settings.
 
-**That version of the engine is not published yet.** The engine on GitHub today can only be the regulatory change desk and will not run this folder. An earlier engine ignores `routing`, and every case would go to one agent with one instruction. This page will name the version once it is out.
+**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. An earlier engine ignores `routing`, and every case would go to one agent with one instruction. Until it is merged, clone that branch.
 
 ## Run it
 

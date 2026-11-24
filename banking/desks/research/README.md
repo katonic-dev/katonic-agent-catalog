@@ -28,7 +28,7 @@ The desk sends the agent one message: the drafting instruction, then the request
 |---|---|
 | Item (the row's title) | The figure or the measure, with its period |
 | Basis | Only for a worked measure (the formula in words) or a restated figure (where the restatement is). A figure a filing states as it is has none |
-| Shows | The value with its unit. A worked measure has two labelled lines, Result and Working ("16.2 times" and "5.80 / 0.357"), so the working is never split. A restated figure has three lines: Corrected (in bold, "USD 398.9 million, restated"), Held ("USD 412.6 million, as first published") and the year before as a line that starts with its period ("FY2024: USD 388.0 million"). Every figure carries its unit and its period, also inside a bracket and in a note |
+| Shows | The value with its unit. A worked measure has two labelled lines, Result and Working ("16.2 times" and "5.80 / 0.357"), so the working is never split. A restated figure has three lines: Corrected (in bold, "USD 398.9 million, restated"), Held ("USD 412.6 million, as first published") and the year before as a labelled line whose label is its period ("FY2024: USD 388.0 million"; a label may hold letters, digits and spaces, so "H1 2025" is one too). Every figure carries its unit and its period, also inside a bracket and in a note |
 | Source | The filing id and the line, or prices, or consensus, with the date |
 | Note | Only where there is something to say: why, and what the analyst should check |
 
@@ -72,11 +72,12 @@ It needs the settings-driven case desk engine, [katonic-case-desk](https://githu
 - `case.queryFields`, `case.jumpLabel`, `case.foldOnPhone`, `desk.issuedVerb`
 - `decisions[].proposalPrefix`
 - `draft.rowLabels`, `draft.plainSource`, `draft.markTones`, `draft.markIcons`, `draft.tallyLabels`, `draft.proposalFirst`
+- `draft.rowFilter`: each part of the count above the rows ("4 differ") is a button that shows only those rows. `draft.quietMarks`: the rows marked Sourced and Worked out draw the thin edge, so the rows that need the analyst stand out. `desk.documentLinkLabel`: the link on an accepted request reads "Download the accepted draft", because this desk issues nothing
 - labelled lines in a row (`Label: value` lines separated by `<br>`)
 
 An earlier engine ignores some of these and shows the table without its labels, signs or lines.
 
-**That version of the engine is not published yet.** The engine on GitHub today can only be the regulatory change desk and will not run this folder. This page will name the version once it is out.
+**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. Until it is merged, clone that branch.
 
 ## Run it
 

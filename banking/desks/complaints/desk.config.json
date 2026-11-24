@@ -39,7 +39,32 @@
     "chipFields": [],
     "listTitleLines": 2,
     "jumpLabel": "The complaint",
-    "foldOnPhone": true
+    "foldOnPhone": true,
+    "flags": [
+      {
+        "label": "Vulnerable customer",
+        "tone": "warn",
+        "reply": "Priority handling:",
+        "matches": [
+          "vulnerable",
+          "bereavement"
+        ]
+      },
+      {
+        "label": "Urgent",
+        "tone": "warn",
+        "reply": "Priority handling:",
+        "matches": [
+          "urgent",
+          "time limit"
+        ]
+      },
+      {
+        "label": "Priority",
+        "tone": "warn",
+        "reply": "Priority handling:"
+      }
+    ]
   },
   "demo": {
     "file": "cases.json",
@@ -166,7 +191,8 @@
       "does not support it": "against it",
       "procedure point": "procedure",
       "needs a person": "left to a person"
-    }
+    },
+    "stackOnPhone": true
   },
   "decisions": [
     {

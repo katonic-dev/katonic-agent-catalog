@@ -9,7 +9,7 @@ Meridian Trust Bank (an invented bank in the invented country Meridia), its cust
 - **A queue of fraud cases.** Each title leads with who and what ("Marguerite Oakhaven, online purchases abroad"). The line under it starts with the case id: "FRD-3001 · USD 2,219.90 at risk".
 - **The case beside the review.** The desk's short account of the case is on the left (on a phone it is folded under a heading, so the review is what the reader sees first). The agent's draft is on the right.
 - **The proposal first.** The agent's next step for the analyst is the first thing in the review, in large type, with the reason, the desk's own count of the marks and the four decision buttons. The button the agent names is marked "Agent's proposal".
-- **One row for each fact, in the order the analyst reads the case:** the rule that flagged it, the card's usual payments together in one row (one line to each payment, oldest first, one note), the flagged payments (each in a row of its own), how they were made, the security events in time order, what the customer said, the notes, the earlier cases. A flagged payment row gives its When, Amount, Where and Card on lines of their own, so time, amount, place and whether the card was present can be compared down the rows.
+- **One row for each fact, in the order the analyst reads the case:** the rule that flagged it, the card's usual payments together in one row (one plain line to each payment, with no label, oldest first, one note), the flagged payments (each in a row of its own), how they were made, the security events in time order, what the customer said, the notes, the earlier cases. A flagged payment row gives its When, Amount, Where and Card on lines of their own, so time, amount, place and whether the card was present can be compared down the rows.
 - **The bank's records and the customer's account kept apart.** What the customer said starts "Customer says:" and its "Found at" line says that the words are the customer's. Where one contact holds both, the row has a "Bank" line (for example, the customer passed the security questions) and a "Customer" line.
 - **Two cards of their own**, set as documents: "What the records show" (the account for the case file, every sentence resting on record ids) and "Message to the customer" (a short letter, not sent).
 - **The register** afterwards: who decided what, when, on which version of the summary, with which agent run and tool calls.
@@ -23,7 +23,7 @@ None of the marks is a pass or a failure. A fact that points to fraud is the one
 | Mark | Sign and tone | Meaning |
 |---|---|---|
 | Points to fraud | ▲ red | The record fits a fraud pattern, or it is the customer's statement that a payment is not theirs. It proves nothing by itself |
-| Points away from fraud | ▽ in the brand colour | The record fits a payment the customer made or agreed to. It does not close the case |
+| Points away from fraud | ▽ in blue (`draft.markTones`: `info`) | The record fits a payment the customer made or agreed to. It does not close the case |
 | Not known | ? amber | A statement or a record that the other records do not settle |
 | Background | • grey | The rule that flagged the case, the card's usual payments, a note that adds nothing, an earlier case. It points neither way |
 
@@ -54,7 +54,7 @@ The dates below are those of the bank at the bank date 24 Nov 2026. **Start the 
 
 It needs the case desk engine ([katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk)) in a version that reads `DESK_CONFIG`, the `case`, `closedStatuses` and `draft.marks` settings, and the settings this desk uses: the sections of the draft shown as cards, a sign and a tone for each mark (`markIcons`, `markTones`), the proposal first (`proposalFirst`), the tally words, words round the amount (`shownAs`), the case text folded on a phone (`foldOnPhone`), the label of the last line of a row ("Note"), and labelled lines in a row (`<br>`).
 
-**That version of the engine is not published yet.** The engine on GitHub today can only be the regulatory change desk and will not run this folder. This page will name the version once it is out.
+**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. Until it is merged, clone that branch.
 
 ## Run it
 

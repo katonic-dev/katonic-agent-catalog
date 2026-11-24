@@ -55,7 +55,7 @@ Every customer who is a person has a place of birth, and every list entry has a 
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, `waitingStatuses`, `closedStatuses`, `case.jumpLabel`, `case.foldOnPhone`, `decisions[].proposalPrefix`, `draft.rowLabels`, `draft.plainSource`, `draft.markTones`, `draft.markIcons`, `draft.tallyLabels`, `draft.sideBySide`, `draft.singleValueMarks`, `draft.proposalFirst` and `intake.fields[].shownAs` and `intake.fields[].hint`. An earlier engine ignores the settings for the signs on the marks, the values side by side, the proposal first, the folded alert text and the words round the score, and its marks would carry ticks and crosses.
 
-**That version of the engine is not published yet.** The engine on GitHub today can only be the regulatory change desk and will not run this folder. This page will name the version once it is out.
+**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. Until it is merged, clone that branch.
 
 ## Run it
 
