@@ -76,7 +76,7 @@ The canned replies of the stand-in follow the same answers. For the two calls wh
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository and that reads `decisions[].act` (a decision the agent carries out) with its routes `POST /api/cases/:id/outcome/again` and `/outcome/retry`. It also reads the settings the other desks use: `decisions[].proposalPrefix` (a list), `draft.proposalFirst`, `draft.plainSource`, `draft.rowLabels`, the `info` and `plain` tones of a mark, `intake.fields[].options`, `case.jumpLabel`, and `rules.fourEyes: false`. In the stand-in's `demo-replies.json` it uses `actions`, `followUps` and `failActionOnce`.
 
-**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. Until it is merged, clone that branch.
+**That version is in `main` of katonic-case-desk** since 24 November 2026 ([pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2)). A copy of the engine cloned before that date will not run this folder.
 
 ## Run it
 

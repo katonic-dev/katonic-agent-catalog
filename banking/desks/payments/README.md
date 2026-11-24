@@ -67,7 +67,7 @@ A case whose kind the desk does not know (`routing.other`) can only be referred 
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_LIBRARY_DIR`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, and these settings: `routing` with `decisions`, `marks` and `rowLabels` for each kind, `draft.sections` (the reply card), `draft.rowLabels` (including `check`), `draft.plainSource`, `decisions[].proposalPrefix`, `routing.other` (the decisions of a kind the desk does not name), `letters.<outcome>.dates` (dates written as 24 Nov 2026), `case.jumpLabel`, `case.queryFields`, `intake.fields[].options`, and rows whose cells hold lines separated by `<br>`.
 
-**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. An earlier engine ignores `routing`, and every case would go to one agent with one instruction. Until it is merged, clone that branch.
+**That version is in `main` of katonic-case-desk** since 24 November 2026 ([pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2)). A copy of the engine cloned before that date will not run this folder. An earlier engine ignores `routing`, and every case would go to one agent with one instruction.
 
 ## Run it
 

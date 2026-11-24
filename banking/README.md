@@ -58,17 +58,17 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | Desk | Agents behind it | State |
 |---|---|---|
 | Regulatory change desk | Regulatory Monitoring | Built, in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk) |
-| [Sanctions desk](desks/sanctions/README.md) | Sanctions Alert Review | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Investigations desk](desks/investigations/README.md) | AML Investigation, Adverse Media Screening | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Fraud desk](desks/fraud/README.md) | Fraud Case Summary | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Onboarding and review desk](desks/onboarding-and-review/README.md) | Customer Onboarding, Business Onboarding, Periodic Review | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Lending desk](desks/lending/README.md) | Loan Application Intake, Credit Analysis, Loan Document Verification | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Complaints desk](desks/complaints/README.md) | Complaint Handling | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Payments desk](desks/payments/README.md) | Payment Investigation, Payment Exception Repair | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Reconciliation desk](desks/reconciliation/README.md) | Reconciliation Break | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Card servicing screen](desks/card-servicing/README.md) | Card Servicing | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
-| [Research desk](desks/research/README.md) | Equity Research Report | Settings written and tested end to end against a stand-in agent. Runs on the engine's branch `feat/desks-outside-the-repository`, not yet merged into `main` |
+| [Sanctions desk](desks/sanctions/README.md) | Sanctions Alert Review | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Investigations desk](desks/investigations/README.md) | AML Investigation, Adverse Media Screening | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Fraud desk](desks/fraud/README.md) | Fraud Case Summary | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Onboarding and review desk](desks/onboarding-and-review/README.md) | Customer Onboarding, Business Onboarding, Periodic Review | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Lending desk](desks/lending/README.md) | Loan Application Intake, Credit Analysis, Loan Document Verification | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Complaints desk](desks/complaints/README.md) | Complaint Handling | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Payments desk](desks/payments/README.md) | Payment Investigation, Payment Exception Repair | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Reconciliation desk](desks/reconciliation/README.md) | Reconciliation Break | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Card servicing screen](desks/card-servicing/README.md) | Card Servicing | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
+| [Research desk](desks/research/README.md) | Equity Research Report | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 
 ## How an agent reaches a bank's systems
 

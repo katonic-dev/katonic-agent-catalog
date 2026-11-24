@@ -54,7 +54,7 @@ The dates below are those of the bank at the bank date 24 Nov 2026. **Start the 
 
 It needs the case desk engine ([katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk)) in a version that reads `DESK_CONFIG`, the `case`, `closedStatuses` and `draft.marks` settings, and the settings this desk uses: the sections of the draft shown as cards, a sign and a tone for each mark (`markIcons`, `markTones`), the proposal first (`proposalFirst`), the tally words, words round the amount (`shownAs`), the case text folded on a phone (`foldOnPhone`), the label of the last line of a row ("Note"), and labelled lines in a row (`<br>`).
 
-**That version is on the branch `feat/desks-outside-the-repository` of katonic-case-desk**, in [pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2). It is not in `main` yet, and the engine on `main` will not run this folder. Until it is merged, clone that branch.
+**That version is in `main` of katonic-case-desk** since 24 November 2026 ([pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2)). A copy of the engine cloned before that date will not run this folder.
 
 ## Run it
 
