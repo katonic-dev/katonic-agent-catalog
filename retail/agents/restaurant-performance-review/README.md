@@ -9,7 +9,7 @@ Sets a restaurant's sales, labour and food waste for a period against its plan a
 | How people meet it | Inside the company's own system: the review is sent to the area manager. It also works in a chat |
 | Reads from | The company's reporting on restaurant performance (figures, plan, peer group, the company's rules) and its restaurant list |
 | Changes | Saves its review as a draft. The draft changes no figure |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. All eight tests pass three runs in a row, and the saved reviews were right |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Sets a restaurant's sales, labour and food waste for a period against its plan a
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the performance system and the stores system from their OpenAPI addresses. For the invented retailer, those are the documents at `/performance/openapi.json` and `/stores/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -52,7 +52,13 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- All eight tests pass three runs in a row.
+- Every review saved to the retailer was right, at the first call.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

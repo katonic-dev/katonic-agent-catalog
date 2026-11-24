@@ -9,7 +9,7 @@ Summarises a store or restaurant lease: the term, the rent, the review and break
 | How people meet it | Chat |
 | Reads from | The company's property records: each lease with its full text in numbered clauses |
 | Changes | Saves its summary as a draft. The draft changes nothing in the lease |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Seven of eight tests pass three runs in a row, and the saved summaries were right |
 
 ## What it does
 
@@ -35,7 +35,7 @@ Summarises a store or restaurant lease: the term, the rent, the review and break
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the property system from its OpenAPI address. For the invented retailer, that is the document at `/property/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -47,7 +47,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row.
+- On the eighth, the lease with a break notice due soon, one run in three gave the number of days without the word "days".
+- Every summary saved to the retailer was right.
+- On that cluster the save needed one extra sentence in the instructions about the shape of the call. That sentence is not part of this folder.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

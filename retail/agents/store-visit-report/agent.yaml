@@ -52,9 +52,16 @@ sample_data:
   - ../../policy-library/brand-standards-v2.0.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Tested as a draft on a development cluster on 24 November 2026, with the
+    Brand Standards in a knowledge source. Three runs of each test. Seven of
+    the eight tests pass three runs in a row on the instructions here. On the
+    eighth every check passed, but the search never returned the wording of
+    one standard, so the report named it without quoting it. Every report
+    saved to the invented retailer was right. Not published: the cluster
+    could not publish an agent that reads a knowledge source. On that cluster
+    the save needed one extra sentence in the instructions about the shape of
+    the call, which is not part of this folder.

@@ -9,7 +9,7 @@ Lists the refunds, voids and discounts that fall outside the company's own till 
 | How people meet it | An application: the loss prevention desk. It also works in a chat |
 | Reads from | The company's till records: the till rules, and the refunds, voids and discounts of a period |
 | Changes | Saves its audit as a draft. The draft changes no till row |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. The list of rows is not reliable over a whole month: about one run in three drops or adds a row |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Lists the refunds, voids and discounts that fall outside the company's own till 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the tills system from its OpenAPI address. For the invented retailer, that is the document at `/tills/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- The refusal, the month that has not ended and the single site with few rows pass three runs in a row.
+- Over the whole month (180 rows, 28 outside the rules), about one run in three dropped or added a row.
+- In the Work Room, on the published agent, the reply listed 27 of the 28 rows and the saved draft 25.
+
+A model that reads 180 rows does not check each one the same way twice. Where every row matters, build the scheduled form with a code step that checks the rules, and leave the wording to the model. That form is not built yet.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

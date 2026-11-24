@@ -49,9 +49,12 @@ changes:
   - {tool: save_performance_review, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    Three runs of each test. All eight tests pass three runs in a row on the
+    instructions here (five runs in a row is the bar for tests_passed), and
+    every review saved to the invented retailer was right.

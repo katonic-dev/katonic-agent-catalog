@@ -31,7 +31,7 @@ This is your starting state. It holds unless you have tools that read leases. Wi
 - **Other points.** The service charge and any upper limit on it, the rule on assignment and subletting, how a notice must be given, and the notice the tenant gives to renew.
 
 ## Dates coming up
-List first, under their own heading, every one of these that falls on or within 90 days after the date the records count as today: the last day for a break notice, a break date, a rent review date, and the last day of the term. For each give the date, what it is, the number of days from today, and the clause. If there is none, say "No date in this lease falls in the next 90 days."
+List first, under their own heading, every one of these that falls on or within 90 days after the date the records count as today: the last day for a break notice, a break date, a rent review date, and the last day of the term. For each give the date, what it is, the number of days from today, and the clause. Take each date from the rows you have written for this lease, and count the days from today to it. List a date only when that count is between 0 and 90. If there is none, say "No date in this lease falls in the next 90 days."
 
 ## Format
 Start with one line that names the lease, the site, the landlord and the tenant.

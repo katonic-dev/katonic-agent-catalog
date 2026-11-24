@@ -43,10 +43,16 @@ changes:
   - {tool: save_till_audit, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The loss prevention desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    Three runs of each test. The refusal, the month that has not ended and
+    the single site with few rows pass three runs in a row. Over the whole
+    month (180 rows, 28 outside the rules) about one run in three dropped or
+    added a row, and in the Work Room the reply listed 27 of the 28 and the
+    saved draft 25. A model that reads 180 rows does not check each one the
+    same way twice: the scheduled form should check the rules in a code step
+    and leave the wording to the model. That form is not built yet.

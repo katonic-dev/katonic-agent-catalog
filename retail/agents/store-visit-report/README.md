@@ -9,7 +9,7 @@ Turns an area manager's visit checklist and notes into the visit report, with ea
 | How people meet it | Inside the company's own system: the report is sent to the area manager. It also works in a chat |
 | Reads from | The company's store records (the visit, its checklist and notes) and a knowledge source that holds the Brand Standards |
 | Changes | Saves its report as a draft. The draft changes nothing in the visit |
-| State | Written. Not yet built on a platform |
+| State | Tested as a draft on a development cluster. Seven of eight tests pass three runs in a row. Not published |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Turns an area manager's visit checklist and notes into the visit report, with ea
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the stores system from its OpenAPI address. For the invented retailer, that is the document at `/stores/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Knowledge, connect a source by file upload and add the Brand Standards.
@@ -53,7 +53,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row.
+- On the eighth every check passed, but the search never returned the wording of one standard, so the report named it without quoting it.
+- Every report saved to the retailer was right.
+- On that cluster the save needed one extra sentence in the instructions about the shape of the call. That sentence is not part of this folder.
+- The agent was tested as a draft and is not published.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
