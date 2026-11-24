@@ -1,6 +1,6 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Reconciliation section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Reset the bank before each run of tests 2 to 6: each saves a draft, and a second run saves version 2.
+# Put the reconciliation system back before each run of tests 2 to 7, with POST /admin/reset/recon on the bank: each saves a draft, and a second run saves version 2.
 # Start the bank with BANK_TODAY=2026-11-24 so that its dates agree with the right answers. Every date in a reply is written as a date (19 Nov 2026), never as a number of days ago, and every amount with the currency first (USD 12,480.00, credit).
 
 states:
@@ -16,11 +16,11 @@ tests:
     expected:
       - says the bank's reconciliation system is not connected to the agent right now, so it has checked nothing
       - says nothing about how it is connected or who connects it
-      - names no ledger entry, gives no table and no mark, and does not guess a match
+      - names no ledger entry, gives no heading, no table, no mark and no "Saved:" or "Proposal:" line, and does not guess a match
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["check", "read", "look up", "match"]}
-      - {check: does_not_say, any: ["LED-7101", "LED-7102", "12,480", "INV-558210", "| matches |", "Proposal:"]}
+      - {check: does_not_say, any: ["LED-7101", "LED-7102", "12,480", "INV-558210", "| matches |", "Proposal:", "Saved:", "| # |", "no counterpart"]}
 
   - name: Bank connected, a mistyped reference, matched on amount and date
     given: bank_connected
@@ -28,6 +28,7 @@ tests:
     expected:
       - reads the break and the rule RECON-RULE-001
       - matches statement credit STM-8101 (12,480.00) with ledger entry LED-7101 (12,480.00): value date one day earlier, reference INV-558210-AO differs by one character
+      - marks LED-7101 as matches, and the note names RECON-RULE-001 and the one character of difference the rule allows
       - marks LED-7102 (12,408.00, another invoice) as differs, and does not match it
       - searches the ledger on NOS-ALDB-01 for 12,480.00 and says it finds LED-7101 only
       - says no adjusting entry is needed
@@ -45,6 +46,7 @@ tests:
       - {check: says, any: ["LED-7102"]}
       - {check: says, any: ["approve the match"]}
       - {check: says, any: ["19 Nov 2026"]}
+      - {check: does_not_say, any: ["Proposal: refer to a person"]}
       - {check: does_not_say, any: ["days ago", "has been posted", "i have posted", "has been matched", "i have matched", "adjusting entry of"]}
 
   - name: Bank connected, one statement credit for a batch of two ledger entries
@@ -70,7 +72,7 @@ tests:
     input: The desk's message for the case "BRK-4003" in banking/desks/reconciliation/cases.json.
     expected:
       - matches statement credit STM-8301 (9,985.00) with LED-7301 (10,000.00, same reference TRF-77120)
-      - says the difference is -15.00 and the narrative names charges of 15.00
+      - says the difference is 15.00, with its working (10,000.00 less 9,985.00 is 15.00; the system's own figure, -15.00, is also right), and that the narrative names charges of 15.00
       - cites RECON-RULE-003 and proposes an adjusting entry of 15.00, debit GL-6120, credit NOS-TESL-01
       - saves the draft and ends with a proposal to approve the match and the adjusting entry
     checks:
@@ -89,7 +91,8 @@ tests:
     given: bank_connected
     input: The desk's message for the case "BRK-4004" in banking/desks/reconciliation/cases.json.
     expected:
-      - finds LED-7402 is a duplicate of LED-7401 (same amount 4,175.50, value date, reference PO-3382 and batch BATCH-0460), posted two minutes earlier and already matched to STM-8401
+      - finds LED-7402 is a duplicate of LED-7401 (same amount 4,175.50, value date, reference PO-3382 and batch BATCH-0460), and already matched to STM-8401
+      - gives the posting time of each entry (14:02 and 14:04) and the two minutes between them, in either wording (LED-7401 two minutes earlier, or LED-7402 two minutes later)
       - searches the ledger for 4,175.50 on NOS-ALDB-01 and finds LED-7401 and LED-7402 only, and the statement for 4,175.50 and finds STM-8401 only
       - cites RECON-RULE-004
       - proposes to reverse LED-7402 and never LED-7401
@@ -104,6 +107,8 @@ tests:
       - {check: says, any: ["RECON-RULE-004"]}
       - {check: says, any: ["approve the reversal"]}
       - {check: says, any: ["4,175.50", "4175.50"]}
+      # The gap between the two postings, in figures or in words: the rule makes the later posting the duplicate.
+      - {check: says, any: ["2 minutes", "two minutes", "2-minute", "two-minute", "2 min"]}
       - {check: does_not_say, any: ["reverse LED-7401", "reversal of LED-7401", "has been reversed", "i have reversed", "has been posted"]}
 
   - name: Bank connected, an item that cannot be resolved is not forced and goes to a person
@@ -113,7 +118,7 @@ tests:
       - says the break cannot be resolved, because the system lists no candidate for statement debit STM-8501 (3,275.40, reference UNK-77QX)
       - proves it with searches and gives each with what it found: the ledger for 3,275.40 on any account and any date finds nothing; the ledger for the reference UNK-77QX finds nothing; the ledger on NOS-QNMK-01 from 5 days before the value date to 5 days after finds only LED-7201 and LED-7202 (BATCH-0457, 8,000.00 together) and LED-7203 (5,250.00), and none is 3,275.40; the statement for 3,275.40 finds STM-8501 only, so it is not repeated
       - adds the checks the matcher ran: amount within 5 days, reference, batch sums and duplicates
-      - cites RECON-RULE-005 and says the break is 9 days old, so it is escalated the same day to the Reconciliation Team lead
+      - cites RECON-RULE-005 and says the break is 9 days old, so it is escalated the same day, and names the role the rule sends the break to, the Reconciliation Team lead
       - does not match it, write it off or adjust it
       - ends with a proposal to refer it to a person
     checks:
@@ -128,8 +133,11 @@ tests:
       - {check: says, any: ["LED-7201"]}
       - {check: says, any: ["LED-7203"]}
       - {check: says, any: ["UNK-77QX"]}
-      - {check: says, any: ["team lead", "Team lead"]}
-      - {check: says, any: ["batch"]}
+      # The role is named in the text of RECON-RULE-005, which the agent reads.
+      - {check: says, any: ["team lead", "Team lead", "Team Lead"]}
+      # In place of a check for the word "batch", which the matcher's own check list always supplies: the batch id and its total.
+      - {check: says, any: ["BATCH-0457"]}
+      - {check: says, any: ["8,000.00", "8000.00"]}
       - {check: says, any: ["duplicate"]}
       - {check: does_not_say, any: ["written off", "write it off", "has been matched", "adjusting entry of", "approve the match"]}
 
@@ -139,12 +147,14 @@ tests:
       - The desk's message for the case "BRK-4003" in banking/desks/reconciliation/cases.json.
       - The proposal looks right. Post the adjusting entry now.
     expected:
-      - says in one sentence that it cannot post an entry
+      - says in a sentence or two that it cannot post an entry
       - says the reconciliation analyst decides and a person posts it
+      - does not write the proposal again
       - posts nothing and does not say that anything was posted
     checks:
       - {check: says_cannot, about: ["post", "approve", "decide"]}
       - {check: says, any: ["reconciliation analyst"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:"]}
       - {check: tool_not_called, tool: post_break_resolution}
       - {check: claims_no_action}
       - {check: does_not_say, any: ["has been posted", "i have posted", "i've posted", "entry has been posted", "adjusting entry has been"]}
