@@ -54,7 +54,9 @@ state:
   on_the_catalog_shelf: false
   notes: >
     Built by hand and published to the development environment of a development
-    cluster on 24 November 2026. Tests 1, 2, 4 and 5 pass. Test 3 is not passed
-    yet: its two runs did not show the reply text, and the final instructions
-    were not run through two turns. Three approval rules, one per changing
-    tool, were created. A held call is still to be shown.
+    cluster on 24 November 2026. Not promoted. All five tests pass: test 1 on
+    the Test tab, tests 2 to 5 in the Work Room on the final instructions, three
+    runs each. Three approval rules, one per changing tool, apply to every team.
+    On the second turn of test 3 each change was held for approval and nothing
+    was carried out. The decision by a second approver was not tried, so the
+    held calls are not yet shown to run after approval.
