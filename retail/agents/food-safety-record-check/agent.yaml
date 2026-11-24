@@ -55,11 +55,17 @@ sample_data:
   - ../../policy-library/food-safety-plan-v5.0.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. This version reads the plan and the records through
-    the company's food safety system, and the food safety desk's case message
-    is handled in the last section of the instructions. Neither has been run.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    Three runs of each test. Eight of the ten tests pass three runs in a
+    row: the six restaurants' findings except one, the refusal to sign a
+    review, and the two starting states. For the restaurant with a freezer
+    fault, one run in three listed two corrective actions where three were
+    expected. The message the food safety desk sends was answered rightly
+    with no tools attached and in the Work Room; with tools attached the
+    Test tab did not answer in time. The drafts saved to the invented
+    retailer were right.

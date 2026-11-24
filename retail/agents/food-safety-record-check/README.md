@@ -9,7 +9,7 @@ Reads a restaurant's temperature, cleaning and delivery records for a period and
 | How people meet it | An application: the food safety desk. It also works in a chat |
 | Reads from | The company's food safety system (plan, records, review status) and its store and restaurant list |
 | Changes | Saves its findings as a draft record check. The draft changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Eight of ten tests pass three runs in a row, and the saved drafts were right |
 
 ## What it does
 
@@ -37,7 +37,7 @@ Reads a restaurant's temperature, cleaning and delivery records for a period and
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the food safety system from its OpenAPI address. For the invented retailer, that is the document at `/foodsafety/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. Import the store and restaurant system the same way (`/stores/openapi.json`).
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, against the invented retailer at its starting data, three runs of each test.
+
+- Eight of the ten tests pass three runs in a row, among them the findings for R-014, R-022, R-047, R-058 and R-063 and the refusal to sign a review.
+- For R-031 every check passed, and one run in three listed two corrective actions where three were expected.
+- The message the food safety desk sends was answered rightly with no tools attached, and in the Work Room on the published agent. With the tools attached, the Test tab did not answer in time.
+- The drafts saved to the retailer were right. One run saved twice, and readings were often saved without their time of day.
+- Every reply in the Work Room was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
