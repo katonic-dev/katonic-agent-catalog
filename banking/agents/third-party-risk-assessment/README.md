@@ -9,7 +9,7 @@ Compares a supplier's answers to the bank's questionnaire, and the evidence it g
 | How people meet it | An application: the Third-party risk desk |
 | Reads from | Nothing of its own. The desk sends the questionnaire and the passages of the standard in one message |
 | Changes | Nothing. It has no tool |
-| State | Built, published to the development environment of a development cluster and tested on 24 November 2026. Not promoted. No test passes five runs in a row: test 1 passes, the other five do not yet |
+| State | Built, published to the development environment of a development cluster and tested on 24 November 2026, fourth version of the instructions. Not promoted. Tests 1, 5 and 6 pass five runs in a row on checks and expected lines; tests 2, 3 and 4 each miss in one run of five, so the agent is not yet proven |
 
 ## What it does
 
@@ -46,44 +46,40 @@ These steps were run on a development cluster on 24 November 2026.
 
 1. In Studio, start a new agent of the kind that answers questions, from the "Blank chat agent" starter.
 2. In **Identity**, set the name and the description (the full summary from [`agent.yaml`](agent.yaml), 322 characters; the box counts to 160 and still saved it), and choose the owner team. Press "reset" next to the agent name to derive the slug from the name.
-3. In **Behavior**, paste [`instructions.md`](instructions.md) word for word. Read it back from the box: 7810 characters, the same SHA-256 as the file (cab1bb4f...). These are the figures for the second version of the instructions; the steps were first run on the first version. Set the model tier to **Reasoning**. A new draft opens on Balanced.
+3. In **Behavior**, paste [`instructions.md`](instructions.md) word for word. Read it back from the box: 8901 characters, the same SHA-256 as the file (c33f982e...). These are the figures for the fourth version of the instructions; the steps were first run on the first version. Set the model tier to **Reasoning**. A new draft opens on Balanced.
 4. Leave Tools, Skills and Knowledge empty, Memory on its default, and **Guardrails** on "No profile".
 5. Save. The top bar shows "saved".
-6. On the **Test** tab, run the tests. The Test tab takes one message at a time and keeps no history. Fill the message box with the whole case message and read its length back before you send. Reload the page between runs so nothing carries over.
+6. On the **Test** tab of the draft, run test 1 (nothing handed over), reloading the page before each run. The Test tab takes one message at a time and keeps no history.
 7. Publish to the development environment. Review the three warnings in the dialog (no guardrail profile, no tools or knowledge, and the model tier note). Leave the reach on Team and the Work Room channel on.
-8. In the Work Room, open the agent, start a conversation and send one case message.
+8. In the Work Room, open the published agent. For tests 2 to 5, start a new conversation for each run, put the whole case message in the box, read its length back and send it once. For test 6, send case 3's message, wait for the assessment, then send the officer's follow-up in the same conversation.
 
 The reply must keep the shape the desk reads: a "Summary" heading, the heading "Draft assessment. For review by the third-party risk officer. Not issued.", a seven-column table, and a last line that starts "Recommendation:". Change the instructions and the desk's `draft` settings together.
 
 Know before you publish:
 
 - A published agent with no guardrail profile of its own is screened by the workspace's default profile.
-- Marks are drafts. In the runs below the model got some marks wrong and, in two runs, wrote Summary counts that did not match its own table. The third-party risk officer checks every row.
+- Marks are drafts, and a recommendation line can leave out a request that the table calls for (one run in twenty did, in two rounds). The third-party risk officer checks every row and the line.
 
 ## Test results
 
-The instructions have changed since these runs (a second version, with new mark rules, a planned start date in each case and no counts in the Summary), so the runs below are to be repeated.
-
-The model that served the cluster that day, on the Reasoning tier. "Checks" are the checks in [`tests.yaml`](tests.yaml). "Expected" are its expected lines, read strictly. The agent was run as built on the instructions in this folder.
+Run on 24 November 2026 on the fourth and final version of the instructions, on the model that served the cluster that day, on the Reasoning tier. "Checks" are the checks in [`tests.yaml`](tests.yaml), including `last_line_says`, which reads the last line of the reply (the recommendation) for each clause number listed. "Expected" are its expected lines, read strictly. Test 1 ran on the Test tab of the draft, five runs, the page reloaded before each. Tests 2 to 6 ran in the Work Room on the published agent, five runs each, a new conversation for each run, the case message exactly as the desk sends it.
 
 | Test | Where | Runs | Checks passed | Expected lines all met |
 |---|---|---|---|---|
-| 1. Nothing handed over, says so and assesses nothing | Test tab | 1 | 1 | 1 |
-| 2. Larkspur, weak tier 1, not recommended | Test tab | 2 | 2 | 0 |
-| 3. Tessaly, 4.3 blank, ask the supplier | Test tab | 2 | 2 | 2 |
-| 4. Pennyfarthing, contradicted answer and no evidence, ask the supplier | Test tab | 2 | 1 | 1 |
-| 5. Harrowfield, two stated shortfalls, approve with conditions | Test tab | 2 | 2 | 2 |
-| 6. The officer asks the agent to approve, and it will not | Test tab, case message and follow-up in one message | 1 | 0 | 0 |
-| Larkspur once more, from the published agent | Work Room | 1 | 1 | 0 |
+| 1. Nothing handed over, says so and assesses nothing | Test tab | 5 | 5 | 5 |
+| 2. Larkspur, weak tier 1, not recommended | Work Room | 5 | 5 | 4 |
+| 3. Tessaly, 4.3 blank, ask the supplier | Work Room | 5 | 5 | 4 |
+| 4. Pennyfarthing, contradicted answer and no evidence, ask the supplier | Work Room | 5 | 4 | 4 |
+| 5. Harrowfield, two stated shortfalls, approve with conditions | Work Room | 5 | 5 | 5 |
+| 6. The officer asks the agent to approve, and it will not | Work Room, case message then follow-up as a second turn | 5 | 5 | 5 |
 
 What did not pass:
 
-- No test has passed five runs in a row. Only test 1 passed all its runs, and it was run once.
-- Test 2, Larkspur: marks were wrong in every run. Clause 3.1 (backups in another country with no written agreement) was marked partly met in two runs, and 3.3 (90 days against 60) partly met in two runs, where the expected mark is not met. In one run 4.3 (tested once a year) was marked not met instead of partly met. In one run the Summary said 9 met and 5 not met while the table had 7 and 7.
-- Test 4, Pennyfarthing: in one run 5.2 was marked not met although the exit plan is signed and attached, so the recommendation was "do not recommend approval" instead of "ask the supplier for".
-- Test 3, Tessaly: marks and recommendation were right in both runs, but in one run the Summary said 15 met and the table had 16.
-- Test 6: the agent wrote the whole assessment again and did not say it cannot approve the supplier. It did not say the supplier was approved. The follow-up was sent in the same message as the case, because the Test tab keeps no history, so this test still needs a run over two turns.
-- The test 5 and test 3 recommendation lines list their conditions or requests correctly in every run.
+- Test 4, Pennyfarthing, run 1: the table marked 2.3 and 3.3 not met, as expected, but the recommendation line asked only for the 3.3 evidence and left out the corrected access policy for 2.3. The `last_line_says` check fails on it, and so does the expected line. The other four runs listed both.
+- Test 3, Tessaly, run 1: 2.4 (the supplier tells the bank within 12 hours, the limit is 24) was marked not met, where the expected mark is met, and the recommendation line called it an unmet requirement. The other four runs were right.
+- Test 2, Larkspur, run 3: every mark was right, but the recommendation line listed 2.3, which is partly met, among the requirements "not met or partly met" instead of naming the nine not met. In run 2 the line named the nine not met and gave 2.3 separately as partly met, which is accepted.
+- No test is therefore proven on five runs in a row for all six. Tests 1, 5 and 6 passed every run on both checks and expected lines. Every table in the other 19 case runs matched the expected marks except the one Tessaly row, the Summary carried no count in any run, and no reply had text after the Recommendation line.
+- Five runs on one model on one day is a small sample.
 
 Run the tests again on your own model before you rely on them.
 

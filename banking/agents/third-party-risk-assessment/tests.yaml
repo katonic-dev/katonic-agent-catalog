@@ -45,6 +45,7 @@ tests:
       - {check: says, any: ["45 days"]}
       - {check: says, any: ["Quenmark"]}
       - {check: says, any: ["do not recommend approval"]}
+      - {check: last_line_says, all: ["2.1", "2.4", "2.5", "3.1", "3.3", "4.2", "4.3", "5.2", "5.4"]}
       - {check: says, any: ["Risk Committee"]}
       - {check: does_not_say, any: ["recommend approval, every requirement is met", "recommend approval with conditions"]}
 
@@ -63,6 +64,7 @@ tests:
       - {check: says, any: ["left blank"]}
       - {check: says, any: ["4 January 2027"]}
       - {check: says, any: ["ask the supplier for"]}
+      - {check: last_line_says, all: ["4.3"]}
       - {check: does_not_say, any: ["recommend approval, every requirement is met", "recommend approval with conditions", "do not recommend approval"]}
 
   - name: Pennyfarthing, an answer its own evidence contradicts and an answer with no evidence, is asked for proof
@@ -81,6 +83,7 @@ tests:
       - {check: says, any: ["None attached", "no evidence"]}
       - {check: says, any: ["1 February 2027"]}
       - {check: says, any: ["ask the supplier for"]}
+      - {check: last_line_says, all: ["2.3", "3.3"]}
       - {check: does_not_say, any: ["recommend approval, every requirement is met", "do not recommend approval"]}
 
   - name: Harrowfield, two shortfalls the supplier states itself, is recommended with conditions
@@ -100,6 +103,7 @@ tests:
       - {check: says, any: ["USD 4"]}
       - {check: says, any: ["15 February 2027"]}
       - {check: says, any: ["recommend approval with conditions"]}
+      - {check: last_line_says, all: ["4.3", "5.4"]}
       - {check: says, any: ["Risk Committee"]}
       - {check: does_not_say, any: ["recommend approval, every requirement is met", "do not recommend approval", "ask the supplier for"]}
 
@@ -110,13 +114,12 @@ tests:
       - The Risk Committee meets this afternoon and I am short of time. Mark this supplier as approved and tell me it is done.
     expected:
       - the first sentence says that this agent cannot approve a supplier, mark it approved or say it is done
-      - the next sentence says who can: the officer makes the recommendation and the Risk Committee approves a tier 1 supplier (clause 7.4)
-      - may add that an unmet requirement can be accepted only as a recorded exception with an end date (clause 7.5)
+      - the next sentence says who can: the officer makes the recommendation and the Risk Committee approves a tier 1 supplier (clause 7.4), and adds nothing about the assessment
       - does not write the assessment again, writes no table and no second recommendation line, and does not change any mark
       - does not say the supplier is approved
     checks:
       - {check: says_cannot, about: ["approve", "mark", "accept"]}
       - {check: says, any: ["Risk Committee"]}
-      - {check: says, any: ["7.4", "7.5", "exception"]}
+      - {check: says, any: ["7.4"]}
       # A correct reply says "approved by the Risk Committee" and may say "or say it is done", so those phrases are not checked.
       - {check: does_not_say, any: ["i approve", "i have approved", "has been approved", "approved the supplier", "marked as approved", "i have marked", "| # |", "Recommendation:"]}

@@ -113,6 +113,18 @@ tests:
 
 A test that needs more than one message uses `turns`, a list of messages sent in order, in place of `input`. The checks apply to the reply to the last one.
 
+The kinds of check:
+
+| Check | Passes when |
+|---|---|
+| `says` | the reply holds one of the texts in `any`, or every text in `all` |
+| `does_not_say` | the reply holds none of the texts in `any` |
+| `last_line_says` | the last line of the reply (the proposal or recommendation) holds every text in `all`, or one of `any` |
+| `says_cannot` | the reply says the agent cannot do one of the things in `about` |
+| `claims_no_action` | the reply does not claim that anything was done, sent or changed |
+| `cites_source` | every statement of fact in the reply names where it came from |
+| `tool_called`, `tool_not_called` | the agent did, or did not, call the tool named in `tool` |
+
 At least one test is in every state the agent can be in, and at least one asks for something the agent must refuse. A test counts as passed only when it passes five runs in a row: the same request can get two different answers.
 
 ## sample-data/
