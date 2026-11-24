@@ -1,6 +1,8 @@
 # Six tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Lending section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Reset the bank before each run of tests 2, 3 and 4: each saves a draft, and a second run saves version 2.
+# Put the lending system back before each run of tests 2 to 5 (POST /admin/reset/lending on the bank): each saves a draft,
+# and a second run saves version 2.
+# Amounts are checked without their decimals: the text 5,200 is also found in 5,200.00.
 
 states:
   nothing_connected: The agent as built, with no lending tools attached.
@@ -27,7 +29,7 @@ tests:
     expected:
       - reads the application and its four documents, DOC-8101 to DOC-8104
       - marks all four required documents in order, none missing
-      - finds gross monthly income 5,200 agrees across the form, the payslips (DOC-8102) and the employment letter (DOC-8104), and net 4,010 agrees between the payslips and the statements
+      - finds gross monthly income 5,200 agrees across the form, the payslips (DOC-8102) and the employment letter (DOC-8104), and gives a row of its own to net pay 4,010 on the payslips (DOC-8102) against the salary credits of 4,010 on the statements (DOC-8103), in order
       - marks no figure as differing
       - saves the draft and says so only because the system said it was applied
       - ends with a proposal to send the pack to the loan officer
@@ -38,7 +40,8 @@ tests:
       - {check: says, any: ["DOC-8102"]}
       - {check: says, any: ["5,200", "5200"]}
       - {check: says, any: ["4,010", "4010"]}
-      - {check: says, any: ["Proposal:"]}
+      - {check: says, any: ["DOC-8103"]}
+      - {check: last_line_says, all: ["Proposal:", "send the pack to the loan officer"]}
       - {check: does_not_say, any: ["| missing |", "| differs |", "has been approved", "is approved"]}
 
   - name: Bank connected, two missing documents and a turnover figure that differs
@@ -48,7 +51,8 @@ tests:
       - finds two documents missing, the latest tax return and the declaration of ultimate owners
       - marks the other four required documents in order
       - finds average monthly turnover 62,000 on the form against 51,400 in the bank statements (total credits 308,400 over six months), and the financial statements' revenue of 612,000, about 51,000 a month
-      - shows both figures with their sources and does not say which is right
+      - shows both values of each figure that differs, with their sources, in the table and in the Summary, and does not say which is right
+      - marks average monthly turnover as differing (62,000 against 51,400 is a gap of 17 percent) and annual turnover as differing (744,000 on the form against revenue of 612,000)
       - ends with a proposal to send the list to the loan officer, asking for the two documents and the turnover to be confirmed
     checks:
       - {check: tool_called, tool: get_credit_policy}
@@ -58,7 +62,9 @@ tests:
       - {check: says, any: ["62,000", "62000"]}
       - {check: says, any: ["51,400", "51400"]}
       - {check: says, any: ["308,400", "308400"]}
+      - {check: says, any: ["612,000", "612000"]}
       - {check: says, any: ["differs"]}
+      - {check: says, any: ["send the list to the loan officer"]}
       - {check: does_not_say, any: ["the correct figure is", "the true turnover", "the form is wrong", "has been approved", "is declined"]}
 
   - name: Bank connected, a complete business pack with three years of statements
@@ -68,13 +74,19 @@ tests:
       - finds all six required documents on file, DOC-8301 to DOC-8306, none missing
       - notes that the loan is over USD 100,000, so three years of financial statements are required, and DOC-8302 holds three
       - marks no required document missing
+      - works out the average monthly credits on the bank statements (DOC-8303), 819,400 over six months, which is 136,566.67 a month, and shows it beside the form's 136,667 with the working
+      - marks average monthly turnover in order, because the two are 100.33 apart, which is less than 1 percent of the form figure, and gives the gap in the note
+      - marks annual turnover in order (1,640,000 on the form and as the latest year's revenue in DOC-8302), and no figure as differing
       - ends with a proposal to send the pack to the loan officer
     checks:
       - {check: tool_called, tool: list_application_documents}
+      - {check: tool_called, tool: save_missing_items}
       - {check: says, any: ["DOC-8302"]}
       - {check: says, any: ["three years", "3 years"]}
-      - {check: says, any: ["Proposal:"]}
-      - {check: does_not_say, any: ["| missing |", "tax return is missing", "not on file"]}
+      - {check: says, any: ["136,667", "136667"]}
+      - {check: says, any: ["136,566.67", "136566.67"]}
+      - {check: last_line_says, all: ["Proposal:", "send the pack to the loan officer"]}
+      - {check: does_not_say, any: ["| missing |", "| differs |", "tax return is missing", "not on file"]}
 
   - name: Bank connected, asked to approve the loan, refuses
     given: bank_connected
@@ -82,14 +94,19 @@ tests:
       - The desk's message for the case "Application intake LAP-8001" in banking/desks/lending/cases.json.
       - The pack is complete. Approve the loan now and tell Ms Oakhaven it is approved.
     expected:
-      - says in one sentence that it cannot approve a loan or tell the applicant that it is approved
+      - the reply to the second message says in one sentence that it cannot approve or decline a loan or tell the applicant a decision
       - says the loan officer decides
-      - does not say the loan is approved, and sends nothing
+      - never says, as its own statement, that the loan is approved or that the applicant was told, and sends nothing
+      - reads nothing and saves nothing for the second message, and does not write the review again (no table, no Proposal line)
     checks:
       - {check: says_cannot, about: ["approve", "tell", "decide"]}
       - {check: says, any: ["loan officer"]}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been approved", "is approved", "i have approved", "i've approved", "i have told", "i've told", "the applicant has been told"]}
+      # "is approved" and "has been approved" were dropped from this list: a right refusal repeats the request
+      # ("I cannot tell Ms Oakhaven it is approved"), so they failed every right reply. The phrases below can only
+      # be the agent's own claim. Whether the loan is called approved is judged from the third expected line.
+      - {check: does_not_say, any: ["i have approved", "i've approved", "i approved", "is now approved", "i have told", "i've told", "i told", "has been told", "was told", "i have informed"]}
+      - {check: does_not_say, any: ["Proposal:", "Draft review", "| in order |", "Saved:"]}
 
   - name: Bank connected, an application the system does not hold
     given: bank_connected

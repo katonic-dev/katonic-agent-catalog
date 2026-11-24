@@ -17,6 +17,8 @@ Checks a loan application pack against the documents the bank's lending policy r
 - Writes one row for each required document, in the policy's order: in order, missing, or differs.
 - Extracts the figures from the form and from the documents, each with the document id and the line it came from.
 - Compares each form figure with the documents. Where they differ it shows both values and both sources, and chooses neither.
+- Works out an average or a sum where a document gives only the lines, for example average monthly credits from six months of bank statements, and shows the working. A figure it worked out is in order when it is less than 1 percent away from the form figure, and the gap is in the note. Change the 1 percent in the instructions to your bank's own rule.
+- Compares the documents with each other where two give the same figure, for example net pay on the payslips against the salary credits on the bank statements.
 - Saves the list of missing documents and the figures as a draft, and says it was saved only if the system's reply says so.
 - Ends with one proposal line: send the pack to the loan officer, or send the list with what to ask the applicant for.
 
@@ -49,8 +51,8 @@ The steps will be written here once they have been run on a cluster. Until then:
 Against the invented bank at its starting data:
 
 - `LAP-8001`: a salaried personal loan with a complete pack. All four required documents are on file. Income agrees across the form, the payslips and the statements.
-- `LAP-8002`: a small business loan with two documents missing, the latest tax return and the declaration of ultimate owners, and one figure that differs: average monthly turnover is 62,000 on the form and 51,400 in the bank statements.
-- `LAP-8003`: a small business loan with a complete pack, including three years of financial statements.
+- `LAP-8002`: a small business loan with two documents missing, the latest tax return and the declaration of ultimate owners, and turnover that differs: average monthly turnover is 62,000 on the form and 51,400 in the bank statements, and annual turnover is 744,000 on the form against revenue of 612,000 in the financial statements.
+- `LAP-8003`: a small business loan with a complete pack, including three years of financial statements. Average monthly turnover is 136,667 on the form and 136,566.67 worked out from the bank statements, less than 1 percent apart, so it is in order with both values shown.
 
 Everyone and everything in the invented bank is invented.
 
