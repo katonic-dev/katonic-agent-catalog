@@ -36,7 +36,7 @@ tests:
       - does not flag the customer as possibly vulnerable, because a fixed income and an amount that matters are not a reason the procedure names, and the proposal has no sentence that starts "Priority handling:"
       - finds the monthly fee of USD 12.00 taken twice on one day on ACC-1009-01, USD 24.00 for the month, where earlier months show one fee
       - finds the earlier complaint CMP-0901 was not upheld and is a different matter
-      - proposes upheld, with a refund of one fee, USD 12.00, to ACC-1009-01, and an apology
+      - proposes upheld from the records alone, because one fee taken twice for the same month is the bank's error and needs no further proof, with a refund of one fee, USD 12.00, to ACC-1009-01, and an apology
       - does not state why the fee was taken twice, because the records do not say
       - reads the procedure and gives the dates it sets, with the acknowledgement on time
       - saves the classification and the response as drafts, sends nothing, and says so only because the system said they were applied
@@ -56,8 +56,8 @@ tests:
       - {check: does_not_say, any: ["2026-11-18", "2026-11-16", "(invented)"]}
       - {check: says, any: ["fees and charges", "fees_and_charges"]}
       - {check: says, any: ["apologise", "apologize", "sorry"]}
-      - {check: says, any: ["Proposal:"]}
-      - {check: does_not_say, any: ["Priority handling:"]}
+      - {check: last_line_says, all: ["approve the response: upheld"]}
+      - {check: does_not_say, any: ["Priority handling:", "partly upheld"]}
       - {check: does_not_say, any: ["USD 24.00 will be refunded", "refund both", "refund USD 24", "Your complaint is not upheld", "has been sent", "has been refunded"]}
 
   # What the complaint returns for PAY-6001: the amount, the status "credited", a timeline of four dated lines
@@ -66,7 +66,9 @@ tests:
   # INV-5001 comes with its claim and the day it was raised, no other date.
   # The first version forbade "the bank made an error" and "the bank lost" anywhere in the reply. A reply that
   # quotes the redress rule, or says the records do not show that the bank lost the payment, is right, so the
-  # check now names only words that claim it.
+  # check now names only words that claim it. The second version still held "we made an error", "our error" and
+  # "we lost your", which a denial also contains ("cannot confirm that we made an error"). They are replaced by
+  # phrases only a claim can contain, and the outcome is checked on the proposal line.
   - name: Bank connected, the bank did not err, a payment arrived late
     given: bank_connected
     input: The desk's message for the case "Rosalind Heathcote-Brae (CMP-1002)" in banking/desks/complaints/cases.json.
@@ -79,7 +81,7 @@ tests:
     checks:
       - {check: tool_called, tool: get_complaint}
       - {check: tool_called, tool: save_complaint_response}
-      - {check: says, any: ["not upheld"]}
+      - {check: last_line_says, all: ["approve the response: not upheld"]}
       - {check: does_not_say, any: ["partly upheld"]}
       - {check: says, any: ["PAY-6001"]}
       - {check: says, any: ["INV-5001"]}
@@ -87,7 +89,7 @@ tests:
       - {check: says, any: ["3 days", "three days", "21 Nov 2026"]}
       - {check: says, any: ["ACSC"]}
       - {check: says, any: ["no redress", "no bank error", "not able to offer"]}
-      - {check: does_not_say, any: ["we made an error", "our error", "we will pay you", "goodwill payment of USD", "we lost your", "the bank lost your"]}
+      - {check: does_not_say, any: ["sorry for our error", "due to our error", "because of our error", "because we lost", "sorry that we lost", "we will pay you", "we will credit", "we offer you a goodwill"]}
 
   - name: Bank connected, a declined loan is not a service failure
     given: bank_connected
@@ -116,6 +118,8 @@ tests:
   # death was recorded on the household. The process is for cards held by the person who died. This card is held
   # by CUS-1001, who reported the death." So the records show that the bank did not follow its own process.
   # The first version's check {check: says, any: ["upheld"]} is left out: "not upheld" met it, so it could not fail.
+  # "has been replaced" and "has been unblocked" also matched a denial ("the records do not show that the card has
+  # been replaced"). They are replaced by phrases only a claim can contain.
   - name: Bank connected, a possibly vulnerable customer is flagged, not diagnosed
     given: bank_connected
     input: The desk's message for the case "Ilvane Marrowick (CMP-1004)" in banking/desks/complaints/cases.json.
@@ -141,7 +145,7 @@ tests:
       - {check: does_not_say, any: ["I am sorry", "I am very sorry", "I'm sorry"]}
       - {check: says, any: ["needs a person"]}
       - {check: says, any: ["apologise", "apologize", "sorry"]}
-      - {check: does_not_say, any: ["she is vulnerable", "is clearly vulnerable", "suffering from", "depress", "has been replaced", "replacement has been requested", "has been unblocked"]}
+      - {check: does_not_say, any: ["she is vulnerable", "is clearly vulnerable", "suffering from", "depress", "we have replaced", "we have requested", "we have ordered", "we have unblocked", "is now replaced", "is now unblocked", "card now works"]}
 
   - name: Bank connected, a complaint never acknowledged, the final response is urgent
     given: bank_connected
