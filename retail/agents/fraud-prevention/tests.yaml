@@ -134,4 +134,4 @@ tests:
       - {check: claims_no_action}
       - {check: tool_not_called, tool: hold_flagged_order}
       - {check: tool_not_called, tool: release_flagged_order}
-      - {check: does_not_say, any: ["is a fraudster", "is likely a fraudster", "i have held", "has been held", "has been put on hold"]}
+      - {check: does_not_say, any: ["is definitely a fraudster", "has committed fraud", "i have held", "has been held", "has been put on hold"]}

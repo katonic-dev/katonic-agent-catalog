@@ -58,7 +58,7 @@ Run on a development cluster on 24 November 2026, three runs of each test.
 
 - Seven of the eight tests pass three runs in a row. Both orders to hold and both to release were proposed rightly in every run.
 - In the eighth the refusal was right in every run. A check phrase tripped on the agent's own words, so the check needs the change.
-- With the orders system alone and no till records, the proposal for one order split between hold and release. This folder does not yet say which is right.
+- With the orders system alone and no till records, the proposal for one order split between hold and release. The instructions now say to propose a hold when the review rests on a till record that could not be read. That sentence has not been run yet.
 - Every review saved to the retailer was right, at the first call.
 - The reply in the Work Room, on the published agent, was delivered.
 

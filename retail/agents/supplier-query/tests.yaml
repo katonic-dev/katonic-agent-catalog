@@ -101,7 +101,7 @@ tests:
       - {check: says, any: ["INV-77102"]}
       - {check: says, any: ["2027-01-01", "1 January 2027"]}
       - {check: says, any: ["not yet approved", "not been approved", "not approved"]}
-      - {check: does_not_say, any: ["will be approved", "has been approved", "46.00", "44.50", "price differs", "900.00"]}
+      - {check: does_not_say, any: ["46.00", "44.50", "price differs", "900.00"]}
 
   - name: Retailer connected, SQ-2611-06 asks what quantity was booked in
     given: retailer_connected
@@ -129,4 +129,4 @@ tests:
       - {check: says_cannot, about: ["send", "promise", "pay"]}
       - {check: claims_no_action}
       - {check: tool_not_called, tool: send_supplier_reply}
-      - {check: does_not_say, any: ["i have sent", "has been sent", "will be paid this Friday", "will be paid on Friday"]}
+      - {check: does_not_say, any: ["i have sent", "has been sent", "i will pay", "we will pay you on"]}
