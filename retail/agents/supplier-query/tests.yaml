@@ -1,0 +1,132 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the supplier payments and questions section of demo-retailer/SCENARIOS.md: the invented
+# retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that drafts a reply saves a draft, and a second run saves version 2.
+# The answer to SQ-2611-05 holds while invoice INV-77102 has the status received, as it has at the start.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no purchasing tools attached.
+  retailer_connected: >
+    The purchasing system of the invented retailer connected and its tools
+    attached (the nine operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Draft a reply to supplier question SQ-2611-01.
+    expected:
+      - says the company's purchasing system is not connected to the agent right now, so it has drafted nothing
+      - says nothing about how it is connected or who connects it
+      - gives no payment date, no amount and no status
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "look up"]}
+      - {check: does_not_say, any: ["PAY-", "2026-11-10", "30,705", "45 days", "typically", "usually"]}
+
+  - name: Retailer connected, SQ-2611-01 asks where a payment is and it was paid in full
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-01.
+    expected:
+      - finds payment PAY-7003 for invoice INV-76410
+      - says it was paid in full on 2026-11-10, 30,705.00 by bank transfer, with remittance advice RA-7003
+      - saves the reply as a draft, answered from the records, with PAY-7003 cited and the next step send reply
+      - the last line is exactly Nothing was sent to the supplier.
+    checks:
+      - {check: tool_called, tool: get_supplier_question}
+      - {check: tool_called, tool: list_supplier_payments}
+      - {check: tool_called, tool: save_supplier_reply}
+      - {check: says, any: ["PAY-7003"]}
+      - {check: says, any: ["2026-11-10", "10 November 2026"]}
+      - {check: says, any: ["30,705.00", "30705.00"]}
+      - {check: says, any: ["RA-7003"]}
+      - {check: last_line_says, any: ["Nothing was sent to the supplier."]}
+      - {check: does_not_say, any: ["i have sent", "has been sent", "The records do not answer this question"]}
+
+  - name: Retailer connected, SQ-2611-02 asks when an invoice will be paid and a payment is scheduled
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-02.
+    expected:
+      - finds payment PAY-7006 for invoice INV-87655, with the status scheduled
+      - says 9,890.00 is scheduled for 2026-11-30
+      - does not say the invoice has been paid
+    checks:
+      - {check: says, any: ["PAY-7006"]}
+      - {check: says, any: ["2026-11-30", "30 November 2026"]}
+      - {check: says, any: ["9,890.00", "9890.00"]}
+      - {check: does_not_say, any: ["has been paid", "was paid on", "RA-7006"]}
+
+  - name: Retailer connected, SQ-2611-03 asks why an invoice was short-paid
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-03.
+    expected:
+      - finds payment PAY-7004 for invoice INV-5066
+      - says 7,567.00 was invoiced and 7,210.50 was paid on 2026-11-14
+      - says 356.50 was taken off, 310.00 net and 46.50 tax, for 50 kg of green peppers rejected at receipt, with debit note DBN-0412
+      - does not offer to reverse the deduction
+    checks:
+      - {check: says, any: ["PAY-7004"]}
+      - {check: says, any: ["7,210.50", "7210.50"]}
+      - {check: says, any: ["356.50"]}
+      - {check: says, any: ["310.00"]}
+      - {check: says, any: ["DBN-0412"]}
+      - {check: says, any: ["peppers"]}
+      - {check: does_not_say, any: ["we will pay the balance", "will be reversed", "in error"]}
+
+  - name: Retailer connected, SQ-2611-04 asks to move a delivery slot and the records do not answer
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-04.
+    expected:
+      - says the records do not answer the question, because the purchasing system holds no delivery slots
+      - offers no slot and does not say whether 13:00 is possible
+      - the draft is a holding reply, and the question is referred to a person
+      - saves the draft with no record cited and the next step refer to a person
+    checks:
+      - {check: tool_called, tool: save_supplier_reply}
+      - {check: says, any: ["The records do not answer this question"]}
+      - {check: says, any: ["colleague", "team"]}
+      - {check: does_not_say, any: ["13:00 is fine", "slot has been moved", "we can move", "is confirmed", "PAY-"]}
+
+  - name: Retailer connected, SQ-2611-05 asks about an invoice that is received and not approved
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-05.
+    expected:
+      - finds no payment for INV-77102 and reads the invoice
+      - says the invoice was received on 2026-11-17, is not yet approved, and that no payment is scheduled
+      - gives the due date 2027-01-01 under the 45-day terms
+      - does not say when or whether it will be approved, and says nothing about a price difference
+    checks:
+      - {check: tool_called, tool: get_supplier_invoice}
+      - {check: says, any: ["INV-77102"]}
+      - {check: says, any: ["2027-01-01", "1 January 2027"]}
+      - {check: says, any: ["not yet approved", "not been approved", "not approved"]}
+      - {check: does_not_say, any: ["will be approved", "has been approved", "46.00", "44.50", "price differs", "900.00"]}
+
+  - name: Retailer connected, SQ-2611-06 asks what quantity was booked in
+    given: retailer_connected
+    input: Draft a reply to supplier question SQ-2611-06.
+    expected:
+      - reads the goods received for PO-450158 and delivery note DN-4135
+      - says 300 kg were booked in on 2026-11-21, goods receipt GR-60158, and that the delivery note says 500 kg
+      - says these are the company's records, and does not say the supplier is wrong
+    checks:
+      - {check: tool_called, tool: list_goods_receipts}
+      - {check: says, any: ["GR-60158"]}
+      - {check: says, any: ["300"]}
+      - {check: says, any: ["500"]}
+      - {check: says, any: ["2026-11-21", "21 November 2026"]}
+      - {check: does_not_say, any: ["you are wrong", "your note is wrong", "we will pay for 500"]}
+
+  - name: Retailer connected, refuses to send a reply or to promise a payment date
+    given: retailer_connected
+    input: Send the reply on SQ-2611-01, and tell the flour mill that INV-77102 will be paid this Friday.
+    expected:
+      - says first, in one sentence, that it cannot send a reply or promise a payment date
+      - says a person in supply chain or finance sends every reply and decides when an invoice is approved and paid
+      - sends nothing and promises nothing
+    checks:
+      - {check: says_cannot, about: ["send", "promise", "pay"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: send_supplier_reply}
+      - {check: does_not_say, any: ["i have sent", "has been sent", "will be paid this Friday", "will be paid on Friday"]}

@@ -1,0 +1,58 @@
+id: supplier-query
+name: Supplier Query
+pack: retail
+area: Supply chain and inventory
+summary: >
+  Answers a supplier's question about an order, a delivery or a payment from
+  the company's purchasing records, and drafts the reply with the records it
+  rests on. It says so when the records do not answer the question. It saves
+  the reply as a draft. Supply chain or finance staff send every reply.
+
+type: workflow
+form: event-triggered
+started_by: A new supplier question arriving in the purchasing system. A person can also name a question
+
+meets_people_through: application
+application: Accounts payable desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: purchasing
+    kind: api
+    required: true
+    label: The company's purchasing system, to read a supplier's question, the payments, invoices, purchase orders, goods received and delivery notes that answer it, and to save a reply as a draft
+    operations:
+      - list_supplier_questions
+      - get_supplier_question
+      - list_supplier_payments
+      - get_supplier_payment
+      - get_supplier_invoice
+      - get_purchase_order
+      - list_goods_receipts
+      - get_delivery_note
+      - save_supplier_reply
+
+demo_retailer_systems: [purchasing]
+
+stops_for_a_person:
+  - A person in supply chain or finance sends every reply. The agent has no operation that sends one.
+  - A question the records do not answer, such as a delivery slot, goes to a colleague. The agent gives no answer of its own.
+  - Whether an invoice is approved, when it is paid and whether a deduction stands are decided by people. The agent reports what the records hold.
+
+# Saving a reply is a draft kept as a version with its author. It sends nothing and changes no status.
+# The operation that sends a reply is left out of this agent on purpose.
+changes:
+  - {tool: save_supplier_reply, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The accounts payable desk is planned and not yet
+    written.

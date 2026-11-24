@@ -30,6 +30,7 @@ READ_CALLS = {
     "property": ("get_lease", {"lease_id": "LS-2001"}, "lease_id", "LS-2001"),
     "performance": ("get_restaurant_performance", {"site_id": "R-047", "period": "2026-10"}, "sales", 148150.0),
     "tills": ("get_till_rules", {}, "document", "Till Controls"),
+    "orders": ("get_order", {"order_number": "RM-58162"}, "order_number", "RM-58162"),
 }
 
 
@@ -63,7 +64,7 @@ def check_system(client, system, tools, result):
 
 
 def test_every_system_has_one_read_call_in_the_table():
-    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 7
+    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 8
 
 
 @pytest.mark.parametrize("system", ALL_SYSTEMS)
@@ -81,7 +82,8 @@ def test_every_operation_is_an_mcp_tool_and_a_read_works_sse(live_server, client
 
 
 def test_the_tool_names_of_each_door_are_the_openapi_operation_ids(client):
-    expected = {"stores": 5, "foodsafety": 8, "care": 4, "purchasing": 10, "property": 3, "performance": 4, "tills": 4}
+    expected = {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
+                "orders": 14}
     for system, n in expected.items():
         body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
         tools = client.post(f"/{system}/mcp", json=body, headers={"X-API-Key": KEY}).json()["result"]["tools"]

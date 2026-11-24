@@ -1,0 +1,60 @@
+id: review-reply
+name: Review Reply
+pack: retail
+area: Marketing and loyalty
+summary: >
+  Drafts a reply to a public review in the brand's voice, and marks a review
+  that describes a safety or legal matter for a person, with no reply drafted.
+  It saves the reply or the mark as a draft. A person posts every reply, and
+  a marked review goes to the Customer Relations Lead first.
+
+type: workflow
+form: event-triggered
+started_by: A new public review arriving in the customer care system. A person can also name a review
+
+meets_people_through: application
+application: Customer care desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: balanced
+
+needs:
+  - id: customer-care
+    kind: api
+    required: true
+    label: The company's customer care system, to read a public review and to save a reply, or a mark for a person, as a draft
+    operations:
+      - list_public_reviews
+      - get_public_review
+      - save_review_reply
+  - id: brand-voice-guide
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Brand Voice Guide
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: [care]
+
+stops_for_a_person:
+  - A person posts every reply. The agent has no operation that publishes one.
+  - A review that describes an injury, an illness, an allergic reaction, something found in food or a hazard, or that mentions a lawyer or a claim, is marked for the Customer Relations Lead and gets no drafted reply.
+  - Any offer to a reviewer, in public or in private, is decided by the care team.
+
+# Saving a reply, or a mark for a person, is a draft kept as a version with its author. It posts nothing.
+# The operation that publishes a reply is left out of this agent on purpose.
+changes:
+  - {tool: save_review_reply, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/brand-voice-guide.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The customer care desk is planned and not yet
+    written.

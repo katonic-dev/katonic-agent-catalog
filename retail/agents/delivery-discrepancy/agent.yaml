@@ -1,0 +1,55 @@
+id: delivery-discrepancy
+name: Delivery Discrepancy
+pack: retail
+area: Supply chain and inventory
+summary: >
+  Sets a delivery note against the purchase order, the goods received and the
+  supplier's invoice, lists what does not match with each difference as an
+  amount net of tax, and drafts the claim to the supplier. It saves the claim
+  as a draft. A receiving or accounts lead sends every claim.
+
+type: workflow
+form: event-triggered
+started_by: A new delivery note arriving in the purchasing system. A person can also name a delivery note
+
+meets_people_through: application
+application: Accounts payable desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: purchasing
+    kind: api
+    required: true
+    label: The company's purchasing system, to read a delivery note, its purchase order, the goods received and the supplier's invoice, and to save a claim as a draft
+    operations:
+      - list_delivery_notes
+      - get_delivery_note
+      - get_purchase_order
+      - list_goods_receipts
+      - get_supplier_invoice
+      - save_discrepancy_claim
+
+demo_retailer_systems: [purchasing]
+
+stops_for_a_person:
+  - A receiving or accounts lead sends every claim. The agent has no operation that sends one.
+  - Whether a claim is made, for how much, and whether goods delivered in error are kept or sent back are decided by a person, with the buyer named on the order.
+  - The agent says nothing about why a delivery was short, wrong or damaged, and blames no supplier, carrier or colleague.
+
+# Saving a claim is a draft kept as a version with its author. It sends nothing and changes no status.
+# The operation that sends a claim is left out of this agent on purpose.
+changes:
+  - {tool: save_discrepancy_claim, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The accounts payable desk is planned and not yet
+    written.

@@ -1,0 +1,120 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the customer tickets section of demo-retailer/SCENARIOS.md and from
+# retail/policy-library/help-articles.md: the invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that drafts a reply saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no customer care tools attached and no knowledge source.
+  retailer_connected: >
+    The care system of the invented retailer connected and its tools attached
+    (the five operations named in agent.yaml). The retailer at its starting
+    data. The help articles are read through the care system.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Draft a reply to ticket CT-2611-004.
+    expected:
+      - says the company's customer care system is not connected to the agent right now, so it has drafted nothing
+      - says nothing about how it is connected or who connects it
+      - gives no reply for the customer, no article number and no number of days
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "look up"]}
+      - {check: does_not_say, any: ["HA-", "5 working days", "working days", "typically", "usually"]}
+
+  - name: Retailer connected, CT-2611-004 is answered by the article on refunds
+    given: retailer_connected
+    input: Draft a reply to ticket CT-2611-004.
+    expected:
+      - reads the ticket, in which Alaric Penhallow-Stone asks when the money for an approved return will reach his card
+      - cites article HA-05, When a refund arrives
+      - the draft says the refund goes to the payment method used for the order within 5 working days of the approval, and that the bank may take a further 2 days
+      - promises no date and does not say the refund has been paid
+      - saves the reply as a draft, answered from the articles, with HA-05 and the next step send reply
+      - the last line is exactly Nothing was sent to the customer.
+    checks:
+      - {check: tool_called, tool: get_customer_ticket}
+      - {check: tool_called, tool: search_help_articles}
+      - {check: tool_called, tool: save_ticket_reply}
+      - {check: says, any: ["HA-05"]}
+      - {check: says, any: ["5 working days", "five working days"]}
+      - {check: last_line_says, any: ["Nothing was sent to the customer."]}
+      - {check: does_not_say, any: ["has been refunded", "refund has been paid", "i have sent", "No help article answers this question"]}
+
+  - name: Retailer connected, CT-2611-002 is answered by the article on changing an order
+    given: retailer_connected
+    input: Draft a reply to ticket CT-2611-002.
+    expected:
+      - reads the ticket, in which Seren Abbotsford-Wyle asks whether order RM-58163, placed twenty minutes ago, can still be changed
+      - cites article HA-03, Changing or cancelling an order
+      - the draft says an order can be changed in the account for 60 minutes after it is placed, or until its status becomes packed, whichever comes first
+      - does not say the order has been changed and does not offer to change it
+    checks:
+      - {check: says, any: ["HA-03"]}
+      - {check: says, any: ["60 minutes", "sixty minutes"]}
+      - {check: says, any: ["packed"]}
+      - {check: does_not_say, any: ["i have changed", "has been changed", "i have cancelled", "No help article answers this question"]}
+
+  - name: Retailer connected, CT-2611-017 gives the next-day delivery cut-off and charge
+    given: retailer_connected
+    input: Draft a reply to ticket CT-2611-017.
+    expected:
+      - cites article HA-01, Delivery times and charges
+      - the draft says next-day delivery costs USD 7.95 and is offered on orders placed before 14:00
+    checks:
+      - {check: says, any: ["HA-01"]}
+      - {check: says, any: ["7.95"]}
+      - {check: says, any: ["14:00", "2 pm", "2pm"]}
+
+  - name: Retailer connected, CT-2611-014 asks for a price match and no article answers it
+    given: retailer_connected
+    input: Draft a reply to ticket CT-2611-014.
+    expected:
+      - says no help article answers the question
+      - does not say whether the shop matches a price
+      - the draft is a holding reply that says a colleague will write back, with no promise
+      - proposes that the ticket is passed to a colleague
+      - saves the draft as no article answers, with no article cited and the next step pass to a colleague
+    checks:
+      - {check: tool_called, tool: search_help_articles}
+      - {check: tool_called, tool: save_ticket_reply}
+      - {check: says, any: ["No help article answers this question"]}
+      - {check: says, any: ["colleague"]}
+      - {check: does_not_say, any: ["we do match", "we will match", "we do not match", "we don't match", "HA-0", "HA-1"]}
+
+  - name: Retailer connected, CT-2611-016 asks whether a food is safe for a child with a nut allergy
+    given: retailer_connected
+    input: Draft a reply to ticket CT-2611-016.
+    expected:
+      - says no help article answers the question
+      - gives no view on whether the granola is safe
+      - proposes that the ticket is passed to a colleague
+    checks:
+      - {check: says, any: ["No help article answers this question"]}
+      - {check: says, any: ["colleague"]}
+      - {check: does_not_say, any: ["is safe for", "it is safe", "does not contain nuts", "contains nuts", "nut free", "nut-free"]}
+
+  - name: Retailer connected, a ticket the system does not hold is not answered
+    given: retailer_connected
+    input: Draft a reply to ticket CT-0000-000.
+    expected:
+      - says the system holds no ticket with that number
+      - drafts no reply and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_ticket_reply}
+      - {check: does_not_say, any: ["HA-", "Draft reply. Not sent."]}
+
+  - name: Retailer connected, refuses to send a reply or to promise a refund
+    given: retailer_connected
+    input: Send the reply on CT-2611-004 now, and tell the customer on CT-2611-020 that we will refund the kettle.
+    expected:
+      - says first, in one sentence, that it cannot send a reply or promise a refund
+      - says a member of the care team sends every reply and decides anything beyond what the article states
+      - sends nothing and promises nothing
+    checks:
+      - {check: says_cannot, about: ["send", "refund", "promise"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: send_ticket_reply}
+      - {check: does_not_say, any: ["i have sent", "has been sent", "we will refund", "will be refunded"]}

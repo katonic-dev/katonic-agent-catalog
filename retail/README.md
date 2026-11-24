@@ -2,7 +2,7 @@
 
 36 agents a retailer or a restaurant operator can build on the Katonic platform, and the desks and applications people use them through. They are written against one invented company, Rowanmere Group: a store chain with an online shop, and a restaurant chain that is partly franchised.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Twelve folders are written. The State column says which have been built and tested on a platform.
+**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Twenty folders are written. The State column says which have been built and tested on a platform.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. An operation that changes a record waits for a named person.
 
@@ -11,10 +11,10 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | # | Agent | What it does | Type and form | How people meet it | State |
 |---|---|---|---|---|---|
 | | **Customer care** | | | | |
-| 1 | Customer Service | Drafts a reply to each customer ticket from the help articles and past cases, with the article cited | Workflow, event-triggered | Customer care desk | Planned |
-| 2 | Returns Processing | Checks a return request against the returns policy, says which condition it meets or fails, and prepares the approval and the customer message | Workflow, event-triggered | Customer care desk | Planned |
-| 3 | Order Enquiry | Answers "where is my order" from the order and delivery record, and says when the record does not explain the delay | Conversational, answering | The shop's website | Planned |
-| 4 | Complaint Handling | Classifies a complaint, sets out what happened from the order and contact history, and drafts the response and the log entry | Workflow, event-triggered | Customer care desk | Planned |
+| 1 | [Customer Service](agents/customer-service/README.md) | Drafts a reply to each customer ticket from the help articles and past cases, with the article cited | Workflow, event-triggered | Customer care desk | Written. Not yet built on a platform |
+| 2 | [Returns Processing](agents/returns-processing/README.md) | Checks a return request against the returns policy, says which condition it meets or fails, and prepares the approval and the customer message | Workflow, event-triggered | Customer care desk | Written. Not yet built on a platform |
+| 3 | [Order Enquiry](agents/order-enquiry/README.md) | Answers "where is my order" from the order and delivery record, and says when the record does not explain the delay | Conversational, answering | The shop's website | Written. Not yet built on a platform |
+| 4 | [Complaint Handling](agents/complaint-handling/README.md) | Classifies a complaint, sets out what happened from the order and contact history, and drafts the response and the log entry | Workflow, event-triggered | Customer care desk | Written. Not yet built on a platform |
 | | **Store operations** | | | | |
 | 5 | [Store Procedures Q&A](agents/store-procedures-qa/README.md) | Answers a store colleague's question from the company's own procedures, with the procedure cited, and says when they are silent | Conversational, answering | Store website | Tested as a draft on a development cluster. Seven of eight tests pass three runs in a row. Not published |
 | 6 | [Store Visit Report](agents/store-visit-report/README.md) | Turns an area manager's visit notes and checklist into the report in the company's format, with each finding tied to the standard it rests on | Workflow, event-triggered | Sent to the area manager | Written. Not yet built on a platform |
@@ -33,19 +33,19 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 17 | Range Review Preparation | Prepares the pack for a range review: sales, margin, space and availability by line, with the lines below the company's own thresholds listed | Workflow, scheduled | Sent to the buyer | Planned |
 | | **Supply chain and inventory** | | | | |
 | 18 | Inventory Forecasting | Forecasts stock needs from sales trends and drafts purchase orders and replenishment plans | Workflow, scheduled | Pricing and replenishment desk | Planned |
-| 19 | Supplier Query | Answers a supplier's question about an order, a delivery slot or a payment from the records, and drafts the reply | Workflow, event-triggered | Accounts payable desk | Planned |
-| 20 | Delivery Discrepancy | Sets a delivery note against the purchase order and the invoice, lists what does not match, and drafts the claim | Workflow, event-triggered | Accounts payable desk | Planned |
+| 19 | [Supplier Query](agents/supplier-query/README.md) | Answers a supplier's question about an order, a delivery slot or a payment from the records, and drafts the reply | Workflow, event-triggered | Accounts payable desk | Written. Not yet built on a platform |
+| 20 | [Delivery Discrepancy](agents/delivery-discrepancy/README.md) | Sets a delivery note against the purchase order and the invoice, lists what does not match, and drafts the claim | Workflow, event-triggered | Accounts payable desk | Written. Not yet built on a platform |
 | 21 | Product Recall Preparation | For a recalled batch, lists the stores and orders that received it and drafts the store instruction and the customer notice | Multi-agent, pipeline | Recall desk | Planned |
 | | **Marketing and loyalty** | | | | |
 | 22 | Personalisation | Suggests products to each shopper from browsing and purchase history, within rules the team sets | Workflow, API | The shop's website | Planned |
 | 23 | Campaign Brief | Drafts a campaign brief in the company's template from the offer, the audience and last year's results | Conversational, acting | Chat | Planned |
-| 24 | Review Reply | Drafts a reply to a public review in the brand's voice, and marks reviews that describe a safety or legal matter | Workflow, event-triggered | Customer care desk | Planned |
+| 24 | [Review Reply](agents/review-reply/README.md) | Drafts a reply to a public review in the brand's voice, and marks reviews that describe a safety or legal matter | Workflow, event-triggered | Customer care desk | Written. Not yet built on a platform |
 | | **E-commerce and catalogue** | | | | |
 | 25 | Product Catalog | Tags product images and drafts product descriptions to the style guide | Workflow, event-triggered | Product data desk | Planned |
 | 26 | Product Data Check | Sets a listing against the supplier's specification and lists each attribute that is missing or does not match | Workflow, scheduled | Product data desk | Planned |
 | 27 | Search Terms Analysis | Lists what shoppers searched for and did not find, grouped by what they seem to have wanted | Workflow, scheduled | Sent to the e-commerce team | Planned |
 | | **Finance and loss prevention** | | | | |
-| 28 | Fraud Prevention | Flags an order that departs from the pattern and explains why in plain words | Workflow, event-triggered | Loss prevention desk | Planned |
+| 28 | [Fraud Prevention](agents/fraud-prevention/README.md) | Flags an order that departs from the pattern and explains why in plain words | Workflow, event-triggered | Loss prevention desk | Written. Not yet built on a platform |
 | 29 | [Invoice Matching](agents/invoice-matching/README.md) | Matches a supplier invoice to the order and the receipt and lists what does not agree | Workflow, event-triggered | Accounts payable desk | Built and tested on a development cluster. Every test passes three runs in a row, and each saved draft was right |
 | 30 | Shrink Analysis | Sets stock loss by store and by line against the company's own tolerance and lists where it departs, with the figures | Workflow, scheduled | Loss prevention desk | Planned |
 | 31 | [Refund and Discount Audit](agents/refund-and-discount-audit/README.md) | Lists refunds, voids and discounts that fall outside the company's own rules for a period | Workflow, scheduled | Loss prevention desk | Written. Not yet built on a platform |

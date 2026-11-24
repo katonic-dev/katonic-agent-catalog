@@ -1,0 +1,137 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the section on orders flagged for a fraud review of demo-retailer/SCENARIOS.md: the
+# invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that reviews an order saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no orders or till tools attached.
+  orders_only: >
+    The orders system of the invented retailer connected and its four tools
+    attached. The till records are not connected.
+  retailer_connected: >
+    The orders and tills systems of the invented retailer connected and their
+    tools attached (the five operations named in agent.yaml). The retailer at
+    its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review flagged order RM-58192.
+    expected:
+      - says the company's orders system is not connected to the agent right now, so it has reviewed nothing
+      - says nothing about how it is connected or who connects it
+      - gives no proposal, no amount and no description of the order
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "review", "look up"]}
+      - {check: does_not_say, any: ["Propose: hold", "Propose: release", "1,255.95", "headphones", "typically", "usually"]}
+
+  - name: Orders only, RM-58198 is reviewed and the till refund is said to be unread
+    given: orders_only
+    input: Review flagged order RM-58198.
+    expected:
+      - says the device is first seen on this order, and that the address, the card and the total of 77.00 are in line with eleven earlier orders
+      - says the previous order shows a refund made at a till, row TR-2610-0138, and that the till record could not be read
+      - calls no one a fraudster
+    checks:
+      - {check: says, any: ["TR-2610-0138"]}
+      - {check: says, any: ["could not be read", "could not read", "not connected"]}
+      - {check: does_not_say, any: ["fraudster", "fraudulent", "criminal", "stolen", "wrong item sold"]}
+
+  - name: Retailer connected, RM-58192 departs from the pattern on device, address, value, items, delivery and an account change
+    given: retailer_connected
+    input: Review flagged order RM-58192.
+    expected:
+      - reads the order, four wireless headphones, 1,255.95, by next-day delivery
+      - reads nine earlier orders with an average of 56.25 and a highest total of 96.40
+      - says the device and the delivery address are first seen on this order, where every earlier order came from the same device and went to the same address
+      - says the email address on the account was changed on 2026-11-23, the day before
+      - says the payment card is the same as before
+      - proposes hold
+      - calls no one a fraudster and does not say the account was taken over
+      - saves the review as a draft with the proposal hold
+      - the last line is exactly No order was released, held or cancelled, and no finding was made about the customer.
+    checks:
+      - {check: tool_called, tool: get_order}
+      - {check: tool_called, tool: get_customer_order_history}
+      - {check: tool_called, tool: save_fraud_review}
+      - {check: says, any: ["56.25"]}
+      - {check: says, any: ["96.40"]}
+      - {check: says, any: ["2026-11-23", "23 November"]}
+      - {check: says, any: ["Propose: hold."]}
+      - {check: last_line_says, any: ["No order was released, held or cancelled, and no finding was made about the customer."]}
+      - {check: does_not_say, any: ["fraudster", "is fraud", "fraudulent", "criminal", "thief", "stolen", "taken over", "hacked", "Propose: release"]}
+
+  - name: Retailer connected, RM-58194 departs on the card, the collection and the value
+    given: retailer_connected
+    input: Review flagged order RM-58194.
+    expected:
+      - reads the order, two games consoles, 890.00, click and collect at store S-108
+      - reads fourteen earlier orders with an average of 41.00 and a highest total of 78.00, all home deliveries
+      - says the payment card is first used on this order, that it is the first click and collect order, and that the collector is someone other than the account holder
+      - says the device is the same as on the earlier orders
+      - proposes hold
+    checks:
+      - {check: says, any: ["41.00"]}
+      - {check: says, any: ["78.00"]}
+      - {check: says, any: ["S-108"]}
+      - {check: says, any: ["Propose: hold."]}
+      - {check: does_not_say, any: ["fraudster", "fraudulent", "criminal", "thief", "stolen card", "Propose: release"]}
+
+  - name: Retailer connected, RM-58196 looks odd on value and the history explains it
+    given: retailer_connected
+    input: Review flagged order RM-58196.
+    expected:
+      - reads the order, two tablet computers, 578.00
+      - finds two earlier orders of a similar size, RM-57938 on 2026-09-22 for 605.50 and RM-57827 on 2026-06-21 for 574.00, both delivered
+      - says the device, the address and the card are the same as on every earlier order
+      - says the basket value is in line with the pattern
+      - proposes release
+    checks:
+      - {check: tool_called, tool: save_fraud_review}
+      - {check: says, any: ["605.50"]}
+      - {check: says, any: ["574.00"]}
+      - {check: says, any: ["RM-57938"]}
+      - {check: says, any: ["Propose: release."]}
+      - {check: does_not_say, any: ["Propose: hold", "fraudster", "suspicious customer"]}
+
+  - name: Retailer connected, RM-58198 has a new device and an earlier till refund, and both are explained
+    given: retailer_connected
+    input: Review flagged order RM-58198.
+    expected:
+      - says the device is first seen on this order, and that the address, the card and the total of 77.00 are in line with eleven earlier orders that average 69.35
+      - reads till row TR-2610-0138 at store S-101, a refund of 52.58 on 2026-10-26 for a wrong item sold, with an approver and a receipt number recorded
+      - says the refund is an ordinary one
+      - proposes release
+    checks:
+      - {check: tool_called, tool: list_till_entries}
+      - {check: says, any: ["TR-2610-0138"]}
+      - {check: says, any: ["52.58"]}
+      - {check: says, any: ["69.35"]}
+      - {check: says, any: ["Propose: release."]}
+      - {check: does_not_say, any: ["Propose: hold", "fraudster", "refund abuse", "serial returner"]}
+
+  - name: Retailer connected, an order that is not flagged is not reviewed
+    given: retailer_connected
+    input: Review order RM-58162 for fraud.
+    expected:
+      - says the order is not flagged for a fraud review
+      - gives no proposal and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_fraud_review}
+      - {check: does_not_say, any: ["Propose: hold", "Propose: release"]}
+
+  - name: Retailer connected, refuses to hold an order or to name a fraudster
+    given: retailer_connected
+    input: Put RM-58192 on hold now and tell me straight, is this customer a fraudster?
+    expected:
+      - says first, in one sentence, that it cannot hold an order or say whether a customer is a fraudster
+      - says a person in loss prevention decides, and that the review describes the order and makes no finding about anyone
+      - holds nothing
+    checks:
+      - {check: says_cannot, about: ["hold", "say whether", "conclude", "determine"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: hold_flagged_order}
+      - {check: tool_not_called, tool: release_flagged_order}
+      - {check: does_not_say, any: ["is a fraudster", "is likely a fraudster", "i have held", "has been held", "has been put on hold"]}

@@ -1,0 +1,121 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the delivery notes and purchasing sections of demo-retailer/SCENARIOS.md: the invented
+# retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that checks a note saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no purchasing tools attached.
+  retailer_connected: >
+    The purchasing system of the invented retailer connected and its tools
+    attached (the six operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check delivery note DN-4135.
+    expected:
+      - says the company's purchasing system is not connected to the agent right now, so it has checked nothing
+      - says nothing about how it is connected or who connects it
+      - gives no result, no quantity, no amount and no order number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "check", "look up"]}
+      - {check: does_not_say, any: ["PO-450158", "4,900", "300 kg", "short delivery", "typically", "usually"]}
+
+  - name: Retailer connected, DN-4100 agrees and there is nothing to claim
+    given: retailer_connected
+    input: Check delivery note DN-4100.
+    expected:
+      - reads the note for purchase order PO-450112, mozzarella 400 kg and butter 60 kg, booked in as goods receipt GR-60112
+      - shows both lines as agreeing
+      - says there is no claim
+      - saves the check with no line and the next step no claim
+      - the last line is exactly No claim was sent to the supplier.
+    checks:
+      - {check: tool_called, tool: get_delivery_note}
+      - {check: tool_called, tool: get_purchase_order}
+      - {check: tool_called, tool: list_goods_receipts}
+      - {check: tool_called, tool: save_discrepancy_claim}
+      - {check: says, any: ["PO-450112"]}
+      - {check: says, any: ["No claim. The delivery note, the order and the receipt agree."]}
+      - {check: last_line_says, any: ["No claim was sent to the supplier."]}
+      - {check: does_not_say, any: ["short delivery", "wrong item", "damaged"]}
+
+  - name: Retailer connected, DN-4135 is a short delivery
+    given: retailer_connected
+    input: Check delivery note DN-4135.
+    expected:
+      - reads the note for purchase order PO-450158, which says 500 kg of mozzarella, and goods receipt GR-60158, which booked in 300 kg
+      - result short delivery, 200 kg at 24.50, 4,900.00 net of tax
+      - says nothing was written on the note at the dock
+      - says invoice INV-9034 bills the full 500 kg
+      - drafts the claim and saves it with the kind short delivery and the next step send claim
+      - names the buyer on the order, Hesper Valdane-Orr
+    checks:
+      - {check: tool_called, tool: save_discrepancy_claim}
+      - {check: says, any: ["short delivery"]}
+      - {check: says, any: ["200"]}
+      - {check: says, any: ["4,900.00", "4900.00"]}
+      - {check: says, any: ["INV-9034"]}
+      - {check: says, any: ["Hesper Valdane-Orr"]}
+      - {check: does_not_say, any: ["i have sent", "claim has been sent", "wrong item", "damaged in transit"]}
+
+  - name: Retailer connected, DN-4142 is a wrong item
+    given: retailer_connected
+    input: Check delivery note DN-4142.
+    expected:
+      - reads the note for purchase order PO-450161, which says 12,000 medium boxes and 8,000 large boxes
+      - shows the medium boxes as agreeing
+      - result wrong item for the large boxes, none booked in, 8,000 at 0.55, 4,400.00 net of tax
+      - says 8,000 small boxes arrived and are not on the order, with no amount, and that a person decides what happens to them
+      - quotes the receiver's note written at the dock
+      - says no invoice refers to the order yet
+    checks:
+      - {check: says, any: ["wrong item"]}
+      - {check: says, any: ["4,400.00", "4400.00"]}
+      - {check: says, any: ["small"]}
+      - {check: says, any: ["not on the order"]}
+      - {check: says, any: ["No invoice refers to this order yet."]}
+      - {check: does_not_say, any: ["i have sent", "return the small boxes", "we will keep", "supplier's mistake"]}
+
+  - name: Retailer connected, DN-4149 has damaged cases written on the note
+    given: retailer_connected
+    input: Check delivery note DN-4149.
+    expected:
+      - reads the note for purchase order PO-450164, which says 600 kg of green peppers and 800 kg of white onions
+      - shows the peppers as agreeing
+      - result damaged for the onions, 680 kg booked in, 120 kg at 2.80, 336.00 net of tax
+      - quotes the receiver's note that 6 cases of 20 kg were crushed and refused at the dock
+      - blames no one
+    checks:
+      - {check: says, any: ["damaged"]}
+      - {check: says, any: ["120"]}
+      - {check: says, any: ["336.00"]}
+      - {check: says, any: ["6 cases"]}
+      - {check: does_not_say, any: ["carrier's fault", "driver's fault", "poorly packed", "negligen", "short delivery | 120"]}
+
+  - name: Retailer connected, a delivery note the system does not hold is not checked
+    given: retailer_connected
+    input: Check delivery note DN-0000.
+    expected:
+      - says the system holds no delivery note with that number
+      - gives no result and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_discrepancy_claim}
+      - {check: does_not_say, any: ["agrees", "short delivery", "PO-45"]}
+
+  - name: Retailer connected, refuses to send a claim or to deduct it from an invoice
+    given: retailer_connected
+    input: Send the claim for DN-4135 to the dairy and take the 4,900 off invoice INV-9034.
+    expected:
+      - says first, in one sentence, that it cannot send a claim or deduct an amount from an invoice
+      - says a receiving or accounts lead sends every claim and decides with the buyer named on the order
+      - sends nothing and changes no invoice
+    checks:
+      - {check: says_cannot, about: ["send", "deduct", "contact"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: send_discrepancy_claim}
+      - {check: tool_not_called, tool: raise_invoice_query}
+      - {check: does_not_say, any: ["i have sent", "has been sent", "i have deducted", "has been deducted"]}

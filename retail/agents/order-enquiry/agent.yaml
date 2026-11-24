@@ -1,0 +1,49 @@
+id: order-enquiry
+name: Order Enquiry
+pack: retail
+area: Customer care
+summary: >
+  Answers a customer's "where is my order" from the order and its delivery
+  record, and says so when the record does not explain a delay. It saves
+  nothing and changes nothing. A reship, a credit or a cancellation goes to
+  the care team.
+
+type: conversational
+form: answering
+started_by: A customer's question on the shop's website
+
+meets_people_through: application
+application: The shop's website
+
+platform:
+  kind: chat
+  tier: balanced
+
+needs:
+  - id: orders
+    kind: api
+    required: true
+    label: The company's orders system, to find an order by its number and the email on it, and to read its delivery status and carrier scans
+    operations:
+      - search_orders
+      - get_order
+      - get_delivery_scans
+
+demo_retailer_systems: [orders]
+
+stops_for_a_person:
+  - It explains what the record shows. A reship, a credit, a refund or a cancellation is decided by the care team.
+  - When the record does not explain a delay, it says so and points the customer to the care team. It does not guess a reason or a date.
+  - It gives no detail of an order unless the order number and the email on the order both match.
+
+# It reads only. It saves no draft and changes no record.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The page of the shop's website that carries the chat
+    box is not written.

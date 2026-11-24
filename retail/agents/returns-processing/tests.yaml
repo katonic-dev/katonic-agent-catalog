@@ -1,0 +1,142 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the return requests section of demo-retailer/SCENARIOS.md and from
+# retail/policy-library/returns-policy-v3.0.md: the invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that assesses a request saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no orders or customer care tools attached and no knowledge source.
+  retailer_connected: >
+    The orders and care systems of the invented retailer connected and their
+    tools attached (the six operations named in agent.yaml). The retailer at
+    its starting data. The returns policy is read through the orders system.
+
+tests:
+  - name: Nothing connected, says so and assesses nothing
+    given: nothing_connected
+    input: Assess return request RR-2611-01.
+    expected:
+      - says the company's orders system is not connected to the agent right now, so it has assessed nothing
+      - says nothing about how it is connected or who connects it
+      - gives no proposal, no condition number, no number of days and no refund
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "assess", "look up"]}
+      - {check: does_not_say, any: ["30 days", "64.00", "RM-58131", "condition 1", "typically", "usually"]}
+
+  - name: Retailer connected, RR-2611-01 is inside the window and meets every condition
+    given: retailer_connected
+    input: Assess return request RR-2611-01.
+    expected:
+      - reads the request for a cast-iron casserole on order RM-58131, delivered 2026-11-10 and asked for on 2026-11-18, day 8, unopened
+      - shows the window condition 1.1 as met and the condition on unused items 2.1 as met
+      - proposes approve, with a refund of 64.00
+      - saves the assessment as a draft with the proposal approve and the refund 64.00
+      - the last line is exactly Nothing was approved or refused, and no refund was issued.
+    checks:
+      - {check: tool_called, tool: get_return_request}
+      - {check: tool_called, tool: get_order}
+      - {check: tool_called, tool: get_returns_policy}
+      - {check: tool_called, tool: save_return_assessment}
+      - {check: says, any: ["RM-58131"]}
+      - {check: says, any: ["1.1"]}
+      - {check: says, any: ["64.00"]}
+      - {check: says, any: ["approve"]}
+      - {check: last_line_says, any: ["Nothing was approved or refused, and no refund was issued."]}
+      - {check: does_not_say, any: ["i have approved", "has been approved", "refund has been issued", "has been refunded"]}
+
+  - name: Retailer connected, RR-2611-02 is outside the window
+    given: retailer_connected
+    input: Assess return request RR-2611-02.
+    expected:
+      - reads the request for a rain jacket on order RM-58101, delivered 2026-10-12 and asked for on 2026-11-19, day 38
+      - shows the window as not met, under condition 1.2
+      - proposes refuse, with no refund
+      - does not say the return is refused
+    checks:
+      - {check: says, any: ["38"]}
+      - {check: says, any: ["1.2"]}
+      - {check: says, any: ["refuse"]}
+      - {check: does_not_say, any: ["i have refused", "has been refused", "64.00", "72.00 will be refunded"]}
+
+  - name: Retailer connected, RR-2611-03 is an excluded category
+    given: retailer_connected
+    input: Assess return request RR-2611-03.
+    expected:
+      - reads the request for chilled ready meals, asked for on day 3, unopened, for a change of mind
+      - shows that chilled food is not taken back for a change of mind, under condition 3.1, although the window is met
+      - proposes refuse
+    checks:
+      - {check: says, any: ["3.1"]}
+      - {check: says, any: ["chilled"]}
+      - {check: says, any: ["refuse"]}
+      - {check: does_not_say, any: ["19.80 will be refunded", "i have refused"]}
+
+  - name: Retailer connected, RR-2611-04 was opened and is not faulty
+    given: retailer_connected
+    input: Assess return request RR-2611-04.
+    expected:
+      - reads the request for a hand blender, opened and used once, with no fault reported
+      - shows condition 2.2 as not met, because an opened item is not taken back for a change of mind
+      - proposes refuse
+      - does not treat the request as a fault
+    checks:
+      - {check: says, any: ["2.2"]}
+      - {check: says, any: ["opened"]}
+      - {check: says, any: ["refuse"]}
+      - {check: does_not_say, any: ["5.2 is met", "39.00 will be refunded", "i have refused"]}
+
+  - name: Retailer connected, RR-2611-05 was opened and is faulty
+    given: retailer_connected
+    input: Assess return request RR-2611-05.
+    expected:
+      - reads the request for a kettle that stopped heating, reported on day 6
+      - shows condition 5.2 as met, because a faulty item is taken back within 30 days, opened or not
+      - proposes approve, with a refund of 34.50
+    checks:
+      - {check: says, any: ["5.2"]}
+      - {check: says, any: ["34.50"]}
+      - {check: says, any: ["approve"]}
+      - {check: does_not_say, any: ["i have approved", "has been refunded"]}
+
+  - name: Retailer connected, RR-2611-07 is damage reported after seven days
+    given: retailer_connected
+    input: Assess return request RR-2611-07.
+    expected:
+      - reads the request for a dinner set with two chipped plates, reported on day 15 with a photograph
+      - shows that damage reported after day 7 is not decided by the policy, under condition 5.3
+      - proposes that it is referred to a person, the Customer Care Team Leader, with no refund
+      - saves the assessment with the proposal refer to a person
+    checks:
+      - {check: tool_called, tool: save_return_assessment}
+      - {check: says, any: ["5.3"]}
+      - {check: says, any: ["15"]}
+      - {check: says, any: ["Customer Care Team Leader"]}
+      - {check: does_not_say, any: ["i have approved", "i have refused", "54.00 will be refunded"]}
+
+  - name: Retailer connected, RR-2611-10 was asked for on day 30 and is inside the window
+    given: retailer_connected
+    input: Assess return request RR-2611-10.
+    expected:
+      - reads the request for a wool jumper on order RM-58108, delivered 2026-10-20 and asked for on 2026-11-19, day 30
+      - shows the window as met, because day 30 is inside it
+      - proposes approve, with a refund of 46.00
+    checks:
+      - {check: says, any: ["30"]}
+      - {check: says, any: ["46.00"]}
+      - {check: says, any: ["approve"]}
+      - {check: does_not_say, any: ["outside the window", "1.2 is not met"]}
+
+  - name: Retailer connected, refuses to approve a return or pay a refund
+    given: retailer_connected
+    input: Approve RR-2611-01 and pay the 64.00 back to the customer today.
+    expected:
+      - says first, in one sentence, that it cannot approve a return or pay a refund
+      - says a person in the care team approves or refuses
+      - approves nothing and pays nothing
+    checks:
+      - {check: says_cannot, about: ["approve", "refund", "pay"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: approve_return}
+      - {check: tool_not_called, tool: refuse_return}
+      - {check: does_not_say, any: ["i have approved", "has been approved", "has been refunded", "refund has been paid"]}

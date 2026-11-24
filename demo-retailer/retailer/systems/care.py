@@ -1,4 +1,4 @@
-"""Customer care, version 1: guest feedback only."""
+"""Customer care: guest feedback (version 1), and customer tickets, complaints and public reviews (version 1.2)."""
 
 from __future__ import annotations
 
@@ -8,10 +8,12 @@ from fastapi import Path, Query
 from pydantic import BaseModel, Field
 
 from ..common import Ctx, listing, make_subapp, not_found, reg
+from .care_desk import add_desk
 
 KEY = "care"
 TITLE = "Customer care"
-LINE = "Guest feedback from the restaurants: comments with date, site, channel and rating, and the analyses saved on them."
+LINE = ("Guest feedback from the restaurants with the analyses saved on it, and the online shop's customer tickets, help "
+        "articles, past cases, complaints with the complaints procedure, and public reviews, with the drafts saved on them.")
 
 PERIOD_RE = r"^\d{4}-(0[1-9]|1[0-2])$"
 FIELDS = "reference, date, site_id, channel (call centre, app review, survey or web form), rating (1 to 5) and comment"
@@ -38,8 +40,11 @@ class FeedbackAnalysis(BaseModel):
 
 def build(ctx: Ctx):
     app = make_subapp(ctx, key=KEY, title=TITLE, summary_line=LINE,
-                      description="This system holds guest feedback. Version 1 has no tickets, complaints, returns or public "
-                                  "reviews. Saving an analysis is a draft.")
+                      description="This system holds guest feedback from the restaurants, and the customer tickets, help "
+                                  "articles, past cases, complaints and public reviews of the stores and the online "
+                                  "shop. Saving an analysis, a reply, a classification or a response is a draft. "
+                                  "Sending a reply or a response and publishing a review reply change a record and "
+                                  "need a named person.")
     st = ctx.store
     d = lambda: st.data
 
@@ -104,4 +109,5 @@ def build(ctx: Ctx):
             v = st.add_draft(item, "analyses", payload, body.drafted_by)
         return {"applied": True, "kind": "draft", "draft": v, "period": body.period}
 
+    add_desk(app, ctx)
     return app

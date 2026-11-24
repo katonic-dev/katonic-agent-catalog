@@ -1,4 +1,5 @@
-"""Purchasing, version 1: suppliers, purchase orders, goods received and supplier invoices."""
+"""Purchasing: suppliers, purchase orders, goods received and supplier invoices (version 1), and delivery notes,
+supplier payments and supplier questions (version 1.2)."""
 
 from __future__ import annotations
 
@@ -9,10 +10,12 @@ from pydantic import BaseModel, Field
 
 from ..common import Ctx, conflict, listing, make_subapp, not_found, reg
 from ..store import now_iso
+from .purchasing_more import add_more
 
 KEY = "purchasing"
 TITLE = "Purchasing"
-LINE = "Suppliers, purchase orders, goods received and supplier invoices, with the matches saved on the invoices."
+LINE = ("Suppliers, purchase orders, goods received and supplier invoices with the matches saved on them, delivery notes "
+        "with the claims drafted on them, supplier payments, and supplier questions with the replies drafted on them.")
 
 INVOICE_FIELDS = ("invoice_number, supplier_id, supplier_name, invoice_date, due_date, po_number (the purchase order number printed on "
                   "the invoice), status (received, queried or approved), net, tax, total and currency")
@@ -55,8 +58,10 @@ class QueryBody(BaseModel):
 
 def build(ctx: Ctx):
     app = make_subapp(ctx, key=KEY, title=TITLE, summary_line=LINE,
-                      description="This system holds suppliers, purchase orders, goods receipts and supplier invoices. Saving a match "
-                                  "is a draft. Approving an invoice for payment and raising a query change a record.")
+                      description="This system holds suppliers, purchase orders, goods receipts, supplier invoices, delivery "
+                                  "notes, supplier payments and supplier questions. Saving a match, a claim or a reply "
+                                  "is a draft. Approving an invoice for payment, raising a query, sending a claim and "
+                                  "sending a reply change a record and need a named person.")
     st = ctx.store
     d = lambda: st.data
 
@@ -184,4 +189,5 @@ def build(ctx: Ctx):
             st.save()
         return {"applied": True, "kind": "change", "status": "queried", "invoice": inv}
 
+    add_more(app, ctx)
     return app

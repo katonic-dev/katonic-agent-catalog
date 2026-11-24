@@ -1,6 +1,6 @@
 # Policy library of an invented company
 
-Rowanmere Group does not exist. These five documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
+Rowanmere Group does not exist. These nine documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
 
 | File | Document | Used by |
 |---|---|---|
@@ -9,6 +9,10 @@ Rowanmere Group does not exist. These five documents were written so that agents
 | `allergen-matrix-v4.1.md` | Allergen Matrix and Menu Specifications, version 4.1 (rows A-01 to D-05) | Menu and Allergen Q&A |
 | `food-safety-plan-v5.0.md` | Food Safety Plan, version 5.0 (sections 1 to 7) | Food Safety Record Check, which also reads the same plan through the invented retailer's food safety system |
 | `brand-standards-v2.0.md` | Brand Standards, version 2.0 (standards BS-1 to BS-8, written on a visit checklist as BS-1.1 to BS-8.2) | Store Visit Report, which reads the visits themselves through the invented retailer's stores system |
+| `returns-policy-v3.0.md` | Returns Policy, version 3.0 (conditions 1.1 to 6.2) | Returns Processing, which also reads the same policy through the invented retailer's orders system |
+| `help-articles.md` | Help Articles of the online shop (articles HA-01 to HA-12) | Customer Service, which also reads the same articles through the invented retailer's care system |
+| `complaints-procedure-v2.1.md` | Complaints Procedure, version 2.1 (sections 1 to 5, classes A to D) | Complaint Handling, which also reads the same procedure through the invented retailer's care system |
+| `brand-voice-guide.md` | Brand Voice Guide, version 1.2 (rules V-1 to V-13) | Review Reply. The invented retailer does not serve it |
 
 ## How to use them
 

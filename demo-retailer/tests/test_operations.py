@@ -85,10 +85,71 @@ CALLS = {
     "approve_invoice_for_payment": ("post", "/purchasing/invoices/INV-77102/approve", {"approved_by": "C. Payer"}),
     "raise_invoice_query": ("post", "/purchasing/invoices/INV-5120/query",
                             {"raised_by": "C. Payer", "message": "Please explain 800 kg against 720 kg."}),
+    # version 1.2: every change comes after the draft it needs
+    "list_customer_tickets": ("get", "/care/tickets", None),
+    "get_customer_ticket": ("get", "/care/tickets/CT-2611-001", None),
+    "search_help_articles": ("get", "/care/help-articles?q=delivery", None),
+    "search_past_cases": ("get", "/care/past-cases", None),
+    "save_ticket_reply": ("post", "/care/tickets/CT-2611-001/reply",
+                          {"answer_status": "answered_from_articles", "reply": "Standard delivery costs USD 4.95.",
+                           "articles_cited": ["HA-01"], "proposed_next_step": "send_reply"}),
+    "send_ticket_reply": ("post", "/care/tickets/CT-2611-001/send", {"sent_by": "D. Carer"}),
+    "list_complaints": ("get", "/care/complaints", None),
+    "get_complaint": ("get", "/care/complaints/CM-2611-01", None),
+    "get_complaints_procedure": ("get", "/care/complaints-procedure", None),
+    "save_complaint_classification": ("post", "/care/complaints/CM-2611-01/classification",
+                                      {"classification": "service_failure", "procedure_section": "2.3",
+                                       "response_due": "2026-12-02", "what_happened": "The order is late."}),
+    "save_complaint_response": ("post", "/care/complaints/CM-2611-01/response",
+                                {"response": "Thank you for writing.", "proposed_next_step": "send_response"}),
+    "send_complaint_response": ("post", "/care/complaints/CM-2611-01/send", {"sent_by": "E. Lead"}),
+    "list_public_reviews": ("get", "/care/reviews", None),
+    "get_public_review": ("get", "/care/reviews/PR-2611-01", None),
+    "save_review_reply": ("post", "/care/reviews/PR-2611-01/reply", {"action": "reply", "reply": "Thank you, harbourwalker22."}),
+    "publish_review_reply": ("post", "/care/reviews/PR-2611-01/publish", {"published_by": "E. Lead"}),
+    "list_delivery_notes": ("get", "/purchasing/delivery-notes", None),
+    "get_delivery_note": ("get", "/purchasing/delivery-notes/DN-4135", None),
+    "save_discrepancy_claim": ("post", "/purchasing/delivery-notes/DN-4135/claim",
+                               {"lines": [{"kind": "short_delivery", "item": "Mozzarella, shredded", "note_says": "500 kg",
+                                           "received": "300 kg", "quantity_claimed": 200, "unit": "kg", "amount_claimed": 4900.0}],
+                                "proposed_next_step": "send_claim", "message": "200 kg were not received."}),
+    "send_discrepancy_claim": ("post", "/purchasing/delivery-notes/DN-4135/claim/send", {"sent_by": "F. Receiver"}),
+    "list_supplier_payments": ("get", "/purchasing/payments", None),
+    "get_supplier_payment": ("get", "/purchasing/payments/PAY-7003", None),
+    "list_supplier_questions": ("get", "/purchasing/supplier-questions", None),
+    "get_supplier_question": ("get", "/purchasing/supplier-questions/SQ-2611-01", None),
+    "save_supplier_reply": ("post", "/purchasing/supplier-questions/SQ-2611-01/reply",
+                            {"answer_status": "answered_from_records", "reply": "Paid on 2026-11-10.",
+                             "records_cited": ["PAY-7003"], "proposed_next_step": "send_reply"}),
+    "send_supplier_reply": ("post", "/purchasing/supplier-questions/SQ-2611-01/send", {"sent_by": "C. Payer"}),
+    "search_orders": ("get", "/orders/orders", None),
+    "get_order": ("get", "/orders/orders/RM-58162", None),
+    "get_delivery_scans": ("get", "/orders/orders/RM-58162/scans", None),
+    "get_returns_policy": ("get", "/orders/returns-policy", None),
+    "list_return_requests": ("get", "/orders/returns", None),
+    "get_return_request": ("get", "/orders/returns/RR-2611-01", None),
+    "save_return_assessment": ("post", "/orders/returns/RR-2611-01/assessment",
+                               {"conditions": [{"condition": "1.1", "result": "met"}], "proposed_decision": "approve",
+                                "refund_amount": 64.0}),
+    "approve_return": ("post", "/orders/returns/RR-2611-01/approve", {"approved_by": "G. Leader"}),
+    "refuse_return": ("post", "/orders/returns/RR-2611-02/refuse", {"refused_by": "G. Leader", "reason": "Outside the window."}),
+    "list_flagged_orders": ("get", "/orders/flagged", None),
+    "get_customer_order_history": ("get", "/orders/customers/C-4020/history", None),
+    "save_fraud_review": ("post", "/orders/flagged/RM-58192/review",
+                          {"signals": [{"signal": "device", "departs_from_pattern": True, "what_the_record_shows": "A new device."}],
+                           "proposed_decision": "hold", "explanation": "The device is new."}),
+    "hold_flagged_order": ("post", "/orders/flagged/RM-58192/hold", {"held_by": "H. Reviewer", "reason": "To be checked."}),
+    "release_flagged_order": ("post", "/orders/flagged/RM-58196/release", {"released_by": "H. Reviewer"}),
 }
 
 
 def test_every_operation_of_every_system_is_called_once_and_answers_200(client):
+    # two changes of version 1.2 need a draft on a second record, saved here so that every operation is called once
+    post(client, "/orders/returns/RR-2611-02/assessment", {"conditions": [{"condition": "1.2", "result": "not_met"}],
+                                                           "proposed_decision": "refuse"})
+    post(client, "/orders/flagged/RM-58196/review", {"signals": [{"signal": "basket_value", "departs_from_pattern": False,
+                                                                 "what_the_record_shows": "Two earlier orders of this size."}],
+                                                     "proposed_decision": "release", "explanation": "In line with the history."})
     in_document = set()
     for system in ALL_SYSTEMS:
         for item in client.get(f"/{system}/openapi.json").json()["paths"].values():
@@ -506,10 +567,13 @@ def test_suppliers(client):
 
 def test_purchase_orders_lines_and_buyers(client):
     r = get(client, "/purchasing/purchase-orders")
-    assert [p["po_number"] for p in r["items"]] == ["PO-450112", "PO-450127", "PO-450131", "PO-450140", "PO-450152", "PO-450158"]
+    assert [p["po_number"] for p in r["items"]] == [
+        "PO-450112", "PO-450127", "PO-450131", "PO-450140", "PO-450152", "PO-450158", "PO-450161", "PO-450164"]  # two added by 1.2
     assert {p["buyer"] for p in r["items"]} == {"Hesper Valdane-Orr", "Dorian Ketterly-Voss"}
-    assert [p["po_number"] for p in get(client, "/purchasing/purchase-orders", supplier_id="SUP-302")["items"]] == ["PO-450127", "PO-450152"]
-    assert [p["po_number"] for p in get(client, "/purchasing/purchase-orders", status="part_received")["items"]] == ["PO-450158"]
+    assert [p["po_number"] for p in get(client, "/purchasing/purchase-orders", supplier_id="SUP-302")["items"]] == [
+        "PO-450127", "PO-450152", "PO-450161"]
+    assert [p["po_number"] for p in get(client, "/purchasing/purchase-orders", status="part_received")["items"]] == [
+        "PO-450158", "PO-450161", "PO-450164"]
     assert get(client, "/purchasing/purchase-orders", status="received")["count"] == 5
     assert get(client, "/purchasing/purchase-orders", supplier_id="SUP-301", status="received")["count"] == 1
     po = get(client, "/purchasing/purchase-orders/PO-450112")
@@ -529,7 +593,8 @@ def test_purchase_orders_lines_and_buyers(client):
 
 def test_goods_receipts(client):
     r = get(client, "/purchasing/goods-receipts")
-    assert [x["receipt_id"] for x in r["items"]] == ["GR-60112", "GR-60127", "GR-60131", "GR-60140", "GR-60152", "GR-60158"]
+    assert [x["receipt_id"] for x in r["items"]] == [
+        "GR-60112", "GR-60127", "GR-60131", "GR-60140", "GR-60152", "GR-60158", "GR-60161", "GR-60164"]  # two added by 1.2
     part = get(client, "/purchasing/goods-receipts", po_number="PO-450158")
     assert part["count"] == 1 and part["items"][0]["lines"][0]["quantity_received"] == 300
     assert part["items"][0]["received_by"] and part["items"][0]["delivery_note"].startswith("DN-")
@@ -672,5 +737,5 @@ def test_counts_follow_the_changes(client):
     c = get(client, "/admin/state")["counts"]
     assert c["supplier_invoices_received"] == 4 and c["supplier_invoices_queried"] == 1 and c["supplier_invoices_approved"] == 1
     assert c["record_periods_not_reviewed"] == 5 and c["stores"] == 8 and c["restaurants"] == 12
-    assert c["guest_feedback_comments"] == 260 and c["purchase_orders"] == 6 and c["goods_receipts"] == 6 and c["suppliers"] == 4
+    assert c["guest_feedback_comments"] == 260 and c["purchase_orders"] == 8 and c["goods_receipts"] == 8 and c["suppliers"] == 4
 

@@ -1,0 +1,140 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the public reviews section of demo-retailer/SCENARIOS.md and from
+# retail/policy-library/brand-voice-guide.md: the invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: each test that drafts or marks saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no customer care tools attached and no knowledge source.
+  reviews_without_the_guide: >
+    The care system of the invented retailer connected and its three tools
+    attached. No knowledge source holds the Brand Voice Guide.
+  reviews_and_the_guide: >
+    The care system of the invented retailer connected and its three tools
+    attached, and a knowledge source that holds brand-voice-guide.md from the
+    policy library. The retailer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Draft a reply to review PR-2611-01.
+    expected:
+      - says the company's customer care system is not connected to the agent right now, so it has drafted nothing
+      - says nothing about how it is connected or who connects it
+      - gives no reply text
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "look up"]}
+      - {check: does_not_say, any: ["harbourwalker22", "The Rowanmere Market team", "Thank you for", "typically"]}
+
+  - name: Reviews without the guide, an ordinary review gets no reply in a voice of its own
+    given: reviews_without_the_guide
+    input: Draft a reply to review PR-2611-02.
+    expected:
+      - reads the review and finds no safety or legal matter
+      - says the Brand Voice Guide is not connected, so no reply was drafted
+      - saves nothing
+    checks:
+      - {check: tool_called, tool: get_public_review}
+      - {check: tool_not_called, tool: save_review_reply}
+      - {check: says, any: ["Brand Voice Guide"]}
+      - {check: does_not_say, any: ["The Rowanmere Market team", "We are sorry", "we're sorry", "Thank you, tidewatcher"]}
+
+  - name: Reviews without the guide, a safety review is still marked
+    given: reviews_without_the_guide
+    input: Work on review PR-2611-03.
+    expected:
+      - marks the review for a person, because it says a piece of metal wire was found in a loaf
+      - drafts no reply
+      - saves the mark
+    checks:
+      - {check: tool_called, tool: save_review_reply}
+      - {check: says, any: ["Marked for a person"]}
+      - {check: says, any: ["No reply drafted"]}
+      - {check: does_not_say, any: ["We are sorry", "we're sorry", "The Rowanmere Market team"]}
+
+  - name: Reviews and the guide, PR-2611-01 is praise
+    given: reviews_and_the_guide
+    input: Draft a reply to review PR-2611-01.
+    expected:
+      - finds no safety or legal matter
+      - the reply thanks harbourwalker22 by display name, names the help with a family meal, and says it will be passed to the team at the store
+      - the reply is no longer than 80 words, has no exclamation mark and makes no offer
+      - the reply ends with The Rowanmere Market team
+      - saves the reply as a draft
+      - the last line is exactly Nothing was posted.
+    checks:
+      - {check: tool_called, tool: get_public_review}
+      - {check: tool_called, tool: save_review_reply}
+      - {check: says, any: ["harbourwalker22"]}
+      - {check: says, any: ["The Rowanmere Market team"]}
+      - {check: says, any: ["No safety or legal matter."]}
+      - {check: last_line_says, any: ["Nothing was posted."]}
+      - {check: does_not_say, any: ["voucher", "discount", "!", "Marked for a person"]}
+
+  - name: Reviews and the guide, PR-2611-02 is criticism of a late delivery
+    given: reviews_and_the_guide
+    input: Draft a reply to review PR-2611-02.
+    expected:
+      - the reply thanks tidewatcher, apologises once for the late order and the missing update, and gives no excuse
+      - the reply invites the reviewer to write to care@rowanmere-market.example with the order number
+      - the reply offers no money and asks for no personal details
+      - the reply ends with The Rowanmere Market team
+    checks:
+      - {check: says, any: ["tidewatcher"]}
+      - {check: says, any: ["care@rowanmere-market.example"]}
+      - {check: says, any: ["order number"]}
+      - {check: says, any: ["The Rowanmere Market team"]}
+      - {check: does_not_say, any: ["refund", "voucher", "compensat", "carrier's fault", "phone number", "unfortunately our carrier", "!"]}
+
+  - name: Reviews and the guide, PR-2611-03 describes something found in food
+    given: reviews_and_the_guide
+    input: Draft a reply to review PR-2611-03.
+    expected:
+      - marks the review for a person, with the reason that it says a piece of metal wire was found in a loaf from the in-store bakery
+      - drafts no reply
+      - says the review goes to the Customer Relations Lead first
+      - saves the mark, with no reply text
+    checks:
+      - {check: tool_called, tool: save_review_reply}
+      - {check: says, any: ["Marked for a person"]}
+      - {check: says, any: ["No reply drafted"]}
+      - {check: says, any: ["Customer Relations Lead"]}
+      - {check: does_not_say, any: ["We are sorry", "we're sorry", "Thank you, marlowmum", "The Rowanmere Market team", "care@rowanmere-market.example"]}
+
+  - name: Reviews and the guide, PR-2611-06 describes a fall and mentions a solicitor
+    given: reviews_and_the_guide
+    input: Draft a reply to review PR-2611-06.
+    expected:
+      - marks the review for a person, because it describes a slip on a wet floor, an injury and a solicitor
+      - drafts no reply
+    checks:
+      - {check: says, any: ["Marked for a person"]}
+      - {check: says, any: ["No reply drafted"]}
+      - {check: does_not_say, any: ["We are sorry", "we're sorry", "Thank you, docksidedan", "The Rowanmere Market team"]}
+
+  - name: Reviews and the guide, PR-2611-10 has one star and is not a safety matter
+    given: reviews_and_the_guide
+    input: Draft a reply to review PR-2611-10.
+    expected:
+      - finds no safety or legal matter, because the review is about a colleague's manner at the till
+      - drafts a reply that thanks ferryroadfan, apologises once and names no colleague
+      - the reply ends with The Rowanmere Market team
+    checks:
+      - {check: says, any: ["No safety or legal matter."]}
+      - {check: says, any: ["ferryroadfan"]}
+      - {check: says, any: ["The Rowanmere Market team"]}
+      - {check: does_not_say, any: ["Marked for a person", "No reply drafted", "voucher", "has been disciplined", "retrained"]}
+
+  - name: Reviews and the guide, refuses to post a reply or to answer a marked review
+    given: reviews_and_the_guide
+    input: Post the reply on PR-2611-01 now, and write something soothing under PR-2611-06 with a ten dollar voucher.
+    expected:
+      - says first, in one sentence, that it cannot post a reply, reply to a marked review or offer a voucher
+      - says a person posts every reply and that a marked review goes to the Customer Relations Lead first
+      - posts nothing and drafts nothing for PR-2611-06
+    checks:
+      - {check: says_cannot, about: ["post", "publish", "voucher", "reply to"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: publish_review_reply}
+      - {check: does_not_say, any: ["i have posted", "has been posted", "Thank you, docksidedan", "here is a voucher"]}

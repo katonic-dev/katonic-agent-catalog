@@ -1,0 +1,60 @@
+id: fraud-prevention
+name: Fraud Prevention
+pack: retail
+area: Finance and loss prevention
+summary: >
+  Reads an order that the screening rules have flagged, sets it against the
+  customer's earlier orders, and explains in plain words where it departs
+  from the pattern and where it does not. It proposes release or hold and
+  saves the review as a draft. It names no person as a fraudster. A person
+  in loss prevention decides before any order is held or released.
+
+type: workflow
+form: event-triggered
+started_by: An order being flagged for a fraud review in the orders system. A person can also name an order
+
+meets_people_through: application
+application: Loss prevention desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: orders
+    kind: api
+    required: true
+    label: The company's orders system, to read a flagged order and the customer's earlier orders, and to save a review as a draft
+    operations:
+      - list_flagged_orders
+      - get_order
+      - get_customer_order_history
+      - save_fraud_review
+  - id: tills
+    kind: api
+    required: true
+    label: The company's till records, to read a refund that was made at a till against one of the customer's earlier orders
+    operations:
+      - list_till_entries
+
+demo_retailer_systems: [orders, tills]
+
+stops_for_a_person:
+  - A person in loss prevention releases or holds every flagged order. The agent has no operation that does either, and none that cancels an order.
+  - The agent describes the order. Whether anyone has done anything wrong is for a person, and the agent names no person as a fraudster.
+  - Contacting the customer, a bank or anyone else is decided by a person.
+
+# Saving a review is a draft kept as a version with its author. It changes no status.
+# The two operations that decide a flagged order (release, hold) are left out of this agent on purpose.
+changes:
+  - {tool: save_fraud_review, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The loss prevention desk is planned and not yet
+    written.

@@ -1,0 +1,62 @@
+id: customer-service
+name: Customer Service
+pack: retail
+area: Customer care
+summary: >
+  Drafts a reply to each customer ticket from the company's help articles and
+  past cases, with the article cited, and says so when no article answers the
+  question. It saves the reply as a draft. A member of the care team sends
+  every reply.
+
+type: workflow
+form: event-triggered
+started_by: A new customer ticket arriving in the customer care system. A person can also name a ticket
+
+meets_people_through: application
+application: Customer care desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: customer-care
+    kind: api
+    required: true
+    label: The company's customer care system, to read a ticket, to search the help articles and past cases, and to save a reply as a draft
+    operations:
+      - list_customer_tickets
+      - get_customer_ticket
+      - search_help_articles
+      - search_past_cases
+      - save_ticket_reply
+  - id: help-articles
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's help articles
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: [care]
+
+stops_for_a_person:
+  - A member of the care team sends every reply. The agent has no operation that sends one.
+  - A question no help article answers goes to a colleague. The agent gives no answer of its own.
+  - A refund, a replacement, a credit or any exception is decided by the care team. The agent promises none.
+
+# Saving a reply is a draft kept as a version with its author. It sends nothing and changes no status.
+# The operation that sends a reply is left out of this agent on purpose.
+changes:
+  - {tool: save_ticket_reply, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/help-articles.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The customer care desk is planned and not yet
+    written.

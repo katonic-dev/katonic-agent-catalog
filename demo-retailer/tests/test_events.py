@@ -35,8 +35,8 @@ def test_supplier_invoice_four_templates_in_turn(client, store):
             client, "/purchasing/goods-receipts", po_number=inv["po_number"])["items"][0]["receipt_id"]]
         assert po["invoice_numbers"] == [r["item_id"]]
     assert len(set(made)) == 8 and not set(made) & {"INV-88214", "INV-3391", "INV-77102", "INV-5120", "INV-6417", "INV-9034"}
-    assert len(store.data["supplier_invoices"]) == 14 and len(store.data["purchase_orders"]) == 14
-    assert len(store.data["goods_receipts"]) == 14
+    assert len(store.data["supplier_invoices"]) == 14 and len(store.data["purchase_orders"]) == 16
+    assert len(store.data["goods_receipts"]) == 16
     assert get(client, "/admin/state")["counts"]["supplier_invoices_received"] == 14
 
 

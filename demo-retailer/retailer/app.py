@@ -1,4 +1,4 @@
-"""Assembles the service: seven systems, admin routes, landing page, health."""
+"""Assembles the service: eight systems, admin routes, landing page, health."""
 
 from __future__ import annotations
 
@@ -17,11 +17,11 @@ from .common import Ctx, public_scheme, DemoJSONResponse, FastAPIOffline, make_a
 from .config import RETAILER_NAME, INVENTED_NOTICE, load_settings
 from .mcp_doors import install_mcp
 from .store import Store
-from .systems import care, foodsafety, performance, purchasing, stores, tills
+from .systems import care, foodsafety, orders, performance, purchasing, stores, tills
 from .systems import property as leases
 
 log = logging.getLogger("demo-retailer")
-SYSTEMS = [stores, foodsafety, care, purchasing, leases, performance, tills]
+SYSTEMS = [stores, foodsafety, care, purchasing, leases, performance, tills, orders]
 
 
 class DemoHeaderMiddleware:
@@ -72,7 +72,8 @@ class WriteNotes:
 
 
 class SubscriptionBody(BaseModel):
-    event_kind: Literal["*", "supplier-invoice", "food-safety-records", "site-visit"] = Field(
+    event_kind: Literal["*", "supplier-invoice", "food-safety-records", "site-visit", "customer-ticket", "return-request",
+                        "complaint", "public-review", "flagged-order", "delivery-note", "supplier-question"] = Field(
         "*", description="Which events to send. * means all.")
     url: str = Field(..., description="Where to POST the event.")
     header_name: str = Field("", description="Name of the header that carries the secret.")
@@ -230,7 +231,7 @@ th{{background:#eef2f7}}code{{background:#eef2f7;padding:1px 4px}}</style></head
 Every JSON answer carries <code>"demo_data": true</code> and the header <code>X-Demo-Data: invented</code>.</p>
 <p>Retailer date: <b>{settings.retailer_today.isoformat()}</b>. Data operations need a key in the <code>X-API-Key</code> header
 (or <code>Authorization: Bearer ...</code>). The key is not shown here.</p>
-<h2>The seven systems</h2>
+<h2>The eight systems</h2>
 <table><tr><th>System</th><th>API docs</th><th>OpenAPI document</th><th>MCP addresses</th></tr>{''.join(rows)}</table>
 <h2>Open items</h2><table>{count_rows}</table>
 <h2>Start again</h2>

@@ -30,7 +30,7 @@ def test_key_is_required_and_both_forms_work(client):
 def test_every_system_refuses_a_call_without_a_key(client):
     probes = {"stores": "/stores/sites", "foodsafety": "/foodsafety/plan", "care": "/care/feedback",
               "purchasing": "/purchasing/invoices", "property": "/property/leases", "performance": "/performance/periods",
-              "tills": "/tills/rules"}
+              "tills": "/tills/rules", "orders": "/orders/orders"}
     assert list(probes) == SYSTEMS
     for path in probes.values():
         r = client.get(path)
@@ -112,7 +112,8 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 counts[system] += 1
                 oid = op["operationId"]
                 assert oid.islower() and all(c.isalnum() or c == "_" for c in oid), oid
-                assert oid.split("_")[0] in ("list", "get", "save", "request", "record", "sign", "approve", "raise"), oid
+                assert oid.split("_")[0] in ("list", "get", "save", "request", "record", "sign", "approve", "raise", "search", "send",
+                                             "publish", "refuse", "release", "hold"), oid
                 assert oid not in seen, f"duplicate {oid}"
                 seen[oid] = system
                 assert op["summary"].strip() and len(op["description"]) > 40, oid
@@ -120,8 +121,9 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                     assert p.get("description"), (oid, p["name"])
                 if "(change)" in op["summary"]:
                     assert method == "post", oid
-    assert counts == {"stores": 5, "foodsafety": 8, "care": 4, "purchasing": 10, "property": 3, "performance": 4, "tills": 4}
-    assert sum(counts.values()) == 38
+    assert counts == {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
+                      "orders": 14}
+    assert sum(counts.values()) == 78
     assert sorted(seen) == sorted([
         "list_sites", "get_site", "list_site_visits", "get_site_visit", "save_visit_report",
         "get_food_safety_plan", "list_record_periods", "get_food_safety_records", "get_record_review", "save_record_check",
@@ -132,7 +134,18 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
         "raise_invoice_query",
         "list_leases", "get_lease", "save_lease_summary",
         "list_performance_periods", "get_restaurant_performance", "get_peer_group_performance", "save_performance_review",
-        "get_till_rules", "list_till_entries", "get_till_audit", "save_till_audit"])
+        "get_till_rules", "list_till_entries", "get_till_audit", "save_till_audit",
+        # version 1.2
+        "list_customer_tickets", "get_customer_ticket", "search_help_articles", "search_past_cases", "save_ticket_reply",
+        "send_ticket_reply", "list_complaints", "get_complaint", "get_complaints_procedure", "save_complaint_classification",
+        "save_complaint_response", "send_complaint_response", "list_public_reviews", "get_public_review", "save_review_reply",
+        "publish_review_reply",
+        "list_delivery_notes", "get_delivery_note", "save_discrepancy_claim", "send_discrepancy_claim",
+        "list_supplier_payments", "get_supplier_payment", "list_supplier_questions", "get_supplier_question",
+        "save_supplier_reply", "send_supplier_reply",
+        "search_orders", "get_order", "get_delivery_scans", "get_returns_policy", "list_return_requests", "get_return_request",
+        "save_return_assessment", "approve_return", "refuse_return", "list_flagged_orders", "get_customer_order_history",
+        "save_fraud_review", "release_flagged_order", "hold_flagged_order"])
 
 
 def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
@@ -145,12 +158,19 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                 if op["summary"].endswith("(draft)"):
                     assert op["operationId"].startswith("save_")
     assert changes == {"request_corrective_actions", "record_corrective_action", "sign_monthly_review",
-                       "approve_invoice_for_payment", "raise_invoice_query"}
+                       "approve_invoice_for_payment", "raise_invoice_query",
+                       # version 1.2: nine changes, each made by a named person after a draft is saved
+                       "send_ticket_reply", "send_complaint_response", "publish_review_reply", "send_discrepancy_claim",
+                       "send_supplier_reply", "approve_return", "refuse_return", "release_flagged_order",
+                       "hold_flagged_order"}
     # version 1.1 added no operation that changes a record: its four writes are drafts
     drafts = {op["operationId"] for doc in docs(client).values() for item in doc["paths"].values() for op in item.values()
               if op["summary"].endswith("(draft)")}
     assert drafts == {"save_record_check", "save_feedback_analysis", "save_invoice_match", "save_visit_report",
-                      "save_lease_summary", "save_performance_review", "save_till_audit"}
+                      "save_lease_summary", "save_performance_review", "save_till_audit",
+                      # version 1.2
+                      "save_ticket_reply", "save_complaint_classification", "save_complaint_response", "save_review_reply",
+                      "save_discrepancy_claim", "save_supplier_reply", "save_return_assessment", "save_fraud_review"}
 
 
 def test_servers_and_docs_under_a_prefix():
@@ -170,7 +190,7 @@ def test_landing_page_has_no_external_assets(client):
     for s in SYSTEMS:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/sse" in text
     assert "supplier-invoice" in text and "food-safety-records" in text and "site-visit" in text
-    assert "The seven systems" in text
+    assert "The eight systems" in text
 
 
 # ---------------------------------------------------------------- data invariants
@@ -191,8 +211,8 @@ def test_the_period_follows_the_retailer_date():
 
 def test_ids_and_counts(store):
     d = store.data
-    assert len(d["sites"]) == 20 and len(d["suppliers"]) == 4 and len(d["purchase_orders"]) == 6
-    assert len(d["goods_receipts"]) == 6 and len(d["supplier_invoices"]) == 6 and len(d["guest_feedback"]) == 260
+    assert len(d["sites"]) == 20 and len(d["suppliers"]) == 4 and len(d["purchase_orders"]) == 8
+    assert len(d["goods_receipts"]) == 8 and len(d["supplier_invoices"]) == 6 and len(d["guest_feedback"]) == 260
     for ref, x in d["guest_feedback"].items():
         assert x["site_id"] in d["sites"] and d["sites"][x["site_id"]]["kind"] == "restaurant"
         assert 1 <= x["rating"] <= 5 and x["date"].startswith("2026-10-")

@@ -7,13 +7,19 @@ import threading
 import urllib.error
 import urllib.request
 
+from .seed_care_desk import sim_complaint, sim_review, sim_ticket
 from .seed_food import sim_records
+from .seed_orders import sim_flagged, sim_return
 from .seed_purch import sim_invoice
+from .seed_purch_more import sim_note, sim_question
 from .seed_visits import sim_visit
 from .store import Store, now_iso
 
-KINDS = ["supplier-invoice", "food-safety-records", "site-visit"]
-SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety", "site-visit": "stores"}
+KINDS = ["supplier-invoice", "food-safety-records", "site-visit", "customer-ticket", "return-request", "complaint",
+         "public-review", "flagged-order", "delivery-note", "supplier-question"]
+SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety", "site-visit": "stores",
+             "customer-ticket": "care", "return-request": "orders", "complaint": "care", "public-review": "care",
+             "flagged-order": "orders", "delivery-note": "purchasing", "supplier-question": "purchasing"}
 TIMEOUT = 10
 
 # ----------------------------------------------------------------- sending
@@ -81,7 +87,59 @@ def _visit(store: Store, n: int) -> tuple[str, str]:
     return sim_visit(d, today, n % 4, visit_id)
 
 
-MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records, "site-visit": _visit}
+def _month(store: Store) -> str:
+    today = store.settings.retailer_today
+    return f"{today.year % 100:02d}{today.month:02d}"
+
+
+def _ticket(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    ticket_id = store.next_free("sim_ticket", 1, d["tickets"], lambda k: f"CT-{month}-{100 + k}")
+    return sim_ticket(d, store.settings.retailer_today, n % 4, ticket_id)
+
+
+def _complaint(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    complaint_id = store.next_free("sim_complaint", 1, d["complaints"], lambda k: f"CM-{month}-{50 + k}")
+    return sim_complaint(d, store.settings.retailer_today, n % 4, complaint_id)
+
+
+def _review(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    review_id = store.next_free("sim_review", 1, d["public_reviews"], lambda k: f"PR-{month}-{50 + k}")
+    return sim_review(d, store.settings.retailer_today, n % 4, review_id)
+
+
+def _return(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    order = store.next_free("sim_return_order", 1, d["orders"], lambda k: f"RM-{59000 + k}")
+    request_id = store.next_free("sim_return", 1, d["return_requests"], lambda k: f"RR-{month}-{50 + k}")
+    return sim_return(d, store.settings.retailer_today, n % 4, order, request_id)
+
+
+def _flagged(store: Store, n: int) -> tuple[str, str]:
+    d = store.data
+    order = store.next_free("sim_flagged", 1, d["orders"], lambda k: f"RM-{59500 + k}")
+    return sim_flagged(d, store.settings.retailer_today, n % 4, order)
+
+
+def _note(store: Store, n: int) -> tuple[str, str]:
+    d = store.data
+    po = store.next_free("sim_note_po", 1, d["purchase_orders"], lambda k: f"PO-{450300 + k}")
+    receipt = store.next_free("sim_note_gr", 1, d["goods_receipts"], lambda k: f"GR-{60300 + k}")
+    note = store.next_free("sim_note", 1, d["delivery_notes"], lambda k: f"DN-{4500 + k}")
+    return sim_note(d, store.settings.retailer_today, n % 4, po, receipt, note)
+
+
+def _question(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    question_id = store.next_free("sim_question", 1, d["supplier_questions"], lambda k: f"SQ-{month}-{50 + k}")
+    return sim_question(d, store.settings.retailer_today, n % 4, question_id)
+
+
+MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records, "site-visit": _visit, "customer-ticket": _ticket,
+          "return-request": _return, "complaint": _complaint, "public-review": _review, "flagged-order": _flagged,
+          "delivery-note": _note, "supplier-question": _question}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

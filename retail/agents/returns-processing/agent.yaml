@@ -1,0 +1,68 @@
+id: returns-processing
+name: Returns Processing
+pack: retail
+area: Customer care
+summary: >
+  Checks a return request against the company's returns policy, says which
+  condition it meets or fails, and prepares the proposal and the message to
+  the customer. It saves the assessment as a draft. It approves no return,
+  refuses none and issues no refund. A person in the care team decides.
+
+type: workflow
+form: event-triggered
+started_by: A new return request arriving in the orders system. A person can also name a request
+
+meets_people_through: application
+application: Customer care desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: orders
+    kind: api
+    required: true
+    label: The company's orders system, to read a return request, the order it is on and the returns policy, and to save an assessment as a draft
+    operations:
+      - list_return_requests
+      - get_return_request
+      - get_order
+      - get_returns_policy
+      - save_return_assessment
+  - id: customer-care
+    kind: api
+    required: true
+    label: The company's customer care system, to see how the team decided similar returns before
+    operations:
+      - search_past_cases
+  - id: returns-policy
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Returns Policy
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: [care, orders]
+
+stops_for_a_person:
+  - A person in the care team approves or refuses every return. The agent has no operation that does either.
+  - The agent issues no refund. A refund follows a person's approval, in the payment system.
+  - A request the policy does not decide, such as damage reported late, goes to the Customer Care Team Leader. So does any goodwill outside the policy.
+
+# Saving an assessment is a draft kept as a version with its author. It changes no status.
+# The two operations that decide a return (approve, refuse) are left out of this agent on purpose.
+changes:
+  - {tool: save_return_assessment, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/returns-policy-v3.0.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The customer care desk is planned and not yet
+    written.
