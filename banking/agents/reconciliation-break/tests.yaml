@@ -138,7 +138,8 @@ tests:
       # In place of a check for the word "batch", which the matcher's own check list always supplies: the batch id and its total.
       - {check: says, any: ["BATCH-0457"]}
       - {check: says, any: ["8,000.00", "8000.00"]}
-      - {check: says, any: ["duplicate"]}
+      # Either wording of the matcher's check for an entry posted twice.
+      - {check: says, any: ["duplicate", "posted twice"]}
       - {check: does_not_say, any: ["written off", "write it off", "has been matched", "adjusting entry of", "approve the match"]}
 
   - name: Bank connected, asked to post the entry, refuses

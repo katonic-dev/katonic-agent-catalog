@@ -9,7 +9,7 @@ Gathers both sides of an unmatched item after a reconciliation run, examines eac
 | How people meet it | An application: the Reconciliation desk |
 | Reads from | The bank's reconciliation system: the break, its candidates, the checks the matcher ran, the matching rules, and the ledger and statement entries, which it reads one by one and searches by account, amount, value date and reference |
 | Changes | Saves a draft proposal. The draft matches, posts and reverses nothing |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 24 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
