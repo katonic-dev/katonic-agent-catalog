@@ -1,0 +1,280 @@
+{
+  "$comment": "What makes the generic case desk the recall desk of Rowanmere Market. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. One kind of case, Recalled batch, goes to one agent. The desk records what a person decided. It issues nothing, sends nothing to a store or a customer and calls no operation of the retailer. Rowanmere Group, its suppliers, its customers, its colleagues and every record are invented.",
+  "desk": {
+    "id": "recall",
+    "name": "Recall desk",
+    "caseNoun": "recall",
+    "caseNounPlural": "recalls",
+    "draftNoun": "pack",
+    "deciderRole": "quality lead",
+    "tagline": "A recalled batch, where it went, the instruction to the stores and the notice to customers as drafts, a place to decide, and the register afterwards.",
+    "addLabel": "Add a recall",
+    "issuedVerb": "Issue decided by",
+    "documentLinkLabel": "Download the pack as decided",
+    "arrivedVia": {
+      "feed": "the stock system",
+      "officer": "the Quality team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "supplier"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "reach",
+      "against"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this recall. Correct the details and add them, or remove the recall.",
+    "noTextNote": "No records were supplied with this recall. Say so under the heading \"Summary\", write no table, no instruction and no notice, and write the last line as: Proposal: ask again: the recall came with no records.",
+    "askPlaceholder": "For example: why is order RM-58188 not on the list?",
+    "searchPlaceholder": "Search by batch, product, store or order",
+    "demoNote": "Demo data: Rowanmere Group, its suppliers, its customers, its colleagues and every batch, store and order are invented.",
+    "listFields": [
+      "reach",
+      "received_on"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true
+  },
+  "due": {
+    "field": "received_on",
+    "standardDays": 0,
+    "expeditedDays": 0,
+    "$comment": "The demo's turnaround: the day the recall is raised. Set these to the company's own."
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Recalled batch": {
+        "agentEnv": "RECALL_PREPARATION_AGENT_ID",
+        "instruction": "A recalled batch has arrived at the recall desk of Rowanmere Market. Prepare the recall pack in three parts, in this order: where the batch went, the instruction to the stores, and the notice to customers. You issue nothing and you contact nobody: a quality lead reads the pack and decides.\n\nWork from this message only. The case below carries the recall in the supplier's own words, the batch record, every store the batch was delivered to and every online order it was picked for, what is not on the batch record, and the recall procedure, as the stock, orders and stores systems hold them. Read nothing from any system and save nothing, because the desk keeps the pack. Write no line about saving a draft. Copy every batch number, store number, order number, date and figure exactly. Invent no batch, no store, no order, no date and no figure. Give the supplier's words about the fault as written. Say nothing about what caused the fault, and nothing about whether anyone was or was not harmed. Give no medical advice: a customer who feels unwell is told to speak to a doctor, and nothing more. Use nothing about a customer beyond the name, the order number and the address for messages that the case gives. Write plain statements and, outside the two texts, do not write in the first person.\n\nPart one, where the batch went:\n- List every store under \"STORES THE BATCH WAS DELIVERED TO\" and every order under \"ONLINE ORDERS THE BATCH WAS PICKED FOR\", each once. Leave none out.\n- The batch record is the only source. Add nothing that is under \"NOT ON THE BATCH RECORD\": another batch of the same line is not recalled, and an order that holds the line and is not on the record was not picked from this batch.\n- When the note of the quality lead names a store or an order to add, add it as a row marked \"added\", say in its note that the quality lead added it and that the batch record does not hold it, and name it in the texts.\n- One customer can have more than one order on the record. That customer gets one notice.\n\nPart two, the store instruction: one instruction for all the stores on the list, to the recall procedure. In this order: the product, the batch number and the best-before date; take every unit of the batch off sale at once and hold it apart from other stock; count the units and report the count to the Quality team; send a customer who brings the product back to the service desk for a full refund without a receipt; the stores it goes to, by number.\n\nPart three, the customer notice: one notice, to the recall procedure. In this order: the product, the batch number and the best-before date; what the supplier has reported, in the supplier's own words; do not use the product; the remedy as the recall gives it; the customer care address the recall gives; and one sentence for a customer who feels unwell: speak to a doctor. Calm, with no alarm and no reassurance. It names no customer: the list of orders says who it goes to.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the batch, the product and the best-before date; who raised the recall and when, and the supplier's words about the fault; any customer who has more than one order on the record, by name; and what was left out because it is not on the batch record. Put no count of marks, of rows, of stores or of orders in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft recall pack. For the quality lead. Nothing sent.\"\n3. A Markdown table with exactly these seven columns. Put no vertical bar inside a cell.\n| # | Store or order | Units | Goes to | Record | Mark | Note |\nFirst one row whose cell Store or order is exactly \"Stores\" and whose other cells are empty, then one row for each store. Then one row whose cell Store or order is exactly \"Online orders\" and whose other cells are empty, then one row for each order. The two heading rows carry no number. # is 1, 2, 3 in order through the stores and the orders. For a store: Store or order is the store's number and name; Units is the units delivered, sold and on hand; Goes to is the town and the area manager; Record is the day it was delivered. For an order: Store or order is the order number and its status; Units is the units picked and the line it went out as; Goes to is the customer's name, then <br>, then the address for messages; Record is the day it was picked. Mark is exactly one of: listed, added, not checked, in lower case. \"listed\" is a store or an order on the batch record. Note is empty, except: for the second order of a customer, that the customer gets one notice for both orders; and for an added row, who added it.\n4. A blank line, then a line that is exactly \"Store instruction. Draft.\" and under it the instruction, word for word. No more than 130 words. End it with: Rowanmere Market Quality team\n5. A blank line, then a line that is exactly \"Customer notice. Draft.\" and under it the notice, word for word. No more than 130 words. End it with: Rowanmere Market\n6. A blank line, then a line that is exactly \"Left out, and why.\" and under it one line for each batch and each order under \"NOT ON THE BATCH RECORD\", with the reason in a few words. If there is none, write: Nothing else holds this line.\n7. A blank line, then one line that starts \"Proposal:\" and is exactly: \"issue the notices:\" followed by one sentence that says the list is the batch record and that the two texts follow the recall procedure. Write nothing after that line.",
+        "decisions": [
+          "issue",
+          "add_missed",
+          "send_back"
+        ]
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the Quality team (the form at the top of the list)",
+      "Sent by the stock system when a supplier's recall arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Recall",
+        "hint": "The batch number, then the product. For example BT-44031 Pasta sauce, six jars.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "This desk has one kind.",
+        "required": true,
+        "options": [
+          "Recalled batch"
+        ]
+      },
+      {
+        "key": "supplier",
+        "label": "Supplier",
+        "hint": "The supplier that raised the recall.",
+        "required": true
+      },
+      {
+        "key": "reach",
+        "label": "Reach",
+        "hint": "How many stores and online orders the batch record names. For example 4 stores, 7 orders.",
+        "required": false
+      },
+      {
+        "key": "against",
+        "label": "Set against",
+        "hint": "The recall procedure and its version.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Recall raised",
+        "hint": "The day the supplier raised the recall, written as 2026-11-24. The queue counts from this day.",
+        "required": false,
+        "shownAs": "Raised {value}"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the stock, orders and stores systems hold for the batch. Each part starts with a heading in capitals: the recall, the batch record, the stores, the online orders, what is not on the batch record, and the recall procedure. A customer is a name, an order number and an address for messages, and nothing more.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the recall desk whose kind of work is not one this desk knows. The one kind is Recalled batch. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table, no instruction and no notice. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Store instruction. Draft.",
+        "title": "Draft store instruction",
+        "hint": "Not sent. The desk sends nothing to a store."
+      },
+      {
+        "heading": "Customer notice. Draft.",
+        "title": "Draft customer notice",
+        "hint": "Not sent. The desk sends nothing to a customer."
+      },
+      {
+        "heading": "Left out, and why.",
+        "title": "Left out of the recall",
+        "hint": "Not on the batch record. The batch record is the only source."
+      }
+    ],
+    "marks": {
+      "listed": "On the batch record",
+      "added": "Added by the quality lead",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "listed": "ok",
+      "added": "person",
+      "not checked": "none"
+    },
+    "markHints": {
+      "listed": "The batch record names this store or this order",
+      "added": "The batch record does not name it. The quality lead added it, with a note",
+      "not checked": "The record needed to check this was not with the recall"
+    },
+    "proposalPrefix": "Proposal:",
+    "passMark": "listed",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "groupHeadings": true,
+    "rowLabels": {
+      "source": "Units",
+      "policy": "Goes to",
+      "citation": "Record",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "issue",
+      "label": "Issue the notices",
+      "proposalPrefix": "issue the notices",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you decide to issue version {version}{edited} of the store instruction and the customer notice, in your name. The desk sends nothing to a store or a customer: the notices go out from the Quality team."
+    },
+    {
+      "id": "add_missed",
+      "label": "Add a store or an order",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "The store or the order to add, and the record that shows it (the agent sees this note)",
+      "noteHint": "For example: add S-102, which took 24 units from S-101 on transfer note TN-2291. The agent drafts the pack again with it, marked as added by you."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "To issue",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk issues nothing and sends nothing to a store or a customer: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "supplier",
+      "reach",
+      "against",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Recall",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a recall cannot decide it. Any other quality lead can. You can still ask the agent again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Issuing while a row is not on the batch record needs a reason",
+    "reasonToApproveUnmetLabel": "Why you issue although a row is not on the batch record",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as a decision to issue. The desk has sent nothing to a store or a customer: the instruction and the notice go out from the Quality team, in your name."
+  },
+  "decisionLabels": {
+    "issued": "Decided to issue",
+    "sent_back": "Asked the agent again",
+    "removed": "Removed from the desk"
+  }
+}

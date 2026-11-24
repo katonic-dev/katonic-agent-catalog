@@ -70,8 +70,8 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Customer care desk](desks/customer-care/README.md) | Customer Service, Returns Processing, Complaint Handling, Review Reply | Written. Run against the stand-in platform on 24 November 2026: twenty-four scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against the four real agents |
 | [Loss prevention desk](desks/loss-prevention/README.md) | Fraud Prevention, Shrink Analysis, Refund and Discount Audit | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at two widths in light and dark. Not yet run against the real agents |
 | [Pricing and replenishment desk](desks/pricing-and-replenishment/README.md) | Price Optimization, Inventory Forecasting | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at two widths in light and dark. Not yet run against the real agents |
-| Product data desk | Product Catalog, Product Data Check | Planned |
-| Recall desk | Product Recall Preparation | Planned |
+| [Product data desk](desks/product-data/README.md) | Product Catalog, Product Data Check | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against the two real agents |
+| [Recall desk](desks/recall/README.md) | Product Recall Preparation | Written. Run against the stand-in platform on 24 and 25 November 2026: twenty scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against the real agent |
 
 ## The store website
 

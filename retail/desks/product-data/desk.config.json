@@ -1,0 +1,361 @@
+{
+  "$comment": "What makes the generic case desk the product data desk of Rowanmere Market's online shop. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. Two kinds of case sit in one queue, and each goes to its own agent: New product, Listing check. The desk records what a person decided. It publishes nothing, changes no listing and calls no operation of the retailer. Rowanmere Group, its suppliers, its products and every record are invented.",
+  "desk": {
+    "id": "product-data",
+    "name": "Product data desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "content lead",
+    "tagline": "New products that need a description and listings set against the supplier's specification, a draft for each from its own agent, a place to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "issuedVerb": "Publishing decided by",
+    "documentLinkLabel": "Download the draft as decided",
+    "arrivedVia": {
+      "feed": "the catalogue system",
+      "officer": "the content team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "supplier"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "category",
+      "against"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this case. Correct the details and add them, or remove the case.",
+    "noTextNote": "No records were supplied with this case. Say so under the heading \"Summary\", write no table and no description, and write the last line as: Proposal: ask again: the case came with no records.",
+    "askPlaceholder": "For example: which record does row 1 rest on?",
+    "searchPlaceholder": "Search by line, product, supplier or kind",
+    "demoNote": "Demo data: Rowanmere Group, its suppliers, its products and every listing and specification are invented. The desk holds no images: an image is a description in words.",
+    "listFields": [
+      "kind"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "flags": [
+      {
+        "label": "Allergen",
+        "tone": "warn",
+        "reply": "Allergen first:"
+      },
+      {
+        "label": "Image differs",
+        "tone": "person",
+        "reply": "An image description differs"
+      }
+    ]
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "New product": {
+        "agentEnv": "PRODUCT_CATALOG_AGENT_ID",
+        "instruction": "A new product with no description has arrived at the product data desk of Rowanmere Market's online shop. Draft its description and its image tags to the style guide, from the supplier's specification and from the image descriptions. You publish nothing: a content lead reads the draft and decides.\n\nWork from this message only. The case below carries the new product, the supplier's specification, each image as a description in words written by the photo studio, and the style guide, as the catalogue system holds them. Read nothing from any system and save nothing, because the desk keeps the draft. Write no line about saving a draft. The desk holds no images and you have seen none: say what an image description says, and nothing more about a picture. Copy the net quantity, the pack size, the allergen statement (the line \"Allergens\") and the country of origin (the line \"Origin\") from the specification, letter for letter. Work no allergen out, from the name, the ingredients or a picture. Make no health or medical claim, and no claim the specification's claims do not give. Use none of the words the style guide rules out. Write plain statements and, outside the description itself, do not write in the first person.\n\nHow to write the description:\n- As long as the style guide says, in plain sentences. The first sentence says what the product is.\n- Give the net quantity as the specification gives it. Give the storage line where it helps.\n- One sentence may say what the pictures show, in words such as \"shown in the pictures\", only as far as the image descriptions go.\n- For an age-restricted line, the description ends with the sentence the style guide gives, exactly.\n- The image tags: as many as the style guide allows, in lower case, each one a thing an image description says is in a picture.\n- Compare each image description with the specification. Where a pack is described with a net quantity, a pack size or a claim that differs from the specification, use the specification and mark the difference for the content lead.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the line id, the name, the brand and the category; what the draft was written from, by its reference (the specification, the image descriptions, the style guide and its version); a line that is exactly \"No image was seen. Each image is a description in words.\"; whether an image description differs from the specification, and on what; and, for an age-restricted line, that the description ends with the style guide's sentence. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft description. For a content lead. Nothing published.\"\n3. A Markdown table with exactly these seven columns. Put no vertical bar inside a cell.\n| # | Point | The draft says | The specification or the guide says | Record | Mark | Note |\nThe rows, in this order: Facts from the specification, Length and words, Image tags, Images and specification, and, for an age-restricted line only, Closing sentence. # is 1, 2, 3 in order. For Facts from the specification, The draft says and The specification or the guide says each hold four lines with <br> between them: \"Quantity: \" and the net quantity, \"Pack size: \" and the pack size, \"Allergens: \" and the allergen statement, \"Origin: \" and the country of origin, the first as the draft carries them and the second as the specification gives them. For Length and words: the length of the description in words and whether it uses a word the guide rules out, against the guide's limits. For Image tags: how many tags and that each comes from an image description, against the guide's limits. For Images and specification: what the image descriptions say of a net quantity, a pack size or a claim, against the specification. For Closing sentence: the last sentence of the description, against the guide's sentence. Record is the reference the row rests on: the specification's reference, or the rule of the style guide, or the image. Mark is exactly one of: matches, differs, not checked, in lower case. Use \"differs\" only on the row Images and specification, when an image description gives a figure or a claim that the specification does not. Use \"not checked\" when the record needed is not in this message. Note is one short sentence: for a row that matches, what the row rests on; for a difference, that the draft uses the specification and that the content lead asks the supplier.\n4. A blank line, then a line that is exactly \"Description. Draft.\" and under it the description, and nothing else.\n5. A blank line, then a line that is exactly \"Image tags.\" and under it the tags on one line, with commas between them, and then this sentence: Each tag names something an image description says is in a picture. No image was seen.\n6. A blank line, then one line that starts \"Proposal:\" and is exactly: \"publish the description:\" followed by one sentence that says what the draft rests on and names any difference for the content lead. Write nothing after that line.",
+        "decisions": [
+          "publish",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The draft says",
+          "policy": "The specification or the guide says",
+          "both": "The draft and its source both say",
+          "citation": "Record",
+          "check": "Note"
+        },
+        "markLabels": {
+          "matches": "In line"
+        },
+        "markHints": {
+          "matches": "On this point the draft is what the specification or the style guide gives"
+        }
+      },
+      "Listing check": {
+        "agentEnv": "PRODUCT_DATA_CHECK_AGENT_ID",
+        "instruction": "A listing of Rowanmere Market's online shop has arrived at the product data desk for its data check. Set the listing against the supplier's specification, attribute by attribute, and say which attribute is missing or does not match. You correct no listing: a content lead decides.\n\nWork from this message only. The case below carries the listing, the supplier's specification and the rules of the style guide on these attributes, as the catalogue system holds them. Read nothing from any system and save nothing, because the desk keeps the check. Write no line about saving a draft. Copy every value exactly as written. Give both values and do not say which one is right. Work no allergen out, and make no statement that a product is safe for anyone to eat: read out the two statements. List no difference that is not there. Invent no line and no value. Write plain statements and do not write in the first person.\n\nHow to check:\n- Four attributes, in this order: Net quantity, Pack size, Allergen statement, Country of origin. The case writes the allergen statement on the line \"Allergens\" and the country of origin on the line \"Origin\".\n- \"(nothing)\" after an attribute of the listing means that the listing holds nothing for it. When the specification has a value, the attribute is missing.\n- When both have a value and the two differ in any way, the attribute does not match.\n- Two values that are the same, letter for letter, match.\n- The product's name and its description are not compared with the specification. A name that mentions a size is not one of the four attributes.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the line id, the name and the category; the specification the listing was set against, by its reference; and which attribute is missing or does not match, or that every attribute matches. When the finding is on the allergen statement, add a line that starts \"Allergen first:\" and says that the allergen statement is missing or does not match, and that a person reads it before any other finding. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft check. For a content lead. No listing changed.\"\n3. A Markdown table with exactly these seven columns and one row for each of the four attributes. Put no vertical bar inside a cell.\n| # | Attribute | The listing says | The specification says | Record | Mark | Note |\n# is 1 to 4. Attribute is the name of the attribute. The listing says is the listing's value, or \"(nothing)\". The specification says is the specification's value. Record is the specification's reference and, for a finding, the rule of the style guide on that attribute. Mark is exactly one of: matches, missing, does not match, not checked, in lower case. Note is, for a finding, what the rule says the listing carries, in the rule's own words. For a match, leave Note empty.\n4. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"correct the listing:\" followed by the attribute, whether it is missing or does not match, and both values; or \"keep the listing: every attribute matches the specification\". Write nothing after that line.",
+        "decisions": [
+          "accept_correction",
+          "keep_listing",
+          "ask_supplier",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The listing says",
+          "policy": "The specification says",
+          "both": "The listing and the specification both say",
+          "citation": "Record",
+          "check": "Note"
+        },
+        "markLabels": {
+          "matches": "Matches"
+        },
+        "markHints": {
+          "matches": "The listing and the specification say the same, letter for letter"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the content team (the form at the top of the list)",
+      "Sent by the catalogue system when a new product arrives or the data check runs (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case",
+        "hint": "The line id, then the product's name. For example AG-4411 Oat granola, 500 g.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "New product",
+          "Listing check"
+        ]
+      },
+      {
+        "key": "supplier",
+        "label": "Supplier",
+        "hint": "The supplier's name, as the specification gives it.",
+        "required": true
+      },
+      {
+        "key": "category",
+        "label": "Category",
+        "hint": "For example Chilled food.",
+        "required": false
+      },
+      {
+        "key": "against",
+        "label": "Set against",
+        "hint": "The specification's reference and version, and for a new product the style guide and its version.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Dated",
+        "hint": "The day the new product was listed, or the day of the data check.",
+        "required": false,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the catalogue system holds for the case. Each part starts with a heading in capitals. A new product with the supplier's specification, each image as a description in words, and the style guide. Or a listing and the supplier's specification. The desk takes no image.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the product data desk whose kind of work is not one this desk knows. The kinds are New product and Listing check. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and no draft. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Description. Draft.",
+        "title": "Draft description",
+        "hint": "Not published. The desk publishes nothing."
+      },
+      {
+        "heading": "Image tags.",
+        "title": "Image tags",
+        "hint": "From the image descriptions. The desk holds no images."
+      }
+    ],
+    "marks": {
+      "matches": "Matches",
+      "missing": "Missing in the listing",
+      "does not match": "Does not match",
+      "differs": "Image differs",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "matches": "ok",
+      "missing": "warn",
+      "does not match": "warn",
+      "differs": "person",
+      "not checked": "none"
+    },
+    "markHints": {
+      "matches": "The two values are the same",
+      "missing": "The listing holds nothing for this attribute and the specification has a value",
+      "does not match": "The listing and the specification both have a value, and the two differ. The check does not say which is right",
+      "differs": "An image description gives a figure or a claim that the specification does not. The draft uses the specification, and the content lead asks the supplier",
+      "not checked": "The record needed to check this was not with the case"
+    },
+    "markIcons": {
+      "missing": "–",
+      "does not match": "≠"
+    },
+    "proposalPrefix": "Proposal:",
+    "passMark": "matches",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "sideBySide": true,
+    "stackOnPhone": true,
+    "singleValueMarks": [
+      "matches"
+    ],
+    "rowLabels": {
+      "source": "Shown",
+      "policy": "Held",
+      "both": "Both say",
+      "citation": "Record",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "publish",
+      "label": "Publish the description",
+      "proposalPrefix": "publish the description",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you decide to publish version {version}{edited} of the description, in your name. The desk publishes nothing: the description is published in the catalogue system."
+    },
+    {
+      "id": "accept_correction",
+      "label": "Accept the correction",
+      "proposalPrefix": "correct the listing",
+      "outcome": "correction_accepted",
+      "needsNote": true,
+      "noteLabel": "Who corrects the listing, and when",
+      "noteHint": "Records that the listing is to carry the specification's value. The desk changes no listing: a content lead corrects it in the catalogue system."
+    },
+    {
+      "id": "keep_listing",
+      "label": "Keep the listing as it is",
+      "proposalPrefix": "keep the listing",
+      "outcome": "listing_kept",
+      "needsNote": true,
+      "noteLabel": "Why the listing stays as it is",
+      "noteHint": "For example: every attribute matches the specification. Or: the specification is out of date, and why you say so. The desk records this in your name."
+    },
+    {
+      "id": "ask_supplier",
+      "label": "Ask the supplier",
+      "outcome": "supplier_asked",
+      "needsNote": true,
+      "noteLabel": "What the supplier is asked, and who asks",
+      "noteHint": "The desk records your decision. It sends the supplier nothing: the question goes out from the content team."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "To publish",
+    "correction_accepted": "To correct",
+    "listing_kept": "Kept",
+    "supplier_asked": "To ask",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "correction_accepted",
+    "listing_kept",
+    "supplier_asked",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk publishes nothing, changes no listing and sends nothing: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "supplier",
+      "category",
+      "against",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other content lead can. You can still ask the agent again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Publishing a description while an image description differs from the specification needs a reason",
+    "reasonToApproveUnmetLabel": "Why you publish although an image description differs from the specification",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as a decision to publish. The desk has published nothing: the description is published in the catalogue system, in your name.",
+    "correction_accepted": "Recorded. The desk has changed no listing: a content lead corrects it in the catalogue system.",
+    "listing_kept": "Recorded, with your reason. No listing was changed.",
+    "supplier_asked": "Recorded. The desk has sent the supplier nothing: the question goes out from the content team."
+  },
+  "decisionLabels": {
+    "issued": "Decided to publish",
+    "correction_accepted": "Accepted the correction",
+    "listing_kept": "Kept the listing",
+    "supplier_asked": "Decided to ask the supplier",
+    "sent_back": "Asked the agent again",
+    "removed": "Removed from the desk"
+  }
+}

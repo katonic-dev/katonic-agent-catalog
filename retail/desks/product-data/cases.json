@@ -1,0 +1,195 @@
+{
+  "$comment": "Nineteen invented cases for the demo: six new products with no description yet, and a listing check for each of thirteen listings. Made by make_cases.py from the records the invented retailer (demo-retailer) holds at retailer date 2026-11-24. Do not edit by hand: change the service's seed and run the script. Rowanmere Group, its suppliers, its products and every record are invented.",
+  "cases": [
+    {
+      "title": "AG-4411 Oat granola, 500 g",
+      "kind": "New product",
+      "supplier": "Marrowby Provisions Ltd",
+      "category": "Ambient grocery",
+      "against": "SPEC-AG-4411, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-20",
+      "text": "THE NEW PRODUCT\nLine: AG-4411\nName: Oat granola, 500 g\nBrand: Rowanmere\nCategory: ambient grocery\nListed: 2026-11-20\nStatus: awaiting description\nAge restricted: no\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-AG-4411, version 1, issued 2026-10-25\nSupplier: SUP-311, Marrowby Provisions Ltd\nProduct name: Oat granola, 500 g\nNet quantity: 500 g\nPack size: 1\nAllergens: Contains: oats, almonds (nuts)\nOrigin: Meridia\nStorage: Store in a cool, dry place.\nShelf life: 365 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Front of pack: a clear bag with a brown paper label. The label reads 'Rowanmere Oat Granola' and '500 g'. Oat clusters, whole almonds and sunflower seeds can be seen through the bag.\nSecond image: Serving picture: a white bowl of granola with milk and sliced banana on a wooden table, with a spoon beside it.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "BK-5706 Almond pastries, pack of two",
+      "kind": "New product",
+      "supplier": "Thrushcombe Bakery Ltd",
+      "category": "Bakery",
+      "against": "SPEC-BK-5706, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-21",
+      "text": "THE NEW PRODUCT\nLine: BK-5706\nName: Almond pastries, pack of two\nBrand: Thrushcombe\nCategory: bakery\nListed: 2026-11-21\nStatus: awaiting description\nAge restricted: no\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-BK-5706, version 1, issued 2026-10-25\nSupplier: SUP-314, Thrushcombe Bakery Ltd\nProduct name: Almond pastries, pack of two\nNet quantity: 2 x 85 g\nPack size: 2\nAllergens: Contains: wheat, milk, egg, almonds (nuts)\nOrigin: Meridia\nStorage: Store in a cool, dry place. Eat within two days of opening.\nShelf life: 5 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Front of pack: a card tray in clear film holding two pastries topped with flaked almonds and icing sugar. The label reads 'Thrushcombe Almond Pastries' and '2 pack'.\nSecond image: Close view: one pastry cut in half on a plate, showing a pale filling.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "CH-5508 Fresh tomato soup, 600 g",
+      "kind": "New product",
+      "supplier": "Fenwillow Chilled Foods Ltd",
+      "category": "Chilled food",
+      "against": "SPEC-CH-5508, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-19",
+      "text": "THE NEW PRODUCT\nLine: CH-5508\nName: Fresh tomato soup, 600 g\nBrand: Fenwillow\nCategory: chilled food\nListed: 2026-11-19\nStatus: awaiting description\nAge restricted: no\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-CH-5508, version 1, issued 2026-10-25\nSupplier: SUP-312, Fenwillow Chilled Foods Ltd\nProduct name: Fresh tomato soup, 600 g\nNet quantity: 600 g\nPack size: 1\nAllergens: Contains: celery, milk\nOrigin: Meridia\nStorage: Keep refrigerated at 5 °C or below.\nShelf life: 14 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Front of pack: a clear tub with a red sleeve. The sleeve reads 'Fenwillow Fresh Tomato Soup' and '600 g'. The soup is orange-red.\nSecond image: Serving picture: the soup in a blue bowl with a swirl of cream and a basil leaf, and a slice of bread on the side.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DR-5906 White wine, 75 cl",
+      "kind": "New product",
+      "supplier": "Windlebury Drinks Ltd",
+      "category": "Drinks",
+      "against": "SPEC-DR-5906, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-18",
+      "text": "THE NEW PRODUCT\nLine: DR-5906\nName: White wine, 75 cl\nBrand: Windlebury\nCategory: drinks\nListed: 2026-11-18\nStatus: awaiting description\nAge restricted: yes\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-DR-5906, version 1, issued 2026-10-25\nSupplier: SUP-316, Windlebury Drinks Ltd\nProduct name: White wine, 75 cl\nNet quantity: 75 cl\nPack size: 1\nAllergens: Contains: sulphites\nOrigin: Tessaly\nStorage: Store in a cool, dry place.\nShelf life: 270 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Bottle: a clear glass bottle of pale wine with a cream label that reads 'Windlebury White' and '75 cl'. It has a screw cap.\nSecond image: Serving picture: two glasses of white wine on a table outdoors, with a plate of olives.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "FZ-5606 Frozen berry mix, 500 g",
+      "kind": "New product",
+      "supplier": "Pellowick Frozen Foods Ltd",
+      "category": "Frozen food",
+      "against": "SPEC-FZ-5606, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-22",
+      "text": "THE NEW PRODUCT\nLine: FZ-5606\nName: Frozen berry mix, 500 g\nBrand: Pellowick\nCategory: frozen food\nListed: 2026-11-22\nStatus: awaiting description\nAge restricted: no\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-FZ-5606, version 1, issued 2026-10-25\nSupplier: SUP-313, Pellowick Frozen Foods Ltd\nProduct name: Frozen berry mix, 500 g\nNet quantity: 500 g\nPack size: 1\nAllergens: No allergens\nOrigin: Rovaland\nStorage: Keep frozen at -18 °C or below.\nShelf life: 365 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Front of pack: a purple bag with a seal strip. It reads 'Pellowick Frozen Berry Mix' and '450 g'. A picture on the bag shows raspberries, blueberries and blackberries.\nSecond image: Serving picture: the berries in a glass bowl with a spoon of yoghurt.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "HH-6107 Dishwasher tablets, pack of 30",
+      "kind": "New product",
+      "supplier": "Drennock Home and Care Ltd",
+      "category": "Household",
+      "against": "SPEC-HH-6107, version 1 · Product Style Guide, version 1.3",
+      "received_on": "2026-11-17",
+      "text": "THE NEW PRODUCT\nLine: HH-6107\nName: Dishwasher tablets, pack of 30\nBrand: Drennock\nCategory: household\nListed: 2026-11-17\nStatus: awaiting description\nAge restricted: no\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-HH-6107, version 1, issued 2026-10-25\nSupplier: SUP-317, Drennock Home and Care Ltd\nProduct name: Dishwasher tablets, pack of 30\nNet quantity: 540 g\nPack size: 30\nAllergens: Not a food\nOrigin: Quenmark\nStorage: Keep out of the reach of children.\nShelf life: 730 days\nClaims: none\nTHE IMAGES, AS DESCRIPTIONS IN WORDS\nThe catalogue system holds no images. Each image of a new product is given as a description in words, written by the photo studio. Nobody reading it has seen the picture.\nFirst image: Front of pack: a green box that reads 'Drennock Dishwasher Tablets' and '30 tablets'. A picture on the box shows a clean drinking glass.\nSecond image: Close view: one white and blue tablet in a clear wrapper, on a kitchen worktop.\nTHE STYLE GUIDE\nDocument: Product Style Guide, version 1.3\nPS-1 Length: A description is 40 to 80 words, in two to four plain sentences.\nPS-2 How it opens: The first sentence says what the product is. No slogan and no question.\nPS-3 Words that are not used: These words are not used in a description: best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class.\nPS-4 Claims: A description makes no health or medical claim. It makes no claim the supplier's specification does not make: the claims field of the specification is the only source for words such as free-range, organic or vegan.\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.\nPS-8 Image tags: Each product has three to six image tags, in lower case. A tag names something the image description says is in the picture, and nothing else.\nPS-9 Age-restricted lines: The description of an age-restricted line ends with the sentence: For adults aged 18 or over.\nPS-10 When a picture and the specification disagree: The specification is used. The difference is listed for the content lead, who asks the supplier.\nNot decided by the guide: This guide does not publish a listing. A content lead reads every description and publishes it. The guide says nothing about a price or a promotion.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "AG-4401 Olive oil, 1 litre bottle",
+      "kind": "Listing check",
+      "supplier": "Marrowby Provisions Ltd",
+      "category": "Ambient grocery",
+      "against": "SPEC-AG-4401, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: AG-4401\nName: Olive oil, 1 litre bottle\nBrand: Marrowby\nCategory: ambient grocery\nStatus: live\nNet quantity: 1 litre\nPack size: 1\nAllergens: No allergens\nOrigin: (nothing)\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-AG-4401, version 1, issued 2026-05-08\nSupplier: SUP-311, Marrowby Provisions Ltd\nProduct name: Olive oil, 1 litre bottle\nNet quantity: 1 litre\nPack size: 1\nAllergens: No allergens\nOrigin: Tessaly\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "AG-4407 Basmati rice, 1 kg",
+      "kind": "Listing check",
+      "supplier": "Marrowby Provisions Ltd",
+      "category": "Ambient grocery",
+      "against": "SPEC-AG-4407, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: AG-4407\nName: Basmati rice, 1 kg\nBrand: Marrowby\nCategory: ambient grocery\nStatus: live\nNet quantity: 1 kg\nPack size: 1\nAllergens: No allergens\nOrigin: Brevnia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-AG-4407, version 1, issued 2026-05-08\nSupplier: SUP-311, Marrowby Provisions Ltd\nProduct name: Basmati rice, 1 kg\nNet quantity: 900 g\nPack size: 1\nAllergens: No allergens\nOrigin: Brevnia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "AG-4412 Peanut butter, crunchy, 340 g",
+      "kind": "Listing check",
+      "supplier": "Marrowby Provisions Ltd",
+      "category": "Ambient grocery",
+      "against": "SPEC-AG-4412, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: AG-4412\nName: Peanut butter, crunchy, 340 g\nBrand: Marrowby\nCategory: ambient grocery\nStatus: live\nNet quantity: 340 g\nPack size: 1\nAllergens: Contains: peanuts\nOrigin: Quenmark\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-AG-4412, version 1, issued 2026-10-25\nSupplier: SUP-311, Marrowby Provisions Ltd\nProduct name: Peanut butter, crunchy, 340 g\nNet quantity: 340 g\nPack size: 1\nAllergens: Contains: peanuts. May contain: other nuts, sesame\nOrigin: Quenmark\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "AG-4413 Vegetable stock cubes, pack of 12",
+      "kind": "Listing check",
+      "supplier": "Marrowby Provisions Ltd",
+      "category": "Ambient grocery",
+      "against": "SPEC-AG-4413, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: AG-4413\nName: Vegetable stock cubes, pack of 12\nBrand: Marrowby\nCategory: ambient grocery\nStatus: live\nNet quantity: 120 g\nPack size: 12\nAllergens: Contains: celery\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-AG-4413, version 1, issued 2026-10-25\nSupplier: SUP-311, Marrowby Provisions Ltd\nProduct name: Vegetable stock cubes, pack of 12\nNet quantity: 120 g\nPack size: 12\nAllergens: Contains: celery\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "BK-5703 Butter croissants, pack of four",
+      "kind": "Listing check",
+      "supplier": "Thrushcombe Bakery Ltd",
+      "category": "Bakery",
+      "against": "SPEC-BK-5703, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: BK-5703\nName: Butter croissants, pack of four\nBrand: Thrushcombe\nCategory: bakery\nStatus: live\nNet quantity: 4 x 55 g\nPack size: 4\nAllergens: Contains: wheat, milk\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-BK-5703, version 1, issued 2026-05-08\nSupplier: SUP-314, Thrushcombe Bakery Ltd\nProduct name: Butter croissants, pack of four\nNet quantity: 4 x 55 g\nPack size: 4\nAllergens: Contains: wheat, milk, egg\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "CH-5506 Natural yoghurt, 500 g",
+      "kind": "Listing check",
+      "supplier": "Fenwillow Chilled Foods Ltd",
+      "category": "Chilled food",
+      "against": "SPEC-CH-5506, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: CH-5506\nName: Natural yoghurt, 500 g\nBrand: Fenwillow\nCategory: chilled food\nStatus: live\nNet quantity: 500 g\nPack size: 1\nAllergens: (nothing)\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-CH-5506, version 1, issued 2026-05-08\nSupplier: SUP-312, Fenwillow Chilled Foods Ltd\nProduct name: Natural yoghurt, 500 g\nNet quantity: 500 g\nPack size: 1\nAllergens: Contains: milk\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "CH-5507 Free-range eggs, box of six",
+      "kind": "Listing check",
+      "supplier": "Fenwillow Chilled Foods Ltd",
+      "category": "Chilled food",
+      "against": "SPEC-CH-5507, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: CH-5507\nName: Free-range eggs, box of six\nBrand: Fenwillow\nCategory: chilled food\nStatus: live\nNet quantity: 6 eggs\nPack size: 6\nAllergens: Contains: egg\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-CH-5507, version 1, issued 2026-05-08\nSupplier: SUP-312, Fenwillow Chilled Foods Ltd\nProduct name: Free-range eggs, box of six\nNet quantity: 6 eggs\nPack size: 6\nAllergens: Contains: egg\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DR-5902 Sparkling water, six bottles",
+      "kind": "Listing check",
+      "supplier": "Windlebury Drinks Ltd",
+      "category": "Drinks",
+      "against": "SPEC-DR-5902, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: DR-5902\nName: Sparkling water, six bottles\nBrand: Windlebury\nCategory: drinks\nStatus: live\nNet quantity: 6 x 500 ml\nPack size: (nothing)\nAllergens: No allergens\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-DR-5902, version 1, issued 2026-05-08\nSupplier: SUP-316, Windlebury Drinks Ltd\nProduct name: Sparkling water, six bottles\nNet quantity: 6 x 500 ml\nPack size: 6\nAllergens: No allergens\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DR-5905 Red wine, 75 cl",
+      "kind": "Listing check",
+      "supplier": "Windlebury Drinks Ltd",
+      "category": "Drinks",
+      "against": "SPEC-DR-5905, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: DR-5905\nName: Red wine, 75 cl\nBrand: Windlebury\nCategory: drinks\nStatus: live\nNet quantity: 75 cl\nPack size: 1\nAllergens: Contains: sulphites\nOrigin: Tessaly\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-DR-5905, version 1, issued 2026-05-08\nSupplier: SUP-316, Windlebury Drinks Ltd\nProduct name: Red wine, 75 cl\nNet quantity: 75 cl\nPack size: 1\nAllergens: Contains: sulphites\nOrigin: Tessaly\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "FP-5804 Bananas, bunch of five",
+      "kind": "Listing check",
+      "supplier": "Sedgeholt Growers Ltd",
+      "category": "Fresh produce",
+      "against": "SPEC-FP-5804, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: FP-5804\nName: Bananas, bunch of five\nBrand: Sedgeholt\nCategory: fresh produce\nStatus: live\nNet quantity: 5 bananas\nPack size: 5\nAllergens: No allergens\nOrigin: Aldoria\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-FP-5804, version 1, issued 2026-05-08\nSupplier: SUP-315, Sedgeholt Growers Ltd\nProduct name: Bananas, bunch of five\nNet quantity: 5 bananas\nPack size: 5\nAllergens: No allergens\nOrigin: Brevnia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "FZ-5602 Garden peas, 900 g",
+      "kind": "Listing check",
+      "supplier": "Pellowick Frozen Foods Ltd",
+      "category": "Frozen food",
+      "against": "SPEC-FZ-5602, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: FZ-5602\nName: Garden peas, 900 g\nBrand: Pellowick\nCategory: frozen food\nStatus: live\nNet quantity: (nothing)\nPack size: 1\nAllergens: No allergens\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-FZ-5602, version 1, issued 2026-05-08\nSupplier: SUP-313, Pellowick Frozen Foods Ltd\nProduct name: Garden peas, 900 g\nNet quantity: 900 g\nPack size: 1\nAllergens: No allergens\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "HH-6104 Toilet tissue, nine rolls",
+      "kind": "Listing check",
+      "supplier": "Drennock Home and Care Ltd",
+      "category": "Household",
+      "against": "SPEC-HH-6104, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: HH-6104\nName: Toilet tissue, nine rolls\nBrand: Drennock\nCategory: household\nStatus: live\nNet quantity: 9 rolls\nPack size: 12\nAllergens: Not a food\nOrigin: Quenmark\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-HH-6104, version 1, issued 2026-05-08\nSupplier: SUP-317, Drennock Home and Care Ltd\nProduct name: Toilet tissue, nine rolls\nNet quantity: 9 rolls\nPack size: 9\nAllergens: Not a food\nOrigin: Quenmark\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "PC-6603 Shampoo, 400 ml",
+      "kind": "Listing check",
+      "supplier": "Drennock Home and Care Ltd",
+      "category": "Personal care",
+      "against": "SPEC-PC-6603, version 1",
+      "received_on": "2026-11-24",
+      "text": "THE LISTING\nLine: PC-6603\nName: Shampoo, 400 ml\nBrand: Sablewood\nCategory: personal care\nStatus: live\nNet quantity: 400 ml\nPack size: 1\nAllergens: Not a food\nOrigin: Meridia\nTHE SUPPLIER'S SPECIFICATION\nSpecification: SPEC-PC-6603, version 1, issued 2026-05-08\nSupplier: SUP-317, Drennock Home and Care Ltd\nProduct name: Shampoo, 400 ml\nNet quantity: 350 ml\nPack size: 1\nAllergens: Not a food\nOrigin: Meridia\nTHE RULES FOR THESE ATTRIBUTES\nDocument: Product Style Guide, version 1.3\nPS-5 Net quantity and pack size: The net quantity and the pack size are written exactly as the supplier's specification gives them.\nPS-6 Allergens: The allergen statement is copied word for word from the supplier's specification into its own field. It is never worked out from the ingredients, from the name or from a picture.\nPS-7 Country of origin: The country of origin is written as the supplier's specification gives it.",
+      "arrived_via": "feed"
+    }
+  ]
+}
