@@ -41,13 +41,13 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 21 | [Management Reporting](agents/management-reporting/README.md) | Answers questions on the finance warehouse in plain language, shows the query it ran, and drafts the commentary | Conversational, answering | Chat | Written. Not yet built on a platform |
 | 22 | [Client Meeting Brief](agents/client-meeting-brief/README.md) | The client's holdings and exposure, recent contacts and public news, in one brief | Workflow, scheduled | Sent to the relationship manager | Written. Not yet built on a platform |
 | | **Technology** | | | | |
-| 23 | Incident Response | Gathers the dashboards, metrics and recent changes for an incident and drafts the first assessment | Multi-agent, manager | Posted on the incident ticket | Planned |
-| 24 | Legacy System Explainer | Explains the tables, keys and stored procedures of an old system and drafts the documentation nobody wrote | Conversational, answering | Chat | Planned |
-| 28 | Post-Incident Review | Investigates a closed incident across the connected systems and drafts the root cause and the review | Autonomous | Deployed app | Planned |
-| 29 | Mainframe Modernisation | Converts a batch of legacy code in stages for an engineer to review | Multi-agent, pipeline | Deployed app | Planned |
+| 23 | [Incident Response](agents/incident-response/README.md) | Gathers the dashboards, metrics and recent changes for an incident and drafts the first assessment | Multi-agent, manager | Posted on the incident ticket | Written. Not yet built on a platform |
+| 24 | [Legacy System Explainer](agents/legacy-system-explainer/README.md) | Explains the tables, keys and stored procedures of an old system and drafts the documentation nobody wrote | Conversational, answering | Chat | Written. Not yet built on a platform |
+| 28 | [Post-Incident Review](agents/post-incident-review/README.md) | Investigates a closed incident across the connected systems and drafts the root cause and the review | Autonomous | Deployed app | Written. Not yet built on a platform |
+| 29 | [Mainframe Modernisation](agents/mainframe-modernisation/README.md) | Converts a batch of legacy code in stages for an engineer to review | Multi-agent, pipeline | Deployed app | Written. Not yet built on a platform |
 | | **Pensions and funds** | | | | |
-| 25 | Member Fund Assistant | Answers a member's questions about funds and their own holdings, with every figure taken from the fund fact sheets | Conversational, answering | Chat | Planned |
-| 26 | Contribution and Transfer Processing | Checks contribution files and transfer forms against the written procedures and reports how many passed and how many need a person | Multi-agent, pipeline | Batch report, failed forms to a person | Planned |
+| 25 | [Member Fund Assistant](agents/member-fund-assistant/README.md) | Answers a member's questions about funds and their own holdings, with every figure taken from the fund fact sheets | Conversational, answering | Chat | Written. Not yet built on a platform |
+| 26 | [Contribution and Transfer Processing](agents/contribution-and-transfer-processing/README.md) | Checks contribution files and transfer forms against the written procedures and reports how many passed and how many need a person | Multi-agent, pipeline | Batch report, failed forms to a person | Written. Not yet built on a platform |
 | | **Capital markets** | | | | |
 | 30 | Equity Research Report | Reads filings and market data and drafts an equity research report for an analyst | Autonomous | Research desk | Planned |
 

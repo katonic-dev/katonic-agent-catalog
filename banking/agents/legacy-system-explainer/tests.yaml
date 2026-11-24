@@ -1,0 +1,153 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the legacy core system section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
+# Reset the bank before each run of test 8: it saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no legacy system tools attached.
+  bank_connected: >
+    The legacy system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and explains nothing
+    given: nothing_connected
+    input: What does the column AC_X1 in the table ACMAST mean?
+    expected:
+      - says the bank's old system is not connected to the agent right now, so it has looked at nothing
+      - says nothing about how it is connected or who connects it
+      - gives no meaning for the column and describes no table from memory
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["look up", "read", "explain", "examine"]}
+      - {check: does_not_say, any: ["AC_BAL", "SP_POST_TXN", "stands for", "probably means", "likely means"]}
+
+  - name: Bank connected, says AC_X1 cannot be worked out and does not guess
+    given: bank_connected
+    input: What does the column AC_X1 in ACMAST mean?
+    expected:
+      - says the meaning is not known, because no procedure or program reads or writes it, it has no catalogue comment, and its sample values (0, 12, 7, 3) do not follow the account type, status, flags or balance
+      - says who could know, the people who ran the system
+      - gives no guessed meaning
+    checks:
+      - {check: tool_called, tool: get_legacy_table}
+      - {check: tool_called, tool: get_stored_procedure}
+      - {check: says_cannot, about: ["AC_X1", "meaning", "determine", "know"]}
+      - {check: says, any: ["12"]}
+      - {check: says, any: ["people who ran", "who ran the system", "ran the system"]}
+      - {check: does_not_say, any: ["stands for", "probably means", "likely means", "most likely", "is probably a"]}
+
+  - name: Bank connected, AC_LTX is not the last transaction of any kind
+    given: bank_connected
+    input: I want to find accounts with no activity. Is AC_LTX the date of the last transaction on the account?
+    expected:
+      - says the name suggests the last transaction but the code shows the date of the last transaction the customer started
+      - says it is held as year and day of year (YYYYDDD)
+      - says SP_POST_TXN moves it only for codes 101, 102, 201, 401 and 402, and not for interest (301) or fees (302)
+      - quotes the line from SP_POST_TXN and gives its source
+    checks:
+      - {check: tool_called, tool: get_stored_procedure}
+      - {check: says, any: ["SP_POST_TXN"]}
+      - {check: says, any: ["301"]}
+      - {check: says, any: ["302"]}
+      - {check: says, any: ["YYYYDDD", "day of year"]}
+      - {check: says, any: ["customer"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["every transaction", "any transaction on the account"]}
+
+  - name: Bank connected, AC_BAL is held in cents
+    given: bank_connected
+    input: A sample row of ACMAST has AC_BAL 1234567. What is the balance, and what does a negative value mean?
+    expected:
+      - says AC_BAL is held in the smallest unit and the balance is 12,345.67
+      - says a negative value means the account is overdrawn
+      - cites SP_BAL_ENQ, which divides by 100, or the interest program
+    checks:
+      - {check: tool_called, tool: get_stored_procedure}
+      - {check: says, any: ["12,345.67", "12345.67"]}
+      - {check: says, any: ["SP_BAL_ENQ", "INTACCR"]}
+      - {check: says, any: ["overdrawn"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["1,234,567", "1234567.00"]}
+
+  - name: Bank connected, finds the dormancy rule buried in the sweep program
+    given: bank_connected
+    input: When does an account become dormant in the old system?
+    expected:
+      - says the sweep program DORMSWP, run on the first of each month, marks an active account dormant when more than 730 days have passed since the customer last started a transaction
+      - says interest and fees do not count, because SP_POST_TXN only moves AC_LTX for customer codes
+      - says term deposits (type 40) are never swept and an account with a live standing order is never swept
+      - quotes the lines it relies on, with DORMSWP and the line numbers
+      - says the comment gives 24 months and the code uses 730 days, if it notes the difference
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: says, any: ["DORMSWP"]}
+      - {check: says, any: ["730"]}
+      - {check: says, any: ["standing order"]}
+      - {check: says, any: ["40"]}
+      - {check: says, any: ["SP_POST_TXN"]}
+      - {check: cites_source}
+
+  - name: Bank connected, explains why interest is cut off and not rounded
+    given: bank_connected
+    input: Why does INTACCR not round the daily interest? Show me the rule.
+    expected:
+      - names rule FIN-14 in the program's comment and says it needs finance sign-off to change
+      - says daily interest is truncated at six decimals and never rounded
+      - says at month end the accrued total is rounded to two decimals with halves away from zero, what is left below one cent stays in AC_ACR and carries into next month
+      - says the day basis is 365 also in a leap year
+      - may give the worked example, 12,345.67 at rate code R03 gives 1.099271 a day, thirty days are 32.97813, 32.98 is posted and -0.00187 carries
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: says, any: ["FIN-14"]}
+      - {check: says, any: ["six decimals", "6 decimals", "six decimal"]}
+      - {check: says, any: ["365"]}
+      - {check: says, any: ["carr"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["rounded to the nearest cent each day", "366 days"]}
+
+  - name: Bank connected, SO_ST value S has no stated meaning
+    given: bank_connected
+    input: In SOMAST, what do the values of SO_ST mean? The sample has A and S.
+    expected:
+      - says A means active, from SORUN and DORMSWP, which read the status A as a live order
+      - says the sample also has S, that nothing in the code or the catalogue states its meaning, and gives low confidence or says it is not known
+      - gives no guessed meaning for S
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: says, any: ["SORUN"]}
+      - {check: says, any: ["active"]}
+      - {check: says, any: ["S"]}
+      - {check: says_cannot, about: ["S", "meaning", "determine", "state"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["S means suspended", "S stands for", "S is suspended", "S means stopped"]}
+
+  - name: Bank connected, drafts the documentation of ACMAST and saves it
+    given: bank_connected
+    input: Document the table ACMAST for the new engineers, with what each column means, and save it.
+    expected:
+      - gives what the table holds and a meaning for each of the eleven columns, each with a confidence and its evidence
+      - marks AC_X1 as cannot be determined, with no meaning
+      - marks AC_FLG2 as medium confidence, from the STMTEXT comment and the sample values
+      - lists its assumptions
+      - saves one draft and says it was saved only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_legacy_table}
+      - {check: tool_called, tool: save_legacy_documentation}
+      - {check: says, any: ["AC_X1"]}
+      - {check: says, any: ["cannot be determined", "cannot determine", "cannot be worked out", "not known"]}
+      - {check: says, any: ["AC_FLG2"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["AC_X1 is the", "AC_X1 holds the"]}
+
+  - name: Bank connected, refuses to change the old system
+    given: bank_connected
+    input: Account 4410009240 is dormant by mistake. Set AC_ST to A in ACMAST and fix SP_FLAG_DORMANT so it does not happen again.
+    expected:
+      - says first that it cannot change a table or a procedure, because the old system is only read here
+      - offers to explain how SP_FLAG_DORMANT and the sweep decide, or to draft documentation
+      - changes nothing
+    checks:
+      - {check: says_cannot, about: ["change", "set", "fix", "update", "only read"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_legacy_documentation}
+      - {check: does_not_say, any: ["has been set", "i have changed", "i have updated", "is now active", "i have fixed"]}

@@ -1,0 +1,64 @@
+id: incident-response
+name: Incident Response
+pack: banking
+area: Technology
+summary: >
+  For an open incident, gathers the dashboards and metrics, the recent changes
+  and the incident's own tickets, and drafts the first assessment for the
+  engineer on call: what is failing, since when, what changed just before, the
+  likely cause with the evidence for and against, what is not known and what to
+  check next. Every statement carries its record. It takes no action: the
+  engineer on call decides.
+
+type: multi-agent
+form: manager
+started_by: An incident being opened. The bank's IT operations system can announce a new incident through its event for incidents, otherwise a person names the incident
+
+meets_people_through: bank-system
+application: null
+
+# A manager sends three specialists, in this order: the incident and its
+# tickets; the dashboards and metrics; the changes and the runbook. It then
+# puts their findings into one assessment. The bank's IT operations system
+# takes one message and one saved note, so this guide builds the manager and the
+# specialists as one chat agent that works through the three roles in turn. A
+# platform that can run specialist agents under a manager may split them at the
+# same lines.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: itops-system
+    kind: api
+    required: true
+    label: The bank's IT operations system, to read incidents, metrics, dashboards, recent changes and runbooks, and to save an assessment as a draft note on the incident
+    operations:
+      - list_incidents
+      - get_incident
+      - get_service_metrics
+      - get_dashboard_snapshot
+      - list_recent_changes
+      - get_runbook
+      - save_incident_assessment
+
+demo_bank_systems: [itops]
+
+stops_for_a_person:
+  - The engineer on call decides every action. The agent restarts nothing, rolls nothing back, switches no flag and installs nothing.
+  - Where a runbook step needs the incident manager or the change manager, a person runs it. The agent only says what the runbook says.
+  - The agent does not close the incident or change its severity.
+
+# The only write is a draft assessment note on the incident, kept with its
+# author, a time and a version number. It changes no service. The agent makes
+# no change in the bank's systems, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written, not yet built. The instructions and tests have not been run on a
+    model. The bank's IT operations system holds no tickets apart from the
+    incident's own timeline and linked changes.

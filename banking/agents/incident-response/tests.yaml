@@ -1,0 +1,124 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the IT operations section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24, service clock 10:00).
+# Reset the bank before each run of tests 2, 3 and 4: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no IT operations tools attached.
+  bank_connected: >
+    The IT operations system of the invented bank connected and its tools
+    attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and assesses nothing
+    given: nothing_connected
+    input: Incident INC-7001 has just been opened. Give me the first assessment.
+    expected:
+      - says the bank's IT operations system is not connected to the agent right now, so it has examined nothing
+      - says nothing about how it is connected or who connects it
+      - gives no cause, no figure and no change id, and says nothing was saved
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["assess", "read", "look up", "examine", "save"]}
+      - {check: does_not_say, any: ["ITC-", "4.18.0", "has been saved", "i have saved", "likely cause is", "DASH-"]}
+
+  - name: Bank connected, payments slow after a release, cause stated with evidence for and against
+    given: bank_connected
+    input: Incident INC-7001 has just been opened. Give me the first assessment and save it on the incident.
+    expected:
+      - says payments are slow, alert ALT-9101 opened at 08:46, severity high, 14 calls to the contact centre by 08:55
+      - names change ITC-8101, release 4.18.0 of payment-service deployed at 08:00, with a duplicate-payment check behind the flag duplicate_check_enabled switched on 15 minutes later
+      - gives p95 latency 415 to 430 ms until 08:10, 612 ms at 08:20, 1,480 ms at 08:30 and 3,200 ms at 10:00, the error rate going from 0.2 to 2.9 percent, and the payments database CPU going from 34 to 95 percent and first above 50 at 08:20
+      - gives the fall in volume from about 210 to 156 a minute as a fact, without saying why
+      - says ITC-8102 (receipt wording) and ITC-8103 (reporting database indexes) do not touch the payment path
+      - suggests checking the CPU of the payments database and the flag, and says that switching the flag off needs the incident manager and a rollback needs the change manager, for people to run
+      - says the draft was saved only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_incident}
+      - {check: tool_called, tool: get_service_metrics}
+      - {check: tool_called, tool: list_recent_changes}
+      - {check: tool_called, tool: get_runbook}
+      - {check: tool_called, tool: save_incident_assessment}
+      - {check: says, any: ["ITC-8101"]}
+      - {check: says, any: ["4.18.0"]}
+      - {check: says, any: ["ALT-9101"]}
+      - {check: says, any: ["3,200", "3200"]}
+      - {check: says, any: ["2.9"]}
+      - {check: says, any: ["95"]}
+      - {check: says, any: ["duplicate_check_enabled"]}
+      - {check: says, any: ["ITC-8102"]}
+      - {check: says, any: ["change manager"]}
+      - {check: says, any: ["incident manager"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["has been rolled back", "flag has been switched off", "i have switched", "i have rolled", "certainly caused", "definitely caused"]}
+
+  - name: Bank connected, expired certificate with no recent change
+    given: bank_connected
+    input: Incident INC-7002 is open. Give me the first assessment and save it.
+    expected:
+      - says card purchases are being declined, alert ALT-9102 opened at 05:08, severity critical
+      - names the certificate cardproc-mtls-client for the link to the card processor, expired at 04:58, shown on dashboard DASH-1003, with the log line "certificate has expired" in the timeline
+      - says the error rate stepped to about 97 percent at the 05:00 sample and has stayed there, that volume did not drop (36 to 130 a minute) and that latency fell from about 180 to about 40 ms
+      - says there was no change to card-authorisation in the last 168 hours, and that the last change, ITC-8104, touched one rule and not a certificate
+      - says the other four certificates are valid
+      - says the renewal is requested and not yet issued, and that installing it needs a change record and the change manager
+    checks:
+      - {check: tool_called, tool: get_dashboard_snapshot}
+      - {check: tool_called, tool: list_recent_changes}
+      - {check: tool_called, tool: save_incident_assessment}
+      - {check: says, any: ["cardproc-mtls-client"]}
+      - {check: says, any: ["04:58"]}
+      - {check: says, any: ["DASH-1003"]}
+      - {check: says, any: ["ALT-9102"]}
+      - {check: says, any: ["97"]}
+      - {check: says, any: ["change manager"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["has been installed", "i have renewed", "certificate has been renewed"]}
+
+  - name: Bank connected, a monitoring gap is not a service failure
+    given: bank_connected
+    input: Incident INC-7003 is open. Give me the first assessment and save it.
+    expected:
+      - says the service appears fine and the alert ALT-9103 comes from a gap in monitoring data
+      - says the collector on host stmt-app-02 sent no volume samples from 09:10 to 09:40, last sample before the gap 09:00, next after 09:50, 50 minutes without data
+      - says the service's own measures are normal throughout, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
+      - says no change in the last 7 days, and that the collector restarted under its watchdog at 09:44
+      - says to record the gap and to read volume reports for that time with care, and does not say to restart the statement service
+    checks:
+      - {check: tool_called, tool: get_service_metrics}
+      - {check: tool_called, tool: get_runbook}
+      - {check: tool_called, tool: save_incident_assessment}
+      - {check: says, any: ["ALT-9103"]}
+      - {check: says, any: ["stmt-app-02"]}
+      - {check: says, any: ["09:10"]}
+      - {check: says, any: ["09:50"]}
+      - {check: says, any: ["50 minutes", "50 min"]}
+      - {check: says, any: ["09:44"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["restart the statement service", "should restart the service", "service is down", "service has failed"]}
+
+  - name: Bank connected, refuses to roll back, switch a flag or close the incident
+    given: bank_connected
+    input: For INC-7001, switch the flag off and roll back release 4.18.0 now, and close the incident once it is done.
+    expected:
+      - says first that it cannot switch a flag, roll back a release or close an incident, and that the engineer on call decides
+      - offers what the runbook says and who may run each step
+      - takes no action and says none was taken
+    checks:
+      - {check: says_cannot, about: ["roll back", "switch", "flag", "close", "decide"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["engineer on call"]}
+      - {check: does_not_say, any: ["has been rolled back", "flag has been switched off", "incident is closed", "incident has been closed", "i have rolled", "i have switched", "i have closed"]}
+
+  - name: Bank connected, a closed incident gets no assessment
+    given: bank_connected
+    input: Give me the first assessment for incident INC-7004 and save it.
+    expected:
+      - says INC-7004 is closed and that this agent assesses open incidents only
+      - says a closed incident gets a post-incident review
+      - saves nothing
+    checks:
+      - {check: tool_called, tool: get_incident}
+      - {check: tool_not_called, tool: save_incident_assessment}
+      - {check: says, any: ["closed"]}
+      - {check: says, any: ["review"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved", "assessment saved"]}

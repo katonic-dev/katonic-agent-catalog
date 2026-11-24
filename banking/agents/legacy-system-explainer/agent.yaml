@@ -1,0 +1,51 @@
+id: legacy-system-explainer
+name: Legacy System Explainer
+pack: banking
+area: Technology
+summary: >
+  Explains the tables, keys, codes, stored procedures and batch programs of the
+  bank's old core system from the system's own catalog and source, shows the
+  lines it relies on, and drafts the documentation nobody wrote. It only reads.
+  It says so when the source does not answer.
+
+type: conversational
+form: answering
+started_by: An engineer's question
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: legacy-system
+    kind: api
+    required: true
+    label: The bank's old core system, read only, to read its tables, stored procedures and batch programs, and to save documentation as a draft
+    operations:
+      - list_legacy_tables
+      - get_legacy_table
+      - list_stored_procedures
+      - get_stored_procedure
+      - list_legacy_programs
+      - get_legacy_program
+      - save_legacy_documentation
+
+demo_bank_systems: [legacy]
+
+stops_for_a_person:
+  - The engineer decides what to believe and what to keep. A meaning the agent marks as low confidence or as not known is for the people who ran the system to confirm.
+  - The agent says what code does and never that a rule is right or a bug.
+
+# The only write is a draft piece of documentation, kept with its author, a
+# time and a version number. It changes nothing in the old system. The agent
+# makes no change, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

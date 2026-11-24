@@ -1,0 +1,67 @@
+id: contribution-and-transfer-processing
+name: Contribution and Transfer Processing
+pack: banking
+area: Pensions and funds
+summary: >
+  Checks an employer's contribution file row by row, or a member's transfer
+  form field by field, against the scheme's written procedure. Works out the
+  totals and compares them with the control figures. Reports how many passed
+  and lists every item that needs a person, with the rule it failed and the
+  exact value. It posts nothing to any member's account.
+
+type: multi-agent
+form: pipeline
+started_by: A contribution file arriving. The bank's funds system can announce one through its event for new contribution batches. A transfer form has no event in the bank, so a person names the form, or a clock asks for a sweep
+
+meets_people_through: bank-system
+application: null
+
+# The stages are fixed and run in this order: read the contribution file or
+# the transfer form and the written procedure; check each row or field
+# against the procedure; work out the totals and compare them with the
+# control figures; report how many passed and list every item that needs a
+# person. The platform's chat agent takes one message and gives one reply,
+# so this guide builds the pipeline as one chat agent that works through the
+# four stages in turn. A platform that can run the stages as a team of
+# specialists may split them at the same lines.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: pension-scheme
+    kind: api
+    required: true
+    label: The pension scheme's funds system, to read the procedure, a contribution batch, a transfer form and the member register, and to save a batch result as a draft
+    operations:
+      - get_processing_procedure
+      - list_contribution_batches
+      - get_contribution_batch
+      - get_transfer_form
+      - get_member
+      - save_batch_result
+
+demo_bank_systems: [funds]
+
+stops_for_a_person:
+  - A person approves every posting. The agent posts no batch and puts no contribution on any member's account.
+  - A failed row goes back to the employer with its rule number, by a person.
+  - A transfer form with a doubtful field goes to a person. The agent never guesses or completes a digit, a name or a date.
+  - A batch whose total does not match its control figure goes to a person.
+
+# Saving a batch result is a draft kept with its author, a time and a
+# version number. It posts nothing. The funds system has an operation that
+# posts a batch, and the agent is not given it. The funds system has no
+# operation that saves the check of a transfer form, so a form's report is
+# this agent's reply only.
+changes:
+  - {tool: save_batch_result, waits_for_approval: false}
+
+sample_data:
+  - ../../../demo-bank/SCENARIOS.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

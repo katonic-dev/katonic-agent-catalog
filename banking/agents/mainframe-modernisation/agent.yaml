@@ -1,0 +1,65 @@
+id: mainframe-modernisation
+name: Mainframe Modernisation
+pack: banking
+area: Technology
+summary: >
+  Converts a program, or a batch of programs, of the bank's old system in four
+  fixed stages: the rules the program follows with line references, tests from
+  those rules using the old system's sample rows, the converted code, and a
+  check of the code against the tests with every difference listed. An engineer
+  reviews every stage and nothing is deployed. Old behaviour that looks like a
+  bug is kept and flagged, never fixed silently.
+
+type: multi-agent
+form: pipeline
+started_by: An engineer naming a program or a batch of programs
+
+# Meant to be met through a deployed app that lists programs and shows each
+# stage for review. That app is not written yet. Until it is, the pipeline is
+# used in a chat.
+meets_people_through: application
+application: Modernisation app (not written yet)
+
+# The stages are fixed and run in this order: read the program and write down
+# its rules with line references; write tests from the rules using the sample
+# rows; write the converted code; check the code against the tests and list
+# every difference. The bank's old system takes one message and one saved
+# draft per program, so this guide builds the pipeline as one chat agent that
+# works through the four stages in turn. A platform that can run the stages as
+# separate agents may split them at the same lines.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: legacy-system
+    kind: api
+    required: true
+    label: The bank's old core system, read only, to read programs, tables, sample rows and stored procedures, and to save a converted program as a draft
+    operations:
+      - list_legacy_programs
+      - get_legacy_program
+      - get_legacy_table
+      - get_stored_procedure
+      - save_converted_program
+
+demo_bank_systems: [legacy]
+
+stops_for_a_person:
+  - An engineer reviews the output of every stage. Nothing is deployed, installed, scheduled or run in the bank.
+  - Whether a flagged old behaviour is kept or changed is for the engineer and the owner of the rule. A rule marked in a comment as needing sign-off is named as such.
+  - The agent has no way to run code in the invented bank. Unless the platform gives it one, every check is made by reading, and the draft says so.
+
+# The only write is a draft conversion, kept with its author, a time and a
+# version number. It changes nothing in the old system and installs nothing. The
+# agent makes no change, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written, not yet built. The instructions and tests have not been run on a
+    model. The saved draft holds one source text and a list of points, so the
+    rules and tests are written into the source as comments and test code.

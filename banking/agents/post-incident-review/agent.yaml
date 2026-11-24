@@ -1,0 +1,58 @@
+id: post-incident-review
+name: Post-Incident Review
+pack: banking
+area: Technology
+summary: >
+  Given a closed incident, plans its own investigation across the IT
+  operations records, stops when it has a root cause the records support or has
+  shown that they cannot settle it, and drafts the review: a timeline with
+  sources, the root cause with the evidence, contributing factors, what went
+  well and proposed actions with no owner. It blames no person.
+
+type: autonomous
+form: autonomous
+started_by: A person choosing a closed incident
+
+# Meant to be met through an application, a deployed app that lists closed
+# incidents and shows the draft review. That app is not written yet. Until it
+# is, the agent is used in a chat.
+meets_people_through: application
+application: Post-incident review app (not written yet)
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The agent decides which read to make next from what the last one returned.
+needs:
+  - id: itops-system
+    kind: api
+    required: true
+    label: The bank's IT operations system, to read a closed incident, the metrics, the changes and the runbook, and to save the review as a draft
+    operations:
+      - list_incidents
+      - get_incident
+      - get_service_metrics
+      - list_recent_changes
+      - get_runbook
+      - save_post_incident_review
+
+demo_bank_systems: [itops]
+
+stops_for_a_person:
+  - A person assigns the owner and the date of every action. The agent leaves both empty, and the bank's system refuses a review that names an owner.
+  - A person decides what the review finally says, and approves it. The agent marks nothing approved.
+  - Where the records do not settle the cause, the agent lists the candidates and a person decides which one to pursue.
+
+# The only write is a draft review, kept with its author, a time and a version
+# number. It changes no incident, no change record and no service. The agent
+# makes no change in the bank's systems, so the list is empty.
+changes: []
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written, not yet built. The instructions and tests have not been run on a
+    model. The application it is meant to meet people through is not written.

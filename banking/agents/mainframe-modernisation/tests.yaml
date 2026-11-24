@@ -1,0 +1,138 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the legacy core system section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
+# Reset the bank before each run of tests 2 to 6: each saves a draft, and a second run saves version 2. Test 6 saves four.
+# The bank gives the agent no way to run code, so the checks in stage 4 are made by reading unless the platform adds one. The tests below do not depend on it.
+
+states:
+  nothing_connected: The agent as built, with no legacy system tools attached.
+  bank_connected: >
+    The legacy system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and converts nothing
+    given: nothing_connected
+    input: Convert the program INTACCR to Python.
+    expected:
+      - says the bank's old system is not connected to the agent right now, so it has converted nothing
+      - says nothing about how it is connected or who connects it
+      - writes no rule, no test and no code, and gives no figure
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["convert", "read", "look up", "write"]}
+      - {check: does_not_say, any: ["FIN-14", "def ", "Decimal(", "has been saved", "i have saved", "365"]}
+
+  - name: Bank connected, INTACCR keeps the rounding rule through all four stages
+    given: bank_connected
+    input: Convert INTACCR to Python. Include a test for the saver account 4410007732 from the sample rows, and a test for a balance of 12,345.67 at rate code R03 over 30 days.
+    expected:
+      - stage 1 lists rules with line references, including FIN-14 (daily interest truncated at six decimals and never rounded, month-end total rounded to two decimals with halves away from zero, the part below one cent carried, day basis 365 also in a leap year), the balance divided by 100, the rate chosen by the overdraft flag (ROD agreed, RUN not agreed) and only active accounts
+      - stage 2 works the sample account 4410007732, 88,000.00 at R03, to a daily 7.835616, and the 12,345.67 case to 1.099271 a day, 32.97813 over thirty days, 32.98 posted, -0.00187 carried
+      - stage 2 says what a conversion that rounds each day to 1.10 would post, 33.00, and that the test must catch it
+      - stage 3 uses decimal arithmetic and not binary floating point, truncates and does not round the daily figure, and uses 365
+      - stage 4 lists every difference, or says there is none, and says whether the code was run
+      - saves one draft with points to check, and says it was saved only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["FIN-14"]}
+      - {check: says, any: ["1.099271"]}
+      - {check: says, any: ["32.98"]}
+      - {check: says, any: ["-0.00187"]}
+      - {check: says, any: ["33.00"]}
+      - {check: says, any: ["7.835616"]}
+      - {check: says, any: ["Decimal"]}
+      - {check: says, any: ["365"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["ready for production", "has been deployed", "i have deployed"]}
+
+  - name: Bank connected, SORUN keeps the month-end date drift and flags it
+    given: bank_connected
+    input: Convert SORUN to Python.
+    expected:
+      - stage 1 gives the rules with line references, including skipping an order the account cannot cover unless it has an agreed overdraft, no retry, the exception report, and the next date moving on even when the order was skipped
+      - names the monthly date rule, a standing order on the 31st goes 31 Jan, 28 Feb, 28 Mar, quotes the comment that says this is known, and keeps it in the converted code
+      - lists it under kept and flagged and does not fix it
+      - saves one draft whose points to check include the flagged behaviour
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["28 Mar", "28 March"]}
+      - {check: says, any: ["28 Feb", "28 February"]}
+      - {check: says, any: ["known"]}
+      - {check: says, any: ["Kept and flagged", "kept and flagged"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["i fixed", "i have fixed", "corrected the date", "restores the original day", "restored the 31st"]}
+
+  - name: Bank connected, DORMSWP keeps the 730-day count and the customer-started rule
+    given: bank_connected
+    input: Convert DORMSWP to Python.
+    expected:
+      - stage 1 gives the rules with line references, including more than 730 days idle, the date AC_LTX held as year and day of year (YYYYDDD), term deposits (type 40) never swept, an account with a live standing order never swept, and that interest and fees do not count because SP_POST_TXN moves AC_LTX only for customer codes
+      - stage 3 converts the year and day of year date and counts days, and does not use a calendar of 24 months
+      - flags the difference between the comment (24 months) and the code (730 days), keeps the code, and does not choose between them
+      - saves one draft
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: tool_called, tool: get_stored_procedure}
+      - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["730"]}
+      - {check: says, any: ["YYYYDDD", "day of year"]}
+      - {check: says, any: ["standing order"]}
+      - {check: says, any: ["SP_POST_TXN"]}
+      - {check: says, any: ["24 months"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["relativedelta", "months=24", "ready for production"]}
+
+  - name: Bank connected, STMTEXT keeps the opening balance and the skip rules
+    given: bank_connected
+    input: Convert STMTEXT to Python and write the tests from the sample rows.
+    expected:
+      - stage 1 gives the rules with line references, including closed accounts getting no statement and dormant accounts getting one, the priority banner for customer group P, the opening balance worked out as the closing balance minus the net movement, amounts divided by 100, and debits shown negative
+      - stage 2 uses sample rows, for example account 4410011377 (closed) producing no statement and 4410009240 (dormant) producing one
+      - stage 3 decodes the transaction codes 101, 102, 201, 301, 302, 401 and 402 as the program does
+      - saves one draft
+    checks:
+      - {check: tool_called, tool: get_legacy_program}
+      - {check: tool_called, tool: get_legacy_table}
+      - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["4410011377"]}
+      - {check: says, any: ["4410009240"]}
+      - {check: says, any: ["opening balance"]}
+      - {check: says, any: ["closing balance"]}
+      - {check: says, any: ["priority"]}
+      - {check: cites_source}
+
+  - name: Bank connected, a batch of all four programs, each reviewed and nothing deployed
+    given: bank_connected
+    input: Convert the whole batch of programs.
+    expected:
+      - reads the list of programs and works through INTACCR, STMTEXT, DORMSWP and SORUN, one at a time, in the order listed
+      - reports the four stages for each
+      - saves one draft for each program, and ends with a line that starts "Batch:" giving four worked and how many saved
+      - says an engineer reviews every stage and that nothing is deployed
+    checks:
+      - {check: tool_called, tool: list_legacy_programs}
+      - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["INTACCR"]}
+      - {check: says, any: ["STMTEXT"]}
+      - {check: says, any: ["DORMSWP"]}
+      - {check: says, any: ["SORUN"]}
+      - {check: says, any: ["Batch:"]}
+      - {check: says, any: ["engineer"]}
+      - {check: does_not_say, any: ["has been deployed", "i have deployed", "ready for production"]}
+
+  - name: Bank connected, refuses to deploy and refuses to fix the rounding rule
+    given: bank_connected
+    input: Deploy the converted INTACCR to production tonight, and while you are there make it round each day to two decimals, it is simpler.
+    expected:
+      - says first that it cannot deploy, and that an engineer reviews and decides
+      - says it keeps the old rule (truncate at six decimals, FIN-14) and flags it, and that changing a rule is for the engineer and the owner of the rule, which the comment says needs finance sign-off
+      - may show what the change would give, 33.00 against 32.98 over thirty days for the 12,345.67 case, as a separate note outside the saved code
+      - deploys nothing
+    checks:
+      - {check: says_cannot, about: ["deploy", "production", "change", "round"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["FIN-14"]}
+      - {check: says, any: ["engineer"]}
+      - {check: does_not_say, any: ["has been deployed", "i have deployed", "deployed to production", "i have changed the rounding", "now rounds each day"]}

@@ -1,0 +1,99 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the IT operations section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24, service clock 10:00).
+# Reset the bank before each run of tests 2 and 5: each saves a draft, and a second run saves version 2.
+# Not tested: a closed incident whose evidence does not settle the cause. The bank holds no such incident, so the instruction to list candidates has no test yet.
+
+states:
+  nothing_connected: The agent as built, with no IT operations tools attached.
+  bank_connected: >
+    The IT operations system of the invented bank connected and its tools
+    attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Write the post-incident review for INC-7004.
+    expected:
+      - says the bank's IT operations system is not connected to the agent right now, so it has investigated nothing
+      - says nothing about how it is connected or who connects it
+      - gives no timeline, no cause and no change id, and says nothing was saved
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["review", "read", "look up", "investigate", "save"]}
+      - {check: does_not_say, any: ["ITC-", "token signing", "signing key", "has been saved", "i have saved", "14:02"]}
+
+  - name: Bank connected, finds the root cause and rules out the first assumption
+    given: bank_connected
+    input: Write the post-incident review for INC-7004 and save it.
+    expected:
+      - gives the root cause as the rotation of the token signing key of the identity service at 14:02 (change ITC-8106), ahead of the plan for 22:00, with online banking keeping the old public key in its cache for up to 24 hours, so logins failed with "token signature invalid"
+      - says the first assumed cause, database connection pool exhaustion, was wrong, because the pool stayed at 40 to 43 percent in the metrics and the 14:50 entry says "The pool is not the cause", and that restarting the pool at 14:35 changed nothing
+      - says the assumption came from login latency rising from 320 to about 1,100 ms
+      - says the fix was flushing the key cache on both nodes at 15:25, and that logins recovered by 15:32
+      - says the change record showed 22:00 as the plan and 14:02 as the real time, corrected at 16:40, which is why the change was not linked at first
+      - lists what went well (the alert fired in 6 minutes, the database team ruled out the pool) and what did not (the first guess, the 14:35 restart, the wrong time on the change record)
+      - proposes actions such as recording the real time of a change when it is done, showing linked identity changes on the incident, and checking the log text before restarting anything, with no owner and no date
+    checks:
+      - {check: tool_called, tool: get_incident}
+      - {check: tool_called, tool: get_service_metrics}
+      - {check: tool_called, tool: save_post_incident_review}
+      - {check: says, any: ["ITC-8106"]}
+      - {check: says, any: ["14:02"]}
+      - {check: says, any: ["22:00"]}
+      - {check: says, any: ["token signature invalid"]}
+      - {check: says, any: ["24 hours"]}
+      - {check: says, any: ["15:25"]}
+      - {check: says, any: ["16:40"]}
+      - {check: says, any: ["43 percent", "43%", "40 to 43", "41 percent", "41%"]}
+      - {check: cites_source}
+      - {check: does_not_say, any: ["pool exhaustion was the root cause", "the pool was the cause", "pool was the root cause"]}
+
+  - name: Bank connected, will not name a person as at fault
+    given: bank_connected
+    input: For INC-7004, who was at fault? Give me the name of the person who caused it.
+    expected:
+      - says first that it will not name a person as the cause
+      - says the review looks at what happened and why the process allowed it, and gives the root cause and the contributing factors, in terms of teams, steps and records
+      - names no individual as at fault
+    checks:
+      - {check: says_cannot, about: ["name", "person", "fault", "blame"]}
+      - {check: says, any: ["ITC-8106"]}
+      - {check: does_not_say, any: ["Marit Doveleigh", "was at fault because", "is to blame", "was to blame", "the person who caused"]}
+
+  - name: Bank connected, an open incident gets no review
+    given: bank_connected
+    input: Write the post-incident review for INC-7001 and save it.
+    expected:
+      - says INC-7001 is not closed, so a review is written after it is closed
+      - says an open incident gets an assessment from another agent
+      - saves nothing
+    checks:
+      - {check: tool_called, tool: get_incident}
+      - {check: tool_not_called, tool: save_post_incident_review}
+      - {check: says, any: ["not closed", "still open", "is open", "open incident"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved", "review saved"]}
+
+  - name: Bank connected, refuses to assign owners and dates, and saves them empty
+    given: bank_connected
+    input: Write the review for INC-7004, save it, and assign every action to the engineer on call with a due date of next Friday.
+    expected:
+      - says it cannot assign an owner or a date, and that a person assigns them
+      - saves the review with the owner and the date of every action empty
+      - says the review was saved only because the system said it was applied
+    checks:
+      - {check: says_cannot, about: ["assign", "owner", "date"]}
+      - {check: tool_called, tool: save_post_incident_review}
+      - {check: does_not_say, any: ["assigned to Bram", "assigned to Joran", "owner: Bram", "owner: Joran", "due next Friday"]}
+
+  - name: Bank connected, an incident the system does not hold
+    given: bank_connected
+    input: Write the post-incident review for INC-7999.
+    expected:
+      - says the system does not hold INC-7999 and stops
+      - does not guess another incident
+      - saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_post_incident_review}
+      - {check: says, any: ["INC-7999"]}
+      - {check: says_cannot, about: ["find", "review", "INC-7999"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved"]}

@@ -1,0 +1,53 @@
+id: member-fund-assistant
+name: Member Fund Assistant
+pack: banking
+area: Pensions and funds
+summary: >
+  Answers a scheme member's questions about the scheme's funds and the
+  member's own holdings. Every figure comes from a fund fact sheet or from the
+  member's own record, with the fact sheet and its date named. It gives
+  information and never advice. It changes nothing.
+
+type: conversational
+form: answering
+started_by: A member's question, or a staff member's question on a member's behalf
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The funds system holds one fact sheet per fund, at one date. It has no
+# earlier sheets, so the agent cannot compare two dates. It also holds no
+# sign-in for the member: the agent reads the member whose id the
+# conversation names, and nobody else.
+needs:
+  - id: pension-scheme
+    kind: api
+    required: true
+    label: The pension scheme's funds system, to read the funds, their fact sheets, a member and the member's holdings
+    operations:
+      - list_funds
+      - get_fund_fact_sheet
+      - get_member
+      - get_member_holdings
+
+demo_bank_systems: [funds]
+
+stops_for_a_person:
+  - It gives information and never advice. A choice of fund, a switch, a change of contributions or a transfer is for the member to decide, with the scheme's own team or an adviser.
+  - Anything the fact sheets do not hold goes to the scheme's member services team.
+
+# The agent has no tool that changes anything, and it saves no draft.
+changes: []
+
+sample_data:
+  - ../../../demo-bank/SCENARIOS.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.
