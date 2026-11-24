@@ -30,10 +30,11 @@ tests:
     expected:
       - says payments are slow, alert ALT-9101 opened at 08:46, severity high, 14 calls to the contact centre by 08:55
       - names change ITC-8101, release 4.18.0 of payment-service deployed at 08:00, with a duplicate-payment check behind the flag duplicate_check_enabled switched on 15 minutes later
-      - gives p95 latency 428 ms at 08:10 (415 to 430 ms before the rise), 612 ms at 08:20 and 3,200 ms at 10:00
-      - gives the error rate 0.2 percent at 08:10, 0.6 percent at 08:20 and 2.9 percent at 10:00
-      - gives the payments database CPU 36 percent at 08:10 (33 to 36 before the rise, 34 at 07:00), 52 percent at 08:20 and 95 percent at 10:00
-      - gives the fall in volume from 212 a minute at 08:10 (206 to 214 before) to 156 a minute at 10:00 as a fact, without saying why
+      # Version 3: three lines that each named three samples became the three things the engineer needs, by the rule in part 2 of the instructions.
+      - says p95 latency, the error rate and the payments database CPU were at their earlier level up to the 08:10 sample (428 ms, 0.2 percent, 36 percent; a range for the earlier samples is as good)
+      - says all three first moved at the 08:20 sample, after the flag was switched on at 08:15, and gives at least one of the 08:20 values (612 ms, 0.6 percent, 52 percent)
+      - gives where each stands at 10:00, namely 3,200 ms, 2.9 percent and 95 percent
+      - gives the fall in volume to 156 a minute at 10:00, from 212 at 08:10 or from the 206 to 214 before, as a fact, without saying why
       - says ITC-8102 (receipt wording, notification-service) and ITC-8103 (reporting database indexes, the night before) do not touch the payment path
       - suggests checking the CPU of the payments database and the flag, and says that switching the flag off needs the incident manager and a rollback needs the change manager, for people to run
       - says the draft was saved only because the system said it was applied
@@ -64,10 +65,10 @@ tests:
     expected:
       - says card purchases are being declined, alert ALT-9102 opened at 05:08, severity critical
       - names the certificate cardproc-mtls-client for the link to the card processor, expired at 04:58, shown on dashboard DASH-1003, with the log line "certificate has expired" in the timeline
-      - says the error rate stepped from 0.4 percent at 04:40 to 97.2 percent at the 05:00 sample and has stayed between 97 and 99 percent
-      - says that volume did not drop (36 to 38 a minute before, 41 at 05:00, 130 at 10:00) and that latency fell from 179 to 185 ms before to 41 ms at 05:00
+      - says the error rate stepped from 0.4 percent at 04:40 to 97.2 percent at the 05:00 sample and says it has stayed at that level since (97.2 to 98.2 percent, or words to that effect; the latest value alone is not enough)
+      - says that volume did not drop (lowest 36 a minute, 130 at 10:00) and that latency fell from about 180 ms (179 to 185) to about 40 ms (41 at 05:00)
       - says there was no change to card-authorisation in the last 168 hours
-      - says the last change to it, ITC-8104, was 12 days ago and touched one authorisation rule and not a certificate, read from the change record, and does not call this a disagreement between records
+      - says the last change to it, ITC-8104, was 12 days ago (2026-11-12 11:15, either form) and touched one authorisation rule and not a certificate, read from the change record after looking back further, and does not call this a disagreement between records
       - may name the three changes to other services in the last 24 hours (ITC-8101, ITC-8102, ITC-8103) and says they do not touch card-authorisation
       - says the other four certificates on DASH-1003 are valid
       - says the renewal is requested and not yet issued, and that installing it needs a change record and the change manager
@@ -81,6 +82,8 @@ tests:
       - {check: says, any: ["ALT-9102"]}
       - {check: says, any: ["97"]}
       - {check: says, any: ["ITC-8104"]}
+      # New in version 3: the words of the change record, which the agent can only have by looking back past 168 hours.
+      - {check: says, any: ["one authorisation rule", "one rule"]}
       - {check: says, any: ["change manager"]}
       - {check: cites_source}
       - {check: does_not_say, any: ["has been installed", "i have renewed", "certificate has been renewed"]}
