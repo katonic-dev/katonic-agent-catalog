@@ -29,7 +29,8 @@ def test_key_is_required_and_both_forms_work(client):
 
 def test_every_system_refuses_a_call_without_a_key(client):
     probes = {"stores": "/stores/sites", "foodsafety": "/foodsafety/plan", "care": "/care/feedback",
-              "purchasing": "/purchasing/invoices"}
+              "purchasing": "/purchasing/invoices", "property": "/property/leases", "performance": "/performance/periods",
+              "tills": "/tills/rules"}
     assert list(probes) == SYSTEMS
     for path in probes.values():
         r = client.get(path)
@@ -119,15 +120,19 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                     assert p.get("description"), (oid, p["name"])
                 if "(change)" in op["summary"]:
                     assert method == "post", oid
-    assert counts == {"stores": 2, "foodsafety": 8, "care": 4, "purchasing": 10}
+    assert counts == {"stores": 5, "foodsafety": 8, "care": 4, "purchasing": 10, "property": 3, "performance": 4, "tills": 4}
+    assert sum(counts.values()) == 38
     assert sorted(seen) == sorted([
-        "list_sites", "get_site",
+        "list_sites", "get_site", "list_site_visits", "get_site_visit", "save_visit_report",
         "get_food_safety_plan", "list_record_periods", "get_food_safety_records", "get_record_review", "save_record_check",
         "request_corrective_actions", "record_corrective_action", "sign_monthly_review",
         "list_guest_feedback", "get_guest_feedback", "get_feedback_analysis", "save_feedback_analysis",
         "list_suppliers", "get_supplier", "list_purchase_orders", "get_purchase_order", "list_goods_receipts",
         "list_supplier_invoices", "get_supplier_invoice", "save_invoice_match", "approve_invoice_for_payment",
-        "raise_invoice_query"])
+        "raise_invoice_query",
+        "list_leases", "get_lease", "save_lease_summary",
+        "list_performance_periods", "get_restaurant_performance", "get_peer_group_performance", "save_performance_review",
+        "get_till_rules", "list_till_entries", "get_till_audit", "save_till_audit"])
 
 
 def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
@@ -141,6 +146,11 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                     assert op["operationId"].startswith("save_")
     assert changes == {"request_corrective_actions", "record_corrective_action", "sign_monthly_review",
                        "approve_invoice_for_payment", "raise_invoice_query"}
+    # version 1.1 added no operation that changes a record: its four writes are drafts
+    drafts = {op["operationId"] for doc in docs(client).values() for item in doc["paths"].values() for op in item.values()
+              if op["summary"].endswith("(draft)")}
+    assert drafts == {"save_record_check", "save_feedback_analysis", "save_invoice_match", "save_visit_report",
+                      "save_lease_summary", "save_performance_review", "save_till_audit"}
 
 
 def test_servers_and_docs_under_a_prefix():
@@ -159,7 +169,8 @@ def test_landing_page_has_no_external_assets(client):
     assert "http://" not in text.replace("http://testserver", "") and "https://" not in text
     for s in SYSTEMS:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/sse" in text
-    assert "supplier-invoice" in text and "food-safety-records" in text
+    assert "supplier-invoice" in text and "food-safety-records" in text and "site-visit" in text
+    assert "The seven systems" in text
 
 
 # ---------------------------------------------------------------- data invariants
@@ -189,6 +200,13 @@ def test_ids_and_counts(store):
         assert key == f"{rec['site_id']}:{rec['period']}" and key in d["fs_reviews"]
     for p in d["purchase_orders"].values():
         assert p["supplier_id"] in d["suppliers"]
+    assert len(d["leases"]) == 9 and len(d["site_visits"]) == 6 and len(d["performance"]) == 36 and len(d["till_rows"]) == 180
+    restaurants = {k for k, s in d["sites"].items() if s["kind"] == "restaurant"}
+    assert {x["site_id"] for x in d["leases"].values()} <= set(d["sites"]) and len({x["site_id"] for x in d["leases"].values()}) == 9
+    assert {x["site_id"] for x in d["performance"].values()} == restaurants
+    assert sorted(s for g in d["peer_groups"].values() for s in g["site_ids"]) == sorted(restaurants)
+    assert {x["site_id"] for x in d["till_rows"].values()} == set(d["sites"])
+    assert {v["site_id"] for v in d["site_visits"].values()} <= set(d["sites"])
     for r in d["goods_receipts"].values():
         assert r["po_number"] in d["purchase_orders"]
     for i in d["supplier_invoices"].values():

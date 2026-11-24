@@ -9,10 +9,11 @@ import urllib.request
 
 from .seed_food import sim_records
 from .seed_purch import sim_invoice
+from .seed_visits import sim_visit
 from .store import Store, now_iso
 
-KINDS = ["supplier-invoice", "food-safety-records"]
-SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety"}
+KINDS = ["supplier-invoice", "food-safety-records", "site-visit"]
+SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety", "site-visit": "stores"}
 TIMEOUT = 10
 
 # ----------------------------------------------------------------- sending
@@ -73,7 +74,14 @@ def _records(store: Store, n: int) -> tuple[str, str]:
     return sim_records(store.data, store.settings.retailer_today, n % 4, store.next_number("sim_fsr", 1))
 
 
-MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records}
+def _visit(store: Store, n: int) -> tuple[str, str]:
+    d, today = store.data, store.settings.retailer_today
+    month = f"{today.year % 100:02d}{today.month:02d}"
+    visit_id = store.next_free("sim_visit", 1, d["site_visits"], lambda k: f"SV-{month}-{k:02d}")
+    return sim_visit(d, today, n % 4, visit_id)
+
+
+MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records, "site-visit": _visit}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

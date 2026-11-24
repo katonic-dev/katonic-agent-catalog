@@ -1,0 +1,50 @@
+id: lease-summary
+name: Lease Summary
+pack: retail
+area: People and compliance
+summary: >
+  Summarises a store or restaurant lease from the company's property records:
+  the term, the rent, the review dates and how the rent is reviewed, the break
+  dates and the notice they need, and who repairs what, each with the clause it
+  rests on. It saves the summary as a draft. The property team checks the
+  summary against the lease.
+
+type: conversational
+form: answering
+started_by: A colleague's request that names a lease or a site
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: property
+    kind: api
+    required: true
+    label: The company's property records, to read a lease with its full text and numbered clauses, and to save a summary as a draft
+    operations:
+      - list_leases
+      - get_lease
+      - save_lease_summary
+
+demo_retailer_systems: [property]
+
+stops_for_a_person:
+  - The property team checks every summary against the lease before anyone relies on it.
+  - Whether to break, renew, assign or sign a lease is decided by the property team and the company's lawyers. The agent gives no advice and serves no notice.
+  - A point the lease is silent on goes to the property team.
+
+# Saving a summary is a draft kept as a version with its author. It changes nothing in the lease.
+changes:
+  - {tool: save_lease_summary, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

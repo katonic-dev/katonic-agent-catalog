@@ -210,6 +210,8 @@ class Store:
         return {
             "stores": sum(1 for s in sites if s["kind"] == "store"),
             "restaurants": sum(1 for s in sites if s["kind"] == "restaurant"),
+            "site_visits": len(d["site_visits"]),
+            "site_visits_without_a_report": sum(1 for v in d["site_visits"].values() if not v["reports"]),
             "record_periods": len(d["fs_records"]),
             "record_periods_not_reviewed": sum(1 for r in d["fs_reviews"].values() if r["status"] == "not_reviewed"),
             "guest_feedback_comments": len(d["guest_feedback"]),
@@ -219,4 +221,12 @@ class Store:
             "supplier_invoices_received": sum(1 for i in d["supplier_invoices"].values() if i["status"] == "received"),
             "supplier_invoices_queried": sum(1 for i in d["supplier_invoices"].values() if i["status"] == "queried"),
             "supplier_invoices_approved": sum(1 for i in d["supplier_invoices"].values() if i["status"] == "approved"),
+            "leases": len(d["leases"]),
+            "lease_summaries": sum(len(x["summaries"]) for x in d["leases"].values()),
+            "performance_periods": len({x["period"] for x in d["performance"].values()}),
+            "performance_reviews": sum(len(x["reviews"]) for x in d["performance_reviews"].values()),
+            "till_refunds": sum(1 for x in d["till_rows"].values() if x["kind"] == "refund"),
+            "till_voids": sum(1 for x in d["till_rows"].values() if x["kind"] == "void"),
+            "till_discounts": sum(1 for x in d["till_rows"].values() if x["kind"] == "discount"),
+            "till_audits": sum(len(x["audits"]) for x in d["till_audits"].values()),
         }

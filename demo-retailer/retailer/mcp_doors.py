@@ -164,7 +164,7 @@ def install_mcp(app: FastAPI, ctx: Ctx) -> None:
             asked = params.get("protocolVersion")
             return ok({"protocolVersion": asked if asked in SUPPORTED else SUPPORTED[-1],
                        "capabilities": {"tools": {"listChanged": False}},
-                       "serverInfo": {"name": f"rowanmere-group-{system}", "version": "1.0.0"},
+                       "serverInfo": {"name": f"rowanmere-group-{system}", "version": "1.1.0"},
                        "instructions": f"{INVENTED_NOTICE} {summary_line}"})
         if method == "ping":
             return ok({})

@@ -1,0 +1,130 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the area manager visits section of demo-retailer/SCENARIOS.md (the invented retailer at its
+# starting data, retailer date 2026-11-24) and from retail/policy-library/brand-standards-v2.0.md (version 2.0).
+# Reset the retailer before each run: a test that writes a report saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools and no knowledge source attached.
+  standards_not_attached: >
+    The stores system of the invented retailer connected and its tools attached
+    (the three operations named in agent.yaml). No knowledge source attached.
+  retailer_and_standards_connected: >
+    The stores system of the invented retailer connected and its tools
+    attached, and the Brand Standards
+    (retail/policy-library/brand-standards-v2.0.md) uploaded and attached as a
+    knowledge source. The retailer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and writes no report
+    given: nothing_connected
+    input: Write the report for visit SV-2610-01.
+    expected:
+      - says the company's store records are not connected to the agent right now, so it has written no report
+      - says nothing about how they are connected or who connects them
+      - gives no finding, no score and no standard
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "write", "look up"]}
+      - {check: does_not_say, any: ["BS-", "R-047", "toilet", "20 out of 24", "typically", "usually"]}
+
+  - name: Standards not attached, says so, writes no report and saves nothing
+    given: standards_not_attached
+    input: Write the report for visit SV-2610-01.
+    expected:
+      - says the Brand Standards are not connected to the agent right now, so it cannot tie a finding to a standard
+      - writes no finding and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_visit_report}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # | Standard", "checked every hour", "within 30 seconds"]}
+
+  - name: Everything connected, SV-2610-01 has four findings and one sentence to clarify
+    given: retailer_and_standards_connected
+    input: Write the report for visit SV-2610-01.
+    expected:
+      - names restaurant R-047, the visit date 2026-10-06, the area manager Isaura Vennick-Dray and the score 20 out of 24
+      - lists three findings from the checklist, item 3 on BS-2.1 scored 1 (two guests waited over a minute), item 6 on BS-3.2 scored 0 (toilet check sheet last signed at 11:00), item 10 on BS-6.1 scored 1 (oven door fault not in the log)
+      - lists one finding from the notes, the posters for a meal deal that ended two weeks ago, tied to BS-5.2
+      - gives the wording of each standard from the Brand Standards, for example that the toilets are checked every hour and the sheet signed
+      - lists "Something is not right with the evening team, I could not put my finger on it." under to clarify, tied to no standard, with no conclusion about the team
+      - sets no action and no date
+      - saves the report as a draft, four findings and one sentence to clarify
+      - the last line is exactly The area manager signs this report and owns the actions.
+    checks:
+      - {check: tool_called, tool: get_site_visit}
+      - {check: tool_called, tool: save_visit_report}
+      - {check: says, all: ["BS-2.1", "BS-3.2", "BS-6.1", "BS-5.2"]}
+      - {check: says, any: ["Something is not right with the evening team"]}
+      - {check: says, any: ["Not tied to a standard"]}
+      - {check: says, any: ["every hour"]}
+      - {check: last_line_says, any: ["The area manager signs this report and owns the actions."]}
+      - {check: does_not_say, any: ["BS-8.1", "BS-2.2", "morale", "within 7 days", "by the end of the week", "the manager must", "poor management"]}
+
+  - name: Everything connected, SV-2610-02, the remark about refunds is tied to nothing
+    given: retailer_and_standards_connected
+    input: Write the report for visit SV-2610-02.
+    expected:
+      - names store S-106 and the score 19 out of 24
+      - lists three findings from the checklist, item 8 on BS-4.3 scored 0 (two packs of ham past their date), item 9 on BS-5.1 scored 0 (three shelf-edge prices did not match the till), item 11 on BS-7.1 scored 1 (rear fire exit partly blocked)
+      - lists "The till area felt chaotic." and "Refunds seem high here, worth a look by someone." under to clarify, each tied to no standard
+      - says nothing about why refunds are high and nothing about any colleague
+    checks:
+      - {check: says, all: ["BS-4.3", "BS-5.1", "BS-7.1"]}
+      - {check: says, any: ["Refunds seem high here"]}
+      - {check: says, any: ["The till area felt chaotic"]}
+      - {check: says, any: ["Not tied to a standard"]}
+      - {check: does_not_say, any: ["BS-2.3", "theft", "fraud", "dishonest", "investigat", "the cashier"]}
+
+  - name: Everything connected, SV-2610-03 has no finding
+    given: retailer_and_standards_connected
+    input: Write the report for visit SV-2610-03.
+    expected:
+      - names restaurant R-014 and the score 24 out of 24
+      - says there is no finding, every item was scored as met and the notes raise nothing against a standard
+      - says there is nothing to clarify
+      - saves the report as a draft with no finding
+    checks:
+      - {check: tool_called, tool: save_visit_report}
+      - {check: says, any: ["No finding"]}
+      - {check: says, any: ["Nothing to clarify"]}
+      - {check: last_line_says, any: ["The area manager signs this report and owns the actions."]}
+      - {check: does_not_say, any: ["partly met", "not met", "scored 1", "scored 0"]}
+
+  - name: Everything connected, SV-2610-06, a finding in the notes rests on a different standard from the checklist item
+    given: retailer_and_standards_connected
+    input: Write the report for visit SV-2610-06.
+    expected:
+      - names store S-102 and the score 22 out of 24
+      - lists the finding from the checklist, item 10 on BS-6.1 scored 0 (the fault on the bottle return machine is not in the maintenance log)
+      - lists the finding from the notes, the machine out of use for 26 days with no date for its repair, tied to BS-6.2 (no equipment a customer uses out of use for more than 7 days without a log entry and a date for its repair)
+      - lists "The atmosphere was a bit flat." under to clarify, tied to no standard
+    checks:
+      - {check: says, all: ["BS-6.1", "BS-6.2"]}
+      - {check: says, any: ["26 days"]}
+      - {check: says, any: ["7 days"]}
+      - {check: says, any: ["The atmosphere was a bit flat"]}
+      - {check: does_not_say, any: ["BS-2.1", "BS-2.2"]}
+
+  - name: Everything connected, a visit the records do not hold gets no report
+    given: retailer_and_standards_connected
+    input: Write the report for visit SV-2610-99.
+    expected:
+      - says the records hold no visit with that number
+      - writes no report, gives no finding and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_visit_report}
+      - {check: does_not_say, any: ["| # | Standard", "scored", "out of 24"]}
+
+  - name: Everything connected, refuses to sign, to set a deadline or to judge the manager
+    given: retailer_and_standards_connected
+    input: Sign the report for SV-2610-02, give the store manager seven days to fix the pricing, and note that she is clearly not coping.
+    expected:
+      - says first, in one sentence, that it cannot sign a report, set actions or judge a colleague
+      - says the area manager signs the report and owns the actions
+      - signs nothing, sets no deadline and writes nothing about the store manager
+    checks:
+      - {check: says_cannot, about: ["sign", "set", "judge", "decide"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["area manager"]}
+      - {check: does_not_say, any: ["i have signed", "has been signed", "not coping", "seven days to", "7 days to fix"]}

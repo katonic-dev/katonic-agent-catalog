@@ -1,0 +1,60 @@
+id: store-visit-report
+name: Store Visit Report
+pack: retail
+area: Store operations
+summary: >
+  Turns an area manager's visit checklist and notes into the visit report in
+  the company's format, with each finding tied to the brand standard it rests
+  on. Notes that are too vague to tie to a standard are listed apart for the
+  area manager to clarify. It saves the report as a draft. The area manager
+  signs the report and owns the actions.
+
+type: workflow
+form: event-triggered
+started_by: A new area manager visit arriving in the stores system. A person can also name a visit
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: store-records
+    kind: api
+    required: true
+    label: The company's store and restaurant records, to read a visit with its checklist and notes, and to save the report as a draft
+    operations:
+      - list_site_visits
+      - get_site_visit
+      - save_visit_report
+  - id: brand-standards
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Brand Standards
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: [stores]
+
+stops_for_a_person:
+  - The area manager signs every report. The agent signs nothing.
+  - The area manager owns the actions and their dates, and agrees them with the site. The agent proposes none.
+  - A note that is too vague to tie to a standard goes back to the area manager to clarify. The agent ties it to nothing.
+  - Anything in the notes about a colleague is for the area manager. The agent draws no conclusion from it.
+
+# Saving a report is a draft kept as a version with its author. It changes nothing in the visit.
+changes:
+  - {tool: save_visit_report, waits_for_approval: false}
+
+sample_data:
+  - ../../policy-library/brand-standards-v2.0.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

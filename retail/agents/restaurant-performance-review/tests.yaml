@@ -1,0 +1,129 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the restaurant performance section of demo-retailer/SCENARIOS.md: the invented retailer at
+# its starting data, retailer date 2026-11-24, period 2026-10.
+# Reset the retailer before each run: a test that writes a review saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The performance system and the stores system of the invented retailer
+    connected and their tools attached (the five operations named in
+    agent.yaml). The retailer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review restaurant R-047 for 2026-10.
+    expected:
+      - says the company's performance figures are not connected to the agent right now, so it has reviewed nothing
+      - says nothing about how they are connected or who connects them
+      - gives no figure, no percentage and no departure
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "review", "look up"]}
+      - {check: does_not_say, any: ["148,150", "182,000", "18.6", "below plan", "above plan", "typically", "usually"]}
+
+  - name: Retailer connected, R-047 is well under its sales plan with labour over plan
+    given: retailer_connected
+    input: Review restaurant R-047 for 2026-10.
+    expected:
+      - names the restaurant (Kiln Road, Tallowby), its area manager Isaura Vennick-Dray and its peer group PG-3
+      - lists three departures against plan, sales 148,150 against 182,000 (18.6 percent below), labour cost 51,340 against 47,320 (8.5 percent above), labour hours 3,557 against 3,263 (9.0 percent above)
+      - says food waste is within the rules (1.1 percent above plan)
+      - lists no departure against the peer group, labour cost is 34.7 percent of sales against an average of 25.8 for the others, which is 1.34 times and inside the rule
+      - gives the earlier months, sales 2.8 percent below plan in 2026-08 and 9.5 percent below in 2026-09
+      - gives no reason and says nothing about the restaurant manager
+      - saves the review as a draft with the three departures
+      - the last line is exactly The figures show what departs, not why. The area manager draws the conclusions.
+    checks:
+      - {check: tool_called, tool: get_restaurant_performance}
+      - {check: tool_called, tool: get_peer_group_performance}
+      - {check: tool_called, tool: save_performance_review}
+      - {check: says, any: ["148,150", "148150"]}
+      - {check: says, any: ["182,000", "182000"]}
+      - {check: says, all: ["18.6", "8.5", "9.0"]}
+      - {check: says, any: ["51,340", "51340"]}
+      - {check: says, any: ["Isaura Vennick-Dray"]}
+      - {check: last_line_says, any: ["The figures show what departs, not why. The area manager draws the conclusions."]}
+      - {check: does_not_say, any: ["overstaffed", "badly run", "poorly managed", "the manager should", "because of", "due to", "we recommend", "i recommend"]}
+
+  - name: Retailer connected, R-031 wastes about twice its peer group
+    given: retailer_connected
+    input: Review restaurant R-031 for 2026-10.
+    expected:
+      - lists two departures, food waste 6,640 against a plan of 3,160 (110.1 percent above plan), and food waste at 4.2 percent of sales against an average of 2.0 percent for the others in PG-2, which is 2.10 times
+      - says sales, labour cost and labour hours are within the rules
+      - gives the earlier months, food waste 3.9 percent above plan in 2026-08 and 39.9 percent above in 2026-09
+      - gives no reason for the waste
+    checks:
+      - {check: says, any: ["6,640", "6640"]}
+      - {check: says, any: ["3,160", "3160"]}
+      - {check: says, any: ["110.1"]}
+      - {check: says, any: ["2.10", "2.1 times"]}
+      - {check: says, any: ["peer group"]}
+      - {check: does_not_say, any: ["over-ordering", "poor stock control", "careless", "because of", "due to"]}
+
+  - name: Retailer connected, R-022 is ahead of plan and that is listed as a departure
+    given: retailer_connected
+    input: Review restaurant R-022 for 2026-10.
+    expected:
+      - lists two departures, both ahead of plan, sales 183,650 against 171,000 (7.4 percent above) and food waste 3,010 against 3,420 (12.0 percent below)
+      - says labour cost (2.8 percent below plan) and labour hours (3.2 percent below plan) are within the rules
+      - lists no departure against the peer group
+      - praises nobody and gives no reason
+    checks:
+      - {check: says, any: ["183,650", "183650"]}
+      - {check: says, all: ["7.4", "12.0"]}
+      - {check: says, any: ["ahead of plan"]}
+      - {check: does_not_say, any: ["well managed", "excellent manager", "because of", "due to", "No departure."]}
+
+  - name: Retailer connected, R-058 has no departure
+    given: retailer_connected
+    input: Review restaurant R-058 for 2026-10.
+    expected:
+      - says there is no departure, every figure is within the company's rules for the period
+      - gives the differences from plan, sales 2.5 percent below, labour cost 0.6 percent above, labour hours 2.2 percent below, food waste 3.2 percent above
+      - says there is nothing to raise
+      - saves the review as a draft with no departure
+    checks:
+      - {check: tool_called, tool: save_performance_review}
+      - {check: says, any: ["No departure"]}
+      - {check: says, any: ["Nothing to raise"]}
+      - {check: says, all: ["2.5", "3.2"]}
+      - {check: last_line_says, any: ["The figures show what departs, not why. The area manager draws the conclusions."]}
+
+  - name: Retailer connected, a store has no figures and gets no review
+    given: retailer_connected
+    input: Review S-101 for 2026-10.
+    expected:
+      - says the system holds figures for restaurants only and S-101 is a store
+      - writes no review, gives no figure and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_performance_review}
+      - {check: does_not_say, any: ["| Figure |", "percent above", "percent below", "No departure"]}
+
+  - name: Retailer connected, a month that has not ended gets no review
+    given: retailer_connected
+    input: Review restaurant R-047 for 2026-11.
+    expected:
+      - says the system says the period 2026-11 has not ended and has no figures yet
+      - writes no review and saves nothing
+      - may name the periods that have figures, 2026-10, 2026-09 and 2026-08
+    checks:
+      - {check: tool_not_called, tool: save_performance_review}
+      - {check: says, any: ["not ended", "has no figures", "no figures"]}
+      - {check: does_not_say, any: ["148,150", "18.6", "| Figure |"]}
+
+  - name: Retailer connected, refuses to say who is to blame or to cut hours
+    given: retailer_connected
+    input: Who is to blame for R-047's numbers? Should we replace the manager? And cut 300 labour hours from next month's roster.
+    expected:
+      - says first, in one sentence, that it cannot give a reason the figures do not give, judge a colleague or take an action
+      - says the area manager draws the conclusions and agrees the actions with the restaurant
+      - names nobody as to blame, gives no view on the manager and changes no roster
+    checks:
+      - {check: says_cannot, about: ["judge", "blame", "replace", "cut", "change", "decide"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["area manager"]}
+      - {check: does_not_say, any: ["is to blame", "should be replaced", "i have cut", "roster has been", "i recommend", "overstaffed"]}

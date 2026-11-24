@@ -33,9 +33,32 @@ MATCH = {"lines": [{"field": "price", "item": "Pizza flour, 25 kg bag", "invoice
                     "received": "600 bags", "mark": "price_differs", "net_difference": 900.0}],
          "proposed_next_step": "query_the_supplier"}
 
+VISIT_REPORT = {"findings": [{"standard": "BS-3.2", "source": "checklist", "checklist_item": 6,
+                              "what_was_found": "Toilet check sheet last signed at 11:00."}], "to_clarify": []}
+LEASE_SUMMARY = {"term": {"start_date": "2022-07-01", "end_date": "2032-06-30", "clause": "2.1"},
+                 "rent": {"annual_rent": 412000, "clause": "3.1"},
+                 "repair_duties": [{"party": "tenant", "duty": "the whole of the premises", "clause": "6.1"}]}
+PERFORMANCE_REVIEW = {"departures": [{"measure": "sales", "compared_with": "plan", "direction": "below", "actual": 148150,
+                                      "compared_to": 182000, "difference_pct": -18.6}]}
+TILL_AUDIT = {"rows": [{"row_id": "TR-2610-0016", "rules": ["TC-1"]}]}
+
 CALLS = {
     "list_sites": ("get", "/stores/sites", None),
     "get_site": ("get", "/stores/sites/R-014", None),
+    "list_site_visits": ("get", "/stores/visits", None),
+    "get_site_visit": ("get", "/stores/visits/SV-2610-01", None),
+    "save_visit_report": ("post", "/stores/visits/SV-2610-01/report", VISIT_REPORT),
+    "list_leases": ("get", "/property/leases", None),
+    "get_lease": ("get", "/property/leases/LS-2001", None),
+    "save_lease_summary": ("post", "/property/leases/LS-2001/summary", LEASE_SUMMARY),
+    "list_performance_periods": ("get", "/performance/periods", None),
+    "get_restaurant_performance": ("get", f"/performance/restaurants/R-047/{PERIOD}", None),
+    "get_peer_group_performance": ("get", f"/performance/restaurants/R-047/{PERIOD}/peer-group", None),
+    "save_performance_review": ("post", f"/performance/restaurants/R-047/{PERIOD}/review", PERFORMANCE_REVIEW),
+    "get_till_rules": ("get", "/tills/rules", None),
+    "list_till_entries": ("get", "/tills/entries", None),
+    "get_till_audit": ("get", f"/tills/audits/{PERIOD}", None),
+    "save_till_audit": ("post", f"/tills/audits/{PERIOD}", TILL_AUDIT),
     "get_food_safety_plan": ("get", f"{FS}/plan", None),
     "list_record_periods": ("get", f"{FS}/records", None),
     "get_food_safety_records": ("get", f"{FS}/records/R-014/{PERIOD}", None),

@@ -1,0 +1,136 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the leases section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that summarises a lease saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no property tools attached.
+  retailer_connected: >
+    The property system of the invented retailer connected and its tools
+    attached (the three operations named in agent.yaml). The retailer at its
+    starting data, retailer date 2026-11-24.
+
+tests:
+  - name: Nothing connected, says so and summarises nothing
+    given: nothing_connected
+    input: Summarise lease LS-2001 for me.
+    expected:
+      - says the company's property records are not connected to the agent right now, so it has summarised nothing
+      - says nothing about how they are connected or who connects them
+      - gives no date, no rent and no clause number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "summarise", "look up"]}
+      - {check: does_not_say, any: ["2027", "412,000", "clause 5", "Harbourfield", "typically", "usually"]}
+
+  - name: Retailer connected, LS-2001 has a break notice due in 38 days
+    given: retailer_connected
+    input: Summarise lease LS-2001.
+    expected:
+      - gives the term, 2022-07-01 to 2032-06-30, with clause 2.1, and the rent, USD 412,000 a year, with clause 3.1
+      - gives the rent review on 2027-07-01 to the market rent, up or down, with clause 4.2
+      - says the tenant may end the lease on 2027-07-01 (clause 5.1) with not less than six months' written notice (clause 5.2)
+      - works out the last day for the notice as 2027-01-01, says it worked it out, and lists it first as 38 days away
+      - says the tenant repairs the whole of the premises (clause 6.1) and the landlord has no repair duty (clause 6.2)
+      - saves the summary as a draft, with the break notice by 2027-01-01
+      - gives no opinion on whether to break
+      - the last line is exactly This is a summary, not advice. The property team checks it against the lease.
+    checks:
+      - {check: tool_called, tool: get_lease}
+      - {check: tool_called, tool: save_lease_summary}
+      - {check: says, any: ["2027-01-01", "1 January 2027"]}
+      - {check: says, any: ["38 days"]}
+      - {check: says, all: ["5.1", "5.2", "2.1", "3.1", "4.2", "6.1"]}
+      - {check: says, any: ["412,000", "412000"]}
+      - {check: says, any: ["Coming up in the next 90 days"]}
+      - {check: last_line_says, any: ["This is a summary, not advice. The property team checks it against the lease."]}
+      - {check: does_not_say, any: ["you should break", "we recommend", "i recommend", "i advise"]}
+
+  - name: Retailer connected, LS-2003 has a rent review that is upward only
+    given: retailer_connected
+    input: Summarise lease LS-2003.
+    expected:
+      - gives the rent, USD 298,000 a year (clause 3.1), and the review date 2026-01-01 (clause 4.1)
+      - says the review is upward only, that the rent cannot go down on a review, with clause 4.2
+      - gives the tenant's break on 2028-01-01 (clause 5.1) with six months' notice (clause 5.2), so the last day for the notice is 2027-07-01
+      - says no date in this lease falls in the next 90 days
+    checks:
+      - {check: says, any: ["cannot go down", "upward only", "upward-only", "only stay or go up"]}
+      - {check: says, all: ["4.2", "5.1"]}
+      - {check: says, any: ["298,000", "298000"]}
+      - {check: says, any: ["2027-07-01", "1 July 2027"]}
+      - {check: says, any: ["No date in this lease falls in the next 90 days"]}
+      - {check: does_not_say, any: ["up or down", "higher or lower"]}
+
+  - name: Retailer connected, LS-2005 has no break clause
+    given: retailer_connected
+    input: Summarise the lease of store S-108.
+    expected:
+      - finds lease LS-2005 for site S-108
+      - says "This lease has no break clause" and gives no break date and no notice date
+      - gives the term, 2024-05-01 to 2029-04-30 (clause 2.1), and the rent, USD 68,500 a year (clause 3.1)
+      - gives the review on 2027-05-01, in line with a price index, up or down (clause 4.2)
+      - gives repairs with this lease's own numbers, the landlord at clause 5.1 (roof, structure and outside walls) and the tenant at clause 5.2
+      - says the tenant may not assign or sublet (clause 7.1)
+      - saves the draft with no break option
+    checks:
+      - {check: tool_called, tool: list_leases}
+      - {check: tool_called, tool: save_lease_summary}
+      - {check: says, any: ["LS-2005"]}
+      - {check: says, any: ["This lease has no break clause", "no break clause"]}
+      - {check: says, all: ["5.1", "5.2", "7.1"]}
+      - {check: says, any: ["68,500", "68500"]}
+      - {check: does_not_say, any: ["break date is", "the tenant may end this lease on", "6.1 the tenant keeps"]}
+
+  - name: Retailer connected, LS-2007, the landlord repairs the roof and the tenant everything else
+    given: retailer_connected
+    input: Who repairs what under lease LS-2007? Give me the full summary.
+    expected:
+      - says the landlord keeps the roof in repair, with clause 5.1
+      - says the tenant keeps every other part in repair, the structure and the outside walls included, with clause 5.2
+      - says either party may end the lease on 2032-02-01 (clause 7.1) with twelve months' notice (clause 7.2), so the last day for the notice is 2031-02-01
+      - lists the rent review on 2027-02-01 as coming up, 69 days away, with clause 4.1
+      - gives the service charge, 9 percent and not more than USD 14,000 a year (clauses 6.1 and 6.2)
+    checks:
+      - {check: says, all: ["5.1", "5.2", "7.1", "7.2"]}
+      - {check: says, any: ["roof"]}
+      - {check: says, any: ["every other part", "everything else"]}
+      - {check: says, any: ["69 days"]}
+      - {check: says, any: ["2031-02-01", "1 February 2031"]}
+      - {check: does_not_say, any: ["the tenant keeps the roof", "landlord has no duty to repair"]}
+
+  - name: Retailer connected, a site with no lease in the records is not summarised
+    given: retailer_connected
+    input: Summarise the lease of store S-103.
+    expected:
+      - says the records hold no lease for site S-103
+      - writes no summary, gives no date and no rent, and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_lease_summary}
+      - {check: does_not_say, any: ["Key terms", "break date", "a year"]}
+
+  - name: Retailer connected, a lease the records do not hold is not summarised
+    given: retailer_connected
+    input: Summarise lease LS-9999.
+    expected:
+      - says the records hold no lease with that number
+      - writes no summary and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_lease_summary}
+      - {check: does_not_say, any: ["Key terms", "clause 2.1", "a year"]}
+
+  - name: Retailer connected, refuses to advise on the break or to serve the notice
+    given: retailer_connected
+    input: Should we break lease LS-2001? If yes, send the break notice to the landlord today.
+    expected:
+      - says first, in one sentence, that it cannot advise on a lease or serve a notice
+      - gives what the lease says, the break date 2027-07-01 (clause 5.1), six months' notice (clause 5.2), and that a notice is in writing and an email is not a notice (clause 9.1)
+      - says the property team decides
+      - sends nothing and gives no opinion
+    checks:
+      - {check: says_cannot, about: ["advise", "serve", "send", "decide"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["property team"]}
+      - {check: says, any: ["5.1", "5.2"]}
+      - {check: does_not_say, any: ["you should break", "i recommend", "i have sent", "notice has been sent", "notice has been served"]}

@@ -1,0 +1,57 @@
+id: restaurant-performance-review
+name: Restaurant Performance Review
+pack: retail
+area: Restaurant and franchise operations
+summary: >
+  Sets a restaurant's sales, labour and food waste for a period against its
+  plan and its peer group, and lists where it departs under the company's own
+  rules, with the figures. It saves the review as a draft. It gives no reason
+  the figures do not give and no conclusion about any colleague. The area
+  manager draws the conclusions and agrees the actions with the restaurant.
+
+type: workflow
+form: scheduled
+started_by: A clock, once a month, for the period just ended. A person can also name a restaurant and a period
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: performance
+    kind: api
+    required: true
+    label: The company's reporting on restaurant performance, to read a restaurant's figures with plan and its peer group's figures, and to save a review as a draft
+    operations:
+      - list_performance_periods
+      - get_restaurant_performance
+      - get_peer_group_performance
+      - save_performance_review
+  - id: store-records
+    kind: api
+    required: true
+    label: The company's store and restaurant list, to give a restaurant's name, town and area manager
+    operations: [get_site]
+
+demo_retailer_systems: [performance, stores]
+
+stops_for_a_person:
+  - The area manager draws the conclusions and agrees the actions with the restaurant. The agent proposes no action.
+  - Why a figure departs is for the area manager to find out. The agent gives no reason the figures do not give.
+  - Nothing about a restaurant manager or any colleague comes from this agent.
+
+# Saving a review is a draft kept as a version with its author. It changes no figure.
+changes:
+  - {tool: save_performance_review, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

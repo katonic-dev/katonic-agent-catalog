@@ -1,0 +1,50 @@
+id: training-content
+name: Training Content
+pack: retail
+area: People and compliance
+summary: >
+  Drafts a short training note or a quiz from one procedure of the company's
+  Store Procedures Manual or one policy of its Staff Handbook, with every point
+  tied to the clause it comes from. It writes no procedure of its own and adds
+  no rule. The training lead approves the content before anyone is trained
+  from it.
+
+type: conversational
+form: answering
+started_by: A colleague's request that names a procedure or a policy
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  preset: knowledge_qa
+  tier: reasoning
+
+needs:
+  - id: procedures-and-handbook
+    kind: knowledge_source
+    required: true
+    label: A knowledge source that holds the company's Store Procedures Manual and its Staff Handbook
+    met_by: [SharePoint, Confluence, Google Drive, Notion, File Upload]
+
+demo_retailer_systems: []
+
+stops_for_a_person:
+  - The training lead approves every note and every quiz before it is used. The agent publishes nothing and assigns no training.
+  - A change to a procedure or a policy is for the owner of the document. The agent writes no procedure and alters none.
+  - Any limit set by the Food Safety Plan, and any allergen question, goes to the document that sets it.
+
+changes: []
+
+sample_data:
+  - ../../policy-library/store-procedures-manual.md
+  - ../../policy-library/staff-handbook.md
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform.

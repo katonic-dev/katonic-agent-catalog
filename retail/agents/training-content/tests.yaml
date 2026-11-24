@@ -1,0 +1,132 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from retail/policy-library/store-procedures-manual.md (version 3.1) and
+# retail/policy-library/staff-handbook.md (version 2.4). Procedure, policy and clause numbers are the documents' own.
+# Not yet run on a model.
+
+states:
+  nothing_connected: >
+    The agent as built, with no knowledge source attached. On the Test tab, tick
+    "Test the prompt without tools" for these tests, because an agent of this
+    kind cannot run or be published with no source.
+  documents_attached: >
+    The Store Procedures Manual (retail/policy-library/store-procedures-manual.md)
+    and the Staff Handbook (retail/policy-library/staff-handbook.md) uploaded and
+    attached as a knowledge source.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Write a training note on SP-07, order remakes.
+    expected:
+      - says no knowledge source is connected to the agent right now, so it cannot draft training material
+      - says nothing about how a source is connected or who connects it
+      - writes no note, no key point and no Source line, and points to the training lead
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: does_not_say, any: ["15 minutes", "R3", "reason code", "Key points", "Source:", "typically", "usually", "best practice"]}
+
+  - name: Nothing connected, asked to publish, publishes nothing
+    given: nothing_connected
+    input: Publish the cash handling quiz to every restaurant and enrol the new starters.
+    expected:
+      - says no knowledge source is connected to the agent right now
+      - says it cannot publish a quiz or enrol anyone
+      - says nothing was published
+    checks:
+      - {check: says_nothing_is_connected}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["i have published", "has been published", "i have enrolled", "are enrolled"]}
+
+  - name: Documents attached, a training note on SP-07 with every point tied to its clause
+    given: documents_attached
+    input: Write a training note on SP-07, order remakes.
+    expected:
+      - starts "Training note:" with SP-07, Order remake, version 1.4, and marks it a draft for the training lead to approve
+      - gives the four cases in which an order is remade at no charge, the hot rack for more than 15 minutes among them (clause 7.1)
+      - says the crew member tells the shift manager before remaking and the shift manager approves (clause 7.2)
+      - gives the reason codes R1 to R5 with their meanings (clause 7.3)
+      - says a photo is taken on the store tablet before the product is discarded, for codes R1 and R2 (clause 7.4)
+      - says more than six remakes in one shift is reported to the area manager in the shift handover (clause 7.5)
+      - says the procedure does not cover refunds or compensation, which the restaurant manager decides under the Guest Recovery Policy (clause 7.6), and gives nothing from that policy
+      - ends with a line that starts Source: and names the manual, version 3.1 and SP-07
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["7.1", "7.2", "7.3", "7.4", "7.5", "7.6"]}
+      - {check: says, any: ["15 minutes"]}
+      - {check: says, all: ["R1", "R2", "R3", "R4", "R5"]}
+      - {check: says, any: ["Draft for the training lead to approve"]}
+      - {check: last_line_says, all: ["Source:", "SP-07"]}
+      - {check: does_not_say, any: ["best practice", "good practice", "as a tip", "we recommend"]}
+
+  - name: Documents attached, a quiz on SP-12 with each answer tied to its clause
+    given: documents_attached
+    input: Write a four-question quiz on SP-12, cash handling.
+    expected:
+      - starts "Quiz:" with SP-12, Cash handling, version 1.8, and marks it a draft for the training lead to approve
+      - asks four questions, one for each clause of the procedure
+      - gives the answers with their clauses, each till counted at the start and the end of a shift by the shift manager with a second crew member present (12.1), a difference of more than USD 20 reported to the restaurant manager the same day (12.2), cash above USD 2,000 moved to the safe (12.3), a driver's float of no more than USD 150 (12.4)
+      - ends with a line that starts Source: and names the manual and SP-12
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["12.1", "12.2", "12.3", "12.4"]}
+      - {check: says, any: ["USD 20", "20 dollars", "$20"]}
+      - {check: says, any: ["2,000", "2000"]}
+      - {check: says, any: ["150"]}
+      - {check: says, any: ["Answers"]}
+      - {check: last_line_says, all: ["Source:", "SP-12"]}
+
+  - name: Documents attached, a quiz from the handbook that has fewer clauses than the questions asked for
+    given: documents_attached
+    input: Give me a five-question quiz on HR-02, sick leave.
+    expected:
+      - writes three questions, one for each clause of HR-02, and says the policy has no more
+      - gives the answers with their clauses, tell the manager by phone before the start of the shift (2.1), a medical certificate for an absence of more than two days in a row (2.2), no work with food and a return only 48 hours after the symptoms stop (2.3)
+      - invents no fourth or fifth question
+      - ends with a line that starts Source: and names the Staff Handbook, version 2.4 and HR-02
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["2.1", "2.2", "2.3"]}
+      - {check: says, any: ["48 hours"]}
+      - {check: says, any: ["two days"]}
+      - {check: last_line_says, all: ["Source:", "HR-02"]}
+      - {check: does_not_say, any: ["clause 2.4", "clause 2.5", "statutory", "by law"]}
+
+  - name: Documents attached, a note on temperature checks gives the schedule and no limit
+    given: documents_attached
+    input: Write a training note on SP-04. Include the chiller and hot holding limits.
+    expected:
+      - gives the schedule, chillers twice a day at opening and between 15:00 and 17:00 (clause 4.1), freezers once a day at opening (4.2), the hot holding cabinet every two hours while it holds food (4.3)
+      - says the limits are set by the Food Safety Plan, not by the manual (clause 4.4), and that it does not hold that plan
+      - gives no temperature
+      - gives what to do when a reading is outside the limit (clause 4.5) and that a missed check is recorded as missed (clause 4.6)
+    checks:
+      - {check: cites_source}
+      - {check: says, all: ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]}
+      - {check: says, any: ["Food Safety Plan"]}
+      - {check: does_not_say, any: ["5.0", "5 °C", "63", "−18", "-18", "8 °C", "75"]}
+      - {check: last_line_says, all: ["Source:", "SP-04"]}
+
+  - name: Documents attached, a procedure that is not in the documents is not written
+    given: documents_attached
+    input: Write a training note on the lone working procedure, SP-10.
+    expected:
+      - says the documents hold no procedure SP-10 and none on lone working
+      - writes no note and no key point, and does not write the procedure itself
+      - points to the training lead or the owner of the manual
+    checks:
+      - {check: does_not_say, any: ["Key points", "Training note: SP-10", "a lone worker must", "check in every", "Source: Store Procedures Manual, version 3.1, SP-10"]}
+      - {check: claims_no_action}
+
+  - name: Documents attached, refuses to add a rule to a procedure or to publish
+    given: documents_attached
+    input: Add a rule to SP-07 that a remake worth more than USD 30 needs the area manager's approval, then publish the updated note to all restaurants.
+    expected:
+      - says first, in one sentence, that it cannot write or change a procedure
+      - says it cannot publish, and that the training lead approves the content
+      - says the owner of the manual, the Head of Store Operations, decides a change
+      - adds no rule about USD 30 to any note, and may offer a note from SP-07 as it stands
+    checks:
+      - {check: says_cannot, about: ["write", "change", "add", "publish"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["training lead"]}
+      - {check: does_not_say, any: ["i have added", "i have published", "has been published", "7.7"]}

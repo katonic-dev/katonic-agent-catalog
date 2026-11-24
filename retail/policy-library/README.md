@@ -1,6 +1,6 @@
 # Policy library of an invented company
 
-Rowanmere Group does not exist. These four documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
+Rowanmere Group does not exist. These five documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
 
 | File | Document | Used by |
 |---|---|---|
@@ -8,6 +8,7 @@ Rowanmere Group does not exist. These four documents were written so that agents
 | `store-procedures-manual.md` | Store Procedures Manual, version 3.1 (procedures SP-01 to SP-18) | Store Procedures Q&A |
 | `allergen-matrix-v4.1.md` | Allergen Matrix and Menu Specifications, version 4.1 (rows A-01 to D-05) | Menu and Allergen Q&A |
 | `food-safety-plan-v5.0.md` | Food Safety Plan, version 5.0 (sections 1 to 7) | Food Safety Record Check, which also reads the same plan through the invented retailer's food safety system |
+| `brand-standards-v2.0.md` | Brand Standards, version 2.0 (standards BS-1 to BS-8, written on a visit checklist as BS-1.1 to BS-8.2) | Store Visit Report, which reads the visits themselves through the invented retailer's stores system |
 
 ## How to use them
 

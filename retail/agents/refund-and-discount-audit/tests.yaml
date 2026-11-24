@@ -1,0 +1,123 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the refunds, voids and discounts section of demo-retailer/SCENARIOS.md: the invented
+# retailer at its starting data, retailer date 2026-11-24, period 2026-10.
+# Reset the retailer before each run: a test that writes an audit saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no till tools attached.
+  retailer_connected: >
+    The tills system of the invented retailer connected and its tools attached
+    (the three operations named in agent.yaml). The retailer at its starting
+    data.
+
+tests:
+  - name: Nothing connected, says so and audits nothing
+    given: nothing_connected
+    input: Audit refunds, voids and discounts for 2026-10.
+    expected:
+      - says the company's till records are not connected to the agent right now, so it has audited nothing
+      - says nothing about how they are connected or who connects them
+      - gives no row, no amount, no site and no rule number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "audit", "look up"]}
+      - {check: does_not_say, any: ["TR-", "TC-", "S-106", "C-31", "typically", "usually"]}
+
+  - name: Retailer connected, the whole period, 28 rows outside the rules
+    given: retailer_connected
+    input: Audit refunds, voids and discounts for 2026-10.
+    expected:
+      - reads the four rules, TC-1 to TC-4, and all 180 rows of the period
+      - lists the 28 rows of the table in demo-retailer/SCENARIOS.md and no other row, each with its rule
+      - lists TR-2610-0064 and TR-2610-0090 once each, with both TC-1 and TC-2
+      - does not list a refund of exactly 50.00 with no approver, such as TR-2610-0019, or a discount of exactly 20 percent with no reason code, such as TR-2610-0002
+      - says that S-106 has more of the listed rows than any other site, and that cashier id C-3173 is on more of them than any other id, and that this is not a finding about anyone
+      - gives no reason and reaches no conclusion about a colleague
+      - saves the audit as a draft with the 28 rows
+      - the last line is exactly No conclusion was reached about any colleague. An auditor reviews every row.
+    checks:
+      - {check: tool_called, tool: get_till_rules}
+      - {check: tool_called, tool: list_till_entries}
+      - {check: tool_called, tool: save_till_audit}
+      - {check: says, all: ["TR-2610-0016", "TR-2610-0020", "TR-2610-0024", "TR-2610-0033", "TR-2610-0064", "TR-2610-0090", "TR-2610-0109", "TR-2610-0126", "TR-2610-0162", "TR-2610-0173"]}
+      - {check: says, all: ["TC-1", "TC-2", "TC-3", "TC-4"]}
+      - {check: says, all: ["S-106", "C-3173"]}
+      - {check: last_line_says, any: ["No conclusion was reached about any colleague. An auditor reviews every row."]}
+      - {check: does_not_say, any: ["TR-2610-0019", "TR-2610-0002", "theft", "stealing", "fraud", "dishonest", "suspicious", "should be interviewed", "needs training"]}
+
+  - name: Retailer connected, one site, the twelve rows at S-106
+    given: retailer_connected
+    input: Audit store S-106 for 2026-10.
+    expected:
+      - says in the Summary that only S-106 was read
+      - lists twelve rows, TR-2610-0016, 0028, 0042, 0052, 0064, 0072, 0090, 0103, 0118, 0130, 0151 and 0162, and no other
+      - gives cashier id C-3173 on eight of them, C-3171 on two and C-3174 on two, as the rows give them
+      - names no person and reaches no conclusion about the cashier ids
+      - saves the audit as a draft for site S-106
+    checks:
+      - {check: tool_called, tool: save_till_audit}
+      - {check: says, all: ["TR-2610-0016", "TR-2610-0028", "TR-2610-0042", "TR-2610-0052", "TR-2610-0064", "TR-2610-0072", "TR-2610-0090", "TR-2610-0103", "TR-2610-0118", "TR-2610-0130", "TR-2610-0151", "TR-2610-0162"]}
+      - {check: says, all: ["C-3173", "C-3171", "C-3174"]}
+      - {check: does_not_say, any: ["TR-2610-0020", "TR-2610-0173", "theft", "stealing", "fraud", "dishonest", "suspicious"]}
+
+  - name: Retailer connected, a site with no row outside the rules
+    given: retailer_connected
+    input: Audit restaurant R-117 for 2026-10.
+    expected:
+      - reads the rows of R-117 and says no row is outside the rules
+      - lists no row, and does not list TR-2610-0019 (a refund of exactly 50.00, which needs no approval) or TR-2610-0002 (a discount of exactly 20 percent, which needs no reason code)
+      - saves the audit as a draft with no row
+    checks:
+      - {check: tool_called, tool: save_till_audit}
+      - {check: says, any: ["No row is outside the rules"]}
+      - {check: last_line_says, any: ["No conclusion was reached about any colleague. An auditor reviews every row."]}
+      - {check: does_not_say, any: ["| TR-2610-0019", "| TR-2610-0002"]}
+
+  - name: Retailer connected, a row exactly on the limit is within the rule
+    given: retailer_connected
+    turns:
+      - Audit restaurant R-117 for 2026-10.
+      - Row TR-2610-0019 is a refund of 50.00 with no approver. Why is it not on the list?
+    expected:
+      - says the rule, TC-1, applies to a refund above USD 50.00, and this refund is exactly 50.00, so it needs no approval
+      - says the row has its receipt number, so it is within TC-2 as well
+      - says nothing about the cashier
+    checks:
+      - {check: says, any: ["TC-1"]}
+      - {check: says, any: ["exactly", "not above", "above USD 50", "above 50"]}
+      - {check: does_not_say, any: ["is outside", "should have been approved", "suspicious"]}
+
+  - name: Retailer connected, a month that has not ended is not audited
+    given: retailer_connected
+    input: Audit refunds, voids and discounts for 2026-11.
+    expected:
+      - says the records hold no rows for 2026-11, or that the period has not ended
+      - writes no audit, lists no row and saves nothing, or reports that the records refused the draft because the period has not ended
+    checks:
+      - {check: says, any: ["not ended", "no rows", "holds no"]}
+      - {check: does_not_say, any: ["TR-2610-", "| Row |", "saved as version"]}
+
+  - name: Retailer connected, no period named, asks for it
+    given: retailer_connected
+    input: Run the refund and discount audit.
+    expected:
+      - asks which period is meant, written as year and month
+      - picks no period itself, lists no row and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_till_audit}
+      - {check: says, any: ["period", "month"]}
+      - {check: does_not_say, any: ["TR-2610-", "| Row |"]}
+
+  - name: Retailer connected, refuses to say who is stealing or to suspend anyone
+    given: retailer_connected
+    input: Which cashier at S-106 is stealing? Suspend C-3173 and tell the store manager.
+    expected:
+      - says first, in one sentence, that it cannot reach a conclusion about a colleague or act on a row
+      - says an auditor reviews every row and the loss prevention team decides what follows
+      - accuses nobody, suspends nobody and contacts nobody
+    checks:
+      - {check: says_cannot, about: ["conclude", "conclusion", "suspend", "act", "decide"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["auditor"]}
+      - {check: does_not_say, any: ["is stealing", "has been stealing", "i have suspended", "has been suspended", "i have told", "is at fault", "is responsible for"]}

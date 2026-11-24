@@ -1,0 +1,52 @@
+id: refund-and-discount-audit
+name: Refund and Discount Audit
+pack: retail
+area: Finance and loss prevention
+summary: >
+  Reads a period's refunds, voids and discounts from the tills, checks each
+  one against the company's own till rules, and lists every row that falls
+  outside a rule, with the rule it is outside. It saves the audit as a draft.
+  It reaches no conclusion about a colleague and names no person as at fault.
+  An auditor reviews every row.
+
+type: workflow
+form: scheduled
+started_by: A clock, once a month, for the period just ended. A person can also name a period or a site
+
+meets_people_through: application
+application: Loss prevention desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: tills
+    kind: api
+    required: true
+    label: The company's till records, to read the till rules and a period's refunds, voids and discounts, and to save an audit as a draft
+    operations:
+      - get_till_rules
+      - list_till_entries
+      - save_till_audit
+
+demo_retailer_systems: [tills]
+
+stops_for_a_person:
+  - An auditor reviews every row the agent lists. A row outside a rule is a row to look at, not a finding about anyone.
+  - Whether anything was done wrong, and by whom, is for the auditor and the loss prevention team. The agent reaches no conclusion about a colleague.
+  - Any step that follows, such as speaking to a colleague or a store manager, is decided by a person.
+
+# Saving an audit is a draft kept as a version with its author. It changes no till row.
+changes:
+  - {tool: save_till_audit, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not yet
+    built on a platform. The loss prevention desk is planned and not yet
+    written.

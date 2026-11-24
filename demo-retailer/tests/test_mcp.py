@@ -27,6 +27,9 @@ READ_CALLS = {
     "foodsafety": ("get_food_safety_records", {"site_id": "R-014", "period": "2026-10"}, "site_id", "R-014"),
     "care": ("get_guest_feedback", {"reference": "GF-2610-0001"}, "reference", "GF-2610-0001"),
     "purchasing": ("get_supplier_invoice", {"invoice_number": "INV-77102"}, "invoice_number", "INV-77102"),
+    "property": ("get_lease", {"lease_id": "LS-2001"}, "lease_id", "LS-2001"),
+    "performance": ("get_restaurant_performance", {"site_id": "R-047", "period": "2026-10"}, "sales", 148150.0),
+    "tills": ("get_till_rules", {}, "document", "Till Controls"),
 }
 
 
@@ -60,7 +63,7 @@ def check_system(client, system, tools, result):
 
 
 def test_every_system_has_one_read_call_in_the_table():
-    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 4
+    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 7
 
 
 @pytest.mark.parametrize("system", ALL_SYSTEMS)
@@ -78,7 +81,7 @@ def test_every_operation_is_an_mcp_tool_and_a_read_works_sse(live_server, client
 
 
 def test_the_tool_names_of_each_door_are_the_openapi_operation_ids(client):
-    expected = {"stores": 2, "foodsafety": 8, "care": 4, "purchasing": 10}
+    expected = {"stores": 5, "foodsafety": 8, "care": 4, "purchasing": 10, "property": 3, "performance": 4, "tills": 4}
     for system, n in expected.items():
         body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
         tools = client.post(f"/{system}/mcp", json=body, headers={"X-API-Key": KEY}).json()["result"]["tools"]
@@ -93,6 +96,33 @@ def test_a_tool_that_takes_a_path_and_a_body_is_described_with_both(client):
     sign = next(t for t in tools if t["name"] == "sign_monthly_review")["inputSchema"]
     assert set(sign["properties"]) == {"site_id", "period", "signed_by", "note"}
     assert set(sign["required"]) == {"site_id", "period", "signed_by"}
+
+
+def test_a_draft_of_version_1_1_is_described_with_its_nested_fields_and_writes_through(client, store):
+    head = {"X-API-Key": KEY}
+    body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
+    tools = client.post("/property/mcp", json=body, headers=head).json()["result"]["tools"]
+    schema = next(t for t in tools if t["name"] == "save_lease_summary")["inputSchema"]
+    assert set(schema["required"]) == {"lease_id", "term", "rent", "repair_duties"}
+    assert "$ref" not in json.dumps(schema)
+    assert set(schema["properties"]["term"]["properties"]) == {"start_date", "end_date", "clause"}
+    assert schema["properties"]["rent_reviews"]["items"]["properties"]["basis"]["enum"] == [
+        "upward_only", "upward_or_downward", "fixed_increase", "index_linked"]
+    tools = client.post("/tills/mcp", json=body, headers=head).json()["result"]["tools"]
+    audit = next(t for t in tools if t["name"] == "save_till_audit")["inputSchema"]
+    assert audit["properties"]["rows"]["items"]["properties"]["rules"]["items"]["enum"] == ["TC-1", "TC-2", "TC-3", "TC-4"]
+    call = {"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "save_till_audit", "arguments": {
+        "period": "2026-10", "rows": [{"row_id": "TR-2610-0016", "rules": ["TC-1"]}], "drafted_by": "a test"}}}
+    r = client.post("/tills/mcp", json=call, headers=head).json()["result"]
+    assert not r.get("isError") and store.data["till_audits"]["2026-10"]["audits"][0]["drafted_by"] == "a test"
+    call["params"]["arguments"]["period"] = "2026-11"
+    r = client.post("/tills/mcp", json=call, headers=head).json()["result"]
+    assert r["isError"] is True and "409" in r["content"][0]["text"] and "has not ended" in r["content"][0]["text"]
+    call = {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "save_visit_report", "arguments": {
+        "visit_id": "SV-2610-01", "findings": [{"standard": "BS-3.1", "source": "checklist", "checklist_item": 6,
+                                                "what_was_found": "x"}]}}}
+    r = client.post("/stores/mcp", json=call, headers=head).json()["result"]
+    assert r["isError"] is True and "422" in r["content"][0]["text"] and "rests on BS-3.2" in r["content"][0]["text"]
 
 
 def test_mcp_door_needs_key(client):
