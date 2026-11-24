@@ -1,0 +1,261 @@
+{
+  "$comment": "What makes the generic case desk the research desk. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the case, draft, decisions and rules settings. The bank (Meridian Trust Bank), the exchange, the companies and their filings are invented. The desk publishes nothing and gives no rating.",
+  "desk": {
+    "id": "research",
+    "name": "Research desk",
+    "caseNoun": "research request",
+    "caseNounPlural": "research requests",
+    "draftNoun": "draft report",
+    "deciderRole": "analyst",
+    "tagline": "A request for a company in, a drafted report with every figure sourced to a filing and line, a place to review it row by row, and the register afterwards.",
+    "addLabel": "Add a research request",
+    "arrivedVia": {
+      "feed": "the bank's research system",
+      "officer": "the research team"
+    },
+    "issuedVerb": "Draft accepted by"
+  },
+  "case": {
+    "heading": "THE REQUEST",
+    "metaFields": [
+      "reference",
+      "company"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "period",
+      "purpose"
+    ],
+    "showText": "text",
+    "textHeading": "Filings on file",
+    "noTextShown": "The desk holds no list of filings for this request. The agent reads the company, its filings, prices and consensus from the research system.",
+    "noTextNote": "No summary was supplied with this request. Work from the company the request names, read from the research system.",
+    "askPlaceholder": "For example: which line of the filing did this figure come from?",
+    "searchPlaceholder": "Search by company, id or period",
+    "demoNote": "Demo data: the bank, the exchange, the companies and their filings are invented. Nothing here is investment research.",
+    "listFields": [
+      "reference"
+    ],
+    "chipFields": [
+      "reference"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the request)",
+    "replyButton": "Add the reply and draft again",
+    "replyNote": "A reply has been added at the end of the request. Read the filings, prices and consensus from the research system again, as new material may be there, and review every row again in the light of it.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The request",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the research team (the form at the top of the list)",
+      "Sent by the bank's research system when an analyst asks for a report (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The company, the period and the work, for example: Kestrelmoor Foods, FY2025 and H1 2026: research report"
+      },
+      {
+        "key": "reference",
+        "label": "Company id",
+        "required": true,
+        "hint": "For example RSC-6001"
+      },
+      {
+        "key": "company",
+        "label": "Company",
+        "required": true
+      },
+      {
+        "key": "period",
+        "label": "Period",
+        "required": true,
+        "hint": "The results the report covers, for example FY2025 and H1 2026"
+      },
+      {
+        "key": "purpose",
+        "label": "What the report is for",
+        "required": true,
+        "hint": "For example: a first look at the business, the figures and the valuation measures"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the request",
+        "required": false,
+        "type": "textarea",
+        "hint": "The company, the period, what the report is for, and the filings on file with their ids"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A research request has arrived at the bank's research desk. Work on the company named in the case below. Plan what to read, read the company's filings, share prices and consensus estimates from the research system, and draft a research report for the analyst: the business, the figures over the periods the filings give with the filing and line of each, the valuation measures that can be worked out with the working shown, the risks the filings state, and what you could not find. You give no rating, no price target and no recommendation to buy or sell: the analyst decides.\n\nRead the company, every filing in full, the prices and the consensus before you write anything, and use only ids the system returns. Give every figure with the filing id and the line it came from. Where a later filing restates an earlier one, use the restated figure, show both and say so. Where two sources differ, show both and choose neither. Never set a half year against a full year, never annualise a half year, and do not use a consensus that was last updated before the latest filing in any measure. Never fill a gap or estimate a missing figure.\n\nWrite plain statements. Do not write in the first person. Write no count of marks anywhere: the desk counts them from the table. Write every date as 21 Aug 2026, never as 2026-08-21. Every figure carries its unit and its period everywhere, also inside a bracket and in a note: \"USD 842.3 million (FY2024: USD 801.9 million)\", \"35.7 cents (FY2024: 33.1 cents)\", \"5.0 percent\", \"16.2 times\", \"200.0 million shares\", \"USD 13.7 million moved from 2025\". Never write a bare number. A number inside a working, after \"Working:\", may stand bare. Write the name of the exchange without any bracketed note after it. Never say that a share is cheap, dear or a bargain, and never advise to buy, sell or hold.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the research system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft report. For the analyst. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per statement that can be checked. Put no vertical bar inside a cell. Write nothing between two bars for a cell that has nothing to say.\n| # | Item | Basis | Shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is the figure or the measure with its period, short: \"Revenue, FY2025\". Basis: for a measure you worked out, the formula in words (\"Latest close / FY2025 earnings per share\"); for a restated figure, where the restatement is; for a figure a filing states as it is, leave it empty, because Source says where it is. Shows is the value with its unit. A cell may hold several lines, written with <br> between them, and a line may start with a short label of letters only and a colon. For a measure write two lines, \"Result: 16.2 times<br>Working: 5.80 / 0.357\", with the actual numbers in the working. Where a measure or a figure has two values, give each a line: \"Corrected:\" for the restated value, \"Held:\" for the value first published, or a short label of letters only, such as \"Revenue:\" or \"Low end:\". Write the year before, or the half of the year before, as a plain line that starts with its period: \"FY2024: USD 388.0 million\", \"H1 2025: USD 184.0 million\". A figure with one value goes on one line with no label. Source is the filing id and the line, or prices, or consensus, with the date. Mark is exactly one of: sourced, worked out, differs, missing, in lower case. Note is empty unless there is something to say: why, and what the analyst should check. Keep it to one or two sentences.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most eight: the company with its id, ticker and sector, and what the report is for; what was read (the filings by id and date, the prices up to which date, the consensus and its date); the latest full-year and half-year headline figures; any restatement or difference, with both values; the valuation measures in one line; what could not be found; then the \"Saved:\" line.\nRows, in this order: the business; the figures of the latest full year with the year before (revenue, operating profit, profit after tax, earnings per share, dividend per share, net debt); the figures of the latest half year with the same half of the year before; the growth and margins you worked out; the outlook, where a filing gives one; the share price; the valuation measures; the consensus compared with the filing; the risks the filings state; then a row for everything you could not find.\nMarks. sourced: stated in a filing, or in the price or consensus data, and given as read. worked out: your own arithmetic from sourced figures, with the working shown. differs: two sources give different values, or a later filing restates an earlier one. Both are shown and the note says which one the report uses. missing: something the report needs is not in any source you read.\nThe \"Proposal:\" line starts with exactly one of: \"accept the draft for your own writing\" or \"ask for more\", then a full stop, then the reason in one or two sentences. For \"accept the draft for your own writing\" the reason names any restated figure or difference to check. Use \"ask for more\" when the request asked for something that could not be worked out because a source is missing or out of date, and say exactly what is needed. Never a rating, a target or a call to buy, sell or hold.",
+    "sections": [
+      "Summary",
+      "Draft report"
+    ],
+    "marks": {
+      "sourced": "Sourced",
+      "worked out": "Worked out",
+      "differs": "Differs",
+      "missing": "Missing"
+    },
+    "markTones": {
+      "sourced": "none",
+      "worked out": "none",
+      "differs": "person",
+      "missing": "warn"
+    },
+    "markHints": {
+      "sourced": "Stated in a filing, or in the price or consensus data, and given as read",
+      "worked out": "The agent's own arithmetic from sourced figures, with the working shown. Check the working",
+      "differs": "Two sources give different values, or a later filing restates an earlier one. Both are shown and the note says which one the report uses. Needs your eye",
+      "missing": "Something the report needs is not in any source the agent read. Needs your eye"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft report",
+    "rowLabels": {
+      "source": "Basis",
+      "policy": "Shows",
+      "citation": "Source",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "markIcons": {
+      "sourced": "•",
+      "worked out": "=",
+      "differs": "≠",
+      "missing": "○"
+    },
+    "tallyLabels": {
+      "differs": "differ"
+    },
+    "proposalFirst": true
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Accept the draft",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you accept version {version}{edited} of the draft as the starting point for your own report, in your name. It publishes nothing, gives no rating and changes nothing in the research system.",
+      "proposalPrefix": [
+        "accept the draft for your own writing"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask for more",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to find or work out, one item to a line",
+      "noteHint": "For example an updated consensus, or a filing that is not on the system. The request waits here until the reply is added.",
+      "proposalPrefix": [
+        "ask for more"
+      ]
+    },
+    {
+      "id": "send_back",
+      "label": "Send back with a note",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the analyst",
+    "sent_back": "Being redone",
+    "issued": "Draft accepted",
+    "info_requested": "Waiting for more",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk publishes nothing and gives no rating: the analyst writes and issues any report elsewhere.",
+    "columns": [
+      "case_id",
+      "title",
+      "reference",
+      "company",
+      "period",
+      "purpose",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "reference",
+      "company",
+      "period",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "reference": "Id",
+      "company": "Company",
+      "period": "Period",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Draft versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": false,
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as accepted. Nothing further happens on this desk. The analyst writes the report, and any rating or price target is the analyst's, elsewhere.",
+    "info_requested": "When the reply comes, add it here. The agent reads the sources again and the draft comes back for your decision."
+  },
+  "decisionLabels": {
+    "issued": "Accepted the draft",
+    "info_requested": "Asked for more",
+    "sent_back": "Sent the draft back",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

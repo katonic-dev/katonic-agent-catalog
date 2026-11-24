@@ -1,0 +1,61 @@
+id: equity-research-report
+name: Equity Research Report
+pack: banking
+area: Capital markets
+summary: >
+  Given a company and a goal, plans what to read, reads the company's filings
+  and market data, and drafts a research report for an analyst: the business,
+  the figures over the periods the filings give with the filing and line of
+  each, the valuation measures that can be worked out with the working shown,
+  the risks the filings state, and what it could not find. It gives no rating,
+  no price target and no recommendation to buy or sell. The analyst does.
+
+type: autonomous
+form: autonomous
+started_by: An analyst's request, naming a company, the period and what the report is for
+
+meets_people_through: application
+application: Research desk
+
+# The agent plans its own reading: the company list, the company's filings,
+# each filing in full, the share prices around the results, and the
+# consensus estimates. It stops when the draft is complete, or when it has
+# shown what it could not find. The desk sends one message and reads one
+# reply, so this guide builds it as one chat agent. It is not given a loop
+# that runs without end: it reads each source once and then writes.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: research-data
+    kind: api
+    required: true
+    label: The bank's research data, to list the companies, read their filings, prices and consensus estimates, and to save a draft report
+    operations:
+      - list_research_companies
+      - list_company_filings
+      - get_company_filing
+      - get_price_history
+      - get_consensus_estimates
+      - save_research_report
+
+demo_bank_systems: [research]
+
+stops_for_a_person:
+  - The analyst reads the draft, checks it and writes the report. The agent gives no rating, no price target and no recommendation to buy or sell.
+  - Every difference between two sources, every restated figure and every figure it could not find is for the analyst to weigh.
+
+# Saving a research report is a draft kept with its author, a time and a
+# version number. Nothing is published.
+changes:
+  - {tool: save_research_report, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/research/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

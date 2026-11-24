@@ -49,7 +49,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 25 | [Member Fund Assistant](agents/member-fund-assistant/README.md) | Answers a member's questions about funds and their own holdings, with every figure taken from the fund fact sheets | Conversational, answering | Chat | Written. Not yet built on a platform |
 | 26 | [Contribution and Transfer Processing](agents/contribution-and-transfer-processing/README.md) | Checks contribution files and transfer forms against the written procedures and reports how many passed and how many need a person | Multi-agent, pipeline | Batch report, failed forms to a person | Written. Not yet built on a platform |
 | | **Capital markets** | | | | |
-| 30 | Equity Research Report | Reads filings and market data and drafts an equity research report for an analyst | Autonomous | Research desk | Planned |
+| 30 | [Equity Research Report](agents/equity-research-report/README.md) | Reads filings and market data and drafts an equity research report for an analyst | Autonomous | Research desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 
 ## The desks
 
@@ -68,7 +68,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Reconciliation desk](desks/reconciliation/README.md) | Reconciliation Break | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Card servicing screen | Card Servicing | Planned |
 | [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
-| Research desk | Equity Research Report | Planned |
+| [Research desk](desks/research/README.md) | Equity Research Report | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 
 ## How an agent reaches a bank's systems
 

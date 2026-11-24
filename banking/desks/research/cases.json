@@ -1,0 +1,32 @@
+{
+  "$comment": "Three invented research requests for the demo, from the invented bank Meridian Trust Bank. The exchange, the companies and their filings do not exist. RSC-6001 Kestrelmoor Foods: clean results. RSC-6002 Tarnholt Marine Holdings: the half-year filing restates the annual figures. RSC-6003 Brindlewick Retail Group: the consensus on file is older than the half-year filing. Each case names only what the bank's research system holds.",
+  "cases": [
+    {
+      "title": "Kestrelmoor Foods, FY2025 and H1 2026: research report",
+      "reference": "RSC-6001",
+      "company": "Kestrelmoor Foods plc",
+      "period": "FY2025 and H1 2026",
+      "purpose": "A first look for the analyst: the business, the figures over the periods the filings give, and the valuation measures that can be worked out",
+      "received_on": "2026-11-24",
+      "text": "FIL-6101 annual results FY2025\nFIL-6102 half-year results H1 2026"
+    },
+    {
+      "title": "Tarnholt Marine, FY2025 and H1 2026: research report",
+      "reference": "RSC-6002",
+      "company": "Tarnholt Marine Holdings plc",
+      "period": "FY2025 and H1 2026",
+      "purpose": "An update after the half-year results, with the figures and the valuation measures. The analyst has seen a fall in the share price on the day",
+      "received_on": "2026-11-24",
+      "text": "FIL-6103 annual results FY2025\nFIL-6104 half-year results H1 2026"
+    },
+    {
+      "title": "Brindlewick Retail, FY2025 and H1 2026: research report",
+      "reference": "RSC-6003",
+      "company": "Brindlewick Retail Group plc",
+      "period": "FY2025 and H1 2026",
+      "purpose": "An update after the half-year results, with the figures, the outlook and a forward valuation measure on the consensus",
+      "received_on": "2026-11-24",
+      "text": "FIL-6105 annual results FY2025\nFIL-6106 half-year results H1 2026"
+    }
+  ]
+}
