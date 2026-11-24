@@ -1,0 +1,413 @@
+{
+  "$comment": "What makes the generic case desk the accounts payable desk of Rowanmere Group. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. Three kinds of case sit in one queue, and each goes to its own agent: Invoice match, Delivery discrepancy, Supplier question. Rowanmere Group, its suppliers, its buyers and every record are invented.",
+  "desk": {
+    "id": "accounts-payable",
+    "name": "Accounts payable desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "accounts payable lead",
+    "tagline": "Supplier invoices, delivery notes and supplier questions in one queue, a draft for each from its own agent, a place to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "issuedVerb": "Approved for payment by",
+    "documentLinkLabel": "Download the match as approved",
+    "arrivedVia": {
+      "feed": "the purchasing system",
+      "officer": "the accounts payable team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "supplier",
+      "about"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "order",
+      "buyer"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this case. Correct the details and add them, or remove the case.",
+    "noTextNote": "No records were supplied with this case. Say so under the heading \"Summary\", write no table and no draft, and write the last line as: Proposal: ask again: the case came with no records.",
+    "askPlaceholder": "For example: which line of the order did you compare line 2 with?",
+    "searchPlaceholder": "Search by number, supplier or kind",
+    "demoNote": "Demo data: Rowanmere Group, its suppliers, its buyers and every invoice, delivery note, payment and question are invented.",
+    "listFields": [
+      "kind",
+      "about"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Invoice match": {
+        "agentEnv": "INVOICE_MATCHING_AGENT_ID",
+        "instruction": "A supplier invoice has arrived at the accounts payable desk. Match it to its purchase order and to the goods received, line by line. Show what agrees and what does not, with each difference as an amount. You approve nothing, reject nothing and pay nothing, and you raise no query with the supplier: a person in accounts payable decides.\n\nWork from this message only. The case below carries the invoice, its purchase order and the goods received against it, as the purchasing system holds them. Read nothing from any system and save nothing, because the desk keeps the match. Write no line about saving a draft. Copy every number and every amount exactly. Invent no order, no line and no amount. Write plain statements and do not write in the first person.\n\nThe match rules:\n- A line agrees when the item, the unit price and the quantity on the invoice equal the purchase order line, and the quantity invoiced is not more than the quantity received so far.\n- \"not on the order\": the item of the invoice line is on no line of the order. The difference is the net amount of that line.\n- \"price differs\": the unit price on the invoice differs from the order. The difference is the price gap times the quantity invoiced, net of tax.\n- \"quantity differs\": the quantity invoiced is above the quantity ordered. The difference is the extra quantity times the unit price on the order, net of tax.\n- \"not received\": the quantity invoiced is within the quantity ordered but above the quantity received so far. The difference is the quantity not yet received times the unit price on the order, net of tax.\n- There is no tolerance. A person decides whether a small difference is accepted.\n- Work every line, and show a line that agrees as agreeing.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the invoice number, the supplier and the invoice date; the purchase order, the buyer named on it and the goods receipt; the net amount, the tax and the total as the invoice gives them, in USD; and the result. The result is exactly one of: agrees, price differs, quantity differs, not on the order, not received, several differences, no purchase order found. An invoice with more than one kind of difference has the result \"several differences\". Put no count of marks or of lines in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft match. For accounts payable. Nothing approved.\"\n3. A Markdown table with exactly these seven columns and one row for each line of the invoice. Put no vertical bar inside a cell.\n| # | Line | Invoice | Order | Received | Mark | Difference |\n# is the invoice's line number. Line is the item. Invoice is the quantity, the unit price and the amount the invoice gives. Order is the quantity and the unit price on the purchase order line, with the order number, or \"Not on the order\". Received is the quantity booked in so far, with the goods receipt number. Mark is exactly one of: agrees, price differs, quantity differs, not on the order, not received, not checked, in lower case. Difference is the gap as a quantity or a unit price and the amount in USD net of tax, or \"None\" for a line that agrees. A line with more than one kind of difference takes the first mark that applies in the order of the rules above, and its Difference gives each gap with its amount. Use \"not checked\" only for a line whose order or receipt is not in this message, and say which is missing.\n4. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"ready for approval: every line agrees with the order and the goods received\"; or \"refer to the buyer:\" followed by the buyer's name, each line that differs with the field that differs, and the total difference in USD net of tax. Write nothing after that line.\n\nIf the case says that the purchasing system holds no order with the number on the invoice, the result is \"no purchase order found\": say so in the Summary, write no table, and write the last line as \"Proposal: refer to the buyer: no purchase order found for this invoice\".",
+        "decisions": [
+          "approve",
+          "send_to_buyer",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Invoice",
+          "policy": "Order",
+          "citation": "Received",
+          "check": "Difference"
+        }
+      },
+      "Delivery discrepancy": {
+        "agentEnv": "DELIVERY_DISCREPANCY_AGENT_ID",
+        "instruction": "A delivery note has arrived at the accounts payable desk. Set what the supplier's note says was delivered against the purchase order, against what was booked in at the dock, and against the supplier's invoice if there is one. List what does not match, with each difference as an amount, and draft the claim to the supplier. You send no claim and contact no supplier: a receiving or accounts lead sends every claim.\n\nWork from this message only. The case below carries the delivery note, what was written on it at the dock (the line \"Dock remark\"), its purchase order, the goods received and what any invoice for the order bills, as the purchasing system holds them. Read nothing from any system and save nothing, because the desk keeps the check and the claim. Write no line about saving a draft. Copy every number exactly. Invent no line, no quantity, no price and no remark. Give no reason for a difference and blame no one. Decide nothing about goods. Write plain statements and do not write in the first person.\n\nHow to compare, taking each line of the delivery note in turn:\n- The line agrees when the quantity on the note equals the quantity booked in for that item.\n- When less was booked in than the note says, there is a difference. The quantity claimed is the quantity on the note minus the quantity booked in. The amount is that quantity times the unit price on the purchase order, net of tax.\n- Give the difference one kind, from the records and nothing else. \"damaged\": what was written on the note at the dock says goods were refused as damaged, crushed, wet or broken. \"wrong item\": the item was not booked in and the receipt holds another item, which is not on the order, in its place. \"short delivery\": every other case.\n- A line on the receipt that is on no line of the order is something that arrived and was not ordered. Give it a row of its own with the mark \"not on the order\" and no amount: a person decides what happens to it.\n- When an invoice bills more than was booked in, say so in one sentence in the Summary, with the invoice number and the quantity. That is for accounts payable to hold against the invoice. It is not a second claim.\n- There is no tolerance. A person decides whether a small difference is claimed.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the delivery note number, the supplier and the day of delivery; the purchase order, the buyer named on it and the goods receipt; what was written on the note at the dock, quoted, or that nothing was written; and one sentence on what the invoice for the order bills, or that no invoice refers to the order yet. Put no count of marks or of lines in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft check. For a receiving or accounts lead. No claim sent.\"\n3. A Markdown table with exactly these seven columns, one row for each line of the note, and one more row for anything on the receipt that is not on the order. Put no vertical bar inside a cell.\n| # | Item | Delivery note | Booked in | Ordered | Mark | Claim |\n# is 1, 2, 3 in order. Item is the item as the records spell it. Delivery note is the quantity the note says was delivered, or \"Not on the note\". Booked in is the quantity on the goods receipt, with the receipt number. Ordered is the quantity and the unit price on the purchase order, or \"Not on the order\". Mark is exactly one of: agrees, short delivery, wrong item, damaged, not on the order, not checked, in lower case. Claim is the quantity claimed, the unit price and the amount in USD net of tax, or \"None\". Use \"not checked\" only for a line whose order or receipt is not in this message, and say which is missing.\n4. A blank line, then a line that is exactly \"Draft claim. Not sent.\" and under it the message to the supplier, word for word: the delivery note number, the purchase order number, the day of delivery, each item with what the note says and what was booked in, the quantity and the net amount claimed, and what was written on the note at the dock, quoted. Ask for a credit note for the amount, or for the missing goods, and leave the choice to the supplier's reply. No more than 150 words. Plain words. No blame. End the message with: Rowanmere Group goods receiving. For a note whose every line agrees, write under that line exactly: No claim. The delivery note, the order and the receipt agree.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"send the claim:\" followed by the total claimed in USD net of tax and the buyer named on the order; or \"no claim: the delivery note, the order and the receipt agree\". Write nothing after that line.",
+        "decisions": [
+          "send_claim",
+          "no_claim",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Delivery note",
+          "policy": "Booked in",
+          "citation": "Ordered",
+          "check": "Claim"
+        },
+        "markTones": {
+          "not on the order": "person"
+        },
+        "markHints": {
+          "not on the order": "This item is on the receipt and on no line of the order. No amount is put on it: a person decides what happens to it"
+        }
+      },
+      "Supplier question": {
+        "agentEnv": "SUPPLIER_QUERY_AGENT_ID",
+        "instruction": "A supplier has sent a message to the accounts payable desk. Draft the reply. Say what the purchasing records hold and stop there. You send nothing to the supplier: a person sends every reply.\n\nWork from this message only. The case below carries the supplier's message and the records it points to, as the purchasing system holds them, for that supplier only. Read nothing from any system and save nothing, because the desk keeps the draft. Write no line about saving a draft. Copy every date and every amount exactly. Invent no payment, no date, no amount and no record number. Promise nothing the records do not hold: no payment date, no approval, no reversal of a deduction, no delivery slot. Tell the supplier nothing about another supplier, and nothing about the company's checks on an invoice beyond its status. Write plain statements. Outside the reply itself, do not write in the first person.\n\nHow to decide:\n- The records answer the message when they hold the fact the supplier asked for: that a payment was made and when, when one is scheduled, what was taken off and why, what status an invoice has and when it is due, or what quantity was booked in.\n- A payment is either paid, with the day it was paid, the amount and the remittance advice, or scheduled, with the day it is scheduled for. An invoice with no payment is not paid and has no payment scheduled.\n- An invoice with the status \"received\" is received and not yet approved: say that, give its due date under the payment terms, and do not say when or whether it will be approved.\n- For a short payment, give the invoice total, the amount paid, the difference, and the deduction's net amount, tax, reason and debit note.\n- The records do not answer a message about something the purchasing system does not hold, such as a delivery slot, a dock rule or a contact's diary. Do not guess, and do not offer a slot. Write a short holding reply that says the message has gone to the right team.\n- If the supplier's figures differ from the records, give the records' figures and say that they are the company's records. Do not say the supplier is wrong.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most four lines with no blank line between them: the number of the supplier's message, the supplier and the day it arrived; in one sentence, what the supplier asks; and whether the records answer it. If they do not, say in one sentence what the purchasing system does not hold. Put no count of marks or of records in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft answer. For accounts payable. Nothing sent.\"\n3. A Markdown table with exactly these seven columns and one row for each thing the supplier asks or states. Put no vertical bar inside a cell.\n| # | Point | Supplier says | Records hold | Record | Mark | Before sending |\n# is 1, 2, 3 in order. Point is what is asked, in a few words. Supplier says is the supplier's own figure or question, in a few words. Records hold is the fact taken from the records, with its date and its amount. Record is the number of each record the fact comes from, such as a payment number, an invoice number, a goods receipt number or a delivery note number, or \"None\". Mark is exactly one of: agrees, not in the records, not checked, in lower case. \"agrees\" means the records hold the fact and the reply states it as the records give it. \"not in the records\" means the purchasing system does not hold it. Before sending is what a person should verify before the reply goes.\n4. A blank line, then a line that is exactly \"Draft reply. Not sent.\" and under it the reply to the supplier, word for word. Address the supplier's contact by the name on the message. Answer in the first two sentences, with the date, the amount and the record number. Plain words, short sentences, no more than 120 words. End the reply with: Rowanmere Group accounts payable\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"send the reply: the records answer the supplier\"; or \"refer to a person:\" followed by what the records do not hold and the team the message goes to. Write nothing after that line.",
+        "decisions": [
+          "send_reply",
+          "pass_on",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Supplier says",
+          "policy": "Records hold",
+          "citation": "Record",
+          "check": "Before sending"
+        },
+        "markLabels": {
+          "agrees": "In the records"
+        },
+        "markHints": {
+          "agrees": "The purchasing records hold this fact, and the draft reply states it as the records give it"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the accounts payable team (the form at the top of the list)",
+      "Sent by the purchasing system when an invoice, a delivery note or a supplier's message arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case",
+        "hint": "The number of the invoice, the delivery note or the supplier's message, and the supplier. For example INV-90011 from Tallowby Flour Mills Ltd.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "Invoice match",
+          "Delivery discrepancy",
+          "Supplier question"
+        ]
+      },
+      {
+        "key": "supplier",
+        "label": "Supplier",
+        "hint": "The supplier's name and id, for example Tallowby Flour Mills Ltd (SUP-303).",
+        "required": true
+      },
+      {
+        "key": "about",
+        "label": "About",
+        "hint": "The total of an invoice, the day of a delivery, or the subject of the supplier's message.",
+        "required": false
+      },
+      {
+        "key": "order",
+        "label": "Purchase order",
+        "hint": "The order number on the invoice or the delivery note, for example PO-450131.",
+        "required": false
+      },
+      {
+        "key": "buyer",
+        "label": "Buyer on the order",
+        "shownAs": "Buyer: {value}",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Dated",
+        "hint": "The invoice date, the day of delivery, or the day the supplier's message arrived.",
+        "required": false,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the purchasing system holds for the case. Each part starts with a heading in capitals: the invoice or the delivery note with its lines, the purchase order, the goods received. For a supplier's message: the message, then the payments, invoices, orders and receipts it names.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the accounts payable desk whose kind of work is not one this desk knows. The kinds are Invoice match, Delivery discrepancy and Supplier question. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and no draft. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Draft claim. Not sent.",
+        "title": "Draft claim to the supplier",
+        "hint": "Not sent. The desk sends nothing."
+      },
+      {
+        "heading": "Draft reply. Not sent.",
+        "title": "Draft reply to the supplier",
+        "hint": "Not sent. The desk sends nothing."
+      }
+    ],
+    "marks": {
+      "agrees": "In agreement",
+      "price differs": "Price differs",
+      "quantity differs": "Quantity differs",
+      "not on the order": "Not on the order",
+      "not received": "Not received",
+      "short delivery": "Short delivery",
+      "wrong item": "Wrong item",
+      "damaged": "Damaged",
+      "not in the records": "Not in the records",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "agrees": "ok",
+      "price differs": "err",
+      "quantity differs": "err",
+      "not on the order": "err",
+      "not received": "err",
+      "short delivery": "warn",
+      "wrong item": "warn",
+      "damaged": "warn",
+      "not in the records": "person",
+      "not checked": "none"
+    },
+    "markHints": {
+      "agrees": "The item, the unit price and the quantity are the same in the records compared",
+      "price differs": "The unit price on the invoice is not the unit price on the order",
+      "quantity differs": "The invoice bills more than was ordered",
+      "not on the order": "The invoice bills something that is on no line of the order",
+      "not received": "The invoice bills more than has been booked in so far",
+      "short delivery": "Less was booked in than the delivery note says",
+      "wrong item": "The item on the note was not booked in, and another item, which is not on the order, came in its place",
+      "damaged": "Goods were refused at the dock as damaged, as written on the delivery note",
+      "not in the records": "The purchasing system does not hold this. A person answers it",
+      "not checked": "The record needed to check this line was not with the case"
+    },
+    "markIcons": {
+      "price differs": "≠",
+      "quantity differs": "≠",
+      "not on the order": "≠",
+      "not received": "≠",
+      "short delivery": "≠",
+      "wrong item": "≠",
+      "damaged": "≠"
+    },
+    "proposalPrefix": "Proposal:",
+    "passMark": "agrees",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "rowLabels": {
+      "source": "Shown",
+      "policy": "Held",
+      "citation": "Record",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Approve for payment",
+      "proposalPrefix": "ready for approval",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve this invoice for payment on version {version}{edited} of the match, in your name. The desk pays nothing and changes nothing in the purchasing system."
+    },
+    {
+      "id": "send_to_buyer",
+      "label": "Send to the buyer",
+      "proposalPrefix": "refer to the buyer",
+      "outcome": "with_the_buyer",
+      "needsNote": true,
+      "noteLabel": "What the buyer should settle",
+      "noteHint": "Name the lines that differ and what you need from the buyer. The desk records this in your name. It sends the buyer nothing."
+    },
+    {
+      "id": "send_claim",
+      "label": "Send the claim to the supplier",
+      "proposalPrefix": "send the claim",
+      "outcome": "claim_to_send",
+      "needsNote": true,
+      "noteLabel": "Who sends the claim, and how",
+      "noteHint": "The desk records your decision and the claim as it reads now. It sends the supplier nothing: the claim goes out in the purchasing system, in the sender's name."
+    },
+    {
+      "id": "no_claim",
+      "label": "Close with no claim",
+      "proposalPrefix": "no claim",
+      "outcome": "no_claim",
+      "needsNote": true,
+      "noteLabel": "Why no claim goes to the supplier",
+      "noteHint": "For example: the note, the order and the receipt agree. Or: the supplier has already sent a credit note."
+    },
+    {
+      "id": "send_reply",
+      "label": "Send the reply to the supplier",
+      "proposalPrefix": "send the reply",
+      "outcome": "reply_to_send",
+      "needsNote": true,
+      "noteLabel": "Who sends the reply, and how",
+      "noteHint": "The desk records your decision and the reply as it reads now. It sends the supplier nothing: the reply goes out in the purchasing system, in the sender's name."
+    },
+    {
+      "id": "pass_on",
+      "label": "Pass to a colleague",
+      "proposalPrefix": "refer to a person",
+      "outcome": "passed_on",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a message the purchasing records do not answer. Name the team or the person. The desk records this. It sends nothing."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "Approved",
+    "with_the_buyer": "With the buyer",
+    "claim_to_send": "Claim to send",
+    "no_claim": "No claim",
+    "reply_to_send": "Reply to send",
+    "passed_on": "Passed on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "with_the_buyer",
+    "claim_to_send",
+    "no_claim",
+    "reply_to_send",
+    "passed_on",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk pays nothing and sends nothing: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "supplier",
+      "about",
+      "order",
+      "buyer",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other accounts payable lead can. You can still ask the agent again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Approving an invoice while a line does not agree needs a reason",
+    "reasonToApproveUnmetLabel": "Why you approve although a line does not agree",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as approved for payment. The desk has paid nothing and changed nothing in the purchasing system: the approval is made there, in your name.",
+    "with_the_buyer": "Recorded as sent to the buyer, with your note. The desk has sent the buyer nothing. The buyer settles the difference with the supplier.",
+    "claim_to_send": "Recorded. The desk has sent the supplier nothing: the claim goes out in the purchasing system, as it reads below.",
+    "no_claim": "Recorded as no claim, with your reason. Nothing goes to the supplier.",
+    "reply_to_send": "Recorded. The desk has sent the supplier nothing: the reply goes out in the purchasing system, as it reads below.",
+    "passed_on": "Recorded as passed to a colleague, with the name and the reason you gave. The desk has sent nothing."
+  },
+  "decisionLabels": {
+    "issued": "Approved for payment",
+    "with_the_buyer": "Sent to the buyer",
+    "claim_to_send": "Decided to send the claim",
+    "no_claim": "Closed with no claim",
+    "reply_to_send": "Decided to send the reply",
+    "passed_on": "Passed to a colleague",
+    "sent_back": "Asked the agent again",
+    "removed": "Removed from the desk"
+  }
+}

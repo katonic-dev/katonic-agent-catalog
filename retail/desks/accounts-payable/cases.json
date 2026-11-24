@@ -1,0 +1,181 @@
+{
+  "$comment": "Sixteen invented cases for the demo: six supplier invoices, four delivery notes and six supplier questions. Made by make_cases.py from the records the invented retailer (demo-retailer) holds at retailer date 2026-11-24. Do not edit by hand: change the service's seed and run the script. Rowanmere Group, its suppliers and every record are invented.",
+  "cases": [
+    {
+      "title": "INV-88214 from Ilvane Valley Dairy Ltd",
+      "kind": "Invoice match",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "USD 13,409.00",
+      "order": "PO-450112",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-15",
+      "text": "THE INVOICE\nInvoice: INV-88214\nSupplier: Ilvane Valley Dairy Ltd (SUP-301)\nDated: 2026-11-15\nDue: 2026-12-30\nOrder: PO-450112\nInvoice status: received\nINVOICE LINES\n1. Mozzarella, shredded: 400 kg at 24.50 a kg, amount 9,800.00\n2. Butter, unsalted: 60 kg at 31.00 a kg, amount 1,860.00\nNet: USD 11,660.00\nTax: USD 1,749.00\nTotal: USD 13,409.00\nTHE PURCHASE ORDER\nOrder: PO-450112, ordered 2026-11-02\nBuyer: Hesper Valdane-Orr\nOrder status: received\nORDER LINES\n1. Mozzarella, shredded: 400 kg at 24.50 a kg\n2. Butter, unsalted: 60 kg at 31.00 a kg\nGOODS RECEIVED\nReceipt: GR-60112, booked in 2026-11-13 at Port Ilvane Distribution Centre\n1. Mozzarella, shredded: 400 kg booked in\n2. Butter, unsalted: 60 kg booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "INV-3391 from Marlow Reach Packaging Ltd",
+      "kind": "Invoice match",
+      "supplier": "Marlow Reach Packaging Ltd (SUP-302)",
+      "about": "USD 19,147.50",
+      "order": "PO-450127",
+      "buyer": "Dorian Ketterly-Voss",
+      "received_on": "2026-11-16",
+      "text": "THE INVOICE\nInvoice: INV-3391\nSupplier: Marlow Reach Packaging Ltd (SUP-302)\nDated: 2026-11-16\nDue: 2026-12-31\nOrder: PO-450127\nInvoice status: received\nINVOICE LINES\n1. Pizza box, medium: 20,000 at 0.42 each, amount 8,400.00\n2. Pizza box, large: 15,000 at 0.55 each, amount 8,250.00\nNet: USD 16,650.00\nTax: USD 2,497.50\nTotal: USD 19,147.50\nTHE PURCHASE ORDER\nOrder: PO-450127, ordered 2026-11-04\nBuyer: Dorian Ketterly-Voss\nOrder status: received\nORDER LINES\n1. Pizza box, medium: 20,000 at 0.42 each\n2. Pizza box, large: 15,000 at 0.55 each\nGOODS RECEIVED\nReceipt: GR-60127, booked in 2026-11-14 at Port Ilvane Distribution Centre\n1. Pizza box, medium: 20,000 booked in\n2. Pizza box, large: 15,000 booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "INV-77102 from Tallowby Flour Mills Ltd",
+      "kind": "Invoice match",
+      "supplier": "Tallowby Flour Mills Ltd (SUP-303)",
+      "about": "USD 31,740.00",
+      "order": "PO-450131",
+      "buyer": "Dorian Ketterly-Voss",
+      "received_on": "2026-11-17",
+      "text": "THE INVOICE\nInvoice: INV-77102\nSupplier: Tallowby Flour Mills Ltd (SUP-303)\nDated: 2026-11-17\nDue: 2027-01-01\nOrder: PO-450131\nInvoice status: received\nINVOICE LINES\n1. Pizza flour, 25 kg bag: 600 bags at 46.00 a bag, amount 27,600.00\nNet: USD 27,600.00\nTax: USD 4,140.00\nTotal: USD 31,740.00\nTHE PURCHASE ORDER\nOrder: PO-450131, ordered 2026-11-05\nBuyer: Dorian Ketterly-Voss\nOrder status: received\nORDER LINES\n1. Pizza flour, 25 kg bag: 600 bags at 44.50 a bag\nGOODS RECEIVED\nReceipt: GR-60131, booked in 2026-11-15 at Port Ilvane Distribution Centre\n1. Pizza flour, 25 kg bag: 600 bags booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "INV-5120 from Orchard Gate Fresh Produce Ltd",
+      "kind": "Invoice match",
+      "supplier": "Orchard Gate Fresh Produce Ltd (SUP-304)",
+      "about": "USD 8,602.00",
+      "order": "PO-450140",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-18",
+      "text": "THE INVOICE\nInvoice: INV-5120\nSupplier: Orchard Gate Fresh Produce Ltd (SUP-304)\nDated: 2026-11-18\nDue: 2027-01-02\nOrder: PO-450140\nInvoice status: received\nINVOICE LINES\n1. Green peppers: 800 kg at 6.20 a kg, amount 4,960.00\n2. Onions, white: 900 kg at 2.80 a kg, amount 2,520.00\nNet: USD 7,480.00\nTax: USD 1,122.00\nTotal: USD 8,602.00\nTHE PURCHASE ORDER\nOrder: PO-450140, ordered 2026-11-06\nBuyer: Hesper Valdane-Orr\nOrder status: received\nORDER LINES\n1. Green peppers: 720 kg at 6.20 a kg\n2. Onions, white: 900 kg at 2.80 a kg\nGOODS RECEIVED\nReceipt: GR-60140, booked in 2026-11-16 at Port Ilvane Distribution Centre\n1. Green peppers: 720 kg booked in\n2. Onions, white: 900 kg booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "INV-6417 from Marlow Reach Packaging Ltd",
+      "kind": "Invoice match",
+      "supplier": "Marlow Reach Packaging Ltd (SUP-302)",
+      "about": "USD 7,452.00",
+      "order": "PO-450152",
+      "buyer": "Dorian Ketterly-Voss",
+      "received_on": "2026-11-20",
+      "text": "THE INVOICE\nInvoice: INV-6417\nSupplier: Marlow Reach Packaging Ltd (SUP-302)\nDated: 2026-11-20\nDue: 2027-01-04\nOrder: PO-450152\nInvoice status: received\nINVOICE LINES\n1. Wrap sleeve, foil-lined: 30,000 at 0.09 each, amount 2,700.00\n2. Doughnut box, six: 10,000 at 0.36 each, amount 3,600.00\n3. Delivery charge: 1 at 180.00 each, amount 180.00\nNet: USD 6,480.00\nTax: USD 972.00\nTotal: USD 7,452.00\nTHE PURCHASE ORDER\nOrder: PO-450152, ordered 2026-11-10\nBuyer: Dorian Ketterly-Voss\nOrder status: received\nORDER LINES\n1. Wrap sleeve, foil-lined: 30,000 at 0.09 each\n2. Doughnut box, six: 10,000 at 0.36 each\nGOODS RECEIVED\nReceipt: GR-60152, booked in 2026-11-18 at Port Ilvane Distribution Centre\n1. Wrap sleeve, foil-lined: 30,000 booked in\n2. Doughnut box, six: 10,000 booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "INV-9034 from Ilvane Valley Dairy Ltd",
+      "kind": "Invoice match",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "USD 14,087.50",
+      "order": "PO-450158",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-22",
+      "text": "THE INVOICE\nInvoice: INV-9034\nSupplier: Ilvane Valley Dairy Ltd (SUP-301)\nDated: 2026-11-22\nDue: 2027-01-06\nOrder: PO-450158\nInvoice status: received\nINVOICE LINES\n1. Mozzarella, shredded: 500 kg at 24.50 a kg, amount 12,250.00\nNet: USD 12,250.00\nTax: USD 1,837.50\nTotal: USD 14,087.50\nTHE PURCHASE ORDER\nOrder: PO-450158, ordered 2026-11-14\nBuyer: Hesper Valdane-Orr\nOrder status: part received\nORDER LINES\n1. Mozzarella, shredded: 500 kg at 24.50 a kg\nGOODS RECEIVED\nReceipt: GR-60158, booked in 2026-11-21 at Port Ilvane Distribution Centre\n1. Mozzarella, shredded: 300 kg booked in",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DN-4135 from Ilvane Valley Dairy Ltd",
+      "kind": "Delivery discrepancy",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "Delivered 2026-11-21",
+      "order": "PO-450158",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-21",
+      "text": "THE DELIVERY NOTE\nNote: DN-4135\nSupplier: Ilvane Valley Dairy Ltd (SUP-301)\nDelivered: 2026-11-21 to Port Ilvane Distribution Centre\nOrder: PO-450158\nNOTE LINES\n1. Mozzarella, shredded: 500 kg on the note\nDock remark: nothing\nTHE PURCHASE ORDER\nOrder: PO-450158, ordered 2026-11-14\nBuyer: Hesper Valdane-Orr\nOrder status: part received\nORDER LINES\n1. Mozzarella, shredded: 500 kg at 24.50 a kg\nGOODS RECEIVED\nReceipt: GR-60158, booked in 2026-11-21 at Port Ilvane Distribution Centre\n1. Mozzarella, shredded: 300 kg booked in\nINVOICES FOR THE ORDER\nINV-9034 bills: Mozzarella, shredded, 500 kg",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DN-4142 from Marlow Reach Packaging Ltd",
+      "kind": "Delivery discrepancy",
+      "supplier": "Marlow Reach Packaging Ltd (SUP-302)",
+      "about": "Delivered 2026-11-22",
+      "order": "PO-450161",
+      "buyer": "Dorian Ketterly-Voss",
+      "received_on": "2026-11-22",
+      "text": "THE DELIVERY NOTE\nNote: DN-4142\nSupplier: Marlow Reach Packaging Ltd (SUP-302)\nDelivered: 2026-11-22 to Port Ilvane Distribution Centre\nOrder: PO-450161\nNOTE LINES\n1. Pizza box, medium: 12,000 on the note\n2. Pizza box, large: 8,000 on the note\nDock remark: Receiver's note: the 8,000 boxes on the second pallet are small boxes, not large. Booked in as small. Signed by the driver and the receiver.\nTHE PURCHASE ORDER\nOrder: PO-450161, ordered 2026-11-16\nBuyer: Dorian Ketterly-Voss\nOrder status: part received\nORDER LINES\n1. Pizza box, medium: 12,000 at 0.42 each\n2. Pizza box, large: 8,000 at 0.55 each\nGOODS RECEIVED\nReceipt: GR-60161, booked in 2026-11-22 at Port Ilvane Distribution Centre\n1. Pizza box, medium: 12,000 booked in\n2. Pizza box, large: 0 booked in\n3. Pizza box, small: 8,000 booked in\nINVOICES FOR THE ORDER\nNo invoice refers to this order yet.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DN-4149 from Orchard Gate Fresh Produce Ltd",
+      "kind": "Delivery discrepancy",
+      "supplier": "Orchard Gate Fresh Produce Ltd (SUP-304)",
+      "about": "Delivered 2026-11-23",
+      "order": "PO-450164",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-23",
+      "text": "THE DELIVERY NOTE\nNote: DN-4149\nSupplier: Orchard Gate Fresh Produce Ltd (SUP-304)\nDelivered: 2026-11-23 to Port Ilvane Distribution Centre\nOrder: PO-450164\nNOTE LINES\n1. Green peppers: 600 kg on the note\n2. Onions, white: 800 kg on the note\nDock remark: Receiver's note: 6 cases of white onions (20 kg each) crushed on the pallet and refused at the dock. Signed by the driver and the receiver.\nTHE PURCHASE ORDER\nOrder: PO-450164, ordered 2026-11-18\nBuyer: Hesper Valdane-Orr\nOrder status: part received\nORDER LINES\n1. Green peppers: 600 kg at 6.20 a kg\n2. Onions, white: 800 kg at 2.80 a kg\nGOODS RECEIVED\nReceipt: GR-60164, booked in 2026-11-23 at Port Ilvane Distribution Centre\n1. Green peppers: 600 kg booked in\n2. Onions, white: 680 kg booked in\nINVOICES FOR THE ORDER\nNo invoice refers to this order yet.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "DN-4100 from Ilvane Valley Dairy Ltd",
+      "kind": "Delivery discrepancy",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "Delivered 2026-11-13",
+      "order": "PO-450112",
+      "buyer": "Hesper Valdane-Orr",
+      "received_on": "2026-11-13",
+      "text": "THE DELIVERY NOTE\nNote: DN-4100\nSupplier: Ilvane Valley Dairy Ltd (SUP-301)\nDelivered: 2026-11-13 to Port Ilvane Distribution Centre\nOrder: PO-450112\nNOTE LINES\n1. Mozzarella, shredded: 400 kg on the note\n2. Butter, unsalted: 60 kg on the note\nDock remark: nothing\nTHE PURCHASE ORDER\nOrder: PO-450112, ordered 2026-11-02\nBuyer: Hesper Valdane-Orr\nOrder status: received\nORDER LINES\n1. Mozzarella, shredded: 400 kg at 24.50 a kg\n2. Butter, unsalted: 60 kg at 31.00 a kg\nGOODS RECEIVED\nReceipt: GR-60112, booked in 2026-11-13 at Port Ilvane Distribution Centre\n1. Mozzarella, shredded: 400 kg booked in\n2. Butter, unsalted: 60 kg booked in\nINVOICES FOR THE ORDER\nINV-88214 bills: Mozzarella, shredded, 400 kg; Butter, unsalted, 60 kg",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-01 from Tallowby Flour Mills Ltd",
+      "kind": "Supplier question",
+      "supplier": "Tallowby Flour Mills Ltd (SUP-303)",
+      "about": "Payment for INV-76410",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-21",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-01\nFrom: Gideon Rushmere-Alt, Tallowby Flour Mills Ltd (SUP-303)\nReceived: 2026-11-21\nSubject: Payment for INV-76410\nMessage: We cannot see payment for our invoice INV-76410 on our statement. Where is it?\nPAYMENTS FOR INV-76410\nPayment: PAY-7003, paid on 2026-11-10 by bank transfer\nAmount: USD 30,705.00\nInvoice total: USD 30,705.00, dated 2026-09-26, due 2026-11-10\nRemittance: RA-7003\nDeduction: none\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-02 from Ilvane Valley Dairy Ltd",
+      "kind": "Supplier question",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "When will INV-87655 be paid",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-22",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-02\nFrom: Perrin Haldwick-Sorrel, Ilvane Valley Dairy Ltd (SUP-301)\nReceived: 2026-11-22\nSubject: When will INV-87655 be paid\nMessage: Please tell us when invoice INV-87655 will be paid.\nPAYMENTS FOR INV-87655\nPayment: PAY-7006, scheduled for 2026-11-30 by bank transfer\nAmount: USD 9,890.00\nInvoice total: USD 9,890.00, dated 2026-10-16, due 2026-11-30\nDeduction: none\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-03 from Orchard Gate Fresh Produce Ltd",
+      "kind": "Supplier question",
+      "supplier": "Orchard Gate Fresh Produce Ltd (SUP-304)",
+      "about": "INV-5066 short-paid",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-22",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-03\nFrom: Linnet Carraway-Dunn, Orchard Gate Fresh Produce Ltd (SUP-304)\nReceived: 2026-11-22\nSubject: INV-5066 short-paid\nMessage: Invoice INV-5066 was for 7,567.00 and we received 7,210.50. Why was it short-paid?\nPAYMENTS FOR INV-5066\nPayment: PAY-7004, paid on 2026-11-14 by bank transfer\nAmount: USD 7,210.50\nInvoice total: USD 7,567.00, dated 2026-09-30, due 2026-11-14\nRemittance: RA-7004\nDeduction: USD 310.00 net and USD 46.50 tax, USD 356.50 in all\nReason: 50 kg of green peppers rejected at receipt as soft. 50 kg at 6.20.\nDebit note: DBN-0412\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-04 from Marlow Reach Packaging Ltd",
+      "kind": "Supplier question",
+      "supplier": "Marlow Reach Packaging Ltd (SUP-302)",
+      "about": "Delivery slot",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-23",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-04\nFrom: Tamsin Ordway-Kell, Marlow Reach Packaging Ltd (SUP-302)\nReceived: 2026-11-23\nSubject: Delivery slot\nMessage: Our lorry is booked into your distribution centre at 07:00 next Thursday. Can the slot move to 13:00?\nRECORDS NAMED IN THE MESSAGE\nNone. The question names no invoice, order or delivery note.\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-05 from Tallowby Flour Mills Ltd",
+      "kind": "Supplier question",
+      "supplier": "Tallowby Flour Mills Ltd (SUP-303)",
+      "about": "Status of INV-77102",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-23",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-05\nFrom: Gideon Rushmere-Alt, Tallowby Flour Mills Ltd (SUP-303)\nReceived: 2026-11-23\nSubject: Status of INV-77102\nMessage: Has invoice INV-77102 been approved for payment, and when is it due?\nPAYMENTS FOR INV-77102\nNone. An invoice with no payment row is not paid and has no payment scheduled.\nINVOICE INV-77102\nDated: 2026-11-17\nInvoice status: received\nDue: 2027-01-01\nTotal: USD 31,740.00\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    },
+    {
+      "title": "SQ-2611-06 from Ilvane Valley Dairy Ltd",
+      "kind": "Supplier question",
+      "supplier": "Ilvane Valley Dairy Ltd (SUP-301)",
+      "about": "Quantity booked in on PO-450158",
+      "order": "",
+      "buyer": "",
+      "received_on": "2026-11-24",
+      "text": "THE SUPPLIER'S MESSAGE\nNumber: SQ-2611-06\nFrom: Perrin Haldwick-Sorrel, Ilvane Valley Dairy Ltd (SUP-301)\nReceived: 2026-11-24\nSubject: Quantity booked in on PO-450158\nMessage: Our delivery note DN-4135 shows 500 kg delivered on PO-450158. What quantity did you book in?\nTHE PURCHASE ORDER\nOrder: PO-450158, ordered 2026-11-14\nBuyer: Hesper Valdane-Orr\nOrder status: part received\nORDER LINES\n1. Mozzarella, shredded: 500 kg at 24.50 a kg, 300 kg received so far\nGOODS RECEIVED\nReceipt: GR-60158, booked in 2026-11-21 at Port Ilvane Distribution Centre\n1. Mozzarella, shredded: 300 kg booked in\nDELIVERY NOTE DN-4135\nDelivered: 2026-11-21\n1. Mozzarella, shredded: 500 kg on the note\nDock remark: nothing\nWHAT THE SYSTEM HOLDS\nThe purchasing system holds orders, goods receipts, invoices, delivery notes and payments. It holds no delivery slots and no dock rules.",
+      "arrived_via": "feed"
+    }
+  ]
+}
