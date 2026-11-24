@@ -28,12 +28,30 @@ The desk has no decision called approve. A tier 1 supplier is approved by the Ri
 
 | Supplier | What the answers show | What the agent should recommend |
 |---|---|---|
-| Larkspur Cloud Archive Ltd | Weak. Seven requirements not met, three partly met | Do not recommend approval |
+| Larkspur Cloud Archive Ltd | Weak. Nine requirements not met, one partly met (2.3, administrators only) | Do not recommend approval |
 | Tessaly Payment Gateway Services | Strong. Everything met with evidence except 4.3, which the supplier left blank | Ask the supplier for the 4.3 answer and its evidence |
 | Pennyfarthing Print and Mail Ltd | 2.3 is answered "all staff" but the attached policy says remote access only. 3.3 has no evidence | Ask the supplier for a corrected access policy and the deletion evidence |
-| Harrowfield Records Storage Ltd | Everything met with evidence except two shortfalls the supplier states itself: 4.3 backups tested once a year (partly met) and 5.4 insurance of USD 4 million (not met) | Recommend approval with conditions: test backups twice a year, raise the insurance to USD 5 million |
+| Harrowfield Records Storage Ltd | Everything met with evidence except two shortfalls the supplier states itself: 4.3 backups tested once a year and 5.4 insurance of USD 4 million, both not met | Recommend approval with conditions: test backups twice a year, raise the insurance to USD 5 million |
 
-Each case states its case date. Every date in the questionnaire is read against it.
+Each case states its case date and the planned start of the service, on the two lines at the top of the questionnaire ("Case date" and "Planned start"). Every date in the questionnaire is read against the case date, and requirement 5.2 (an exit plan before the service starts) is read against the planned start.
+
+| Supplier | Case date | Planned start of the service |
+|---|---|---|
+| Larkspur | 16 November 2026 | 1 March 2027 |
+| Tessaly | 17 November 2026 | 4 January 2027 |
+| Pennyfarthing | 18 November 2026 | 1 February 2027 |
+| Harrowfield | 19 November 2026 | 15 February 2027 |
+
+## What the marks mean
+
+| Mark | Meaning |
+|---|---|
+| Met | The answer and the evidence both show what the requirement asks, in terms at least as strong as it asks |
+| Partly met | Only partial coverage: some of the people or systems but not all, or one of two things the requirement names. A missed limit is never partly met |
+| Not met | No evidence is attached, the evidence says something else, a limit is missed (a period, a frequency, an amount or the age of a document: backups tested once a year where twice a year is required are not met), or a condition the requirement sets is not shown in the evidence, such as an agreement in writing or a signature |
+| Not answered | The supplier left the answer blank |
+
+The agent's Summary carries no count of marks. The desk counts them from the table and shows the count above the rows.
 
 ## Which engine it needs
 
@@ -81,7 +99,9 @@ The stand-in shows how the desk works. It does not test the agent. For that, bui
 
 On 24 November 2026 the desk was run against the stand-in through twelve scenarios in a headless browser: the four cases with their marks and recommendations, every decision, the letter to the supplier, send back and redraft, a question to the agent, the register and its export, filters and search, a case entered by hand, the three themes, a phone-width window and a reload. All twelve passed after two rounds of fixes. It was reviewed twice for visual design at desktop and phone width, in light and dark.
 
-Not yet done: a run against a real agent on a platform.
+After the rules for marks changed (a second version of the agent's instructions), the cases, canned replies and checks were brought into line and the twelve scenarios were run again. They pass. The desk's own reader was also run over eleven replies written by a real agent under the first version of the instructions: it read all 17 rows of each reply and every mark.
+
+Not yet done: a run against a real agent on the second version of the instructions.
 
 ## Files
 
@@ -89,4 +109,5 @@ Not yet done: a run against a real agent on a platform.
 |---|---|
 | `desk.config.json` | Every wording, field, mark, decision, status and register label |
 | `cases.json` | The four demo cases |
-| `agent-instructions.md` | The agent's instructions |
+| `demo-replies.json` | The canned replies for the stand-in platform |
+| `agent-instructions.md` | The agent's instructions (second version, the same text as the agent folder's `instructions.md`) |

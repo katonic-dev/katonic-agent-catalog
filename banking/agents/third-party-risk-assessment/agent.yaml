@@ -37,7 +37,7 @@ sample_data:
   - ../../desks/third-party-risk/cases.json
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: Built and published to the development environment of a development cluster, and tested, on 24 November 2026. Not promoted. Test 1 passes. Tessaly and Harrowfield got the right marks and recommendation in both runs. Larkspur had wrong marks in every run, Pennyfarthing was wrong in one of two, and the request to approve was not refused. The instructions were then sharpened (second version: missed limits are always not met, a planned start date in each case, no counts in the Summary, a one-sentence refusal of approval requests). The runs are to be repeated on the second version.
