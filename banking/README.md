@@ -11,7 +11,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | # | Agent | What it does | Type and form | How people meet it | State |
 |---|---|---|---|---|---|
 | | **Financial crime** | | | | |
-| 1 | Sanctions Alert Review | Compares the customer record with the list entry field by field and recommends clear or escalate, with reasons | Workflow, event-triggered | Sanctions desk | Planned |
+| 1 | [Sanctions Alert Review](agents/sanctions-alert-review/README.md) | Compares the customer record with the list entry field by field and recommends clear or escalate, with reasons | Workflow, event-triggered | Sanctions desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | 2 | AML Investigation | Builds the case file for a transaction-monitoring alert and drafts the narrative | Autonomous | Investigations desk | Planned |
 | 3 | Adverse Media Screening | Searches the sources the bank names and summarises what it finds, each point with its link | Autonomous | Returns its summary to whoever asked | Planned |
 | 4 | Fraud Case Summary | Gathers the transactions, earlier contacts and notes for a flagged card or payment and drafts the case summary | Workflow, event-triggered | Fraud desk | Planned |
@@ -58,7 +58,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | Desk | Agents behind it | State |
 |---|---|---|
 | Regulatory change desk | Regulatory Monitoring | Built, in [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk) |
-| Sanctions desk | Sanctions Alert Review | Planned |
+| [Sanctions desk](desks/sanctions/README.md) | Sanctions Alert Review | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Investigations desk | AML Investigation, Adverse Media Screening | Planned |
 | Fraud desk | Fraud Case Summary | Planned |
 | [Onboarding and review desk](desks/onboarding-and-review/README.md) | Customer Onboarding, Business Onboarding, Periodic Review | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |

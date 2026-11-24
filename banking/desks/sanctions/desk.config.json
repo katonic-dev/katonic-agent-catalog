@@ -1,0 +1,300 @@
+{
+  "$comment": "What makes the generic case desk the sanctions desk. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads DESK_CONFIG, waitingStatuses and the case settings. The bank (Meridian Trust Bank), its customers, its watchlist and its alerts are invented.",
+  "desk": {
+    "id": "sanctions",
+    "name": "Sanctions desk",
+    "caseNoun": "screening alert",
+    "caseNounPlural": "screening alerts",
+    "draftNoun": "review",
+    "deciderRole": "compliance officer",
+    "tagline": "Screening alerts in, the customer's record set beside the list entry field by field, a recommendation to clear or escalate, a place to decide, and the register afterwards.",
+    "addLabel": "Add a screening alert",
+    "arrivedVia": {
+      "feed": "the bank's screening system",
+      "officer": "the compliance team"
+    }
+  },
+  "case": {
+    "heading": "THE ALERT",
+    "metaFields": [
+      "alert",
+      "customer",
+      "entry"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [],
+    "showText": "text",
+    "textHeading": "The alert, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this alert. The agent reads the alert from the screening system.",
+    "noTextNote": "No summary was supplied with this alert. Work from the alert the case names, read from the screening system.",
+    "askPlaceholder": "For example: which fields did the matcher say agree?",
+    "searchPlaceholder": "Search by customer, alert id or list entry",
+    "demoNote": "Demo data: the bank, its customers, its watchlist and its alerts are invented. Nothing here is a real screening decision.",
+    "listFields": [
+      "entry"
+    ],
+    "chipFields": [
+      "score"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the alert)",
+    "replyButton": "Add the reply and review again",
+    "replyNote": "A reply has been added at the end of the alert. Read the alert from the screening system again and compare every field again in the light of it.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The alert",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the compliance team (the form at the top of the list)",
+      "Sent by the bank's screening system when an alert arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The customer's name and the alert id in brackets, for example Wynne Castellane (SCR-2001)"
+      },
+      {
+        "key": "alert",
+        "label": "Screening alert id",
+        "required": true,
+        "hint": "For example SCR-2001"
+      },
+      {
+        "key": "customer",
+        "label": "Customer",
+        "required": true,
+        "hint": "The customer's name and id, for example Wynne Castellane (CUS-1005)"
+      },
+      {
+        "key": "entry",
+        "label": "List entry",
+        "required": true,
+        "hint": "The list entry's id and name, for example WL-9001 Wynn Castellano",
+        "shownAs": "against {value}"
+      },
+      {
+        "key": "score",
+        "label": "Match score",
+        "required": false,
+        "hint": "The number the screening system gave the alert, from 0 to 100",
+        "shownAs": "Match score {value}"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the alert",
+        "required": false,
+        "type": "textarea",
+        "hint": "The customer, the list entry, what the matcher flagged, and the earlier alerts on the pair"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A screening alert has arrived at the bank's sanctions desk. Work on the alert named in the case below. Compare the customer's record with the list entry field by field, and recommend clear or escalate with the reason beside each field. You close nothing and you decide nothing: a compliance officer decides every true or uncertain match.\n\nRead the alert from the screening system before you write anything: the customer's fields and the list entry's fields side by side (place of birth and address included), the field by field comparison, the earlier alerts on the same pair, and any recommendation already saved. Use only ids the system returns. Every statement in the table carries the ids of the records it rests on. Where two records disagree, or the entry holds too little, say so and do not choose. Never fill a gap: a field the entry does not hold is \"not on the entry\". Never call a match proven when the records only agree.\n\nReply in this shape and in no other.\nWrite plain statements. Do not write in the first person. Write every date as day, short month and year, for example 21 Jul 1990, never as 1990-07-21.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the screening system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft review. For the compliance officer. Not decided.\"\n3. A Markdown table with exactly these seven columns and one row per field compared. Put no vertical bar inside a cell.\n| # | Field | Customer's record | List entry | Source | Mark | Reason and what to check |\n# is 1, 2, 3 in order. Field is what is compared. Customer's record and List entry are the two values in a few words, as the system holds them, and each says so when the record holds none. Source is the ids of the records the values came from. Mark is exactly one of: matches, partly matches, differs, not on the entry, noted, in lower case. Reason and what to check says why the mark follows, and what the officer should check.\n4. A blank line, then one line that starts \"Recommendation:\". It is exactly one of: \"clear\" or \"escalate\", followed by a full stop and one or two sentences of reason. Write nothing after it.\n\nSummary lines, at most five: the customer and the list entry with their ids, the entry's category and the alert's match score; one plain sentence on what agrees and what differs, with no count of marks (the desk counts them from the table); the earlier alerts on the same pair and how each was closed, or that there are none; then the \"Saved:\" line.\nRows, in this order: name; aliases; date of birth; place of birth; nationality; identity number; address; related persons (only when the entry lists any); earlier alerts on the same pair.\nMarks. \"matches\": both records hold the field and the values are the same. \"partly matches\": close but not the same, for example a spelling variant, one shared surname, a birth year against a full date, or a place of birth or an address against an entry that gives only the country the customer's town is in. \"differs\": both records hold the field and the values are different. \"not on the entry\": the list entry holds no value for the field, or neither record holds one. \"noted\": background that is not a comparison, used for the earlier alerts. In the earlier-alerts row, Customer's record and List entry hold the same text: each earlier alert's id and how it was closed, or \"None\". When the customer's record holds no value, still use \"not on the entry\" and say in the reason that it is the customer's record that holds none.\nPlace of birth and address. Compare them as the records hold them. A different address can be a move, and the same address can be a home that two people share. Neither settles who the person is: give both values and let the officer judge. A place of birth in the same country but in a different town is \"differs\", unless the entry gives only the country.\nRecommendation. Choose \"escalate\" when the entry names the customer as a related person, when the name matches and the date of birth, the nationality or the identity number agrees, or when the entry holds too little to rule the match out (for example a birth year and no number). Choose \"clear\" only when every identifying field that both records hold (date of birth, place of birth, nationality, identity number) differs, and the entry does not name the customer as a related person. An address alone never clears an alert and never escalates one. The recommendation operation has only these two values, so a record in which every field agrees is also \"escalate\", and the reason says that the records agree on those fields and that the compliance officer decides whether it is a true match. When in doubt, escalate.\nSaving. The review is saved as a draft with one comparison row for each row of the table. The system takes five words for the result of a row: matches, partly_matches, differs, not_on_entry and noted. Any other word is refused. Save \"partly matches\" as partly_matches and \"not on the entry\" as not_on_entry. If the system refuses because of a word, correct it and save once more, and report the last reply.",
+    "sections": [
+      "Summary",
+      "Draft review"
+    ],
+    "marks": {
+      "matches": "Matches",
+      "partly matches": "Partly matches",
+      "differs": "Differs",
+      "not on the entry": "Not on the entry",
+      "noted": "Noted"
+    },
+    "markTones": {
+      "matches": "err",
+      "partly matches": "warn",
+      "differs": "none",
+      "not on the entry": "none",
+      "noted": "none"
+    },
+    "markHints": {
+      "matches": "Both records hold the field and the values are the same. A match on a list is the result to look at first. It is the agent's reading of the records, not a finding",
+      "partly matches": "Close but not the same: a spelling variant, a shared surname, a birth year against a full date, or a place or address against an entry that gives only the country",
+      "differs": "Both records hold the field and the values are different. One difference may be a move or a different person, so the officer judges it with the others",
+      "not on the entry": "The list entry holds no value for this field, or neither record does. It is a gap, not a difference",
+      "noted": "Background, such as an earlier alert on the same pair. It is not a comparison"
+    },
+    "proposalPrefix": "Recommendation:",
+    "reviewHeading": "Draft review",
+    "rowLabels": {
+      "source": "Customer",
+      "policy": "List entry",
+      "citation": "Source",
+      "check": "Reason",
+      "both": "Customer and list entry"
+    },
+    "markIcons": {
+      "matches": "=",
+      "partly matches": "≈",
+      "differs": "≠",
+      "not on the entry": "–",
+      "noted": "•"
+    },
+    "sideBySide": true,
+    "plainSource": true,
+    "tallyLabels": {
+      "matches": "match",
+      "partly matches": "partly match",
+      "differs": "differ",
+      "not on the entry": "not on the entry",
+      "noted": "noted"
+    },
+    "proposalFirst": true,
+    "singleValueMarks": [
+      "noted"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "false_positive",
+      "label": "Record as a false positive",
+      "outcome": "false_positive",
+      "needsNote": true,
+      "noteLabel": "Why the alert is a false positive",
+      "noteHint": "Records your decision in the desk's register. The desk closes nothing in the screening system: you close the alert there, under your own name.",
+      "proposalPrefix": [
+        "clear"
+      ]
+    },
+    {
+      "id": "true_match",
+      "label": "Record as a true match",
+      "outcome": "true_match",
+      "needsNote": true,
+      "noteLabel": "What makes it a true match, and what happens next",
+      "noteHint": "Records your decision in the desk's register. The desk closes nothing in the screening system and files nothing."
+    },
+    {
+      "id": "escalate",
+      "label": "Escalate",
+      "outcome": "escalated",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority, for example the head of compliance or a case for enhanced due diligence. Name them and give the reason.",
+      "proposalPrefix": [
+        "escalate"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask for more information",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to find out, one item to a line",
+      "noteHint": "An internal request, for example to the customer's relationship manager or the list's owner. Nothing is sent to the customer. The case waits here until the reply is added."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the review",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the officer",
+    "sent_back": "Being redone",
+    "false_positive": "Recorded as a false positive",
+    "true_match": "Recorded as a true match",
+    "escalated": "Escalated",
+    "info_requested": "Waiting for information",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "false_positive",
+    "true_match",
+    "escalated",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk closes no alert in the screening system and files nothing: the compliance officer does that there.",
+    "columns": [
+      "case_id",
+      "title",
+      "alert",
+      "customer",
+      "entry",
+      "score",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "alert",
+      "customer",
+      "entry",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "alert": "Alert",
+      "customer": "Customer",
+      "entry": "List entry",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Review versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered an alert cannot decide it. Any other compliance officer can. You can still ask the agent to redo the review.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "false_positive": "Recorded in the register. Close the alert in the screening system under your own name: the desk does not.",
+    "true_match": "Recorded in the register. Closing the alert, any freeze and any report are done elsewhere, by a person.",
+    "escalated": "Recorded as escalated, with the name and the reason you gave. The alert stays open in the screening system until the person you named decides. The decision is theirs.",
+    "info_requested": "When the reply comes, add it here. The agent reads the alert again and the review comes back for your decision."
+  },
+  "decisionLabels": {
+    "false_positive": "Recorded as a false positive",
+    "true_match": "Recorded as a true match",
+    "escalated": "Escalated",
+    "info_requested": "Asked for more information",
+    "sent_back": "Asked the agent to redo the review",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

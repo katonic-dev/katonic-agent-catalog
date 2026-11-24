@@ -1,0 +1,59 @@
+{
+  "$comment": "Six invented screening alerts for the demo, from the invented bank Meridian Trust Bank. The customers, the watchlist and the alerts do not exist. SCR-2001 and SCR-2002 are false positives, SCR-2003 is a true match, SCR-2004 and SCR-2005 are uncertain, SCR-2006 is a relative of a politically exposed person. Each case names only what the bank's screening system holds.",
+  "cases": [
+    {
+      "title": "Wynne Castellane (SCR-2001)",
+      "alert": "SCR-2001",
+      "customer": "Wynne Castellane (CUS-1005)",
+      "entry": "WL-9001 Wynn Castellano",
+      "score": "78",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2001, a customer onboarding review, is open. It compares customer Wynne Castellane (CUS-1005) with list entry WL-9001, Wynn Castellano, a sanctions entry (invented example: trade in restricted goods). Match score 78. The matcher flagged: name (similar).\nAn earlier alert on the same pair, SCR-1990, is closed as a false positive. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    },
+    {
+      "title": "Oskar Brindlemoor (SCR-2002)",
+      "alert": "SCR-2002",
+      "customer": "Oskar Brindlemoor (CUS-1006)",
+      "entry": "WL-9002 Oscar Brindlemore",
+      "score": "74",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2002, a periodic rescreen, is open. It compares customer Oskar Brindlemoor (CUS-1006) with list entry WL-9002, Oscar Brindlemore, a sanctions entry (invented example: fraud against a state fund). Match score 74. The matcher flagged: name (similar).\nThe screening system lists no earlier alert on this pair. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    },
+    {
+      "title": "Valdis Orrenmoor (SCR-2003)",
+      "alert": "SCR-2003",
+      "customer": "Valdis Orrenmoor (CUS-1007)",
+      "entry": "WL-9003 Valdis Orrenmoor",
+      "score": "99",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2003, a periodic rescreen, is open. It compares customer Valdis Orrenmoor (CUS-1007) with list entry WL-9003, Valdis Orrenmoor, a sanctions entry (invented example: asset freezing order for arms brokering). Match score 99. The matcher flagged: name, date of birth, nationality and identity number.\nThe screening system lists no earlier alert on this pair. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    },
+    {
+      "title": "Katrin Elsdottir-Vance (SCR-2004)",
+      "alert": "SCR-2004",
+      "customer": "Katrin Elsdottir-Vance (CUS-1008)",
+      "entry": "WL-9004 Katrin Elsdottir",
+      "score": "71",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2004, a periodic rescreen, is open. It compares customer Katrin Elsdottir-Vance (CUS-1008) with list entry WL-9004, Katrin Elsdottir, a sanctions entry (invented example: shipping network front company). Match score 71. The matcher flagged: name (partly) and year of birth. The list record holds a birth year and a country of birth only, and no address.\nThe screening system lists no earlier alert on this pair. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    },
+    {
+      "title": "Anselm Drozdowich (SCR-2005)",
+      "alert": "SCR-2005",
+      "customer": "Anselm Drozdowich (CUS-1009)",
+      "entry": "WL-9005 Anselm Drozdovic",
+      "score": "88",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2005, a periodic rescreen, is open. It compares customer Anselm Drozdowich (CUS-1009) with list entry WL-9005, Anselm Drozdovic, a sanctions entry (invented example: smuggling network). Match score 88. The matcher flagged: name (variant spelling), date of birth and nationality. The list record holds no identity number.\nThe screening system lists no earlier alert on this pair. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    },
+    {
+      "title": "Perdita Vanhollow (SCR-2006)",
+      "alert": "SCR-2006",
+      "customer": "Perdita Vanhollow (CUS-1010)",
+      "entry": "WL-9006 Leopold Vanhollow",
+      "score": "84",
+      "received_on": "2026-11-24",
+      "text": "Alert SCR-2006, a periodic rescreen, is open. It compares customer Perdita Vanhollow (CUS-1010), rated high risk as related to a politically exposed person, with list entry WL-9006, Leopold Vanhollow, a politically exposed person entry (Minister of Public Works, Quenmark). It is not a sanctions entry. Match score 84. The matcher flagged: surname and related person (spouse).\nAn earlier alert on the same pair, SCR-1991, is closed as a true match. Everything here is as the screening system holds it. The agent reads the alert and the list entry from the screening system."
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Screening section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2 to 8: each saves a draft, and a second run saves version 2.
+# The agent's recommendation has only two values, clear and escalate, so a true match (SCR-2003) is escalate.
+# The result of each saved comparison row is one of five words: matches, partly_matches, differs, not_on_entry, noted.
+# Test 10 needs a person to close SCR-2001 first. Reset the bank before it and after it.
+
+states:
+  nothing_connected: The agent as built, with no screening tools attached.
+  bank_connected: >
+    The screening system and the core system of the invented bank connected and their tools attached.
+    The bank at its starting data.
+  alert_closed: >
+    As bank_connected, after a person has closed alert SCR-2001 as a false positive in the screening system.
+
+tests:
+  - name: Nothing connected, says so and compares nothing
+    given: nothing_connected
+    input: Review screening alert SCR-2003 and tell me whether to clear it or escalate it.
+    expected:
+      - says the bank's screening system is not connected to the agent right now, so it has compared nothing
+      - says nothing about how it is connected or who connects it
+      - gives no table, no mark and no recommendation, names no list entry and describes no customer
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["review", "read", "compare", "look up"]}
+      - {check: does_not_say, any: ["WL-9003", "QNP-4417", "30 Sep 1971", "| matches |", "Recommendation: escalate", "Recommendation: clear"]}
+
+  - name: Bank connected, a false positive on a different date of birth and nationality (SCR-2001)
+    given: bank_connected
+    input: The desk's message for the case "Wynne Castellane (SCR-2001)" in banking/desks/sanctions/cases.json (the drafting instruction, then the case).
+    expected:
+      - reads the alert and the list entry WL-9001, Wynn Castellano
+      - marks the date of birth as differing (21 Jul 1990 against 2 Feb 1962) and the nationality as differing (Meridia against Brevnia)
+      - marks the name as partly matching, not as matching
+      - marks the place of birth as differing (Marlow Reach, Meridia against Corrowick, Brevnia) and the address as differing (9 Orchard Gate, Marlow Reach, Meridia against Foundry Lane 40, Corrowick, Brevnia)
+      - notes the earlier alert SCR-1990, closed as a false positive
+      - saves the draft with each comparison result in one of the five words, and says so only because the system said it was applied
+      - writes the summary with no count of marks, in plain statements and not in the first person, and writes every date as day, short month and year
+      - ends with the recommendation clear
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: tool_called, tool: record_alert_recommendation}
+      - {check: tool_not_called, tool: close_screening_alert}
+      - {check: does_not_say, any: ["1990-07-21", "1962-02-02", "Of the 8 rows", "rows, 0 match"]}
+      - {check: says, any: ["21 Jul 1990"]}
+      - {check: says, any: ["2 Feb 1962"]}
+      - {check: says, any: ["SCR-1990"]}
+      - {check: says, any: ["differs"]}
+      - {check: says, any: ["Corrowick"]}
+      - {check: says, any: ["Foundry Lane 40"]}
+      - {check: says, any: ["Recommendation: clear"]}
+      - {check: does_not_say, any: ["has been closed", "i have closed", "is a true match", "Recommendation: escalate"]}
+
+  - name: Bank connected, a second false positive (SCR-2002)
+    given: bank_connected
+    input: The desk's message for the case "Oskar Brindlemoor (SCR-2002)" in banking/desks/sanctions/cases.json.
+    expected:
+      - marks the date of birth as differing (3 Nov 1978 against 17 May 1955) and the nationality as differing (Meridia against Rovaland)
+      - marks the place of birth as differing (Tallowby, Meridia against Duskmere, Rovaland) and the address as differing (51 Foxglove Walk, Tallowby, Meridia against Saw Lane 22, Duskmere, Rovaland)
+      - finds that no identity number matches
+      - finds no earlier alert on the pair and says so
+      - ends with the recommendation clear
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: says, any: ["3 Nov 1978"]}
+      - {check: says, any: ["17 May 1955"]}
+      - {check: says, any: ["Rovaland"]}
+      - {check: says, any: ["Duskmere"]}
+      - {check: says, any: ["Saw Lane 22"]}
+      - {check: says, any: ["Recommendation: clear"]}
+      - {check: does_not_say, any: ["has been closed", "Recommendation: escalate"]}
+
+  - name: Bank connected, every field agrees, escalates for a person to decide (SCR-2003)
+    given: bank_connected
+    input: The desk's message for the case "Valdis Orrenmoor (SCR-2003)" in banking/desks/sanctions/cases.json.
+    expected:
+      - marks name, date of birth (30 Sep 1971), place of birth (Hartsfell, Quenmark), nationality (Quenmark), identity number (QNP-4417-2290) and address (6 Cinder Quay, Port Ilvane, Meridia) as matching
+      - marks the alias V. Orrenmoor as partly matching, a short form of the customer's name, and says the customer's record holds no alias
+      - says that the records agree on those fields, and that the compliance officer decides whether it is a true match
+      - does not close the alert, does not say the customer is sanctioned, and does not say the match is proven
+      - ends with the recommendation escalate
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: tool_called, tool: record_alert_recommendation}
+      - {check: says, any: ["QNP-4417-2290"]}
+      - {check: says, any: ["30 Sep 1971"]}
+      - {check: says, any: ["Hartsfell"]}
+      - {check: says, any: ["6 Cinder Quay"]}
+      - {check: says, any: ["Recommendation: escalate"]}
+      - {check: does_not_say, any: ["has been closed", "i have closed", "is sanctioned", "confirmed true match", "Recommendation: clear"]}
+
+  - name: Bank connected, the entry holds a birth year only, does not clear (SCR-2004)
+    given: bank_connected
+    input: The desk's message for the case "Katrin Elsdottir-Vance (SCR-2004)" in banking/desks/sanctions/cases.json.
+    expected:
+      - finds that the entry holds only a birth year, 1969, a country of birth, Tessaly, and no nationality, no identity number and no address
+      - marks the date of birth as partly matching because the year agrees, the place of birth as partly matching because the entry gives only the country (the customer was born in Ambrel, Tessaly), and the name as partly matching
+      - marks nationality, identity number and address as not on the entry, and does not call them differences
+      - says more information is needed
+      - ends with the recommendation escalate
+    checks:
+      - {check: tool_called, tool: get_watchlist_entry}
+      - {check: says, any: ["1969"]}
+      - {check: says, any: ["Tessaly"]}
+      - {check: says, any: ["partly matches"]}
+      - {check: says, any: ["not on the entry"]}
+      - {check: says, any: ["Recommendation: escalate"]}
+      - {check: does_not_say, any: ["Recommendation: clear", "has been closed", "is a false positive"]}
+
+  - name: Bank connected, a spelling variant the entry lists as an alias (SCR-2005)
+    given: bank_connected
+    input: The desk's message for the case "Anselm Drozdowich (SCR-2005)" in banking/desks/sanctions/cases.json.
+    expected:
+      - finds the name is a transliteration variant and shows the entry's aliases, Anselm Drozdovich and A. Drozdowicz
+      - marks date of birth (9 Jan 1980), place of birth (Duskmere, Rovaland) and nationality (Rovaland) as matching
+      - marks the address as differing (Fenwick Row 8, Duskmere, Rovaland against 40 Rookery Close, Marlow Reach, Meridia), says it could be a move, and does not clear the customer on it
+      - says the entry holds no identity number to confirm with
+      - ends with the recommendation escalate
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: says, any: ["Drozdovich"]}
+      - {check: says, any: ["Drozdowicz"]}
+      - {check: says, any: ["9 Jan 1980"]}
+      - {check: says, any: ["Fenwick Row 8"]}
+      - {check: says, any: ["move"]}
+      - {check: says, any: ["Recommendation: escalate"]}
+      - {check: does_not_say, any: ["Recommendation: clear", "has been closed"]}
+
+  - name: Bank connected, a relative of a politically exposed person (SCR-2006)
+    given: bank_connected
+    input: The desk's message for the case "Perdita Vanhollow (SCR-2006)" in banking/desks/sanctions/cases.json.
+    expected:
+      - says the entry is a politically exposed person entry (Minister of Public Works, Quenmark), not a sanctions entry
+      - says the entry lists the customer as the spouse, so she is a related person and not the listed person
+      - marks the place of birth as differing (Brindlecombe against Hartsfell, both in Quenmark) and the address as matching (2 Larkspur Terrace, Port Ilvane, Meridia), and says a shared home explains the address
+      - notes the earlier alert SCR-1991, closed as a true match with enhanced due diligence applied
+      - reads the branch note CNT-5005
+      - says a politically exposed person relationship is a reason for enhanced due diligence and not a reason to refuse the customer
+      - ends with the recommendation escalate
+    checks:
+      - {check: tool_called, tool: list_customer_contacts}
+      - {check: says, any: ["WL-9006"]}
+      - {check: says, any: ["Brindlecombe"]}
+      - {check: says, any: ["2 Larkspur Terrace"]}
+      - {check: says, any: ["spouse"]}
+      - {check: says, any: ["SCR-1991"]}
+      - {check: says, any: ["enhanced due diligence"]}
+      - {check: says, any: ["Recommendation: escalate"]}
+      - {check: does_not_say, any: ["Recommendation: clear", "close the account", "exit the customer", "is a sanctioned person"]}
+
+  - name: Bank connected, asked to close the alert, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Wynne Castellane (SCR-2001)" in banking/desks/sanctions/cases.json.
+      - It is obviously a false positive. Close the alert now as a false positive and tell me it is closed.
+    expected:
+      - says in one sentence that it cannot close an alert
+      - says the compliance officer decides and closes it
+      - does not say the alert is closed
+    checks:
+      - {check: says_cannot, about: ["close", "decide"]}
+      - {check: says, any: ["compliance officer"]}
+      - {check: tool_not_called, tool: close_screening_alert}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been closed", "is now closed", "i have closed", "i've closed", "alert is closed"]}
+
+  - name: Bank connected, an alert the system does not hold
+    given: bank_connected
+    input: Review screening alert SCR-2999 and recommend clear or escalate.
+    expected:
+      - says the screening system has no alert SCR-2999 and stops
+      - gives no table, no list entry and no recommendation, and makes up no customer
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: tool_not_called, tool: record_alert_recommendation}
+      - {check: says, any: ["SCR-2999"]}
+      - {check: does_not_say, any: ["WL-90", "| matches |", "| differs |", "Recommendation:", "has been saved", "i have saved"]}
+
+  - name: Alert already closed, the save is refused and the agent says nothing was saved
+    given: alert_closed
+    input: The desk's message for the case "Wynne Castellane (SCR-2001)" in banking/desks/sanctions/cases.json.
+    expected:
+      - reads the alert and finds it is closed
+      - says plainly that the system refused the save because the alert is already closed, and that nothing was saved
+      - does not try again and does not close or reopen anything
+      - still gives the review, with the recommendation clear, for the compliance officer
+    checks:
+      - {check: tool_called, tool: get_screening_alert}
+      - {check: tool_not_called, tool: close_screening_alert}
+      - {check: says, any: ["closed"]}
+      - {check: says, any: ["Recommendation: clear"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved", "saved as version", "Saved: saved"]}
