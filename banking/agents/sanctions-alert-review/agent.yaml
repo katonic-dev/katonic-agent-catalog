@@ -54,7 +54,8 @@ sample_data:
   - ../../desks/sanctions/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 24 November 2026. Not promoted. All ten tests pass five runs in a row on the second version of the instructions: test 1 with no tools on the draft's Test tab, tests 2 to 10 in the Work Room with the desk's own message, a new conversation for each run, the screening system put back before each. The first version passed one of ten on every check and expected line; what changed is in the instructions and tests of this folder and in the desk's instruction. For a closed alert the save is tried once and the system refuses it, and the agent says so. Passing replies were recorded in short form, not word for word. Not tried: the desk itself calling this agent, and an alert arriving starting it.
