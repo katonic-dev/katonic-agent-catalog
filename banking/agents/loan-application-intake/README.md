@@ -9,7 +9,7 @@ Checks a loan application pack against the documents the bank's lending policy r
 | How people meet it | An application: the Lending desk |
 | Reads from | The bank's lending system: the application, its documents and the lending policy |
 | Changes | Saves a draft list of missing items and figures. The draft sends nothing and changes no status |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 24 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
