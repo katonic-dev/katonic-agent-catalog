@@ -61,7 +61,8 @@ sample_data:
   - ../../../demo-bank/SCENARIOS.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 24 November 2026. Not promoted. On the third version of the instructions: tests 1, 2 and 4 to 7 passed five runs in a row on the second version and two more each on the third; test 3 (a batch with three faulty rows) passed seven runs of eight. In the run that failed the agent added the totals wrongly (1,216.00 and 667.00 for 1,215.50 and 667.50), and in one other run the saved draft counted four rows passed where the reply said three. The agent adds the totals itself, so a person checks them. tests_passed stays false until test 3 passes five runs in a row.
