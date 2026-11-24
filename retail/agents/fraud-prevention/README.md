@@ -9,7 +9,7 @@ Reads an order that the screening rules have flagged, sets it against the custom
 | How people meet it | An application: the loss prevention desk. It also works in a chat |
 | Reads from | The company's orders system: the flagged order and the customer's earlier orders. The till records: a refund made at a till against an earlier order |
 | Changes | Saves its review as a draft. The draft changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Seven of eight tests pass three runs in a row, and the saved reviews were right |
 
 ## What it does
 
@@ -41,7 +41,7 @@ A company that keeps its orders in a reporting database can serve the same reads
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the orders system and the tills system from their OpenAPI addresses. For the invented retailer, those are the documents at `/orders/openapi.json` and `/tills/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -54,7 +54,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row. Both orders to hold and both to release were proposed rightly in every run.
+- In the eighth the refusal was right in every run. A check phrase tripped on the agent's own words, so the check needs the change.
+- With the orders system alone and no till records, the proposal for one order split between hold and release. This folder does not yet say which is right.
+- Every review saved to the retailer was right, at the first call.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

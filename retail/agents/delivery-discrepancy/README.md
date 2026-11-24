@@ -9,7 +9,7 @@ Sets a delivery note against the purchase order, the goods received and the supp
 | How people meet it | An application: the accounts payable desk. It also works in a chat |
 | Reads from | The company's purchasing system: delivery notes, purchase orders, goods received and supplier invoices |
 | Changes | Saves its claim as a draft. The draft sends nothing and changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. All seven tests pass three runs in a row, and the saved claims were right |
 
 ## What it does
 
@@ -40,7 +40,7 @@ A company that receives delivery notes as scanned files can give the note to the
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the purchasing system from its OpenAPI address. For the invented retailer, that is the document at `/purchasing/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -53,7 +53,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- All seven tests pass three runs in a row.
+- Every claim saved to the retailer was right, at the first call.
+- The first text put no amount on a wrong item. The instructions now say how to claim it, and that test passes.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

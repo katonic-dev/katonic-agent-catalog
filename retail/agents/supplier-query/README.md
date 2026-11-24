@@ -9,7 +9,7 @@ Answers a supplier's question about an order, a delivery or a payment from the c
 | How people meet it | An application: the accounts payable desk. It also works in a chat |
 | Reads from | The company's purchasing system: the question, supplier payments, supplier invoices, purchase orders, goods received and delivery notes |
 | Changes | Saves its reply as a draft. The draft sends nothing and changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Six of eight tests pass three runs in a row, and the saved replies were right |
 
 ## What it does
 
@@ -38,7 +38,7 @@ A company that keeps its supplier terms in a document can add it as a knowledge 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the purchasing system from its OpenAPI address. For the invented retailer, that is the document at `/purchasing/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, three runs of each test.
+
+- Six of the eight tests pass three runs in a row.
+- In the other two the answer was right in every run. A check phrase tripped on the agent's own refusal or on the question it restated, so the checks need the change, not the agent.
+- Every reply saved to the retailer was right.
+- On that cluster a save was sometimes refused before it reached the retailer.
+- The reply in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
