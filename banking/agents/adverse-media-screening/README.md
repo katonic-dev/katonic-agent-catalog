@@ -9,7 +9,7 @@ Searches the bank's press archive for a named subject and reports what it finds,
 | How people meet it | An application: the Investigations desk |
 | Reads from | The bank's press archive, and the core system and monitoring system for the subject's own record |
 | Changes | Saves a draft screening summary. Nothing else changes |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 24 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
