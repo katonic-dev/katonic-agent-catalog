@@ -1,0 +1,61 @@
+id: price-optimization
+name: Price Optimization
+pack: retail
+area: Merchandising and pricing
+summary: >
+  Sets each line's price beside the competitors' published prices and the
+  company's own pricing rules, and recommends a decrease, an increase or a
+  hold for each, with the reason. It proposes no price the rules forbid,
+  and says which rule forbids a move. It saves the recommendations as a
+  draft. It changes no price. A merchant approves every change.
+
+type: workflow
+form: scheduled
+started_by: "A clock, once a week. A person can also ask for the whole price file or for one line"
+
+meets_people_through: application
+application: Pricing and replenishment desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: pricing
+    kind: api
+    required: true
+    label: "The company's pricing system, to read the price file, the competitors' published prices and the pricing rules, and to save recommendations as a draft"
+    operations:
+      - list_prices
+      - list_competitor_prices
+      - get_pricing_rules
+      - save_price_recommendations
+  - id: stock
+    kind: api
+    required: true
+    label: "The company's stock system, to read stock on hand and recent sales, and the rules that say how days of cover are worked out"
+    operations:
+      - list_stock_levels
+      - get_replenishment_rules
+
+demo_retailer_systems: [pricing, stock]
+
+stops_for_a_person:
+  - "A merchant approves every price change. The agent has no operation that changes a price."
+  - "When the rules forbid a move, the agent proposes a hold and names the rule. Whether another price is right is for the merchant."
+  - "What a competitor will do next, and whether to follow one at all, is for the merchant."
+
+# Saving recommendations is a draft kept as a version with its author. It changes no price.
+# The operation that writes approved changes to the price file (approve_price_changes) is left out of this agent on purpose.
+changes:
+  - {tool: save_price_recommendations, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The pricing and replenishment desk is planned
+    and not yet written.

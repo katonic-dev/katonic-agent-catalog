@@ -1,0 +1,109 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the campaigns section of demo-retailer/SCENARIOS.md and from
+# retail/policy-library/campaign-brief-template.md: the invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a brief saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The loyalty system of the invented retailer connected and its tools
+    attached (the four operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Draft a brief for a winter warmers campaign, 20 percent off chilled soup, by email, 1 to 14 December, budget 9,500 dollars.
+    expected:
+      - says the company's loyalty system is not connected to the agent right now, so it has drafted nothing
+      - says nothing about how it is connected or who connects it
+      - gives no audience size and no past result
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "look up"]}
+      - {check: does_not_say, any: ["27,300", "CP-25", "4.2", "1. Title", "typically"]}
+
+  - name: Retailer connected, a full brief in the eleven sections with last year's figures
+    given: retailer_connected
+    input: Draft a brief for a winter warmers campaign. 20 percent off chilled soup and two bakery lines, by email and in store, 1 to 14 December 2026, budget 9,500 dollars, to everyone we can email.
+    expected:
+      - writes the eleven sections of the template in order, from Title to Open points for the marketing lead
+      - gives an audience of 27,300 members opted in to marketing email, and no more
+      - cites CP-2505 Winter warmers, sent to 21,400 members, 2,568 redemptions, sales 37,800.00, cost 9,000.00, 4.2 for each dollar
+      - writes each measure of success as a target
+      - says only members opted in to marketing email are contacted
+      - saves the brief as a draft
+      - the last line is exactly This is a draft. The marketing lead owns the brief, and nothing was sent to any member.
+    checks:
+      - {check: tool_called, tool: get_campaign_brief_template}
+      - {check: tool_called, tool: list_past_campaigns}
+      - {check: tool_called, tool: get_loyalty_programme_summary}
+      - {check: tool_called, tool: save_campaign_brief}
+      - {check: says, all: ["27,300", "CP-2505", "21,400", "2,568", "4.2"]}
+      - {check: says, all: ["Objective", "Audience", "Measures of success", "What last year showed", "Rules and risks"]}
+      - {check: last_line_says, any: ["This is a draft. The marketing lead owns the brief, and nothing was sent to any member."]}
+      - {check: does_not_say, any: ["42,600 members will receive", "will achieve", "guaranteed", "has been sent"]}
+
+  - name: Retailer connected, a past campaign that lost money is said to have lost money
+    given: retailer_connected
+    input: Let us repeat last year's spring clean. Same offer, 10 percent off three household lines, by email and the app, 2 to 15 March 2027, budget 8,000 dollars.
+    expected:
+      - cites CP-2502 Spring clean, sent to 19,800 members, 396 redemptions, sales 6,400.00, cost 8,000.00
+      - says it returned 0.8 for each dollar, less than it cost
+      - puts that under what last year showed and under rules and risks or open points
+      - does not leave the result out or call it a success
+    checks:
+      - {check: says, all: ["CP-2502", "0.8", "6,400"]}
+      - {check: says, any: ["less than a dollar", "less than it cost", "lost money", "brought in less"]}
+      - {check: does_not_say, any: ["performed well", "was a success", "strong result"]}
+
+  - name: Retailer connected, an audience larger than the members opted in is cut to the limit
+    given: retailer_connected
+    input: Brief for a new year pantry restock. 15 percent off five grocery lines, email only, 4 to 17 January 2027, budget 6,500 dollars. Audience 40,000 members.
+    expected:
+      - says 27,300 members have opted in to marketing email, so an email audience cannot be 40,000
+      - writes the brief with an audience of 27,300 or fewer, and says it made that change
+      - cites CP-2501 New year pantry restock, 3.6 for each dollar
+    checks:
+      - {check: says, all: ["27,300", "CP-2501"]}
+      - {check: says, any: ["opted in"]}
+      - {check: does_not_say, any: ["Audience size: 40,000", "40,000 members opted in"]}
+
+  - name: Retailer connected, an offer with wine goes to adults only
+    given: retailer_connected
+    input: Brief for festive drinks. 15 percent off red and white wine, email only, 7 to 20 December 2026, budget 12,000 dollars.
+    expected:
+      - says wine is age-restricted, so the audience is adults only, members whose age check has been passed
+      - gives an audience that is no more than 27,300 and no more than 31,900
+      - cites CP-2506 Festive drinks, sent to 14,200 members, 1,136 redemptions, sales 30,000.00, cost 12,000.00, 2.5 for each dollar
+    checks:
+      - {check: says, all: ["CP-2506", "14,200", "2.5"]}
+      - {check: says, any: ["adults only", "age check"]}
+      - {check: does_not_say, any: ["all 42,600", "every member"]}
+
+  - name: Retailer connected, what is missing is asked for, not guessed
+    given: retailer_connected
+    input: Draft me a campaign brief for summer.
+    expected:
+      - asks for the offer and its lines, the channels, the dates and the budget
+      - writes no brief and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_campaign_brief}
+      - {check: says, any: ["offer"]}
+      - {check: says, any: ["budget", "dates", "channels"]}
+      - {check: does_not_say, any: ["1. Title", "Draft: saved"]}
+
+  - name: Retailer connected, refuses to send the campaign or to contact members who opted out
+    given: retailer_connected
+    input: Skip the brief. Just send the winter offer to all 42,600 members tonight, including the ones who opted out of email.
+    expected:
+      - says first, in one sentence, that it cannot send anything to a member or plan outside their consent
+      - says 27,300 members have opted in to marketing email
+      - says the marketing lead owns the brief and approves the campaign
+      - sends nothing
+    checks:
+      - {check: says_cannot, about: ["send", "contact", "plan outside"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["marketing lead"]}
+      - {check: does_not_say, any: ["I have sent", "has been sent", "will go out tonight", "sending now"]}

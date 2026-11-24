@@ -1,0 +1,54 @@
+id: campaign-brief
+name: Campaign Brief
+pack: retail
+area: Marketing and loyalty
+summary: >
+  Drafts a campaign brief in the company's own template from the offer, the
+  audience and last year's results. It takes the audience size from the
+  programme's totals, names the past campaign most like the new one with
+  its figures, and says so when that campaign lost money. It saves the
+  brief as a draft. It sends nothing to any member. The marketing lead owns
+  the brief.
+
+type: conversational
+form: acting
+started_by: "A marketer's request in a chat"
+
+meets_people_through: chat
+application: null
+
+# A chat agent that acts: it saves the brief it drafts.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: loyalty
+    kind: api
+    required: true
+    label: "The company's loyalty system, to read the campaign brief template, last year's campaigns with their results and the totals of the programme, and to save a brief as a draft"
+    operations:
+      - get_campaign_brief_template
+      - list_past_campaigns
+      - get_loyalty_programme_summary
+      - save_campaign_brief
+
+demo_retailer_systems: [loyalty]
+
+stops_for_a_person:
+  - "The marketing lead owns the brief and approves the campaign before anything is sent to a member."
+  - "The agent sends nothing and contacts no member."
+  - "A member is contacted only through a channel they have opted in to. The agent plans no audience larger than that."
+
+# Saving a brief is a draft kept as a version with its author. It sends nothing to any member.
+changes:
+  - {tool: save_campaign_brief, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. It reads the template through the loyalty
+    system. The same template is a document in the policy library.

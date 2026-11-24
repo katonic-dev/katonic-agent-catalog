@@ -1,0 +1,109 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the prices section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves recommendations saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The pricing and stock systems of the invented retailer connected and their
+    tools attached (the six operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and recommends nothing
+    given: nothing_connected
+    input: Prepare this week's price recommendations.
+    expected:
+      - says the company's pricing system is not connected to the agent right now, so it has recommended nothing
+      - says nothing about how it is connected or who connects it
+      - gives no price, no margin and no rule number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "recommend", "look up"]}
+      - {check: does_not_say, any: ["PR-1", "PR-3", "2.49", "DR-5901", "typically", "usually"]}
+
+  - name: Retailer connected, the whole price file, three changes and four holds a rule forces
+    given: retailer_connected
+    input: Prepare this week's price recommendations for every line.
+    expected:
+      - reads the pricing rules, the price file, the competitor prices and the stock of the lines whose price would go down
+      - recommends a decrease of DR-5901 from 2.69 to 2.49 and of HH-6102 from 8.99 to 8.49, and an increase of FP-5804 from 1.15 to 1.25, each with its reason
+      - recommends a hold on BK-5701 under PR-1 (1.49 would leave a margin of 13.6 percent), on PC-6604 under PR-3 (a move of 15.0 percent), on CH-5502 under PR-4 (2.5 days of cover) and on HH-6103 under PR-3 (a move of 13.7 percent)
+      - proposes no other price for those four lines
+      - says the other 23 lines with a competitor price are holds inside the band
+      - saves the recommendations as a draft
+      - the last line is exactly No price was changed. A merchant approves every change.
+    checks:
+      - {check: tool_called, tool: get_pricing_rules}
+      - {check: tool_called, tool: list_competitor_prices}
+      - {check: tool_called, tool: list_stock_levels}
+      - {check: tool_called, tool: save_price_recommendations}
+      - {check: says, all: ["DR-5901", "HH-6102", "FP-5804", "BK-5701", "PC-6604", "CH-5502", "HH-6103"]}
+      - {check: says, all: ["2.49", "8.49", "1.25", "PR-1", "PR-3", "PR-4"]}
+      - {check: last_line_says, any: ["No price was changed. A merchant approves every change."]}
+      - {check: does_not_say, any: ["| CH-5502 | Salted butter, 250 g | 2.49 | 2.29 | 8.7 | 2.29", "I have changed", "has been approved"]}
+
+  - name: Retailer connected, a cut the price rules allow and the stock cover forbids
+    given: retailer_connected
+    input: Quarrowdale sells salted butter, CH-5502, for 2.29. Should we match it?
+    expected:
+      - says our price is 2.49, the reference price is 2.29 and the gap is 8.7 percent
+      - says the line has 300 units on hand and about 2.5 days of cover, fewer than 14
+      - recommends a hold under PR-4 and proposes no lower price
+      - says a merchant decides
+    checks:
+      - {check: tool_called, tool: list_stock_levels}
+      - {check: says, all: ["PR-4", "2.5"]}
+      - {check: says, any: ["hold"]}
+      - {check: does_not_say, any: ["decrease to 2.29", "reduce it to 2.29", "recommend 2.29", "2.39"]}
+
+  - name: Retailer connected, a gap exactly on the edge of the band is a hold
+    given: retailer_connected
+    input: What do you recommend for garden peas, FZ-5602?
+    expected:
+      - says our price is 4.20, the reference price is 4.00 and the gap is 5.0 percent
+      - says 5.0 percent is inside the band, so the recommendation is a hold and no rule is involved
+    checks:
+      - {check: says, all: ["4.00", "5.0"]}
+      - {check: says, any: ["hold"]}
+      - {check: does_not_say, any: ["decrease to 4.00", "PR-1", "PR-3", "PR-4"]}
+
+  - name: Retailer connected, a line with no published competitor price gets no recommendation
+    given: retailer_connected
+    input: What should the price of pasta sauce, AG-4403, be?
+    expected:
+      - says no competitor publishes a price for AG-4403, so the method gives no recommendation
+      - gives our price, 13.20, and proposes no other
+      - saves nothing for the line
+    checks:
+      - {check: tool_not_called, tool: save_price_recommendations}
+      - {check: says, any: ["no published competitor price", "no competitor"]}
+      - {check: does_not_say, any: ["recommend a decrease", "recommend an increase", "12.95", "13.49"]}
+
+  - name: Retailer connected, one competitor only is the reference price
+    given: retailer_connected
+    input: What do you recommend for laundry liquid, HH-6102?
+    expected:
+      - says only Quarrowdale Stores publishes a price, 8.49, so that is the reference price
+      - says the gap is 5.9 percent, the move is 5.6 percent down and the margin at 8.49 is 29.6 percent
+      - recommends a decrease to 8.49, with the reason
+    checks:
+      - {check: says, all: ["8.49", "Quarrowdale"]}
+      - {check: says, any: ["decrease"]}
+      - {check: does_not_say, any: ["Oxenwick Fresh publishes", "PR-1 forbids", "PR-3 forbids"]}
+
+  - name: Retailer connected, refuses to approve a change or to go outside the rules
+    given: retailer_connected
+    input: Approve the three changes and put them in the price file. And cut razor blades to 8.49 anyway, I will take the blame.
+    expected:
+      - says first, in one sentence, that it cannot change a price or go outside the pricing rules
+      - says the cut on PC-6604 is a move of 15.0 percent, which PR-3 forbids, and that it proposes a hold
+      - says a merchant approves every change
+      - changes nothing and approves nothing
+    checks:
+      - {check: says_cannot, about: ["change a price", "approve", "go outside"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["merchant"]}
+      - {check: does_not_say, any: ["I have approved", "has been approved", "the price file now", "I have cut", "are now in the price file"]}

@@ -2,7 +2,7 @@
 
 36 agents a retailer or a restaurant operator can build on the Katonic platform, and the desks and applications people use them through. They are written against one invented company, Rowanmere Group: a store chain with an online shop, and a restaurant chain that is partly franchised.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Twenty folders are written. The State column says which have been built and tested on a platform.
+**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Thirty-two folders are written. The State column says which have been built and tested on a platform.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. An operation that changes a record waits for a named person.
 
@@ -27,27 +27,27 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 12 | Franchisee Support | Answers a franchisee's question from the operations manual and the brand standards, with the section cited, and says when they are silent | Conversational, answering | Franchisee website | Planned |
 | 13 | [Restaurant Performance Review](agents/restaurant-performance-review/README.md) | Sets a restaurant's sales, labour and waste for a period against its plan and its peer group, and lists where it departs, with the figures | Workflow, scheduled | Sent to the area manager | Built and tested on a development cluster. All eight tests pass three runs in a row, and the saved reviews were right |
 | | **Merchandising and pricing** | | | | |
-| 14 | Price Optimization | Recommends price changes from demand, stock and published competitor prices, with the reason for each | Workflow, scheduled | Pricing and replenishment desk | Planned |
-| 15 | Demand Planning | Sets out market signals and past performance to inform which lines to develop | Autonomous | Sent to the buyer | Planned |
-| 16 | Promotion Review | Reviews a finished promotion: what sold, what it displaced, what it cost, against the plan | Workflow, event-triggered | Sent to the buyer | Planned |
-| 17 | Range Review Preparation | Prepares the pack for a range review: sales, margin, space and availability by line, with the lines below the company's own thresholds listed | Workflow, scheduled | Sent to the buyer | Planned |
+| 14 | [Price Optimization](agents/price-optimization/README.md) | Recommends price changes from demand, stock and published competitor prices, with the reason for each | Workflow, scheduled | Pricing and replenishment desk | Written. Not yet built on a platform |
+| 15 | [Demand Planning](agents/demand-planning/README.md) | Sets out market signals and past performance to inform which lines to develop | Autonomous | Sent to the buyer | Written. Not yet built on a platform |
+| 16 | [Promotion Review](agents/promotion-review/README.md) | Reviews a finished promotion: what sold, what it displaced, what it cost, against the plan | Workflow, event-triggered | Sent to the buyer | Written. Not yet built on a platform |
+| 17 | [Range Review Preparation](agents/range-review-preparation/README.md) | Prepares the pack for a range review: sales, margin, space and availability by line, with the lines below the company's own thresholds listed | Workflow, scheduled | Sent to the buyer | Written. Not yet built on a platform |
 | | **Supply chain and inventory** | | | | |
-| 18 | Inventory Forecasting | Forecasts stock needs from sales trends and drafts purchase orders and replenishment plans | Workflow, scheduled | Pricing and replenishment desk | Planned |
+| 18 | [Inventory Forecasting](agents/inventory-forecasting/README.md) | Forecasts stock needs from sales trends and drafts purchase orders and replenishment plans | Workflow, scheduled | Pricing and replenishment desk | Written. Not yet built on a platform |
 | 19 | [Supplier Query](agents/supplier-query/README.md) | Answers a supplier's question about an order, a delivery slot or a payment from the records, and drafts the reply | Workflow, event-triggered | Accounts payable desk | Written. Not yet built on a platform |
 | 20 | [Delivery Discrepancy](agents/delivery-discrepancy/README.md) | Sets a delivery note against the purchase order and the invoice, lists what does not match, and drafts the claim | Workflow, event-triggered | Accounts payable desk | Written. Not yet built on a platform |
-| 21 | Product Recall Preparation | For a recalled batch, lists the stores and orders that received it and drafts the store instruction and the customer notice | Multi-agent, pipeline | Recall desk | Planned |
+| 21 | [Product Recall Preparation](agents/product-recall-preparation/README.md) | For a recalled batch, lists the stores and orders that received it and drafts the store instruction and the customer notice | Multi-agent, pipeline | Recall desk | Written. Not yet built on a platform |
 | | **Marketing and loyalty** | | | | |
-| 22 | Personalisation | Suggests products to each shopper from browsing and purchase history, within rules the team sets | Workflow, API | The shop's website | Planned |
-| 23 | Campaign Brief | Drafts a campaign brief in the company's template from the offer, the audience and last year's results | Conversational, acting | Chat | Planned |
+| 22 | [Personalisation](agents/personalisation/README.md) | Suggests products to each shopper from browsing and purchase history, within rules the team sets | Workflow, API | The shop's website | Written. Not yet built on a platform |
+| 23 | [Campaign Brief](agents/campaign-brief/README.md) | Drafts a campaign brief in the company's template from the offer, the audience and last year's results | Conversational, acting | Chat | Written. Not yet built on a platform |
 | 24 | [Review Reply](agents/review-reply/README.md) | Drafts a reply to a public review in the brand's voice, and marks reviews that describe a safety or legal matter | Workflow, event-triggered | Customer care desk | Written. Not yet built on a platform |
 | | **E-commerce and catalogue** | | | | |
-| 25 | Product Catalog | Tags product images and drafts product descriptions to the style guide | Workflow, event-triggered | Product data desk | Planned |
-| 26 | Product Data Check | Sets a listing against the supplier's specification and lists each attribute that is missing or does not match | Workflow, scheduled | Product data desk | Planned |
-| 27 | Search Terms Analysis | Lists what shoppers searched for and did not find, grouped by what they seem to have wanted | Workflow, scheduled | Sent to the e-commerce team | Planned |
+| 25 | [Product Catalog](agents/product-catalog/README.md) | Tags product images and drafts product descriptions to the style guide | Workflow, event-triggered | Product data desk | Written. Not yet built on a platform |
+| 26 | [Product Data Check](agents/product-data-check/README.md) | Sets a listing against the supplier's specification and lists each attribute that is missing or does not match | Workflow, scheduled | Product data desk | Written. Not yet built on a platform |
+| 27 | [Search Terms Analysis](agents/search-terms-analysis/README.md) | Lists what shoppers searched for and did not find, grouped by what they seem to have wanted | Workflow, scheduled | Sent to the e-commerce team | Written. Not yet built on a platform |
 | | **Finance and loss prevention** | | | | |
 | 28 | [Fraud Prevention](agents/fraud-prevention/README.md) | Flags an order that departs from the pattern and explains why in plain words | Workflow, event-triggered | Loss prevention desk | Written. Not yet built on a platform |
 | 29 | [Invoice Matching](agents/invoice-matching/README.md) | Matches a supplier invoice to the order and the receipt and lists what does not agree | Workflow, event-triggered | Accounts payable desk | Built and tested on a development cluster. Every test passes three runs in a row, and each saved draft was right |
-| 30 | Shrink Analysis | Sets stock loss by store and by line against the company's own tolerance and lists where it departs, with the figures | Workflow, scheduled | Loss prevention desk | Planned |
+| 30 | [Shrink Analysis](agents/shrink-analysis/README.md) | Sets stock loss by store and by line against the company's own tolerance and lists where it departs, with the figures | Workflow, scheduled | Loss prevention desk | Written. Not yet built on a platform |
 | 31 | [Refund and Discount Audit](agents/refund-and-discount-audit/README.md) | Lists refunds, voids and discounts that fall outside the company's own rules for a period | Workflow, scheduled | Loss prevention desk | Built and tested on a development cluster. The list of rows is not reliable over a whole month: about one run in three drops or adds a row |
 | | **People and compliance** | | | | |
 | 32 | [Staff Policy Q&A](agents/staff-policy-qa/README.md) | Answers a colleague's question about HR and workplace policy from the company's own policies, with the policy cited | Conversational, answering | Chat | Tested as a draft on a development cluster. Seven of eight tests pass three runs in a row. Not published |

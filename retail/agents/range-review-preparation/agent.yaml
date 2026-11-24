@@ -1,0 +1,57 @@
+id: range-review-preparation
+name: Range Review Preparation
+pack: retail
+area: Merchandising and pricing
+summary: >
+  Prepares the pack for the range review of a category: sales, margin,
+  shelf space and availability for each line, with the lines that fall
+  below the company's own thresholds listed, each with the threshold and
+  its stock cover. It saves the pack as a draft. It proposes no listing and
+  no delisting. The buying team decides.
+
+type: workflow
+form: scheduled
+started_by: "A clock, before each category's range review. A person can also name a category"
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: pricing
+    kind: api
+    required: true
+    label: "The company's pricing system, to read the range review data of a category and the thresholds, and to save a pack as a draft"
+    operations:
+      - get_range_review_thresholds
+      - get_range_review_data
+      - save_range_review_pack
+  - id: stock
+    kind: api
+    required: true
+    label: "The company's stock system, to read stock on hand and recent sales for the days of cover of each line"
+    operations:
+      - list_stock_levels
+      - get_replenishment_rules
+
+demo_retailer_systems: [pricing, stock]
+
+stops_for_a_person:
+  - "The buying team decides every listing and delisting. A line below a threshold is a line to talk about."
+  - "The agent gives no reason for a line being below a threshold. The data do not say why."
+
+# Saving a pack is a draft kept as a version with its author. It lists and delists nothing.
+changes:
+  - {tool: save_range_review_pack, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform.

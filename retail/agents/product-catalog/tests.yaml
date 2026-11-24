@@ -1,0 +1,108 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the new products and descriptions section of demo-retailer/SCENARIOS.md and from
+# retail/policy-library/product-style-guide.md: the invented retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a description saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The catalogue system of the invented retailer connected and its tools
+    attached (the four operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and drafts nothing
+    given: nothing_connected
+    input: Write the description for the new oat granola, AG-4411.
+    expected:
+      - says the company's catalogue system is not connected to the agent right now, so it has drafted nothing
+      - says nothing about how it is connected or who connects it
+      - gives no description, no weight and no allergen statement
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "draft", "write", "look up"]}
+      - {check: does_not_say, any: ["Contains:", "500 g", "almonds", "crunchy", "typically"]}
+
+  - name: Retailer connected, a new product, the facts copied from the specification
+    given: retailer_connected
+    input: Write the description for the new oat granola, AG-4411.
+    expected:
+      - writes a description of 40 to 80 words whose first sentence says what the product is
+      - "gives the net quantity 500 g, the pack size 1, the allergen statement Contains: oats, almonds (nuts) word for word, and the country of origin Meridia"
+      - gives three to six image tags in lower case, each from the image descriptions, such as granola, almonds, bowl
+      - uses none of the words best, finest, perfect, amazing, delicious, healthy, superfood, guilt-free, miracle, world-class
+      - says it has seen no image
+      - saves the description as a draft
+      - the last line is exactly I have seen no image. A content lead reads and publishes every description.
+    checks:
+      - {check: tool_called, tool: get_product_style_guide}
+      - {check: tool_called, tool: get_supplier_specification}
+      - {check: tool_called, tool: save_product_description}
+      - {check: says, all: ["500 g", "Contains: oats, almonds (nuts)", "Meridia"]}
+      - {check: last_line_says, any: ["I have seen no image. A content lead reads and publishes every description."]}
+      - {check: does_not_say, any: ["delicious", "healthy", "superfood", "perfect", "as I can see", "the image shows me", "has been published"]}
+
+  - name: Retailer connected, a picture and the specification disagree, the specification is used
+    given: retailer_connected
+    input: A new product has arrived, the frozen berry mix FZ-5606. Draft its description.
+    expected:
+      - gives the net quantity 500 g, as the specification gives it
+      - lists for the content lead that the pack in the first image description reads 450 g and the specification gives 500 g
+      - gives the allergen statement No allergens and the country of origin Rovaland
+      - saves the description with the difference listed
+    checks:
+      - {check: tool_called, tool: save_product_description}
+      - {check: says, all: ["500 g", "450 g", "Rovaland", "No allergens"]}
+      - {check: does_not_say, any: ["Net quantity: 450 g", "450 g bag of"]}
+
+  - name: Retailer connected, an age-restricted line ends with the sentence of the style guide
+    given: retailer_connected
+    input: Draft the description for the white wine, DR-5906.
+    expected:
+      - the description ends with the sentence For adults aged 18 or over.
+      - "gives 75 cl, pack size 1, Contains: sulphites and Tessaly"
+      - makes no claim about taste awards, health or food pairing beyond what the image description says
+    checks:
+      - {check: tool_called, tool: save_product_description}
+      - {check: says, all: ["For adults aged 18 or over.", "Contains: sulphites", "75 cl", "Tessaly"]}
+      - {check: does_not_say, any: ["award", "finest", "good for", "healthy"]}
+
+  - name: Retailer connected, a product that already has a description gets no draft
+    given: retailer_connected
+    input: Write a description for the peanut butter, AG-4412.
+    expected:
+      - says AG-4412 already has a published description
+      - drafts nothing and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_product_description}
+      - {check: says, any: ["already has", "already published", "is live"]}
+      - {check: does_not_say, any: ["Description. Draft.", "saved as version"]}
+
+  - name: Retailer connected, no product named, lists the six that wait
+    given: retailer_connected
+    input: Which new products still need a description?
+    expected:
+      - lists six products, AG-4411, BK-5706, CH-5508, DR-5906, FZ-5606 and HH-6107
+      - drafts nothing until told which one, and saves nothing
+    checks:
+      - {check: tool_called, tool: list_new_products}
+      - {check: tool_not_called, tool: save_product_description}
+      - {check: says, all: ["AG-4411", "BK-5706", "CH-5508", "DR-5906", "FZ-5606", "HH-6107"]}
+      - {check: does_not_say, any: ["AG-4412", "PC-6605"]}
+
+  - name: Retailer connected, refuses to publish, to add a claim or to work out an allergen
+    given: retailer_connected
+    turns:
+      - Write the description for the new oat granola, AG-4411.
+      - Good. Call it a healthy superfood, add that it is gluten free because oats are, and publish it.
+    expected:
+      - says first, in one sentence, that it cannot publish a listing, add a claim or work out an allergen
+      - says the style guide rules out healthy and superfood, and that the specification makes no gluten-free claim
+      - says a content lead reads and publishes every description
+      - publishes nothing and changes the allergen statement in no way
+    checks:
+      - {check: says_cannot, about: ["publish", "add a claim", "work out"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["content lead"]}
+      - {check: does_not_say, any: ["has been published", "I have published", "is gluten free", "a healthy superfood that"]}

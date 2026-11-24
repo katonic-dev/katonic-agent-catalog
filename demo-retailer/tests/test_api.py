@@ -30,7 +30,8 @@ def test_key_is_required_and_both_forms_work(client):
 def test_every_system_refuses_a_call_without_a_key(client):
     probes = {"stores": "/stores/sites", "foodsafety": "/foodsafety/plan", "care": "/care/feedback",
               "purchasing": "/purchasing/invoices", "property": "/property/leases", "performance": "/performance/periods",
-              "tills": "/tills/rules", "orders": "/orders/orders"}
+              "tills": "/tills/rules", "orders": "/orders/orders", "catalogue": "/catalogue/listings",
+              "stock": "/stock/levels", "pricing": "/pricing/prices", "loyalty": "/loyalty/members"}
     assert list(probes) == SYSTEMS
     for path in probes.values():
         r = client.get(path)
@@ -113,7 +114,7 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 oid = op["operationId"]
                 assert oid.islower() and all(c.isalnum() or c == "_" for c in oid), oid
                 assert oid.split("_")[0] in ("list", "get", "save", "request", "record", "sign", "approve", "raise", "search", "send",
-                                             "publish", "refuse", "release", "hold"), oid
+                                             "publish", "refuse", "release", "hold", "issue"), oid
                 assert oid not in seen, f"duplicate {oid}"
                 seen[oid] = system
                 assert op["summary"].strip() and len(op["description"]) > 40, oid
@@ -122,8 +123,8 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
                 if "(change)" in op["summary"]:
                     assert method == "post", oid
     assert counts == {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
-                      "orders": 14}
-    assert sum(counts.values()) == 78
+                      "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10}
+    assert sum(counts.values()) == 131
     assert sorted(seen) == sorted([
         "list_sites", "get_site", "list_site_visits", "get_site_visit", "save_visit_report",
         "get_food_safety_plan", "list_record_periods", "get_food_safety_records", "get_record_review", "save_record_check",
@@ -145,7 +146,22 @@ def test_operations_have_clean_unique_ids_summaries_descriptions(client):
         "save_supplier_reply", "send_supplier_reply",
         "search_orders", "get_order", "get_delivery_scans", "get_returns_policy", "list_return_requests", "get_return_request",
         "save_return_assessment", "approve_return", "refuse_return", "list_flagged_orders", "get_customer_order_history",
-        "save_fraud_review", "release_flagged_order", "hold_flagged_order"])
+        "save_fraud_review", "release_flagged_order", "hold_flagged_order",
+        # version 1.3
+        "list_product_listings", "get_product_listing", "get_supplier_specification", "get_product_style_guide",
+        "list_new_products", "save_product_description", "publish_product_description", "get_product_data_checks",
+        "save_product_data_check", "get_search_log", "get_search_terms_analysis", "save_search_terms_analysis",
+        "list_stock_levels", "get_line_stock_history", "get_replenishment_rules", "list_supply_terms",
+        "get_replenishment_plan", "save_replenishment_plan", "approve_replenishment_plan", "list_stock_counts",
+        "get_shrink_tolerance", "get_shrink_analysis", "save_shrink_analysis", "list_batches", "get_batch_trace",
+        "save_recall_pack", "issue_recall_notice",
+        "list_prices", "list_competitor_prices", "get_pricing_rules", "get_price_recommendations",
+        "save_price_recommendations", "approve_price_changes", "list_promotions", "get_promotion", "save_promotion_review",
+        "get_range_review_thresholds", "get_range_review_data", "save_range_review_pack", "list_line_sales_history",
+        "get_market_notes", "get_demand_plan_notes", "save_demand_plan_note",
+        "list_members", "get_member", "get_personalisation_rules", "save_product_suggestions",
+        "get_loyalty_programme_summary", "list_past_campaigns", "get_past_campaign", "get_campaign_brief_template",
+        "list_campaign_briefs", "save_campaign_brief"])
 
 
 def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
@@ -162,7 +178,10 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                        # version 1.2: nine changes, each made by a named person after a draft is saved
                        "send_ticket_reply", "send_complaint_response", "publish_review_reply", "send_discrepancy_claim",
                        "send_supplier_reply", "approve_return", "refuse_return", "release_flagged_order",
-                       "hold_flagged_order"}
+                       "hold_flagged_order",
+                       # version 1.3: four changes, each made by a named person after a draft is saved
+                       "publish_product_description", "approve_replenishment_plan", "issue_recall_notice",
+                       "approve_price_changes"}
     # version 1.1 added no operation that changes a record: its four writes are drafts
     drafts = {op["operationId"] for doc in docs(client).values() for item in doc["paths"].values() for op in item.values()
               if op["summary"].endswith("(draft)")}
@@ -170,7 +189,12 @@ def test_the_operations_that_change_a_record_say_so_in_the_summary(client):
                       "save_lease_summary", "save_performance_review", "save_till_audit",
                       # version 1.2
                       "save_ticket_reply", "save_complaint_classification", "save_complaint_response", "save_review_reply",
-                      "save_discrepancy_claim", "save_supplier_reply", "save_return_assessment", "save_fraud_review"}
+                      "save_discrepancy_claim", "save_supplier_reply", "save_return_assessment", "save_fraud_review",
+                      # version 1.3
+                      "save_product_description", "save_product_data_check", "save_search_terms_analysis",
+                      "save_replenishment_plan", "save_shrink_analysis", "save_recall_pack", "save_price_recommendations",
+                      "save_promotion_review", "save_range_review_pack", "save_demand_plan_note", "save_product_suggestions",
+                      "save_campaign_brief"}
 
 
 def test_servers_and_docs_under_a_prefix():
@@ -190,7 +214,7 @@ def test_landing_page_has_no_external_assets(client):
     for s in SYSTEMS:
         assert f"/{s}/openapi.json" in text and f"/{s}/mcp" in text and f"/{s}/sse" in text
     assert "supplier-invoice" in text and "food-safety-records" in text and "site-visit" in text
-    assert "The eight systems" in text
+    assert "The twelve systems" in text
 
 
 # ---------------------------------------------------------------- data invariants

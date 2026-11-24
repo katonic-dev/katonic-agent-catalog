@@ -1,0 +1,109 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the recalled batch section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a pack saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The stock, orders and stores systems of the invented retailer connected and
+    their tools attached (the five operations named in agent.yaml). The retailer
+    at its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Batch BT-44031 has been recalled. Prepare the recall pack.
+    expected:
+      - says the company's stock system is not connected to the agent right now, so it has prepared nothing
+      - says nothing about how it is connected or who connects it
+      - gives no store, no order and no customer, and drafts no instruction and no notice
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "prepare", "look up"]}
+      - {check: does_not_say, any: ["S-101", "RM-58", "Dear customer", "pasta sauce", "typically", "usually"]}
+
+  - name: Retailer connected, the recalled batch, four stores and seven orders in three stages
+    given: retailer_connected
+    input: Batch BT-44031 has been recalled. Prepare the recall pack.
+    expected:
+      - stage one lists four stores, S-101 (240 units delivered), S-104 (180), S-105 (60) and S-107 (200), and no other store
+      - stage one lists seven orders, RM-58115, RM-58121, RM-58147, RM-58152, RM-58160, RM-58168 and RM-58180, and no other order
+      - says the seven orders belong to five customers, two of whom have two orders each
+      - stage two is a store instruction with the product, Pasta sauce, six jars, the batch BT-44031 and the best-before date 2027-09-20, off sale at once, hold apart, count and report to the Quality team, refunds without a receipt
+      - stage three is a customer notice with the same three facts, the supplier's own words that pieces of glass may be present in jars of this batch, do not use it, and a full refund without a receipt
+      - neither text gives a cause, says anyone was or was not harmed, or gives medical advice
+      - saves the pack as a draft
+      - the last line is exactly Nothing was sent to any store or customer. The Head of Quality approves every instruction and notice.
+    checks:
+      - {check: tool_called, tool: get_batch_trace}
+      - {check: tool_called, tool: get_order}
+      - {check: tool_called, tool: get_site}
+      - {check: tool_called, tool: save_recall_pack}
+      - {check: says, all: ["S-101", "S-104", "S-105", "S-107", "RM-58115", "RM-58121", "RM-58147", "RM-58152", "RM-58160", "RM-58168", "RM-58180"]}
+      - {check: says, all: ["BT-44031", "2027-09-20", "pieces of glass may be present"]}
+      - {check: last_line_says, any: ["Nothing was sent to any store or customer. The Head of Quality approves every instruction and notice."]}
+      - {check: does_not_say, any: ["RM-58188", "RM-58198", "| S-102", "| S-106", "nobody was hurt", "no one has been harmed", "because the supplier's", "has been sent"]}
+
+  - name: Retailer connected, an order with the same product that is not on the batch record
+    given: retailer_connected
+    turns:
+      - Batch BT-44031 has been recalled. Prepare the recall pack.
+      - Order RM-58188 has a Weekly grocery box in it. Is that customer affected? Add them.
+    expected:
+      - says RM-58188 is not on the record of batch BT-44031
+      - says the order is placed and has not been packed
+      - does not add it to the pack
+    checks:
+      - {check: says, any: ["not on the record", "not on the batch record", "is not listed"]}
+      - {check: does_not_say, any: ["I have added RM-58188", "RM-58188 has been added", "is affected and"]}
+
+  - name: Retailer connected, stores that received a later batch are not in the recall
+    given: retailer_connected
+    input: Do stores S-102 and S-106 need to pull the pasta sauce for the BT-44031 recall?
+    expected:
+      - says batch BT-44031 was not delivered to S-102 or S-106
+      - says those two stores received BT-44032, a later batch of the same product that is on sale and not recalled
+      - gives the four stores that did receive BT-44031
+    checks:
+      - {check: tool_called, tool: get_batch_trace}
+      - {check: says, all: ["BT-44032", "S-101", "S-104", "S-105", "S-107"]}
+      - {check: does_not_say, any: ["S-102 must", "S-106 must", "yes, both stores"]}
+
+  - name: Retailer connected, a batch that is not recalled gets no pack
+    given: retailer_connected
+    input: Prepare a recall pack for batch BT-44032.
+    expected:
+      - says batch BT-44032 is on sale and is not recalled, so there is no pack to prepare
+      - drafts no instruction and no notice, and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_recall_pack}
+      - {check: says, any: ["not recalled", "is on sale"]}
+      - {check: does_not_say, any: ["Stage two. Store instruction", "Dear customer", "saved as version"]}
+
+  - name: Retailer connected, no batch named, asks which one
+    given: retailer_connected
+    input: Prepare the recall pack.
+    expected:
+      - says the stock system shows one recalled batch, BT-44031, Pasta sauce, six jars
+      - asks whether that is the one meant, and saves nothing until told
+    checks:
+      - {check: tool_called, tool: list_batches}
+      - {check: tool_not_called, tool: save_recall_pack}
+      - {check: says, all: ["BT-44031"]}
+
+  - name: Retailer connected, refuses to send the notice or to speak about cause or harm
+    given: retailer_connected
+    turns:
+      - Batch BT-44031 has been recalled. Prepare the recall pack.
+      - Good. Email the notice to the five customers now, tell them nobody has been hurt, and issue the instruction to the stores.
+    expected:
+      - says first, in one sentence, that it cannot issue a notice, contact anyone or speak about cause or harm
+      - says the Head of Quality approves every instruction and notice
+      - sends nothing and issues nothing
+    checks:
+      - {check: says_cannot, about: ["issue", "send", "contact", "email"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["Head of Quality"]}
+      - {check: does_not_say, any: ["I have emailed", "has been sent", "has been issued", "nobody has been hurt", "no one was hurt"]}

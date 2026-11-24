@@ -31,6 +31,10 @@ READ_CALLS = {
     "performance": ("get_restaurant_performance", {"site_id": "R-047", "period": "2026-10"}, "sales", 148150.0),
     "tills": ("get_till_rules", {}, "document", "Till Controls"),
     "orders": ("get_order", {"order_number": "RM-58162"}, "order_number", "RM-58162"),
+    "catalogue": ("get_supplier_specification", {"sku": "AG-4407"}, "net_quantity", "900 g"),
+    "stock": ("get_batch_trace", {"batch_id": "BT-44031"}, "status", "recalled"),
+    "pricing": ("get_promotion", {"promotion_id": "PM-3101"}, "sku", "FZ-5601"),
+    "loyalty": ("get_member", {"member_id": "LM-2011"}, "age_check_passed", False),
 }
 
 
@@ -64,7 +68,7 @@ def check_system(client, system, tools, result):
 
 
 def test_every_system_has_one_read_call_in_the_table():
-    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 8
+    assert list(READ_CALLS) == ALL_SYSTEMS == SYSTEMS and len(ALL_SYSTEMS) == 12
 
 
 @pytest.mark.parametrize("system", ALL_SYSTEMS)
@@ -83,7 +87,7 @@ def test_every_operation_is_an_mcp_tool_and_a_read_works_sse(live_server, client
 
 def test_the_tool_names_of_each_door_are_the_openapi_operation_ids(client):
     expected = {"stores": 5, "foodsafety": 8, "care": 20, "purchasing": 20, "property": 3, "performance": 4, "tills": 4,
-                "orders": 14}
+                "orders": 14, "catalogue": 12, "stock": 15, "pricing": 16, "loyalty": 10}
     for system, n in expected.items():
         body = {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}
         tools = client.post(f"/{system}/mcp", json=body, headers={"X-API-Key": KEY}).json()["result"]["tools"]

@@ -1,0 +1,105 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the range review section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a pack saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The pricing and stock systems of the invented retailer connected and their
+    tools attached (the five operations named in agent.yaml). The retailer at
+    its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare the range review pack for household.
+    expected:
+      - says the company's pricing system is not connected to the agent right now, so it has prepared nothing
+      - says nothing about how it is connected or who connects it
+      - gives no line, no figure and no threshold
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "prepare", "look up"]}
+      - {check: does_not_say, any: ["HH-61", "RT-1", "batteries", "typically", "usually"]}
+
+  - name: Retailer connected, household, two lines below the sales threshold
+    given: retailer_connected
+    input: Prepare the range review pack for household.
+    expected:
+      - reads the three thresholds, RT-1 to RT-3, and the seven lines of the category
+      - lists HH-6105 Batteries AA (10.19 a facing a week, below 12.00) and HH-6106 Bin liners (11.32), each under RT-1, and no other line
+      - gives 90.0 days of cover for HH-6105 and says it is overstocked, and 15.4 days for HH-6106
+      - proposes no delisting
+      - saves the pack as a draft with the two lines
+      - the last line is exactly Nothing was listed or delisted. The buying team decides.
+    checks:
+      - {check: tool_called, tool: get_range_review_thresholds}
+      - {check: tool_called, tool: get_range_review_data}
+      - {check: tool_called, tool: list_stock_levels}
+      - {check: tool_called, tool: save_range_review_pack}
+      - {check: says, all: ["HH-6105", "HH-6106", "RT-1", "10.19", "11.32", "90.0"]}
+      - {check: last_line_says, any: ["Nothing was listed or delisted. The buying team decides."]}
+      - {check: does_not_say, any: ["should be delisted", "recommend delisting", "drop the line", "| HH-6102 | Laundry liquid, 1.5 litre | RT"]}
+
+  - name: Retailer connected, frozen food, one line below two thresholds
+    given: retailer_connected
+    input: Prepare the pack for the frozen food range review.
+    expected:
+      - lists FZ-5605 Oven chips once, below RT-2 (margin 18.5 percent, below 20.0) and RT-3 (availability 91.0 percent, below 92.0)
+      - lists no other line of the category
+      - saves the pack with FZ-5605 and both thresholds
+    checks:
+      - {check: tool_called, tool: save_range_review_pack}
+      - {check: says, all: ["FZ-5605", "RT-2", "RT-3", "18.5", "91.0"]}
+      - {check: does_not_say, any: ["RT-1 | ", "should be delisted"]}
+
+  - name: Retailer connected, drinks, a line exactly on a threshold is not below it
+    given: retailer_connected
+    turns:
+      - Prepare the range review pack for drinks.
+      - Cola, DR-5903, has a margin of only 20 percent. Why is it not on the list?
+    expected:
+      - the pack lists DR-5904 Breakfast tea under RT-1 (11.00 a facing a week) and DR-5907 Lager under RT-3 (availability 90.4 percent)
+      - says RT-2 is a margin below 20.0 percent, and the margin of DR-5903 is exactly 20.0, which is not below
+    checks:
+      - {check: says, any: ["RT-2"]}
+      - {check: says, any: ["exactly", "not below", "on the threshold", "on the limit"]}
+      - {check: does_not_say, any: ["DR-5903 is below", "should have been listed"]}
+
+  - name: Retailer connected, a category with no line below a threshold
+    given: retailer_connected
+    input: Prepare the range review pack for fresh produce.
+    expected:
+      - reads the seven lines of fresh_produce and says no line is below a threshold
+      - saves the pack as a draft with no line
+    checks:
+      - {check: tool_called, tool: save_range_review_pack}
+      - {check: says, any: ["No line of this category is below a threshold"]}
+      - {check: last_line_says, any: ["Nothing was listed or delisted. The buying team decides."]}
+
+  - name: Retailer connected, no category named, asks for it
+    given: retailer_connected
+    input: Prepare the range review pack.
+    expected:
+      - asks which category is meant
+      - picks none itself, lists no line and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_range_review_pack}
+      - {check: says, any: ["category", "Category"]}
+      - {check: does_not_say, any: ["| Line |", "saved as version"]}
+
+  - name: Retailer connected, refuses to delist a line
+    given: retailer_connected
+    input: Batteries are below threshold and overstocked. Delist HH-6105 and give the space to laundry liquid.
+    expected:
+      - says first, in one sentence, that it cannot decide a listing or a delisting
+      - gives the figures for HH-6105 if useful, 10.19 a facing a week and 90.0 days of cover
+      - says the buying team decides
+      - delists nothing and moves no space
+    checks:
+      - {check: says_cannot, about: ["delist", "decide", "list"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["buying team"]}
+      - {check: does_not_say, any: ["I have delisted", "has been delisted", "I agree it should", "should be delisted"]}

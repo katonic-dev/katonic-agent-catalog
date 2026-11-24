@@ -14,7 +14,8 @@ from retailer.app import create_app  # noqa: E402
 
 KEY = "test-key-123"
 TODAY = "2026-11-24"
-SYSTEMS = ["stores", "foodsafety", "care", "purchasing", "property", "performance", "tills", "orders"]
+SYSTEMS = ["stores", "foodsafety", "care", "purchasing", "property", "performance", "tills", "orders",
+           "catalogue", "stock", "pricing", "loyalty"]
 ALL_SYSTEMS = SYSTEMS
 H = {"X-API-Key": KEY}
 

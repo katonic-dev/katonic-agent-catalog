@@ -1,0 +1,60 @@
+id: inventory-forecasting
+name: Inventory Forecasting
+pack: retail
+area: Supply chain and inventory
+summary: >
+  Forecasts each line's stock need from its recent sales under the
+  company's own replenishment rules, finds the lines that run out before
+  their next delivery and the lines that are overstocked, and drafts a
+  replenishment plan with a purchase order for each supplier. It saves the
+  plan as a draft. It places no order. A buyer approves the plan.
+
+type: workflow
+form: scheduled
+started_by: "A clock, once a week. A person can also ask for the plan or about one line"
+
+meets_people_through: application
+application: Pricing and replenishment desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: stock
+    kind: api
+    required: true
+    label: "The company's stock system, to read stock on hand and recent sales, each line's supplier, lead time and open orders, and the replenishment rules, and to save a plan as a draft"
+    operations:
+      - list_stock_levels
+      - list_supply_terms
+      - get_replenishment_rules
+      - save_replenishment_plan
+  - id: purchasing
+    kind: api
+    required: true
+    label: "The company's purchasing system, to read the record of each supplier a draft order goes to"
+    operations:
+      - get_supplier
+
+demo_retailer_systems: [stock, purchasing]
+
+stops_for_a_person:
+  - "A buyer approves every plan before an order is placed, and may change any quantity. The agent has no operation that approves a plan."
+  - "The rules say nothing about a promotion, the weather or a supplier's shortage. The buyer weighs those."
+  - "An overstocked line is listed for the buyer. What to do with the stock is the buyer's decision."
+
+# Saving a plan is a draft kept as a version with its author. It places no order and changes no stock.
+# The operation that approves a plan (approve_replenishment_plan) is left out of this agent on purpose.
+changes:
+  - {tool: save_replenishment_plan, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The pricing and replenishment desk is planned
+    and not yet written.

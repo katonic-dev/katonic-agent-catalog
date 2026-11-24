@@ -1,0 +1,56 @@
+id: promotion-review
+name: Promotion Review
+pack: retail
+area: Merchandising and pricing
+summary: >
+  Reviews a finished promotion against its plan: what sold, what it
+  displaced on neighbouring lines, what it cost and what it added to or
+  took from profit, with every figure. It saves the review as a draft. It
+  draws no conclusion about what to do next. The category manager draws the
+  conclusions.
+
+type: workflow
+form: event-triggered
+started_by: "A promotion ending and its result arriving in the pricing system. A person can also name a promotion"
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: pricing
+    kind: api
+    required: true
+    label: "The company's pricing system, to read a promotion's plan and result, and to save a review as a draft"
+    operations:
+      - list_promotions
+      - get_promotion
+      - save_promotion_review
+  - id: tills
+    kind: api
+    required: true
+    label: "The company's till records, to read the discounts rung by hand on the days of the promotion"
+    operations:
+      - list_till_entries
+
+demo_retailer_systems: [pricing, tills]
+
+stops_for_a_person:
+  - "The category manager draws the conclusions: whether the promotion worked, and whether to run it again."
+  - "The agent sets out figures. It proposes no next promotion, no price and no change to the range."
+
+# Saving a review is a draft kept as a version with its author. It changes nothing.
+changes:
+  - {tool: save_promotion_review, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform.

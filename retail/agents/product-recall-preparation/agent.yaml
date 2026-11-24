@@ -1,0 +1,67 @@
+id: product-recall-preparation
+name: Product Recall Preparation
+pack: retail
+area: Supply chain and inventory
+summary: >
+  For a recalled batch, works in three stages: it finds every store and
+  online order that received the batch, drafts the instruction to the
+  stores, and drafts the notice to customers. It saves the three as one
+  recall pack, a draft. It issues nothing and contacts nobody. The Head of
+  Quality approves every instruction and notice before it goes out.
+
+type: multi-agent
+form: pipeline
+started_by: "A batch being recalled in the stock system. A person can also name a batch"
+
+meets_people_through: application
+application: Recall desk
+
+# A pipeline of three stages: find where the batch went, draft the store instruction, draft the
+# customer notice. The three stages are written as one set of instructions and built as one chat
+# agent, which is what the tests are written for. Splitting them into three agents is not written yet.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: stock
+    kind: api
+    required: true
+    label: "The company's stock system, to find recalled batches, read where a batch went and the recall procedure, and to save a recall pack as a draft"
+    operations:
+      - list_batches
+      - get_batch_trace
+      - save_recall_pack
+  - id: orders
+    kind: api
+    required: true
+    label: "The company's orders system, to read each online order on the batch record: the customer and the status"
+    operations:
+      - get_order
+  - id: stores
+    kind: api
+    required: true
+    label: "The company's stores system, to read each store on the batch record: its name, town and area manager"
+    operations:
+      - get_site
+
+demo_retailer_systems: [stock, orders, stores]
+
+stops_for_a_person:
+  - "The Head of Quality approves every store instruction and every customer notice before it goes out. The agent has no operation that issues one."
+  - "The agent contacts no store and no customer."
+  - "What caused the fault, whether anyone was harmed, and any medical question are for people. The agent says none of it."
+
+# Saving a recall pack is a draft kept as a version with its author. It sends nothing and changes no status.
+# The operation that issues a notice (issue_recall_notice) is left out of this agent on purpose.
+changes:
+  - {tool: save_recall_pack, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The recall desk is planned and not yet
+    written.

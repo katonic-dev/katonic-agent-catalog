@@ -1,0 +1,59 @@
+id: demand-planning
+name: Demand Planning
+pack: retail
+area: Merchandising and pricing
+summary: >
+  Sets out what the company's own sales records show line by line, and
+  beside it, kept apart, what the buying office's market notes say, to
+  inform which lines to develop. It marks every forecast as a forecast and
+  says where a note and the records disagree. It saves the note as a draft.
+  Merchants decide the range.
+
+type: autonomous
+form: autonomous
+started_by: "A buyer's request for a demand note. It then works through the records and the notes on its own"
+
+meets_people_through: company-system
+application: null
+
+# An autonomous agent: it plans its own reading. It is built as a chat agent from instructions.md,
+# which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: pricing
+    kind: api
+    required: true
+    label: "The company's pricing system, to read thirteen weeks of sales by line and the buying office's market notes, and to save a demand plan note as a draft"
+    operations:
+      - list_line_sales_history
+      - get_market_notes
+      - save_demand_plan_note
+  - id: tills
+    kind: api
+    required: true
+    label: "The company's till records, to read the period's refunds as one more record"
+    operations:
+      - list_till_entries
+
+demo_retailer_systems: [pricing, tills]
+
+stops_for_a_person:
+  - "Merchants decide the range: which lines to develop, list or drop. The agent decides none of it."
+  - "A forecast is a forecast. The buyer weighs it, and weighs a market note that nobody has checked."
+  - "Where a market note and the company's records disagree, the agent sets out both. The buyer decides which to trust."
+
+# Saving a note is a draft kept as a version with its author. It changes nothing.
+changes:
+  - {tool: save_demand_plan_note, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. It searches no web: the market signals are the
+    buying office's own file of notes.

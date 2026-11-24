@@ -1,0 +1,60 @@
+id: personalisation
+name: Personalisation
+pack: retail
+area: Marketing and loyalty
+summary: >
+  Works out which products to suggest to one loyalty member from what the
+  member viewed and bought, inside the rules the marketing team sets: no
+  suggestion without consent, no age-restricted line unless the age check
+  is passed, nothing from an excluded category, at most five. It saves the
+  suggestions as a draft. It shows a shopper nothing. The marketing team
+  sets the rules and approves each release.
+
+type: workflow
+form: api
+started_by: "A call from the shop's website with a member number. A person can also name a member"
+
+meets_people_through: application
+application: The shop's website
+
+# Built as a chat agent from instructions.md, which is what the tests are written for. The website
+# calls it through the platform's public API with a member number.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: loyalty
+    kind: api
+    required: true
+    label: "The company's loyalty system, to read a member with purchases and browsing and the personalisation rules, and to save suggestions as a draft"
+    operations:
+      - get_member
+      - get_personalisation_rules
+      - save_product_suggestions
+  - id: catalogue
+    kind: api
+    required: true
+    label: "The company's catalogue system, to read whether a line's listing is live, its category and whether it is age-restricted"
+    operations:
+      - get_product_listing
+
+demo_retailer_systems: [loyalty, catalogue]
+
+stops_for_a_person:
+  - "The marketing team sets the rules and approves each release. Nothing reaches a shopper until a release is approved."
+  - "A member who has not opted in gets no suggestion, whatever anyone asks."
+  - "Whether a rule should change is for the marketing team. The agent follows the rules as they are."
+
+# Saving suggestions is a draft kept as a version on the member, with its author. It shows the member nothing.
+changes:
+  - {tool: save_product_suggestions, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The loyalty system offers no operation that
+    returns suggestions: the agent works them out.

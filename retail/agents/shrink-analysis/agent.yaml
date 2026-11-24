@@ -1,0 +1,58 @@
+id: shrink-analysis
+name: Shrink Analysis
+pack: retail
+area: Finance and loss prevention
+summary: >
+  Sets a period's stock loss, by store and by line, against the company's
+  own tolerance, and lists where it departs, with the figures. It adds what
+  the tills hold for those stores, as figures only. It saves the analysis
+  as a draft. It gives no cause and names no person. The loss prevention
+  lead decides what to look into.
+
+type: workflow
+form: scheduled
+started_by: "A clock, once a month, after the stock counts of the period. A person can also name a period"
+
+meets_people_through: application
+application: Loss prevention desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: stock
+    kind: api
+    required: true
+    label: "The company's stock system, to read a period's stock counts with loss by store and by line and the tolerance, and to save an analysis as a draft"
+    operations:
+      - list_stock_counts
+      - get_shrink_tolerance
+      - save_shrink_analysis
+  - id: tills
+    kind: api
+    required: true
+    label: "The company's till records, to read the refunds, voids and discounts of the same period for a store that is beyond tolerance"
+    operations:
+      - list_till_entries
+
+demo_retailer_systems: [stock, tills]
+
+stops_for_a_person:
+  - "The loss prevention lead decides what to look into. A store or a line beyond tolerance is one to look at, not a finding about anyone."
+  - "Why stock was lost is for people to find out. Waste, damage, a counting error, a delivery booked in wrongly and theft all look the same in a count."
+  - "The agent names no person, by name or by id, and points at nobody."
+
+# Saving an analysis is a draft kept as a version with its author. It changes no count.
+changes:
+  - {tool: save_shrink_analysis, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The loss prevention desk is planned and not
+    yet written.

@@ -8,18 +8,23 @@ import urllib.error
 import urllib.request
 
 from .seed_care_desk import sim_complaint, sim_review, sim_ticket
+from .seed_catalogue import sim_new_product
 from .seed_food import sim_records
 from .seed_orders import sim_flagged, sim_return
+from .seed_pricing import sim_promotion
 from .seed_purch import sim_invoice
 from .seed_purch_more import sim_note, sim_question
+from .seed_stock import sim_count, sim_recall
 from .seed_visits import sim_visit
 from .store import Store, now_iso
 
 KINDS = ["supplier-invoice", "food-safety-records", "site-visit", "customer-ticket", "return-request", "complaint",
-         "public-review", "flagged-order", "delivery-note", "supplier-question"]
+         "public-review", "flagged-order", "delivery-note", "supplier-question",
+         "new-product", "promotion-ended", "recalled-batch", "stock-count"]
 SYSTEM_OF = {"supplier-invoice": "purchasing", "food-safety-records": "foodsafety", "site-visit": "stores",
              "customer-ticket": "care", "return-request": "orders", "complaint": "care", "public-review": "care",
-             "flagged-order": "orders", "delivery-note": "purchasing", "supplier-question": "purchasing"}
+             "flagged-order": "orders", "delivery-note": "purchasing", "supplier-question": "purchasing",
+             "new-product": "catalogue", "promotion-ended": "pricing", "recalled-batch": "stock", "stock-count": "stock"}
 TIMEOUT = 10
 
 # ----------------------------------------------------------------- sending
@@ -137,9 +142,34 @@ def _question(store: Store, n: int) -> tuple[str, str]:
     return sim_question(d, store.settings.retailer_today, n % 4, question_id)
 
 
+def _new_product(store: Store, n: int) -> tuple[str, str]:
+    d = store.data
+    sku = store.next_free("sim_product", 1, d["catalogue_products"], lambda k: f"NP-{9000 + k}")
+    return sim_new_product(d, store.settings.retailer_today, n % 4, sku)
+
+
+def _promotion(store: Store, n: int) -> tuple[str, str]:
+    d = store.data
+    promo_id = store.next_free("sim_promotion", 1, d["promotions"], lambda k: f"PM-{3200 + k}")
+    return sim_promotion(d, store.settings.retailer_today, n % 4, promo_id)
+
+
+def _recall(store: Store, n: int) -> tuple[str, str]:
+    d = store.data
+    batch_id = store.next_free("sim_batch", 1, d["batches"], lambda k: f"BT-{90000 + k}")
+    return sim_recall(d, store.settings.retailer_today, n % 4, batch_id)
+
+
+def _count(store: Store, n: int) -> tuple[str, str]:
+    d, month = store.data, _month(store)
+    cid = store.next_free("sim_count", 1, d["stock_counts"], lambda k: f"SC-{month}-{k:02d}")
+    return sim_count(d, store.settings.retailer_today, n % 4, cid)
+
+
 MAKERS = {"supplier-invoice": _invoice, "food-safety-records": _records, "site-visit": _visit, "customer-ticket": _ticket,
           "return-request": _return, "complaint": _complaint, "public-review": _review, "flagged-order": _flagged,
-          "delivery-note": _note, "supplier-question": _question}
+          "delivery-note": _note, "supplier-question": _question,
+          "new-product": _new_product, "promotion-ended": _promotion, "recalled-batch": _recall, "stock-count": _count}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

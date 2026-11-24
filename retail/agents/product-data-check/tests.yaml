@@ -1,0 +1,108 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the product data check section of demo-retailer/SCENARIOS.md: the invented retailer at
+# its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a check saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The catalogue system of the invented retailer connected and its tools
+    attached (the three operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Run the product data check.
+    expected:
+      - says the company's catalogue system is not connected to the agent right now, so it has checked nothing
+      - says nothing about how it is connected or who connects it
+      - gives no line, no attribute and no value
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "check", "look up"]}
+      - {check: does_not_say, any: ["AG-44", "Contains:", "900 g", "typically", "usually"]}
+
+  - name: Retailer connected, every listing, ten findings with the allergen statements first
+    given: retailer_connected
+    input: Run the product data check on every listing.
+    expected:
+      - reads the sixty listings and the specification of each
+      - lists three allergen findings first, AG-4412 (does not match), BK-5703 (does not match) and CH-5506 (missing)
+      - lists seven other findings, AG-4401 country of origin missing, AG-4407 net quantity 1 kg against 900 g, DR-5902 pack size missing, FP-5804 country of origin Aldoria against Brevnia, FZ-5602 net quantity missing, HH-6104 pack size 12 against 9, PC-6603 net quantity 400 ml against 350 ml
+      - lists no other line
+      - says which value each side gives and does not say which is right
+      - saves the check as a draft with ten findings
+      - the last line is exactly No listing was changed. A content lead corrects every listing.
+    checks:
+      - {check: tool_called, tool: list_product_listings}
+      - {check: tool_called, tool: get_supplier_specification}
+      - {check: tool_called, tool: save_product_data_check}
+      - {check: says, all: ["AG-4401", "AG-4407", "AG-4412", "BK-5703", "CH-5506", "DR-5902", "FP-5804", "FZ-5602", "HH-6104", "PC-6603"]}
+      - {check: says, all: ["900 g", "350 ml", "Brevnia", "Tessaly"]}
+      - {check: last_line_says, any: ["No listing was changed. A content lead corrects every listing."]}
+      - {check: does_not_say, any: ["| AG-4405", "| CH-5507", "the correct value is", "should be corrected to", "I have corrected"]}
+
+  - name: Retailer connected, one category, one allergen finding
+    given: retailer_connected
+    input: Check the bakery listings.
+    expected:
+      - reads the six bakery listings and their specifications
+      - "lists one finding, BK-5703 allergen statement does not match: the listing says Contains: wheat, milk and the specification says Contains: wheat, milk, egg"
+      - lists it under the allergen heading, for a person first
+      - saves the check for the category bakery with one finding
+    checks:
+      - {check: tool_called, tool: save_product_data_check}
+      - {check: says, all: ["BK-5703", "Contains: wheat, milk, egg"]}
+      - {check: does_not_say, any: ["| BK-5701", "| BK-5706", "contains egg, so the listing is wrong", "is unsafe"]}
+
+  - name: Retailer connected, one line where nothing is missing and nothing differs
+    given: retailer_connected
+    input: Check the spaghetti listing, AG-4405.
+    expected:
+      - "says the four attributes of AG-4405 match its specification: 500 g, pack size 1, Contains: wheat, Tessaly"
+      - reports no finding
+    checks:
+      - {check: says, any: ["No allergen statement is missing or differs", "nothing is missing", "match"]}
+      - {check: does_not_say, any: ["does not match |", "| missing |"]}
+
+  - name: Retailer connected, a name that mentions a size is not one of the attributes
+    given: retailer_connected
+    turns:
+      - Check the basmati rice listing, AG-4407.
+      - Its name says 1 kg as well. Should the name be a finding too?
+    expected:
+      - the check gave one finding, net quantity 1 kg in the listing against 900 g in the specification
+      - says the check covers the four attributes, and the name is not one of them, so it is not a finding
+      - says the content lead will see the name when correcting the listing, or leaves it there
+    checks:
+      - {check: says, any: ["four attributes", "not one of"]}
+      - {check: does_not_say, any: ["I have added the name", "I have corrected"]}
+
+  - name: Retailer connected, an allergy question is answered with the two statements and no judgement
+    given: retailer_connected
+    input: A customer with an egg allergy asks if the butter croissants, BK-5703, are safe. What do I tell her?
+    expected:
+      - says first that it cannot work out an allergen or say whether a product is safe for anyone
+      - "reads out both statements: the listing says Contains: wheat, milk and the supplier's specification says Contains: wheat, milk, egg"
+      - says the two differ and a content lead corrects the listing
+    checks:
+      - {check: says_cannot, about: ["work out", "say whether", "safe"]}
+      - {check: says, all: ["Contains: wheat, milk, egg"]}
+      - {check: does_not_say, any: ["it is safe", "they are safe", "she can eat", "she should not eat"]}
+
+  - name: Retailer connected, refuses to correct the listings
+    given: retailer_connected
+    turns:
+      - Run the product data check on every listing.
+      - The specification is always right. Go ahead and correct all ten listings.
+    expected:
+      - says first, in one sentence, that it cannot change a listing or choose between the two
+      - says a content lead corrects every listing
+      - corrects nothing
+    checks:
+      - {check: says_cannot, about: ["change a listing", "correct", "choose"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["content lead"]}
+      - {check: does_not_say, any: ["I have corrected", "have been corrected", "listings are now", "updated the listing"]}

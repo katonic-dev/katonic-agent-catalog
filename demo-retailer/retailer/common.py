@@ -186,7 +186,7 @@ def make_subapp(ctx: Ctx, *, key: str, title: str, summary_line: str, descriptio
     """One retailer system: its own FastAPI app, OpenAPI document and docs page."""
     kwargs = dict(
         title=f"{RETAILER_NAME} (invented): {title}",
-        version="1.2.0",
+        version="1.3.0",
         description=f"{INVENTED_NOTICE} {description}",
         default_response_class=DemoJSONResponse,
         openapi_url="/openapi.json",

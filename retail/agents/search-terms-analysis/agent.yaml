@@ -1,0 +1,50 @@
+id: search-terms-analysis
+name: Search Terms Analysis
+pack: retail
+area: E-commerce and catalogue
+summary: >
+  Reads a month of the online shop's search log, lists what shoppers
+  searched for and did not find, and groups those terms by what the
+  shoppers seem to have wanted, with the number of searches behind each
+  group. It saves the analysis as a draft. It changes nothing in the shop.
+  The e-commerce team decides what to change.
+
+type: workflow
+form: scheduled
+started_by: "A clock, once a month, for the period just ended. A person can also name a period"
+
+meets_people_through: company-system
+application: null
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: catalogue
+    kind: api
+    required: true
+    label: "The company's catalogue system, to read a month of the shop's search log and the product listings, and to save an analysis as a draft"
+    operations:
+      - get_search_log
+      - list_product_listings
+      - save_search_terms_analysis
+
+demo_retailer_systems: [catalogue]
+
+stops_for_a_person:
+  - "The e-commerce team decides what to change: the range, the search, the help pages."
+  - "What shoppers wanted is the agent's reading of the words they typed. It says so, and a person checks the groups."
+
+# Saving an analysis is a draft kept as a version with its author. It changes nothing in the shop.
+changes:
+  - {tool: save_search_terms_analysis, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform.

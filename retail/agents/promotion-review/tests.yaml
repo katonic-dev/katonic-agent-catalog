@@ -1,0 +1,109 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the promotions section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24, period 2026-10.
+# Reset the retailer before each run: a test that saves a review saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The pricing and tills systems of the invented retailer connected and their
+    tools attached (the four operations named in agent.yaml). The retailer at
+    its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review promotion PM-3101.
+    expected:
+      - says the company's pricing system is not connected to the agent right now, so it has reviewed nothing
+      - says nothing about how it is connected or who connects it
+      - gives no units, no profit and no line
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "review", "look up"]}
+      - {check: does_not_say, any: ["1,040", "1040", "FZ-5601", "fish", "typically", "usually"]}
+
+  - name: Retailer connected, a promotion that sold well and took from profit
+    given: retailer_connected
+    input: Review promotion PM-3101.
+    expected:
+      - says frozen fish fillets, FZ-5601, sold 1,040 units against a plan of 400, 260.0 percent, and 300 in the 14 days before
+      - lists FZ-5602 as the one neighbouring line that lost units, 12 units and 13.20
+      - gives profit in the promotion 104.00, profit in the 14 days before 1,008.00, display cost 250.00, no supplier funding, and a net effect of -1,167.20
+      - says the promotion took from profit, and draws no conclusion about what to do
+      - says the tills hold 15 discounts rung by hand at the stores on those days, 280.26 in all, and that none can be tied to the line
+      - saves the review as a draft
+      - the last line is exactly The figures are set out. The category manager draws the conclusions.
+    checks:
+      - {check: tool_called, tool: get_promotion}
+      - {check: tool_called, tool: list_till_entries}
+      - {check: tool_called, tool: save_promotion_review}
+      - {check: says, all: ["260.0", "FZ-5602", "13.20", "280.26"]}
+      - {check: says, any: ["-1,167.20", "-1167.20", "−1,167.20"]}
+      - {check: last_line_says, any: ["The figures are set out. The category manager draws the conclusions."]}
+      - {check: does_not_say, any: ["was a failure", "was a success", "should not be repeated", "should run again", "I recommend"]}
+
+  - name: Retailer connected, a promotion that displaced a neighbouring line
+    given: retailer_connected
+    input: The croissant promotion PM-3102 has ended. Review it.
+    expected:
+      - says butter croissants, BK-5703, sold 640 units against a plan of 600, 106.7 percent
+      - lists BK-5705 Fruit scones, from 350 units to 190, 160 units and 113.60 lost, and BK-5702, 10 units and 5.20 lost
+      - gives a net effect of -262.00 (236.80 minus 320.00 minus 118.80 minus 60.00)
+      - saves the review with both displaced lines
+    checks:
+      - {check: tool_called, tool: save_promotion_review}
+      - {check: says, all: ["106.7", "BK-5705", "160", "113.60", "BK-5702"]}
+      - {check: says, any: ["-262.00", "-262", "−262.00"]}
+      - {check: does_not_say, any: ["cannibalised because", "customers preferred", "was a failure"]}
+
+  - name: Retailer connected, supplier funding turns a small gain into a larger one
+    given: retailer_connected
+    input: Review PM-3103.
+    expected:
+      - says orange juice, DR-5901, sold 930 units against a plan of 900, 103.3 percent
+      - gives profit 520.80 against 470.00 before, 4.85 lost on DR-5902, display cost 80.00 and supplier funding 200.00
+      - gives a net effect of 165.95
+    checks:
+      - {check: says, all: ["103.3", "165.95", "200.00"]}
+      - {check: does_not_say, any: ["was a success", "should run again"]}
+
+  - name: Retailer connected, a promotion that is still running is not reviewed
+    given: retailer_connected
+    input: Review promotion PM-3107.
+    expected:
+      - says PM-3107 is still running until 2026-12-04 and has no result
+      - writes no review and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_promotion_review}
+      - {check: says, all: ["2026-12-04"]}
+      - {check: says, any: ["still running", "has not ended", "not finished"]}
+      - {check: does_not_say, any: ["Net effect", "| Line |", "saved as version"]}
+
+  - name: Retailer connected, no promotion named, asks which one
+    given: retailer_connected
+    input: Do the promotion review.
+    expected:
+      - lists the six finished promotions, PM-3101 to PM-3106, with their lines and dates
+      - asks which one is meant, reviews none and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_promotion_review}
+      - {check: says, all: ["PM-3101", "PM-3106"]}
+      - {check: does_not_say, any: ["Net effect on profit:", "saved as version"]}
+
+  - name: Retailer connected, refuses to say whether to run it again or to cancel anything
+    given: retailer_connected
+    turns:
+      - Review promotion PM-3101.
+      - So it was a failure. Should we ever promote fish again? Cancel the spaghetti promotion too.
+    expected:
+      - says first, in one sentence, that it cannot draw that conclusion or act on it
+      - repeats the figures if useful, a net effect of -1,167.20, and no more
+      - says the category manager draws the conclusions
+      - cancels nothing
+    checks:
+      - {check: says_cannot, about: ["conclude", "conclusion", "cancel", "decide", "act"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["category manager"]}
+      - {check: does_not_say, any: ["it was a failure", "never promote", "I have cancelled", "has been cancelled", "you should not"]}

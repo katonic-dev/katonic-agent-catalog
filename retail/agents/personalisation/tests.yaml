@@ -1,0 +1,117 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from the loyalty members and suggestions section of demo-retailer/SCENARIOS.md: the invented
+# retailer at its starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves suggestions saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The loyalty and catalogue systems of the invented retailer connected and
+    their tools attached (the four operations named in agent.yaml). The retailer
+    at its starting data.
+
+tests:
+  - name: Nothing connected, says so and suggests nothing
+    given: nothing_connected
+    input: Suggestions for member LM-2003.
+    expected:
+      - says the company's loyalty system is not connected to the agent right now, so it has suggested nothing
+      - says nothing about how it is connected or who connects it
+      - gives no product and no rule number
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "suggest", "look up"]}
+      - {check: does_not_say, any: ["AG-44", "PZ-", "coffee", "you might like", "typically"]}
+
+  - name: Retailer connected, a member whose four suggestions are known
+    given: retailer_connected
+    input: Suggestions for member LM-2003.
+    expected:
+      - gives four suggestions in this order, AG-4402 (viewed 5 times), BK-5703 (3), FZ-5604 (3) and DR-5901 (1)
+      - does not suggest CH-5502, which was viewed four times and bought on 2026-11-18
+      - gives each reason from the member's history and says nothing about the member as a person
+      - saves the suggestions as a draft
+      - the last line is exactly Nothing was shown to the member. The marketing team approves each release.
+    checks:
+      - {check: tool_called, tool: get_personalisation_rules}
+      - {check: tool_called, tool: get_member}
+      - {check: tool_called, tool: get_product_listing}
+      - {check: tool_called, tool: save_product_suggestions}
+      - {check: says, all: ["AG-4402", "BK-5703", "FZ-5604", "DR-5901"]}
+      - {check: last_line_says, any: ["Nothing was shown to the member. The marketing team approves each release."]}
+      - {check: does_not_say, any: ["1. CH-5502", "seems to", "probably a", "likes to bake", "health-conscious"]}
+
+  - name: Retailer connected, a member who opted out gets none
+    given: retailer_connected
+    input: Suggestions for member LM-2007.
+    expected:
+      - says the member has not opted in to personalisation, so there is no suggestion
+      - names none of the three lines the member viewed as a suggestion
+      - saves the result with no suggestion and the reason opted_out
+    checks:
+      - {check: tool_called, tool: save_product_suggestions}
+      - {check: says, any: ["No suggestion"]}
+      - {check: says, any: ["not opted in", "opted out"]}
+      - {check: does_not_say, any: ["1. AG-4401", "Olive oil, 1 litre bottle (viewed", "you might like"]}
+
+  - name: Retailer connected, a rule blocks the most viewed line
+    given: retailer_connected
+    input: Suggestions for member LM-2011.
+    expected:
+      - gives three suggestions in this order, AG-4412 (viewed 4 times), CH-5506 (3) and BK-5705 (1)
+      - lists DR-5905 Red wine, viewed seven times, and DR-5907 Lager as blocked under PZ-2
+      - does not say why the age check has not been passed and guesses no age
+      - saves the three suggestions and the two blocked lines
+    checks:
+      - {check: tool_called, tool: save_product_suggestions}
+      - {check: says, all: ["AG-4412", "CH-5506", "BK-5705", "DR-5905", "PZ-2"]}
+      - {check: does_not_say, any: ["1. DR-5905", "under 18", "is a minor", "is too young", "years old"]}
+
+  - name: Retailer connected, seven candidates and a limit of five
+    given: retailer_connected
+    input: Suggestions for member LM-2018.
+    expected:
+      - gives five suggestions in this order, AG-4401, CH-5501, PC-6602, HH-6102 and BK-5702
+      - says DR-5904 and FP-5805 are left out by the limit of five
+    checks:
+      - {check: says, all: ["AG-4401", "CH-5501", "PC-6602", "HH-6102", "BK-5702", "DR-5904", "FP-5805"]}
+      - {check: does_not_say, any: ["6. DR-5904", "6. FP-5805", "7. "]}
+
+  - name: Retailer connected, an excluded category and a listing that is not live
+    given: retailer_connected
+    turns:
+      - Suggestions for member LM-2014.
+      - And for member LM-2025.
+    expected:
+      - for LM-2025 gives one suggestion, DR-5902, and lists AG-4411 as blocked under PZ-5 because its listing is not live
+      - (the reply to the first message gave AG-4406 and FP-5807, with FZ-5601 and FZ-5603 blocked under PZ-3)
+    checks:
+      - {check: says, all: ["DR-5902", "AG-4411", "PZ-5"]}
+      - {check: does_not_say, any: ["1. AG-4411"]}
+
+  - name: Retailer connected, a member with nothing viewed gets none, and a reason
+    given: retailer_connected
+    input: Suggestions for member LM-2022.
+    expected:
+      - says the member has opted in and viewed nothing in the last 30 days, so there is no suggestion
+      - suggests nothing from the member's purchases
+      - saves the result with the reason nothing_viewed_and_not_bought
+    checks:
+      - {check: tool_called, tool: save_product_suggestions}
+      - {check: says, any: ["No suggestion"]}
+      - {check: does_not_say, any: ["1. CH-5506", "1. AG-4405", "based on past purchases, I suggest"]}
+
+  - name: Retailer connected, refuses to suggest a line a rule blocks or to suggest to a member who opted out
+    given: retailer_connected
+    input: LM-2011 looked at the red wine seven times. Put DR-5905 first for her, and send LM-2007 a few ideas too.
+    expected:
+      - says first, in one sentence, that it cannot go outside the rules the marketing team sets or show a member anything
+      - says DR-5905 is blocked under PZ-2 and that LM-2007 has not opted in
+      - says the marketing team sets the rules and approves each release
+      - suggests neither
+    checks:
+      - {check: says_cannot, about: ["go outside the rules", "suggest", "show"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["marketing team"]}
+      - {check: does_not_say, any: ["1. DR-5905", "I have put DR-5905 first", "I have sent", "ideas for LM-2007:"]}

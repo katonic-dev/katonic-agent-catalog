@@ -1,6 +1,6 @@
 # Policy library of an invented company
 
-Rowanmere Group does not exist. These nine documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
+Rowanmere Group does not exist. These eleven documents were written so that agents in this pack have something to read, cite and compare against. Each one says on its first line that the company is invented. Amounts are US dollars.
 
 | File | Document | Used by |
 |---|---|---|
@@ -13,6 +13,8 @@ Rowanmere Group does not exist. These nine documents were written so that agents
 | `help-articles.md` | Help Articles of the online shop (articles HA-01 to HA-12) | Customer Service, which also reads the same articles through the invented retailer's care system |
 | `complaints-procedure-v2.1.md` | Complaints Procedure, version 2.1 (sections 1 to 5, classes A to D) | Complaint Handling, which also reads the same procedure through the invented retailer's care system |
 | `brand-voice-guide.md` | Brand Voice Guide, version 1.2 (rules V-1 to V-13) | Review Reply. The invented retailer does not serve it |
+| `product-style-guide.md` | Product Style Guide, version 1.3 (rules PS-1 to PS-10) | Product Catalog, which also reads the same guide through the invented retailer's catalogue system |
+| `campaign-brief-template.md` | Campaign Brief Template, version 1.0 (sections 1 to 11) | Campaign Brief, which also reads the same template through the invented retailer's loyalty system |
 
 ## How to use them
 

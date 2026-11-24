@@ -1,0 +1,57 @@
+id: product-catalog
+name: Product Catalog
+pack: retail
+area: E-commerce and catalogue
+summary: >
+  Drafts the description and the image tags of a new product to the
+  company's style guide, from the supplier's specification and from the
+  image descriptions the photo studio wrote. It works from those
+  descriptions as text and says plainly that it has seen no image. It
+  copies the allergen statement word for word and never works one out. It
+  saves the description as a draft. A content lead publishes it.
+
+type: workflow
+form: event-triggered
+started_by: "A new product arriving in the catalogue system. A person can also name a product"
+
+meets_people_through: application
+application: Product data desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for. It reads no
+# image: the catalogue system gives each image as a description in words.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: catalogue
+    kind: api
+    required: true
+    label: "The company's catalogue system, to read new products with their image descriptions, the supplier's specification and the style guide, and to save a description as a draft"
+    operations:
+      - list_new_products
+      - get_supplier_specification
+      - get_product_style_guide
+      - save_product_description
+
+demo_retailer_systems: [catalogue]
+
+stops_for_a_person:
+  - "A content lead reads every description and publishes it. The agent has no operation that publishes one."
+  - "Where an image description and the specification disagree, the agent uses the specification and lists the difference. The content lead asks the supplier."
+  - "The allergen statement is the supplier's. The agent copies it and never works one out."
+
+# Saving a description is a draft kept as a version on the listing, with its author. It publishes nothing.
+# The operation that publishes a description (publish_product_description) is left out of this agent on purpose.
+changes:
+  - {tool: save_product_description, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The product data desk is planned and not yet
+    written. Tagging real images needs a model that reads images and is not
+    written here.

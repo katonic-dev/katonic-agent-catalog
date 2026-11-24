@@ -1,0 +1,52 @@
+id: product-data-check
+name: Product Data Check
+pack: retail
+area: E-commerce and catalogue
+summary: >
+  Sets each product listing against the supplier's specification and lists
+  each attribute that is missing or does not match: net quantity, pack
+  size, allergen statement and country of origin. Allergen findings come
+  first. It saves the check as a draft. It corrects no listing and works no
+  allergen out. A content lead corrects the listing.
+
+type: workflow
+form: scheduled
+started_by: "A clock, once a week. A person can also name a category or one listing"
+
+meets_people_through: application
+application: Product data desk
+
+# Built as a chat agent from instructions.md, which is what the tests are written for.
+platform:
+  kind: chat
+  tier: reasoning
+
+needs:
+  - id: catalogue
+    kind: api
+    required: true
+    label: "The company's catalogue system, to read product listings and the supplier's specification of each, and to save a data check as a draft"
+    operations:
+      - list_product_listings
+      - get_supplier_specification
+      - save_product_data_check
+
+demo_retailer_systems: [catalogue]
+
+stops_for_a_person:
+  - "A content lead corrects every listing. The agent has no operation that changes one."
+  - "Which of the two is right, the listing or the specification, is for the content lead and the supplier. The agent reports the difference."
+  - "An allergen difference goes to a person first. The agent works no allergen out."
+
+# Saving a data check is a draft kept as a version with its author. It changes no listing.
+changes:
+  - {tool: save_product_data_check, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: >
+    Written. The instructions and tests have not been run on a model. Not
+    yet built on a platform. The product data desk is planned and not yet
+    written.

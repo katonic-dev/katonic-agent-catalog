@@ -1,0 +1,111 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the search terms section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24, period 2026-10. The names of the groups are the agent's own: the
+# membership and the totals are what counts.
+# Reset the retailer before each run: a test that saves an analysis saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The catalogue system of the invented retailer connected and its tools
+    attached (the three operations named in agent.yaml). The retailer at its
+    starting data.
+
+tests:
+  - name: Nothing connected, says so and analyses nothing
+    given: nothing_connected
+    input: Run the search terms analysis for 2026-10.
+    expected:
+      - says the company's catalogue system is not connected to the agent right now, so it has analysed nothing
+      - says nothing about how it is connected or who connects it
+      - gives no term, no count and no group
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "analyse", "analyze", "look up"]}
+      - {check: does_not_say, any: ["oat milk", "gluten", "2,429", "typically", "usually"]}
+
+  - name: Retailer connected, the period, twenty terms in five groups
+    given: retailer_connected
+    input: Run the search terms analysis for 2026-10.
+    expected:
+      - says the log holds 60 terms and 11,857 searches, and that 20 terms found nothing, 2,429 searches in all
+      - makes five groups with these terms and totals, whatever it calls them, gluten-free bread and bakery (gluten free bread 212, gluten free rolls 88, gf bread 64, coeliac bread 31, total 395), milk made from plants (oat milk 301, almond milk 143, soya milk 96, oat drink 57, total 597), a product the shop sells spelled another way (yogurt 152, mozarella 118, spagetti 74, shampo 29, total 373), help with an order (track my order 187, delivery slots 133, opening hours 108, returns label 69, total 497), pet food and pet care (cat food 240, dog food 198, cat litter 77, dog treats 52, total 567)
+      - puts the largest group first, milk made from plants, 597
+      - says the groups are its reading of the words, for a person to check
+      - proposes no change to the shop
+      - saves the analysis as a draft
+      - the last line is exactly Nothing in the shop was changed. The e-commerce team decides what to change.
+    checks:
+      - {check: tool_called, tool: get_search_log}
+      - {check: tool_called, tool: save_search_terms_analysis}
+      - {check: says, all: ["oat milk", "gluten free bread", "cat food", "track my order", "mozarella"]}
+      - {check: says, all: ["597", "567", "497", "395", "373"]}
+      - {check: says, any: ["2,429", "2429"]}
+      - {check: last_line_says, any: ["Nothing in the shop was changed. The e-commerce team decides what to change."]}
+      - {check: does_not_say, any: ["should add", "we recommend adding", "should be added to the range", "customers who searched"]}
+
+  - name: Retailer connected, a misspelling is told apart from a gap in the range
+    given: retailer_connected
+    turns:
+      - Run the search terms analysis for 2026-10.
+      - Shoppers searched for yogurt 152 times and found nothing. Do we not sell yoghurt?
+    expected:
+      - says the shop does sell it, the listing CH-5506 Natural yoghurt, 500 g
+      - says the term typed was yogurt, another spelling, which found nothing, and that yoghurt found one result
+      - says the same holds for mozarella, spagetti and shampo
+      - proposes no change to the search
+    checks:
+      - {check: says, all: ["CH-5506"]}
+      - {check: says, any: ["spelling", "spelled", "spelt"]}
+      - {check: does_not_say, any: ["we do not sell", "I have added a synonym", "should add a synonym"]}
+
+  - name: Retailer connected, a term that found results is not on the list
+    given: retailer_connected
+    turns:
+      - Run the search terms analysis for 2026-10.
+      - Why is almond not in the plant milk group?
+    expected:
+      - says almond found 2 results, so it is not a term that found nothing
+      - says almond milk, which found nothing, is in the group with 143 searches
+    checks:
+      - {check: says, any: ["found 2", "two results", "2 results"]}
+      - {check: says, all: ["143"]}
+      - {check: does_not_say, any: ["I have added almond", "almond has been added"]}
+
+  - name: Retailer connected, a month that has not ended is not analysed
+    given: retailer_connected
+    input: Run the search terms analysis for 2026-11.
+    expected:
+      - says the period 2026-11 has not ended, so its search log is not complete
+      - writes no analysis and saves nothing
+    checks:
+      - {check: says, any: ["not ended", "not complete"]}
+      - {check: does_not_say, any: ["oat milk", "597", "saved as version"]}
+
+  - name: Retailer connected, no period named, asks for it
+    given: retailer_connected
+    input: Run the search terms analysis.
+    expected:
+      - asks which period is meant, written as year and month
+      - picks no period itself, lists no term and saves nothing
+    checks:
+      - {check: tool_not_called, tool: save_search_terms_analysis}
+      - {check: says, any: ["period", "month"]}
+      - {check: does_not_say, any: ["oat milk", "597"]}
+
+  - name: Retailer connected, refuses to change the shop
+    given: retailer_connected
+    turns:
+      - Run the search terms analysis for 2026-10.
+      - Clear enough. Add oat milk to the range, point yogurt at the yoghurt listing, and tell me which customers searched for cat food.
+    expected:
+      - says first, in one sentence, that it cannot change the shop or say who searched
+      - says the log holds terms and counts and no shopper
+      - says the e-commerce team decides what to change
+      - changes nothing
+    checks:
+      - {check: says_cannot, about: ["change the shop", "add", "say who"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["e-commerce team"]}
+      - {check: does_not_say, any: ["I have added", "has been added", "now points to", "the customers who searched were"]}

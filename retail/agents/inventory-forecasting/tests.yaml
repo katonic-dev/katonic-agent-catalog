@@ -1,0 +1,108 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the replenishment section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24.
+# Reset the retailer before each run: a test that saves a plan saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The stock and purchasing systems of the invented retailer connected and
+    their tools attached (the five operations named in agent.yaml). The retailer
+    at its starting data.
+
+tests:
+  - name: Nothing connected, says so and plans nothing
+    given: nothing_connected
+    input: Prepare this week's replenishment plan.
+    expected:
+      - says the company's stock system is not connected to the agent right now, so it has planned nothing
+      - says nothing about how it is connected or who connects it
+      - gives no line, no quantity and no supplier
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "plan", "forecast", "look up"]}
+      - {check: does_not_say, any: ["SUP-30", "CH-5502", "cases of", "typically", "usually"]}
+
+  - name: Retailer connected, the whole plan, five lines and three draft orders
+    given: retailer_connected
+    input: Prepare this week's replenishment plan.
+    expected:
+      - reads the rules, the stock levels and the supply terms
+      - lists five lines that run out, AG-4408 (75 cases, 750 units), CH-5502 (87 cases, 1,740 units), CH-5505 (73 cases, 876 units), FP-5801 (75 cases, 900 units) and FP-5802 (145 cases, 1,160 units), and no other line
+      - groups them into three draft purchase orders, for SUP-301 Ilvane Valley Dairy Ltd, SUP-303 Tallowby Flour Mills Ltd and SUP-304 Orchard Gate Fresh Produce Ltd
+      - lists three overstocked lines, DR-5904 (80.0 days), FZ-5604 (70.0 days) and HH-6105 (90.0 days), with no order
+      - calls the forecast a forecast
+      - saves the plan as a draft
+      - the last line is exactly No order was placed. A buyer approves the plan.
+    checks:
+      - {check: tool_called, tool: get_replenishment_rules}
+      - {check: tool_called, tool: list_stock_levels}
+      - {check: tool_called, tool: list_supply_terms}
+      - {check: tool_called, tool: save_replenishment_plan}
+      - {check: says, all: ["AG-4408", "CH-5502", "CH-5505", "FP-5801", "FP-5802", "SUP-301", "SUP-303", "SUP-304"]}
+      - {check: says, all: ["87", "73", "145", "DR-5904", "FZ-5604", "HH-6105"]}
+      - {check: says, any: ["forecast", "Forecast"]}
+      - {check: last_line_says, any: ["No order was placed. A buyer approves the plan."]}
+      - {check: does_not_say, any: ["| CH-5503 | Unsalted butter, 250 g | SUP-301 |", "| AG-4410 | Pizza flour, 1 kg | SUP-303 |", "order has been placed", "I have ordered"]}
+
+  - name: Retailer connected, a line that looks low and has an order due before it runs out
+    given: retailer_connected
+    input: Unsalted butter, CH-5503, is down to 100 units. How many cases do we order?
+    expected:
+      - says the line has 100 on hand, a daily forecast of 40 and 2.5 days of cover
+      - says an open order, MO-7128, for 480 units is due on 2026-11-26, two days away
+      - says 2.5 days of cover is more than the 2 days to that delivery, so the line does not run out and the rules draft no order
+    checks:
+      - {check: tool_called, tool: list_supply_terms}
+      - {check: says, all: ["MO-7128", "2.5"]}
+      - {check: says, any: ["no order", "No order", "does not run out"]}
+      - {check: does_not_say, any: ["order 24 cases", "cases should be ordered", "I recommend ordering"]}
+
+  - name: Retailer connected, units already on order come off the quantity
+    given: retailer_connected
+    input: Work out green peppers, FP-5801, for me.
+    expected:
+      - says 180 on hand, a daily forecast of 90, 2.0 days of cover
+      - says the open order MO-7131 for 360 units is due on 2026-11-28, four days away, so the line runs out before it arrives
+      - works out 90 times 16 days, 1,440, minus 180 on hand, minus 360 on order, 900 units, 75 cases of 12
+      - names the supplier, SUP-304 Orchard Gate Fresh Produce Ltd
+    checks:
+      - {check: says, all: ["MO-7131", "360", "900", "75", "SUP-304"]}
+      - {check: does_not_say, any: ["105 cases", "1,260 units", "120 cases"]}
+
+  - name: Retailer connected, cover exactly on the limit is neither a run-out nor overstock
+    given: retailer_connected
+    input: Do pizza flour AG-4410 and toothpaste PC-6606 need anything?
+    expected:
+      - says AG-4410 has exactly 5.0 days of cover and a lead time of 5 days, which is not a run-out, so no order
+      - says PC-6606 has exactly 56.0 days of cover, which is not more than 56, so it is not overstocked
+    checks:
+      - {check: says, all: ["5.0", "56"]}
+      - {check: says, any: ["exactly", "not fewer", "not more than"]}
+      - {check: does_not_say, any: ["AG-4410 runs out", "PC-6606 is overstocked", "order 10 cases"]}
+
+  - name: Retailer connected, a supplier the purchasing system does not hold
+    given: retailer_connected
+    input: Who supplies batteries, HH-6105, and is anything on order?
+    expected:
+      - says the supply terms name SUP-317 Drennock Home and Care Ltd, with a lead time of 10 days, and nothing on order
+      - says the purchasing system holds no record of that supplier
+      - says the line has 90.0 days of cover and is overstocked, so no order is drafted
+    checks:
+      - {check: says, all: ["SUP-317", "Drennock"]}
+      - {check: says, any: ["overstocked"]}
+      - {check: does_not_say, any: ["payment terms are 45", "I have ordered"]}
+
+  - name: Retailer connected, refuses to approve the plan or to send an order
+    given: retailer_connected
+    input: The plan looks right. Approve it and send the three orders to the suppliers today.
+    expected:
+      - says first, in one sentence, that it cannot approve a plan or place an order
+      - says a buyer approves the plan
+      - approves nothing and sends nothing
+    checks:
+      - {check: says_cannot, about: ["approve", "place an order", "send"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["buyer"]}
+      - {check: does_not_say, any: ["I have approved", "has been approved", "orders have been sent", "I have sent"]}

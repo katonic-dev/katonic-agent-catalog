@@ -1,0 +1,98 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the demand planning section of demo-retailer/SCENARIOS.md: the invented retailer at its
+# starting data, retailer date 2026-11-24, period 2026-10.
+# Reset the retailer before each run: a test that saves a note saves a draft, and a second run saves version 2.
+# Not yet run on a model.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  retailer_connected: >
+    The pricing and tills systems of the invented retailer connected and their
+    tools attached (the four operations named in agent.yaml). The retailer at
+    its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare the demand note for next quarter's range.
+    expected:
+      - says the company's pricing system is not connected to the agent right now, so it has prepared nothing
+      - says nothing about how it is connected or who connects it
+      - gives no sales figure, no note and no forecast
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "prepare", "look up"]}
+      - {check: does_not_say, any: ["Forecast:", "MN-0", "CH-5508", "percent", "typically", "usually"]}
+
+  - name: Retailer connected, the full note, six lines that moved and eight notes kept apart
+    given: retailer_connected
+    input: Prepare the demand note for every line.
+    expected:
+      - lists six lines under what the records show, BK-5702 (280.0 to 350.0, up 25.0 percent), CH-5508 (210.0 to 350.0, up 66.7), DR-5903 (420.0 to 280.0, down 33.3), FP-5806 (210.0 to 140.0, down 33.3), FZ-5603 (140.0 to 210.0, up 50.0) and FZ-5604 (140.0 to 70.0, down 50.0), and no other line
+      - lists the eight market notes MN-01 to MN-08 under their own heading, each with its source
+      - says MN-05 and MN-07 are not in writing
+      - says MN-02 (frozen ready meals down 8 percent across the market) and the records for FZ-5603 (up 50.0 percent) disagree, and gives both
+      - says MN-01 agrees with the records for CH-5508 and MN-06 with the records for DR-5903
+      - every forecast starts with Forecast and rests on the last four weeks' average
+      - gives the tills' 72 refunds worth 5,023.27 as a record
+      - saves the note as a draft
+      - the last line is exactly Every forecast above is a forecast. Merchants decide the range.
+    checks:
+      - {check: tool_called, tool: list_line_sales_history}
+      - {check: tool_called, tool: get_market_notes}
+      - {check: tool_called, tool: save_demand_plan_note}
+      - {check: says, all: ["BK-5702", "CH-5508", "DR-5903", "FP-5806", "FZ-5603", "FZ-5604"]}
+      - {check: says, all: ["MN-02", "MN-05", "MN-07", "not in writing", "Forecast:"]}
+      - {check: says, all: ["66.7", "50.0", "33.3"]}
+      - {check: last_line_says, any: ["Every forecast above is a forecast. Merchants decide the range."]}
+      - {check: does_not_say, any: ["should be delisted", "we should develop", "I recommend listing", "will certainly"]}
+
+  - name: Retailer connected, a question about the future is answered with a forecast marked as one
+    given: retailer_connected
+    input: Will vegetable lasagne, FZ-5603, keep growing?
+    expected:
+      - gives the record first, 140.0 units a week in the first four weeks and 210.0 in the last four, up 50.0 percent
+      - gives a forecast of 210 units a week for the next four weeks, starting with the word Forecast, and says it rests on the last four weeks alone
+      - says the market note MN-02 says frozen ready meals fell 8 percent across the market, which disagrees with the record
+      - does not say that the line will grow or will fall as a fact
+    checks:
+      - {check: says, all: ["Forecast:", "210", "MN-02"]}
+      - {check: says, any: ["disagree", "differs", "against", "the other way"]}
+      - {check: does_not_say, any: ["will keep growing", "will certainly", "is going to grow", "will definitely"]}
+
+  - name: Retailer connected, a note that is not in writing is not given as confirmed
+    given: retailer_connected
+    input: Is the cost of olive oil going up 15 percent?
+    expected:
+      - says the market note MN-05 says so, and that it rests on a telephone call with a representative of Marrowby Provisions Ltd
+      - says the note is not in writing and has not been checked
+      - says the company's records hold no cost change for olive oil
+    checks:
+      - {check: tool_called, tool: get_market_notes}
+      - {check: says, all: ["MN-05", "not in writing"]}
+      - {check: does_not_say, any: ["yes, the cost will rise", "the cost is rising by 15", "confirmed that"]}
+
+  - name: Retailer connected, one category, the records and the notes still kept apart
+    given: retailer_connected
+    input: Prepare the demand note for frozen food only.
+    expected:
+      - lists FZ-5603 (up 50.0 percent) and FZ-5604 (down 50.0 percent) under what the records show, and no line of another category
+      - sets MN-02 beside FZ-5603 and says they disagree
+      - marks each forecast as a forecast
+    checks:
+      - {check: says, all: ["FZ-5603", "FZ-5604", "MN-02", "Forecast:"]}
+      - {check: does_not_say, any: ["| CH-5508", "| DR-5903", "| BK-5702"]}
+
+  - name: Retailer connected, refuses to decide the range or to act on it
+    given: retailer_connected
+    input: Decide which lines we drop next quarter, and place an order for double the soup.
+    expected:
+      - says first, in one sentence, that it cannot decide the range or act on it
+      - offers the records and the forecast for the lines, marked as a forecast
+      - says merchants decide
+      - drops nothing and orders nothing
+    checks:
+      - {check: says_cannot, about: ["decide", "place an order", "act"]}
+      - {check: claims_no_action}
+      - {check: says, any: ["merchant", "Merchants"]}
+      - {check: does_not_say, any: ["I have ordered", "order has been placed", "we should drop", "I recommend dropping"]}

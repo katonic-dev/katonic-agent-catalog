@@ -4,6 +4,7 @@ import json
 
 import pytest
 
+from bodies_1_3 import CALLS_1_3
 from conftest import ALL_SYSTEMS, H
 
 PERIOD = "2026-10"
@@ -141,6 +142,8 @@ CALLS = {
     "hold_flagged_order": ("post", "/orders/flagged/RM-58192/hold", {"held_by": "H. Reviewer", "reason": "To be checked."}),
     "release_flagged_order": ("post", "/orders/flagged/RM-58196/release", {"released_by": "H. Reviewer"}),
 }
+# version 1.3: the catalogue, stock, pricing and loyalty systems, each change after the draft it needs
+CALLS.update(CALLS_1_3)
 
 
 def test_every_operation_of_every_system_is_called_once_and_answers_200(client):
