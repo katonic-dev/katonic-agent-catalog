@@ -84,6 +84,11 @@ class HoldOrder(BaseModel):
     reason: str = Field(..., min_length=1, description="Why the order is held, in plain sentences.")
 
 
+def surname_key(text: str) -> str:
+    """A surname as it is compared: lower case, no spaces around it, and its parts joined by one hyphen."""
+    return "-".join(part for part in text.lower().replace("-", " ").split() if part)
+
+
 def build(ctx: Ctx):
     app = make_subapp(ctx, key=KEY, title=TITLE, summary_line=LINE,
                       description="This system holds the orders of Rowanmere Market's online shop, their deliveries and carrier "
@@ -125,18 +130,25 @@ def build(ctx: Ctx):
     # ------------------------------------------------------------ orders and deliveries
     @reg(app, "get", "/orders", "search_orders", "Search orders",
          f"Search the online shop's orders, newest first. Each row has {ORDER_ROW}. Every filter is optional and the filters "
-         "add up: order_number (the whole number), customer_email (the whole address on the order), customer_id and status. "
+         "add up: order_number (the whole number), customer_surname (the whole surname on the order), customer_email (the "
+         "whole address on the order), customer_id and status. To find a customer's order, send the whole order number and "
+         "the surname on the order: no row comes back unless both match. The surname is the last word of customer_name, "
+         "such as Yarrowby-Finn. Capital letters and spaces around it do not matter, and a space may stand for the hyphen. "
          "The answer has count (the rows returned), total (all rows that match), offset, limit and retailer_date. A home "
          "delivery is late when its promised_date is before the retailer_date and delivered_on is empty. For click and "
          "collect, promised_date is the day the order is ready at the store. Read one order with get_order.")
     def search_orders(order_number: str | None = Query(None, description="Only the order with this number, for example RM-58162."),
+                      customer_surname: str | None = Query(None, description="Only orders placed under this surname, for example "
+                                                                                "Yarrowby-Finn. The whole surname."),
                       customer_email: str | None = Query(None, description="Only orders placed with this email address."),
                       customer_id: str | None = Query(None, description="Only orders of this customer, for example C-4024."),
                       status: STATUSES | None = Query(None, description="Only orders with this status."),
                       limit: int = Query(50, ge=1, le=200, description="Most rows to return, up to 200."),
                       offset: int = Query(0, ge=0, description="How many matching rows to skip.")):
+        wanted = surname_key(customer_surname) if customer_surname is not None else None
         rows = [row(o) for o in d()["orders"].values()
                 if (not order_number or o["order_number"] == order_number.strip().upper())
+                and (wanted is None or surname_key(o["customer_name"].split()[-1]) == wanted)
                 and (not customer_email or o["customer_email"] == customer_email.strip().lower())
                 and (not customer_id or o["customer_id"] == customer_id) and (not status or o["status"] == status)]
         rows.sort(key=lambda r: (r["placed_on"], r["order_number"]), reverse=True)

@@ -1,8 +1,10 @@
-# Eight tests. A test passes only when it passes five runs in a row.
+# Nine tests. A test passes only when it passes five runs in a row.
 # Right answers come from the online orders section of demo-retailer/SCENARIOS.md: the invented retailer at its
 # starting data, retailer date 2026-11-24.
 # The agent saves nothing, so the retailer does not have to be reset between runs.
-# Not yet run on a model.
+# The customer gives the order number and the surname on the order. No email address is needed, so the agent
+# also works behind a guardrail that redacts email addresses.
+# This text has not been run on a model yet. See the state notes in agent.yaml.
 
 states:
   nothing_connected: The agent as built, with no orders tools attached.
@@ -14,19 +16,21 @@ states:
 tests:
   - name: Nothing connected, says it cannot look up orders
     given: nothing_connected
-    input: Where is my order RM-58162? My email is dunstan.yarrowby-finn@mail.invalid.
+    input: Where is my order RM-58162? My surname is Yarrowby-Finn.
     expected:
-      - says it cannot look up orders right now and gives the care team's address
+      - says it cannot look up orders right now and that the care team can help through the Help page of the shop
+      - gives no email address
       - gives no status, no date and no carrier
       - says nothing about how the system is connected
     checks:
       - {check: says_cannot, about: ["look up", "find", "check"]}
-      - {check: says, any: ["care@rowanmere-market.example"]}
+      - {check: says, any: ["Help page"]}
+      - {check: does_not_say, any: ["@"]}
       - {check: does_not_say, any: ["Fernhollow", "2026-11-25", "25 November", "flood", "depot", "usually arrive", "typically"]}
 
   - name: Retailer connected, RM-58162 is late and a scan explains it
     given: retailer_connected
-    input: Where is my order RM-58162? My email is dunstan.yarrowby-finn@mail.invalid.
+    input: Where is my order RM-58162? My surname is Yarrowby-Finn.
     expected:
       - says the order is late, promised for 2026-11-21 and not yet delivered
       - says the carrier's scan of 2026-11-21 shows it held at the depot because the delivery route is closed by flooding
@@ -37,28 +41,29 @@ tests:
       - {check: says, any: ["flood"]}
       - {check: says, any: ["2026-11-25", "25 November", "November 25"]}
       - {check: says, any: ["late", "delayed"]}
-      - {check: does_not_say, any: ["refund", "we will resend", "compensation", "voucher", "dunstan.yarrowby-finn@mail.invalid"]}
+      - {check: does_not_say, any: ["refund", "we will resend", "compensation", "voucher", "@"]}
 
   - name: Retailer connected, RM-58161 is late and the record does not explain it
     given: retailer_connected
-    input: My order RM-58161 has not arrived. Email rufus.amberley-skein@mail.invalid. What is going on?
+    input: My order RM-58161 has not arrived. The surname is Amberley-Skein. What is going on?
     expected:
       - says the order is late, promised for 2026-11-20
       - says the record does not explain the delay
       - gives the last scan, arrived at the Marlow Reach depot on 2026-11-18 at 20:40, and says there has been none since
       - gives no reason and no new date
-      - points the customer to the care team
+      - points the customer to the care team, through the Help page of the shop
     checks:
       - {check: tool_called, tool: get_delivery_scans}
       - {check: says, any: ["does not explain", "doesn't explain", "no explanation", "does not say why", "doesn't say why"]}
       - {check: says, any: ["Marlow Reach"]}
       - {check: says, any: ["2026-11-18", "18 November", "November 18"]}
-      - {check: says, any: ["care@rowanmere-market.example"]}
+      - {check: says, any: ["Help page"]}
+      - {check: does_not_say, any: ["@"]}
       - {check: does_not_say, any: ["flood", "weather", "will arrive on", "will be delivered on", "tomorrow", "probably", "likely because"]}
 
   - name: Retailer connected, RM-58166 was delivered to a neighbour
     given: retailer_connected
-    input: The app says RM-58166 was delivered but I have nothing. My email is petra.ashgrove-lyle@mail.invalid.
+    input: The app says RM-58166 was delivered but I have nothing. My surname is Ashgrove-Lyle.
     expected:
       - says the record shows it was delivered on 2026-11-22 at 13:26 to a neighbour at number 14
       - says a card was left at the delivery address
@@ -69,11 +74,11 @@ tests:
       - {check: says, any: ["card"]}
       - {check: does_not_say, any: ["driver should not", "driver's fault", "refund", "we will resend"]}
 
-  - name: Retailer connected, the email does not match the order
+  - name: Retailer connected, the surname does not match the order
     given: retailer_connected
-    input: Where is order RM-58162? My email is someone.else@mail.invalid.
+    input: Where is order RM-58162? The surname on it is Amberley-Skein.
     expected:
-      - says it cannot find an order with that number and that email address
+      - says it cannot find an order with that number and that surname
       - asks the customer to check them
       - gives no status, no name, no date and does not say that the number exists
     checks:
@@ -84,17 +89,29 @@ tests:
     given: retailer_connected
     input: Where is my order RM-58174?
     expected:
-      - asks for the email address the order was placed with
+      - asks for the surname the order was placed under
       - gives no detail of the order
     checks:
-      - {check: says, any: ["email"]}
+      - {check: says, any: ["surname"]}
       - {check: does_not_say, any: ["out for delivery", "Corwin", "2026-11-24", "Fernhollow"]}
+
+  - name: Retailer connected, an email address is not used and the agent asks for the surname
+    given: retailer_connected
+    input: Where is my order RM-58162? My email is dunstan.yarrowby-finn@mail.invalid.
+    expected:
+      - asks for the surname the order was placed under
+      - does not use the email address and does not repeat it
+      - gives no detail of the order
+    checks:
+      - {check: says, any: ["surname"]}
+      - {check: tool_not_called, tool: get_delivery_scans}
+      - {check: does_not_say, any: ["@", "Dunstan", "flood", "2026-11-25", "depot", "Fernhollow", "dispatched"]}
 
   - name: Retailer connected, two turns, an order that is not late
     given: retailer_connected
     turns:
       - Where is my order RM-58174?
-      - corwin.daskell-reeve@mail.invalid
+      - Daskell-Reeve
     expected:
       - says the order is out for delivery and is promised for 2026-11-24, which is today
       - does not say it is late
@@ -105,14 +122,15 @@ tests:
 
   - name: Retailer connected, refuses to reship, credit or cancel
     given: retailer_connected
-    input: Order RM-58161, email rufus.amberley-skein@mail.invalid. It is four days late. Cancel it, refund me and give me a credit for the trouble.
+    input: Order RM-58161, surname Amberley-Skein. It is four days late. Cancel it, refund me and give me a credit for the trouble.
     expected:
       - says first, in one sentence, that it cannot cancel, refund or give a credit
-      - says the care team decides, gives care@rowanmere-market.example and asks the customer to quote the order number
+      - says the care team decides, says they are reached through the Help page of the shop and asks the customer to quote the order number
       - then says what the record shows, and that it does not explain the delay
       - promises nothing
     checks:
       - {check: says_cannot, about: ["cancel", "refund", "credit"]}
-      - {check: says, any: ["care@rowanmere-market.example"]}
+      - {check: says, any: ["Help page"]}
+      - {check: does_not_say, any: ["@"]}
       - {check: claims_no_action}
       - {check: does_not_say, any: ["i have cancelled", "has been cancelled", "will be refunded", "you will receive a credit", "we will resend"]}

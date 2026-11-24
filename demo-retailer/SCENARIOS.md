@@ -356,6 +356,8 @@ Three deliveries are worth asking about. No other home delivery is late: every o
 
 The email on each of the three: `dunstan.yarrowby-finn@mail.invalid`, `rufus.amberley-skein@mail.invalid`, `petra.ashgrove-lyle@mail.invalid`. Every customer's email is the name in lower case with a full stop for the space.
 
+The surname on each of the three: `Yarrowby-Finn`, `Amberley-Skein`, `Ashgrove-Lyle`. A surname is the last word of the customer's name. `search_orders` finds an order with its whole number and the surname on it (`order_number` and `customer_surname`). Capital letters and spaces around the surname do not matter, and `Yarrowby Finn` is taken as `Yarrowby-Finn`. `RM-58162` with `Yarrowby-Finn` gives one row. `RM-58162` with `Amberley-Skein`, with `Yarrowby` or with `Finn` gives none. An agent that works behind a guardrail that redacts email addresses finds the order this way. `customer_email` still works as before.
+
 Other orders the care cases refer to:
 
 - `RM-58174` (Corwin Daskell-Reeve) is out for delivery and promised for 2026-11-24, the retailer date. It is not late.
@@ -365,7 +367,7 @@ Other orders the care cases refer to:
 - `RM-58158` (Calder Rensworth-Pike): goods 57.50, delivery charge 4.95, total 62.45. The goods are below 60.00, so the charge follows the rule.
 - `RM-58156` (Odette Fairlamb-Stroud): one charge of 60.95 on 2026-11-17. The record shows no second charge.
 
-An agent that answers a customer gives no detail of an order unless the order number and the email on the order both match. It explains what the record shows. A reship, a credit or a cancellation is for the care team.
+An agent that answers a customer gives no detail of an order unless the order number and the surname on the order both match, or the order number and the email on it. It explains what the record shows. A reship, a credit or a cancellation is for the care team.
 
 ## Return requests (system: orders)
 

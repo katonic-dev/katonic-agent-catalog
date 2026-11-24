@@ -23,7 +23,7 @@ needs:
   - id: orders
     kind: api
     required: true
-    label: The company's orders system, to find an order by its number and the email on it, and to read its delivery status and carrier scans
+    label: The company's orders system, to find an order by its number and the surname on it, and to read its delivery status and carrier scans
     operations:
       - search_orders
       - get_order
@@ -34,16 +34,19 @@ demo_retailer_systems: [orders]
 stops_for_a_person:
   - It explains what the record shows. A reship, a credit, a refund or a cancellation is decided by the care team.
   - When the record does not explain a delay, it says so and points the customer to the care team. It does not guess a reason or a date.
-  - It gives no detail of an order unless the order number and the email on the order both match.
+  - It gives no detail of an order unless the order number and the surname on the order both match.
 
 # It reads only. It saves no draft and changes no record.
 changes: []
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The page of the shop's website that carries the chat
-    box is not written.
+    Built and published on a development cluster on 24 November 2026 with
+    the earlier text that asked for the email address. With that text every
+    single-turn test passed when no guardrail redacted email addresses, and
+    the agent could not find an order where one did. This text asks for the
+    surname instead and has not been run yet. The page of the shop's website
+    that carries the chat box is not written.

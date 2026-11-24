@@ -148,6 +148,43 @@ def test_order_search_filters_and_404(client):
     assert get(client, "/orders/orders/RM-00000/scans", 404)["applied"] is False
 
 
+def test_an_order_is_found_with_its_number_and_the_surname_on_it(client, store):
+    def numbers(**params):
+        return [o["order_number"] for o in get(client, "/orders/orders", **params)["items"]]
+
+    assert store.data["orders"]["RM-58162"]["customer_name"] == "Dunstan Yarrowby-Finn"
+    assert store.data["orders"]["RM-58161"]["customer_name"] == "Rufus Amberley-Skein"
+    # the surname matches
+    one = get(client, "/orders/orders", order_number="RM-58162", customer_surname="Yarrowby-Finn")
+    assert one["count"] == 1 and one["total"] == 1 and one["items"][0]["customer_name"] == "Dunstan Yarrowby-Finn"
+    assert set(one["items"][0]) == set(get(client, "/orders/orders", order_number="RM-58162")["items"][0])
+    assert numbers(customer_surname="Yarrowby-Finn") == ["RM-58190", "RM-58162"]
+    # a wrong surname gives no row, and so does a part of the surname or the whole name
+    for wrong in ("Nobody-Here", "Yarrowby", "Finn", "Dunstan", "Dunstan Yarrowby-Finn", "", "   "):
+        assert numbers(order_number="RM-58162", customer_surname=wrong) == [], wrong
+    # capital letters and spaces around the surname do not matter
+    for typed in ("yarrowby-finn", "YARROWBY-FINN", "  Yarrowby-Finn  ", "yArRoWbY-fInN"):
+        assert numbers(order_number="RM-58162", customer_surname=typed) == ["RM-58162"], typed
+    # the hyphen typed as a space
+    for typed in ("Yarrowby Finn", " yarrowby  finn ", "Yarrowby - Finn"):
+        assert numbers(order_number="RM-58162", customer_surname=typed) == ["RM-58162"], typed
+    # the order number of one customer with the surname of another gives no row
+    assert numbers(order_number="RM-58162", customer_surname="Amberley-Skein") == []
+    assert numbers(order_number="RM-58161", customer_surname="Yarrowby-Finn") == []
+    assert numbers(order_number="RM-58161", customer_surname="Amberley-Skein") == ["RM-58161"]
+    assert numbers(order_number="RM-58166", customer_surname="ashgrove lyle") == ["RM-58166"]
+    # the filters add up, and the email filter works as before
+    assert numbers(customer_surname="Yarrowby-Finn", customer_email="dunstan.yarrowby-finn@mail.invalid") == ["RM-58190", "RM-58162"]
+    assert numbers(customer_surname="Yarrowby-Finn", customer_email="rufus.amberley-skein@mail.invalid") == []
+    assert numbers(order_number="RM-58162", customer_email="Dunstan.Yarrowby-Finn@mail.invalid") == ["RM-58162"]
+    # every order is found by its own number and surname, and by no other customer's surname
+    for o in store.data["orders"].values():
+        surname = o["customer_name"].split()[-1]
+        assert numbers(order_number=o["order_number"], customer_surname=surname) == [o["order_number"]]
+        other = "Amberley-Skein" if surname != "Amberley-Skein" else "Yarrowby-Finn"
+        assert numbers(order_number=o["order_number"], customer_surname=other) == []
+
+
 # ================================================================ returns
 
 ASSESS = {"conditions": [{"condition": "1.1", "result": "met", "note": "Day 8."}, {"condition": "2.1", "result": "met"}],
@@ -1092,7 +1129,7 @@ def test_the_drafts_of_version_1_2_are_described_with_their_accepted_values(clie
     s = purchasing["save_supplier_reply"]["inputSchema"]
     assert s["properties"]["answer_status"]["enum"] == ["answered_from_records", "records_do_not_answer"]
     assert s["properties"]["proposed_next_step"]["enum"] == ["send_reply", "refer_to_a_person"]
-    assert set(orders["search_orders"]["inputSchema"]["properties"]) == {"order_number", "customer_email", "customer_id", "status",
+    assert set(orders["search_orders"]["inputSchema"]["properties"]) == {"order_number", "customer_surname", "customer_email", "customer_id", "status",
                                                                          "limit", "offset"}
     assert set(orders["hold_flagged_order"]["inputSchema"]["required"]) == {"order_number", "held_by", "reason"}
 

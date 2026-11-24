@@ -9,11 +9,12 @@ Answers a customer's "where is my order" from the order and its delivery record,
 | How people meet it | An application: the shop's website. It also works in a chat |
 | Reads from | The company's orders system: the order, its delivery status and the carrier's scans |
 | Changes | Nothing. It saves no draft and changes no record |
-| State | Written. Not yet built on a platform |
+| State | Built on a development cluster. Changed since to ask for the surname, not the email address; that text is not yet run |
 
 ## What it does
 
-- Asks for the order number and the email address the order was placed with, and gives no detail of an order unless both match.
+- Asks for the order number and the surname the order was placed under, and gives no detail of an order unless both match.
+- Uses no email address. If the customer gives one, it asks for the surname. So it also works behind a guardrail that redacts email addresses.
 - Reads the order and the carrier's scans, and compares the promised date with today's date.
 - Says in one sentence where the order is.
 - For a late order, says what the scan gives as the reason and the carrier's new date, when the record holds them.
@@ -27,18 +28,19 @@ Answers a customer's "where is my order" from the order and its delivery record,
 - Change an order.
 - Give a reason or a date that the record does not hold.
 - Say why an order is being checked before dispatch.
-- Read out the email address, the payment details or anything about another customer.
+- Read out an email address, the payment details or anything about another customer.
+- Give an email address for the care team. It says the care team is reached through the Help page of the shop.
 - Guarantee the same wording on every run. Run the tests on your own model before you put it in front of customers.
 
 ## What you set up
 
 - A model for the Balanced tier.
 - The company's orders system, connected as an imported API, with the three operations listed in [`agent.yaml`](agent.yaml) and no others. They only read.
-- The page of the shop's website that carries the chat box, and the care team's address in the instructions. The address in [`instructions.md`](instructions.md) is the invented company's: change it to your own.
+- The page of the shop's website that carries the chat box, and the way to reach the care team in the instructions. [`instructions.md`](instructions.md) says "through the Help page of the shop": change it to your own, and give no email address there.
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026, with the earlier text that asked for the email address. This text, which asks for the surname, has not been run yet.
 
 1. In Control Room, Tools, import the orders system from its OpenAPI address. For the invented retailer, that is the document at `/orders/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,17 +53,22 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Built and published on a development cluster on 24 November 2026 with the earlier text that asked for the email address.
+
+- With that text every single-turn test passed when no guardrail redacted email addresses.
+- Where a guardrail that redacts email addresses was on, the agent could not find an order.
+- This text asks for the surname instead. It has not been run yet.
 
 ## Try it
 
 Against the invented retailer at its starting data (retailer date 2026-11-24). The right answers are in the online orders section of [`../../../demo-retailer/SCENARIOS.md`](../../../demo-retailer/SCENARIOS.md):
 
-- `RM-58162` with `dunstan.yarrowby-finn@mail.invalid`: late. The scan of 2026-11-21 says the route is closed by flooding. New date 2026-11-25.
-- `RM-58161` with `rufus.amberley-skein@mail.invalid`: late, and the record does not explain it. Last scan at the Marlow Reach depot on 2026-11-18.
-- `RM-58166` with `petra.ashgrove-lyle@mail.invalid`: delivered on 2026-11-22 to a neighbour at number 14. A card was left.
-- `RM-58174` with `corwin.daskell-reeve@mail.invalid`: out for delivery, promised for today. Not late.
-- `RM-58162` with another email address: it must give no detail.
+- `RM-58162` with the surname `Yarrowby-Finn`: late. The scan of 2026-11-21 says the route is closed by flooding. New date 2026-11-25.
+- `RM-58161` with the surname `Amberley-Skein`: late, and the record does not explain it. Last scan at the Marlow Reach depot on 2026-11-18.
+- `RM-58166` with the surname `Ashgrove-Lyle`: delivered on 2026-11-22 to a neighbour at number 14. A card was left.
+- `RM-58174` with the surname `Daskell-Reeve`: out for delivery, promised for today. Not late.
+- `RM-58162` with another customer's surname, such as `Amberley-Skein`: it must give no detail.
+- `RM-58162` with an email address and no surname: it must ask for the surname.
 - Ask it to cancel an order and give a credit. It must refuse and point to the care team.
 
 Everyone and everything in the invented retailer is invented.
