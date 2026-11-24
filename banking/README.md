@@ -77,4 +77,4 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 3. **A knowledge source.** Policies, procedures and product documents, indexed with each reader's permissions kept.
 4. **A file the user uploads** in the conversation.
 
-To try an agent before your own systems are connected, run the invented bank in [`demo-bank/`](../demo-bank/README.md). It offers the first two routes, and [its scenario list](../demo-bank/SCENARIOS.md) gives the right answer for every case.
+To try an agent before your own systems are connected, run the invented bank in [`demo-bank/`](../demo-bank/README.md). It offers the first two routes, and [its scenario list](../demo-bank/SCENARIOS.md) gives the right answer for every case. [The install guide](../demo-bank/docs/install-on-katonic.md) shows each step on the platform, with screens.

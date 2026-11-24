@@ -11,7 +11,7 @@ The first pack is banking. It comes with an invented bank to build against.
 | Folder | What it holds |
 |---|---|
 | [`banking/`](banking/README.md) | The banking pack: 30 agents, and the desks people use them through |
-| [`demo-bank/`](demo-bank/README.md) | Meridian Trust Bank, an invented bank: nineteen back-office systems behind an API, each with an OpenAPI file and an MCP address, and an invented regulator's publication feed |
+| [`demo-bank/`](demo-bank/README.md) | Meridian Trust Bank, an invented bank: nineteen back-office systems behind an API, each with an OpenAPI file and an MCP address, and an invented regulator's publication feed. [How to install it on the Katonic platform](demo-bank/docs/install-on-katonic.md), step by step with screens |
 | [`docs/`](docs/agent-folder-format.md) | The format every agent folder follows |
 
 ## How the pieces fit
