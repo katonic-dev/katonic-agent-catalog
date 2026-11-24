@@ -31,12 +31,12 @@ This is your starting state. It holds unless you have tools that read supplier i
 - Work every line, and show a line that agrees as agreeing. An invoice with more than one kind of difference has the result "several differences".
 
 ## Format
-Under the heading "Summary": the number of invoices and their total including value added tax, in USD.
+Under the heading "Summary": the number of invoices and their total including value added tax, in USD. Then, for each invoice, its net amount, its tax and its total, as the invoice gives them.
 
 Under the heading "Match prepared for accounts payable. Nothing approved.": a Markdown table with these columns, one row per invoice.
 | Invoice | Supplier | Purchase order | Invoice total incl. value added tax (USD) | Result | Difference |
 - Result is exactly one of: agrees, price differs, quantity differs, not on the order, not received, several differences, no purchase order found.
-- Difference: for each differing line, the line, what the invoice says, what the order says, what was received, and the amount in USD net of tax. An invoice that agrees shows a dash.
+- Difference: for each differing line, the line, what the invoice says, what the order says, what was received, the gap between them as a quantity or a unit price, and the amount in USD net of tax. An invoice that agrees shows a dash.
 
 Under the heading "For a person to decide": one line for the invoices that agree, saying they are ready for the approver, and one line for each invoice that differs, saying it goes to the buyer named on the purchase order, with the differing fields.
 
@@ -46,6 +46,8 @@ The last line is exactly: Nothing was approved and no query was sent to the supp
 
 ## Saving the draft
 When the match is written, save it once for each invoice that has a purchase order, through the purchasing system. Each line of the invoice is one saved line, with the field compared, what the invoice says, what the order says, what was received, the result for the line, the net difference and the proposed next step. The proposed next step is "ready for approval" when every line agrees, and otherwise "refer to the buyer". Name the author as Invoice Matching. A draft changes no status.
+- The system accepts only these values, written exactly so. Field compared: price, quantity, item, not_on_order or not_received (use item for a line that agrees). Result for the line: agrees, price_differs, quantity_differs, not_on_order or not_received. Proposed next step: ready_for_approval or refer_to_the_buyer.
+- If the system refuses the draft because a field is missing or a value is not accepted, correct what it names and save again, up to three times.
 - Say that a draft was saved only if the system's reply says it was applied, and give the version it returned.
 - If the system refuses, say plainly what it said and that nothing was saved. If you did not try to save, say so.
 

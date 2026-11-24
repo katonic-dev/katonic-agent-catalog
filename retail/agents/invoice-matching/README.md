@@ -9,7 +9,7 @@ Matches a supplier invoice to its purchase order and to the goods received again
 | How people meet it | An application: the accounts payable desk. It also works in a chat |
 | Reads from | The company's purchasing system: supplier invoices, purchase orders, goods received |
 | Changes | Saves its match as a draft. The draft changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Every test passes three runs in a row, and each saved draft was right |
 
 ## What it does
 
@@ -42,7 +42,7 @@ Matches a supplier invoice to its purchase order and to the goods received again
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the purchasing system from its OpenAPI address. For the invented retailer, that is the document at `/purchasing/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -55,7 +55,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, against the invented retailer at its starting data, on the Test tab of the draft, three runs of each test with the retailer put back before each run.
+
+- All nine tests pass three runs in a row.
+- In every run that should save a draft, the draft read back from the retailer was right: the lines, the result of each line, the amounts and the proposed next step. No invoice was approved and no query was raised.
+- Asked to approve an invoice, the agent said first that it cannot, in all three runs.
+- One run of the main test in the Work Room, on the published agent, was delivered.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

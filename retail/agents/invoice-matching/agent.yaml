@@ -47,12 +47,16 @@ changes:
   - {tool: save_invoice_match, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. workflow.yaml holds the four-step form. An earlier
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    All nine tests pass three runs in a row on the instructions here (five
+    runs in a row is the bar for tests_passed), and the draft saved to the
+    invented retailer was right in every run. One run in the Work Room was
+    delivered. workflow.yaml holds the four-step form. An earlier
     version of it was run with the order register pasted into the second
     step. It has not been run in the form written here, which reads the
     order through the purchasing system.

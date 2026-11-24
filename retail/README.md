@@ -2,7 +2,7 @@
 
 36 agents a retailer or a restaurant operator can build on the Katonic platform, and the desks and applications people use them through. They are written against one invented company, Rowanmere Group: a store chain with an online shop, and a restaurant chain that is partly franchised.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Seven folders are written. None has been built on a platform or run on a model yet.
+**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Seven folders are written. The State column says which have been built and tested on a platform.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. An operation that changes a record waits for a named person.
 
@@ -46,7 +46,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 27 | Search Terms Analysis | Lists what shoppers searched for and did not find, grouped by what they seem to have wanted | Workflow, scheduled | Sent to the e-commerce team | Planned |
 | | **Finance and loss prevention** | | | | |
 | 28 | Fraud Prevention | Flags an order that departs from the pattern and explains why in plain words | Workflow, event-triggered | Loss prevention desk | Planned |
-| 29 | [Invoice Matching](agents/invoice-matching/README.md) | Matches a supplier invoice to the order and the receipt and lists what does not agree | Workflow, event-triggered | Accounts payable desk | Written. Not yet built on a platform |
+| 29 | [Invoice Matching](agents/invoice-matching/README.md) | Matches a supplier invoice to the order and the receipt and lists what does not agree | Workflow, event-triggered | Accounts payable desk | Built and tested on a development cluster. Every test passes three runs in a row, and each saved draft was right |
 | 30 | Shrink Analysis | Sets stock loss by store and by line against the company's own tolerance and lists where it departs, with the figures | Workflow, scheduled | Loss prevention desk | Planned |
 | 31 | Refund and Discount Audit | Lists refunds, voids and discounts that fall outside the company's own rules for a period | Workflow, scheduled | Loss prevention desk | Planned |
 | | **People and compliance** | | | | |
