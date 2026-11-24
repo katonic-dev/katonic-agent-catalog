@@ -1,0 +1,418 @@
+{
+  "$comment": "What makes the generic case desk the loss prevention desk of Rowanmere Group. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. Three kinds of case sit in one queue, and each goes to its own agent: Flagged order, Till audit, Stock loss. The desk records what a person decided and calls no operation of the retailer. Rowanmere Group, its customers, its colleagues and every record are invented.",
+  "desk": {
+    "id": "loss-prevention",
+    "name": "Loss prevention desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "loss prevention lead",
+    "tagline": "Flagged orders, till audits and stock counts in one queue, a draft for each from its own agent, a place to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "issuedVerb": "Release decided by",
+    "documentLinkLabel": "Download the review as decided",
+    "arrivedVia": {
+      "feed": "the retailer's systems",
+      "officer": "the loss prevention team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "site"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "period",
+      "rules"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this case. Correct the details and add them, or remove the case.",
+    "noTextNote": "No records were supplied with this case. Say so under the heading \"Summary\", write no table, and write the last line as: Proposal: ask again: the case came with no records.",
+    "askPlaceholder": "For example: which record did you set row 1 against?",
+    "searchPlaceholder": "Search by number, site or kind",
+    "demoNote": "Demo data: Rowanmere Group, its customers, its colleagues and every order, till row and stock count are invented.",
+    "listFields": [
+      "kind"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Flagged order": {
+        "agentEnv": "FRAUD_PREVENTION_AGENT_ID",
+        "instruction": "An order that the screening rules flagged has arrived at the loss prevention desk. Set it against the customer's earlier orders, point by point, and say in plain words where it departs from that customer's pattern and where it does not. You release nothing, hold nothing and cancel nothing: a person in loss prevention decides.\n\nWork from this message only. The case below carries the order, the screening reasons, the customer's earlier orders with their average and highest total, any change to the account, and the till row of any refund on an earlier order, as the retailer's systems hold them. Read nothing from any system and save nothing, because the desk keeps the review. Write no line about saving a draft. Copy every amount, date and reference exactly. Invent no order, no figure and no account change. Describe the order and the record. Call no one a fraudster, a thief or dishonest, and make no statement that the order is fraud or was placed by someone other than the customer. Give no reason why a device, an address or a card is new: the record holds none. Use nothing about the customer beyond what is below. A flag is a request to look, and is no finding about the customer. Write plain statements and do not write in the first person.\n\nCompare these eight points, in this order: Device, Delivery address, Payment card, Basket value, Items, Delivery method, Account change, Earlier refund.\nHow to mark a point:\n- \"within\": on this point the order is the same as the earlier orders. A basket value the customer has reached before is within, however far above the average it is: name the earlier orders of about that value, with their dates. A refund made at a till with an approver and a receipt number recorded is an ordinary refund and is within. An account with no change, and a history with no refund, are within.\n- \"explained\": the point is new on this order and the rest of the record explains it, for example a device first seen on this order where the address, the card and the value are the same as before. An order that is collected has no delivery address: mark that point explained, and set the change under Delivery method.\n- \"departs\": the point is new on this order, or far from every earlier order, and nothing in the history explains it.\n- \"not checked\": the record needed is not in this message. Say which record is missing.\nA screening reason is where the review starts, not what it concludes. Check each reason against the record.\n\nWhat to propose:\n- hold, when two or more points depart.\n- release, when no point departs.\n- hold, when one point departs, and say that this is the point a person should look at first.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the order number, when it was placed and the total in USD; what was ordered and how it is to be delivered; the reasons the screening rules gave, in their words; how many earlier orders the customer has, with their average and highest total. Put no count of marks or of points in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft review. For loss prevention. Nothing released or held.\"\n3. A Markdown table with exactly these seven columns and one row for each of the eight points. Put no vertical bar inside a cell.\n| # | Point | This order | Earlier orders | Record | Mark | To look at |\n# is 1 to 8. Point is the name of the point. This order is what the order holds on the point, with its reference or figure. Earlier orders is what the earlier orders hold on it. Record is the number of each record the row rests on: the order, an earlier order, a till row, or \"None\". Mark is exactly one of: within, explained, departs, not checked, in lower case. To look at is what a person can verify before deciding, or \"Nothing further\".\n4. A blank line, then a line that is exactly \"In plain words.\" and under it three to six sentences that a colleague outside loss prevention could read: where the order departs, with the figures, and where it looks unusual and the history explains it, with the order numbers and dates. The sentences are about the order. Say nothing about the customer as a person.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"release the order:\" followed by one sentence with the reason; or \"hold the order:\" followed by the points on which the order departs from the customer's earlier orders. Write nothing after that line.",
+        "decisions": [
+          "release",
+          "hold",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "This order",
+          "policy": "Earlier orders",
+          "citation": "Record",
+          "check": "To look at"
+        },
+        "markLabels": {
+          "within": "In line with the history"
+        },
+        "markHints": {
+          "within": "On this point the order is the same as the customer's earlier orders"
+        }
+      },
+      "Till audit": {
+        "agentEnv": "REFUND_AND_DISCOUNT_AUDIT_AGENT_ID",
+        "instruction": "One site's refunds, voids and discounts for a period have arrived at the loss prevention desk. Check every row against the company's till rules, list each row that is outside a rule with the rule, and draft the note to the store manager. You reach no conclusion about a colleague and you act on no row: an auditor reviews every row, and a person in loss prevention decides.\n\nWork from this message only. The case below carries the site, the period, the till rules with the test for each, and every till row of that site for the period, as the till records hold them. Read nothing from any system and save nothing, because the desk keeps the audit. Write no line about saving a draft. Copy every row number, amount, date and id exactly. Invent no row and no rule. Give no reason for a row: the records do not say why it happened. Use no name for a colleague. A cashier and an approver are ids, given as the row gives them, in the row they belong to. Make no statement that anyone stole, cheated, broke a rule on purpose, was careless or needs training. Propose no step against anyone. Write plain statements and do not write in the first person.\n\nHow to check:\n- Use the rules and the limits in this message, and no other.\n- A rule that sets a limit applies to a row above the limit. A row exactly on the limit is within the rule.\n- In a row, \"none\" after approver, receipt, reason code or second person means that the field is empty. A rule that needs the field is not met when it is empty. It is met when the field is filled, whatever it holds.\n- A rule applies only to its own kind of row. A rule about refunds says nothing about a void or a discount.\n- One row can be outside more than one rule. List it once, with every rule it is outside.\n- A row that is within every rule for its kind is not listed, however large the amount and however often the same cashier id appears.\n- Work rule by rule. For each rule in turn, go through every row of its kind, from the first to the last.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the site and the period; the rules the rows were checked against, by number; and whether any row is outside a rule. Put no count of rows or of marks in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft audit. For the auditor. No conclusion reached.\"\n3. A Markdown table with exactly these seven columns and one row for each till row that is outside a rule, sorted by cashier id, then by date and time. Put no vertical bar inside a cell.\n| # | Row | Row holds | Rule | Decides | Mark | For the auditor |\n# is 1, 2, 3 in order. Row is the row number, the kind and the amount, for example \"TR-2610-0064, refund of 76.00\". Row holds is the date and time, the till and the cashier id as the row gives it. Rule is the number of each rule the row is outside, with the rule in a few words. Decides is the fields that decide, in plain words, for example \"amount above 50.00, no approver recorded\". Mark is exactly \"outside a rule\", in lower case, or \"not checked\" for a row whose rule is not in this message. For the auditor is the record an auditor would set beside the row, such as the receipt or the till journal for that time. No reason and no opinion.\nIf no row is outside a rule, the table has one row, written so: Row is \"Every row of\" with the site and the period, Row holds is \"No row is outside a rule\", Rule is the numbers of the rules checked, Decides is \"No field puts a row outside a rule\", Mark is exactly \"within\", and For the auditor is \"Nothing further\".\n4. A blank line, then a line that is exactly \"Where the rows are.\" and under it plain statements of where the listed rows sit, and nothing else: the till and the cashier id that are on more of the listed rows than any other, when one stands out, as a count of rows. End with: This describes the rows and is not a finding about anyone. If no row is listed, write under the line: No row is outside the rules.\n5. A blank line, then a line that is exactly \"Draft note to the store manager. Not sent.\" and under it the note, word for word. It names the site and the period, lists each row outside a rule by its row number, date, time, till, kind and amount with the rule, and asks the store manager to go through the rows with the auditor and to bring what the store holds for each. The note carries no cashier id, no approver id and no name, and says that a row outside a rule is a row to look at and no finding about anyone. No more than 230 words. End the note with: Rowanmere Group loss prevention. If no row is listed, write under the line: No note. No row is outside the rules.\n6. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"open a review with the store manager:\" followed by the site and the rules the listed rows are outside; or \"close as reviewed: no row is outside the rules\". Write nothing after that line.",
+        "decisions": [
+          "close_reviewed",
+          "open_review",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Row holds",
+          "policy": "Rule",
+          "citation": "Decides",
+          "check": "For the auditor"
+        },
+        "markLabels": {
+          "within": "Within the rules"
+        },
+        "markHints": {
+          "within": "The row is within every rule for its kind"
+        }
+      },
+      "Stock loss": {
+        "agentEnv": "SHRINK_ANALYSIS_AGENT_ID",
+        "instruction": "A stock count has arrived at the loss prevention desk: one store's count for a period, or one line's loss in all counted stores together. Set the loss against the company's tolerance and say where it sits, with the figures. You give no cause and you name no one: the loss prevention lead decides what to look into.\n\nWork from this message only. The case below carries the count, the tolerance and, for a store, the lines with the most loss value there and what the tills hold for the store as counts and totals, as the stock system and the till records hold them. Read nothing from any system and save nothing, because the desk keeps the analysis. Write no line about saving a draft. Copy every figure exactly, and use the loss percent the count gives: work out none of your own. Give no cause: a count says that stock is missing, and never why. Make no statement that stock was stolen, wasted, damaged, miscounted or booked in wrongly. Name no person, no team and no shift. Say nothing that links a store's refunds, voids or discounts to its lost stock. Propose no step against anyone. Write plain statements and do not write in the first person.\n\nHow to check:\n- A store is beyond tolerance when its loss percent is above the store limit (rule SL-1). A line, all counted stores together, is beyond tolerance when its loss percent is above the line limit (rule SL-2). Exactly on the limit is within tolerance.\n- For a store beyond tolerance, take the three lines with the most loss value in that store, in the order the message lists them. They are where the loss sits, and nothing more. The line limit is for all stores together, so it is not applied to a line in one store.\n- For a line beyond tolerance, take the three stores with the most loss value for that line. Where two stores have the same loss value, take the lower store number first.\n- For a store or a line within tolerance, the table has row 1 only.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the store or the line, and the period; the sales value, the loss units and the loss value in USD; the loss percent as the count gives it; and the limit it is set against, with its rule. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft analysis. For the loss prevention lead. No cause given.\"\n3. A Markdown table with exactly these seven columns. Put no vertical bar inside a cell.\n| # | Store or line | Count | Tolerance | Record | Mark | Note |\nRow 1 is the store or the line of the case. Store or line is its number and name. Count is four lines with <br> between them: \"Loss: \" and the loss value in USD, \"Sales: \" and the sales value in USD, \"Percent: \" and the loss percent, \"Units: \" and the loss units. Tolerance is the limit and its rule. Record is the count number, or \"All counted stores\" for a line. Mark is exactly \"beyond tolerance\" or \"within\", in lower case. Note is the percent set against the limit, in a few words. Row 2, only when row 1 is beyond tolerance, is where the loss sits: Store or line is \"The three lines with the most loss value\" or \"The three stores with the most loss value\", Count is three lines with <br> between them, each with the line or the store, the units lost of the units on the books and the loss value, Tolerance is \"No limit applies to one line in one store\", Record is the count numbers, Mark is exactly \"noted\", and Note is \"No cause is given\". Use \"not checked\" only when the count or the tolerance is not in this message.\n4. For a store only: a blank line, then a line that is exactly \"What the tills hold.\" and under it the number and the total of the refunds, of the voids and of the discounts in the period, and then this sentence: A till row carries no line, so none of these can be tied to a line that lost stock.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"ask for a recount:\" followed by the store or the line, its loss percent and the limit; or \"no recount: the loss is within tolerance\" followed by the loss percent and the limit. Write nothing after that line.",
+        "decisions": [
+          "note_explained",
+          "ask_recount",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Count",
+          "policy": "Tolerance",
+          "citation": "Record",
+          "check": "Note"
+        },
+        "markLabels": {
+          "within": "Within tolerance"
+        },
+        "markHints": {
+          "within": "The loss percent is on or under the limit"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the loss prevention team (the form at the top of the list)",
+      "Sent by the retailer's systems when an order is flagged, a period's till rows close or a stock count arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case",
+        "hint": "The number of the order, the audit or the count, then what it is and one fact. For example RM-58192 order of USD 1,255.95, or TA-2610-S106 Causeway Park, 27 till rows.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "Flagged order",
+          "Till audit",
+          "Stock loss"
+        ]
+      },
+      {
+        "key": "site",
+        "label": "Site",
+        "hint": "The store or the restaurant, with its number, for example S-106 Rowanmere Market Causeway Park. For an order: Online shop. For a line: All stores.",
+        "required": true
+      },
+      {
+        "key": "about",
+        "label": "About",
+        "hint": "One fact: the total of an order, how many till rows, or the loss percent of a count.",
+        "required": false
+      },
+      {
+        "key": "period",
+        "label": "Period or day",
+        "hint": "For example Period 2026-10, or Placed 2026-11-24.",
+        "required": false
+      },
+      {
+        "key": "rules",
+        "label": "Set against",
+        "hint": "The customer's earlier orders, or the rules and their version, for example Till Controls, version 1.3.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Dated",
+        "hint": "The day the order was placed, the last day of the till rows, or the day of the count.",
+        "required": false,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the retailer's systems hold for the case. Each part starts with a heading in capitals. An order with its lines, the flag and the customer's earlier orders. The till rules and one site's till rows. A stock count with the tolerance. A customer is an id. A cashier is the id the till row gives.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the loss prevention desk whose kind of work is not one this desk knows. The kinds are Flagged order, Till audit and Stock loss. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and no draft. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "In plain words.",
+        "title": "In plain words",
+        "hint": "About the order. No finding about the customer."
+      },
+      {
+        "heading": "Where the rows are.",
+        "title": "Where the rows are",
+        "hint": "A description of the rows. No finding about anyone."
+      },
+      {
+        "heading": "Draft note to the store manager. Not sent.",
+        "title": "Draft note to the store manager",
+        "hint": "Not sent. The desk sends nothing."
+      },
+      {
+        "heading": "What the tills hold.",
+        "title": "What the tills hold for the store",
+        "hint": "Counts and totals. A till row carries no line."
+      }
+    ],
+    "marks": {
+      "within": "Within",
+      "explained": "Explained by the history",
+      "departs": "Departs from the pattern",
+      "outside a rule": "Outside a rule",
+      "beyond tolerance": "Beyond tolerance",
+      "noted": "Where the loss sits",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "within": "ok",
+      "explained": "info",
+      "departs": "warn",
+      "outside a rule": "person",
+      "beyond tolerance": "warn",
+      "noted": "plain",
+      "not checked": "none"
+    },
+    "markHints": {
+      "within": "Within the pattern, the rules or the tolerance",
+      "explained": "The point is new on this order, and the rest of the record explains it",
+      "departs": "The point is new on this order, or far from every earlier order, and nothing in the history explains it. It describes the order and is no finding about the customer",
+      "outside a rule": "The row is outside a till rule. It is a row for an auditor to look at, and no finding about anyone",
+      "beyond tolerance": "The loss percent is above the limit. The tolerance does not say why stock was lost",
+      "noted": "Where the loss sits, and nothing more. No limit is applied to it",
+      "not checked": "The record needed to check this was not with the case"
+    },
+    "markIcons": {
+      "explained": "≈",
+      "departs": "≠",
+      "beyond tolerance": "≠",
+      "noted": "•"
+    },
+    "quietMarks": [
+      "noted"
+    ],
+    "proposalPrefix": "Proposal:",
+    "passMark": "within",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "rowLabels": {
+      "source": "Shown",
+      "policy": "Held",
+      "citation": "Record",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "release",
+      "label": "Release the order",
+      "proposalPrefix": "release the order",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you decide to release this order on version {version}{edited} of the review, in your name. The desk changes nothing in the orders system: the order is released there."
+    },
+    {
+      "id": "hold",
+      "label": "Hold the order",
+      "proposalPrefix": "hold the order",
+      "outcome": "order_held",
+      "needsNote": true,
+      "noteLabel": "Why the order is held",
+      "noteHint": "Describe the order, not the customer: the points on which it departs from the earlier orders. The desk records this in your name. It holds nothing in the orders system."
+    },
+    {
+      "id": "close_reviewed",
+      "label": "Close the rows as reviewed",
+      "proposalPrefix": "close as reviewed",
+      "outcome": "rows_reviewed",
+      "needsNote": true,
+      "noteLabel": "What the auditor found on the rows",
+      "noteHint": "For example: no row is outside the rules. Or: each row was set beside its receipt and the till journal. Name no colleague."
+    },
+    {
+      "id": "open_review",
+      "label": "Open a review with the store manager",
+      "proposalPrefix": "open a review with the store manager",
+      "outcome": "review_opened",
+      "needsNote": true,
+      "noteLabel": "Who sends the note to the store manager, and how",
+      "noteHint": "The desk records your decision and the note as it reads now. It sends nothing. The note goes to the store manager and lists rows and rules. It is never to or about a named colleague."
+    },
+    {
+      "id": "note_explained",
+      "label": "Note the loss as explained",
+      "proposalPrefix": "no recount",
+      "outcome": "loss_explained",
+      "needsNote": true,
+      "noteLabel": "What explains the loss",
+      "noteHint": "For example: within tolerance. Or: a delivery booked in twice, found by the stock team. Point at no colleague and no customer."
+    },
+    {
+      "id": "ask_recount",
+      "label": "Ask for a recount",
+      "proposalPrefix": "ask for a recount",
+      "outcome": "recount_asked",
+      "needsNote": true,
+      "noteLabel": "What is counted again, and by when",
+      "noteHint": "Name the store and the lines. The desk records this in your name. It asks no one: the recount is asked for in the stock system."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "Released",
+    "order_held": "Held",
+    "rows_reviewed": "Reviewed",
+    "review_opened": "Review opened",
+    "loss_explained": "Explained",
+    "recount_asked": "Recount asked",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "order_held",
+    "rows_reviewed",
+    "review_opened",
+    "loss_explained",
+    "recount_asked",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk releases nothing, holds nothing and sends nothing: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "site",
+      "about",
+      "period",
+      "rules",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other loss prevention lead can. You can still ask the agent again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Releasing an order while a point is not in line with the history needs a reason",
+    "reasonToApproveUnmetLabel": "Why you release although a point is not in line with the history",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as a decision to release. The desk has changed nothing in the orders system: the order is released there, in your name.",
+    "order_held": "Recorded as a decision to hold, with your reason. The desk has held nothing in the orders system: the order is held there, in your name.",
+    "rows_reviewed": "Recorded as reviewed, with what the auditor found. No till row was changed.",
+    "review_opened": "Recorded. The desk has sent the store manager nothing: the note goes out as it reads below, and it names no colleague.",
+    "loss_explained": "Recorded as explained, with what you wrote. No count was changed.",
+    "recount_asked": "Recorded. The desk has asked no one: the recount is asked for in the stock system."
+  },
+  "decisionLabels": {
+    "issued": "Decided to release",
+    "order_held": "Decided to hold",
+    "rows_reviewed": "Closed as reviewed",
+    "review_opened": "Opened a review",
+    "loss_explained": "Noted as explained",
+    "recount_asked": "Asked for a recount",
+    "sent_back": "Asked the agent again",
+    "removed": "Removed from the desk"
+  }
+}
