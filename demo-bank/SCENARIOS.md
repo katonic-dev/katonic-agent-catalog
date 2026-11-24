@@ -311,7 +311,7 @@ A research report is a draft for an analyst to check. Every figure carries its s
 - Account numbers and beneficiary IBANs have correct mod-97 check digits, except PAY-6101 on purpose.
 - Changes (close an alert, release a repair, block a card, request a replacement, open a dispute, recall a payment, decide a fraud case, post a break resolution, decide an application, complete a review, send a complaint response, mark a call reviewed, post a contribution batch) are refused with 409 when a precondition fails.
 - Drafts keep every version.
-- `POST /admin/reset` returns all of this to the start.
+- `POST /admin/reset` returns all of this to the start. `POST /admin/reset/<system>` returns only what that one system has changed.
 
 ## Simulated arrivals
 

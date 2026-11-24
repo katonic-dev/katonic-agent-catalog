@@ -131,7 +131,8 @@ With none of `DATA_DIR` and `KATONIC_DATASET_PATH`, the service writes no file a
 These routes need the key.
 
 - `POST /admin/reset` puts the data back to the start.
-- `GET /admin/state` gives counts.
+- `POST /admin/reset/<system>` puts back only what that one system has changed since the start or the last full reset: the records its operations wrote and the items made to arrive for it. The rest of the bank stays as it is, so several people can test different agents against one bank without wiping each other's records. The answer lists what was put back.
+- `GET /admin/state` gives counts, and under `changed_by` which system has changed what.
 - `GET /admin/events` shows what was sent and the outcome.
 - `GET`, `POST` and `DELETE /admin/subscriptions` manage subscriptions: an event kind (`screening-alert`, `payment-repair`, `payment-investigation`, `loan-application`, `fraud-case`, `reconciliation-break`, `regulator-publication`, `onboarding-application`, `kyc-review`, `complaint`, `collections-call`, `incident`, `contribution-batch`, `client-meeting`, `monitoring-alert`, or `*`), a URL, a header name and a secret value.
 - `POST /admin/simulate/<kind>` creates one new item from a pool of four templates per kind, rotating. The new kinds make a fraud case in the fraud system, a break in the recon system, a publication on the regulator's website, an application or a periodic review in the onboarding system, a complaint in the complaints system and a call in the collections system. The three newest kinds make an incident in the itops system, a contribution batch in the funds system and a client meeting for tomorrow in the crm system. The kind `monitoring-alert` makes an alert, with its transactions, in the aml system.

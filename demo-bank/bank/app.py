@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import asyncio
 import html
 import logging
+import threading
 from typing import Literal
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
@@ -46,6 +48,32 @@ class DemoHeaderMiddleware:
         await self.app(scope, receive, wrapped)
 
 
+class WriteNotes:
+    """Notes, after every request that may write, which records changed and for which system.
+
+    That is what lets one system be put back without the others (POST /admin/reset/{system}).
+    Requests that may write go through one at a time, so a change is never put down to the wrong system.
+    """
+
+    def __init__(self, app, store: Store, owner_of):
+        self.app, self.store, self.owner_of = app, store, owner_of
+        self.gate = threading.Lock()
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http" or scope.get("method", "GET") in ("GET", "HEAD", "OPTIONS"):
+            await self.app(scope, receive, send)
+            return
+        while not self.gate.acquire(blocking=False):
+            await asyncio.sleep(0.005)
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            try:
+                self.store.note_writes(self.owner_of(scope.get("path", "")))
+            finally:
+                self.gate.release()
+
+
 class SubscriptionBody(BaseModel):
     event_kind: Literal["*", "screening-alert", "payment-repair", "payment-investigation", "loan-application",
                         "fraud-case", "reconciliation-break", "regulator-publication", "onboarding-application", "kyc-review",
@@ -72,6 +100,23 @@ def create_app(env: dict | None = None) -> FastAPI:
                   default_response_class=DemoJSONResponse)
     app.state.ctx = ctx
     app.add_middleware(DemoHeaderMiddleware)
+
+    system_keys = {mod.KEY for mod in SYSTEMS}
+    can_be_put_back = sorted(system_keys | set(events.SYSTEM_OF.values()))
+
+    def owner_of(path: str) -> str:
+        """The system a request's changes are put down to: the system in its path, or the system an arrival is for."""
+        parts = [p for p in path.split("/") if p]
+        for i, part in enumerate(parts):
+            if part in system_keys:
+                return part
+            if part == "admin":
+                if parts[i + 1:i + 2] == ["simulate"] and len(parts) > i + 2:
+                    return events.SYSTEM_OF.get(parts[i + 2], "admin")
+                return "admin"
+        return "admin"
+
+    app.add_middleware(WriteNotes, store=store, owner_of=owner_of)
 
     subs = []
     for mod in SYSTEMS:
@@ -100,11 +145,23 @@ def create_app(env: dict | None = None) -> FastAPI:
         store.reset()
         return {"applied": True, "message": "Back to the starting data.", "counts": store.counts()}
 
+    @admin.post("/reset/{system}")
+    async def reset_one(system: str):
+        if system not in can_be_put_back:
+            raise HTTPException(404, f"No system named {system}. Use one of: {', '.join(can_be_put_back)}. "
+                                     "POST /admin/reset without a name puts everything back.")
+        kinds = tuple(kind for kind, owner in events.SYSTEM_OF.items() if owner == system)
+        put_back = store.reset_system(system, kinds)
+        message = (f"Put back what {system} had changed. The rest of the bank is as it was." if put_back
+                   else f"{system} had changed nothing, so nothing was put back.")
+        return {"applied": True, "system": system, "message": message, "put_back": put_back, "counts": store.counts()}
+
     @admin.get("/state")
     async def state():
         return {"bank_date": settings.bank_today.isoformat(), "auth_enabled": settings.auth_enabled,
                 "data_dir_set": settings.data_dir is not None, "counts": store.counts(),
-                "subscriptions": len(store.subscriptions)}
+                "subscriptions": len(store.subscriptions),
+                "changed_by": {name: rec["sets"] for name, rec in sorted(store.changed.items())}}
 
     @admin.get("/events")
     async def get_events():
@@ -194,6 +251,8 @@ public website. It needs no key and has no MCP address.</p>
 <h2>Open items</h2><table>{count_rows}</table>
 <h2>Start again</h2>
 <p>Send <code>POST {html.escape(root)}/admin/reset</code> with the key. This puts all data back to the starting point.
+<code>POST {html.escape(root)}/admin/reset/&lt;system&gt;</code> puts back only what that one system has changed,
+so several people can test against one bank.
 <code>POST {html.escape(root)}/admin/simulate/&lt;kind&gt;</code> makes one new item arrive
 (kinds: {', '.join(events.KINDS)}).</p>
 </body></html>"""
