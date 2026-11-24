@@ -69,7 +69,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Accounts payable desk](desks/accounts-payable/README.md) | Supplier Query, Delivery Discrepancy, Invoice Matching | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against the three real agents |
 | [Customer care desk](desks/customer-care/README.md) | Customer Service, Returns Processing, Complaint Handling, Review Reply | Written. Run against the stand-in platform on 24 November 2026: twenty-four scenarios in a headless browser, all pass, and a visual review at desktop and phone width. Not yet run against the four real agents |
 | [Loss prevention desk](desks/loss-prevention/README.md) | Fraud Prevention, Shrink Analysis, Refund and Discount Audit | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at two widths in light and dark. Not yet run against the real agents |
-| Pricing and replenishment desk | Price Optimization, Inventory Forecasting | Planned |
+| [Pricing and replenishment desk](desks/pricing-and-replenishment/README.md) | Price Optimization, Inventory Forecasting | Written. Run against the stand-in platform on 24 November 2026: twenty-three scenarios in a headless browser, all pass, and a visual review at two widths in light and dark. Not yet run against the real agents |
 | Product data desk | Product Catalog, Product Data Check | Planned |
 | Recall desk | Product Recall Preparation | Planned |
 

@@ -1,0 +1,400 @@
+{
+  "$comment": "What makes the generic case desk the pricing and replenishment desk of Rowanmere Market. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. Two kinds of case sit in one queue, and each goes to its own agent: Price change, Replenishment order. Rowanmere Group, its suppliers, its competitors and every record are invented.",
+  "desk": {
+    "id": "pricing-and-replenishment",
+    "name": "Pricing and replenishment desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "merchant or buyer",
+    "tagline": "Price reviews by category and replenishment by supplier in one queue, a draft for each from its own agent, a place to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "issuedVerb": "Approved by",
+    "documentLinkLabel": "Download the draft as approved",
+    "arrivedVia": {
+      "feed": "the pricing and stock systems",
+      "officer": "the merchandising team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "category",
+      "supplier",
+      "about"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "rules",
+      "received_on"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this case. Correct the details and add them, or remove the case.",
+    "noTextNote": "No records were supplied with this case. Say so under the heading \"Summary\", write no table and no draft, and write the last line as: Proposal: ask again: the case came with no records.",
+    "askPlaceholder": "For example: which rule did you check first for line 2?",
+    "searchPlaceholder": "Search by kind, category, supplier or line",
+    "demoNote": "Demo data: Rowanmere Group, its suppliers, its competitors and every price, stock figure and order are invented.",
+    "listFields": [
+      "kind",
+      "about"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Price change": {
+        "agentEnv": "PRICE_OPTIMIZATION_AGENT_ID",
+        "instruction": "A category of Rowanmere Market's price file has arrived at the pricing and replenishment desk for its price review. Set each line's price beside the prices the competitors publish and beside the company's pricing rules, and recommend a decrease, an increase or a hold for each line, with the reason. You change no price and you approve nothing: a merchant decides.\n\nWork from this message only. The case below carries the category's lines with their prices and costs, the competitors' published prices, each line's stock on hand and its sales in the last four weeks, and the pricing rules, as the pricing system and the stock system hold them. Read nothing from any system and save nothing, because the desk keeps the recommendations. Write no line about saving a draft. Copy every price exactly. Invent no price, no competitor and no rule. Use no rule, no limit and no method of your own: the pricing rules in the case give them. Say nothing about what a competitor will do next. Write plain statements and do not write in the first person.\n\nHow to work out a line, for each line that has a published competitor price:\n- The reference price is the lower of the published competitor prices. If only one competitor publishes a price, that price is the reference price.\n- The gap is our price minus the reference price, as a percent of the reference price, to one decimal place.\n- A gap inside the band the rules give, the edge of the band included, is a hold.\n- Outside the band, the move is to the reference price: a decrease when our price is above it, an increase when it is below.\n- Check that new price against every rule. The margin: the price without tax is the price divided by 1.15, and the margin is that figure minus the cost, as a percent of that figure. The ending: the last digit of the cents. The move: the change as a percent of our current price. For a decrease, the stock cover: stock on hand divided by the daily forecast, where the daily forecast is the sales of the last four weeks divided by 28.\n- If every rule allows the new price, recommend it. If a rule forbids it, the line is held by that rule: name the rule and stop there. Put no other price in its place.\n- A figure exactly on a limit is allowed, as the rules say.\n- A line with no published competitor price gets no recommendation and no row.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the category, the retailer date and the version of the pricing rules; each line whose price would change, with its current price and its new price, or that no price change is recommended; each line a rule holds, with the rule; and, if the category has lines with no published competitor price, that they get no recommendation. Put no count of marks or of lines in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft recommendations. For the merchant. No price changed.\"\n3. A Markdown table with exactly these seven columns and one row for each line that has a published competitor price, in order of line id. Put no vertical bar inside a cell.\n| # | Line | Our price | Reference price | New price | Mark | Reason |\n# is 1, 2, 3 in order. Line is the line id and its name. Our price is the price and the cost. Reference price is the reference price, the published prices it comes from, and how far our price is above or below it, as a percent. New price is the new price with the move as a percent and the margin at the new price, or \"None\". Mark is exactly one of: decrease, increase, held by a rule, hold, not checked, in lower case. \"held by a rule\" is a line outside the band whose move a rule forbids. \"hold\" is a line inside the band. Reason says in one or two sentences why: for a change, the figure for each rule that was checked; for a line held by a rule, the rule's number and the figure that breaks it; for a hold, that the gap is inside the band. Use \"not checked\" only for a line whose price, cost, published price or stock is not in this message, and say which is missing.\n4. A blank line, then a line that is exactly \"Price changes for approval. Not made.\" and under it one line for each change, as the line id, the name, the current price and the new price, for example: DR-5901 Orange juice, 1 litre: 2.69 to 2.49. If no price changes, write under that line exactly: No change is recommended.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"approve the price changes:\" followed by each line id with its new price; or \"no price change:\" followed by the reason, naming each rule that holds a line. Write nothing after that line.",
+        "decisions": [
+          "approve_prices",
+          "approve_some",
+          "no_price_change",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Our price",
+          "policy": "Reference",
+          "citation": "New price",
+          "check": "Reason"
+        }
+      },
+      "Replenishment order": {
+        "agentEnv": "INVENTORY_FORECASTING_AGENT_ID",
+        "instruction": "A supplier's lines have arrived at the pricing and replenishment desk for the weekly replenishment plan. Forecast each line's need from its recent sales, find the lines that run out before their next delivery and the lines that are overstocked, and draft one purchase order for the supplier. You place no order and you approve nothing: a buyer decides.\n\nWork from this message only. The case below carries the supplier, its lead time and minimum order, each line's stock on hand, its sales in the last four weeks, its case size and its open orders, and the replenishment rules, as the stock system holds them. Read nothing from any system and save nothing, because the desk keeps the plan. Write no line about saving a draft. Copy every number exactly. Invent no line, no supplier and no order. Use no rule and no limit of your own: the replenishment rules in the case give them. Change no quantity for a promotion, the weather, a market rumour or a feeling. Call a forecast a forecast, never a fact. Write plain statements and do not write in the first person.\n\nHow to work out a line, for every line in the case:\n- The daily forecast is the units sold in the last four weeks divided by 28.\n- Days of cover is stock on hand divided by the daily forecast, to one decimal place.\n- The days to the next delivery: if the line has an open order, the days from the retailer date to the earliest due date. If it has none, the supplier's lead time.\n- The line runs out when its days of cover are fewer than the days to the next delivery. Exactly the same number of days is not a run-out.\n- For a line that runs out, the units to order are the daily forecast times the lead time plus 14 days, minus stock on hand, minus the units on open orders. Divide by the case size and round up to a whole case. Never fewer cases than the supplier's minimum order.\n- A line is overstocked when its days of cover are more than 56. Exactly 56 is not overstocked. No order is drafted for it.\n- Draft no order for a line that does not run out, however low its stock looks: a line with little stock and an order due before the stock is gone does not run out.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the supplier with its number, the retailer date, the version of the replenishment rules and the lead time; each line that runs out, with its cases and units, or that no line runs out; each line that looks low and does not run out, with the reason; each overstocked line with its stock on hand and its days of cover; and one sentence saying that the daily figures are forecasts. Put no count of marks or of lines in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft plan. For the buyer. No order placed.\"\n3. A Markdown table with exactly these seven columns and one row for each line in the case, in order of line id. Put no vertical bar inside a cell.\n| # | Line | Stock | Next delivery | Order | Mark | Working |\n# is 1, 2, 3 in order. Line is the line id and its name. Stock is the stock on hand, the daily forecast and the days of cover. Next delivery is the open order with its units, its due date and the days to it, or that nothing is on order and the lead time. Order is the cases, the case size and the units, or \"None\". Mark is exactly one of: order, no order, overstocked, not checked, in lower case. Working says in one or two sentences why: for a line that runs out, the cover against the days to the next delivery and the sum that gives the units; for any other line, why it does not run out or that it is overstocked. Use \"not checked\" only for a line whose stock, sales or supply terms are not in this message, and say which is missing.\n4. A blank line, then a line that is exactly \"Draft purchase order. Not placed.\" and under it a line \"To:\" with the supplier's name and number, then one line for each line that runs out, as the line id, the name, the cases, the case size and the units, for example: CH-5502 Salted butter, 250 g: 87 cases of 20, 1,740 units. If no line runs out, write under that line exactly: No order. No line of this supplier runs out before its next delivery.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"approve the draft order:\" followed by the supplier's number and each line id with its cases; or \"no order: no line of this supplier runs out before its next delivery\". Write nothing after that line.",
+        "decisions": [
+          "approve_order",
+          "approve_changed",
+          "hold_order",
+          "no_order",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Stock",
+          "policy": "Next delivery",
+          "citation": "Order",
+          "check": "Working"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the merchandising team (the form at the top of the list)",
+      "Sent by the pricing and stock systems when the weekly review is due (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case",
+        "hint": "The category or the supplier, and what is reviewed. For example Drinks: price review, or Ilvane Valley Dairy Ltd: replenishment.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "Price change",
+          "Replenishment order"
+        ]
+      },
+      {
+        "key": "about",
+        "label": "About",
+        "hint": "One fact about the case, for example 4 lines to review.",
+        "required": false
+      },
+      {
+        "key": "category",
+        "label": "Category",
+        "hint": "For a price change: the category of the price file, for example Drinks.",
+        "required": false
+      },
+      {
+        "key": "supplier",
+        "label": "Supplier",
+        "hint": "For a replenishment order: the supplier's name and number, for example Ilvane Valley Dairy Ltd (SUP-301).",
+        "required": false
+      },
+      {
+        "key": "lines",
+        "label": "Lines",
+        "hint": "The line ids in the case, for example CH-5502, CH-5503.",
+        "required": false
+      },
+      {
+        "key": "rules",
+        "label": "Rules",
+        "hint": "The rules the case carries and their version, for example Pricing Rules, version 2.0.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Retailer date",
+        "hint": "The day the records were read.",
+        "required": false,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the pricing and stock systems hold for the case. Each part starts with a heading in capitals: the lines with their prices, published competitor prices and stock, or the supplier's lines with stock, sales and open orders, then the rules.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the pricing and replenishment desk whose kind of work is not one this desk knows. The kinds are Price change and Replenishment order. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and no draft. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Price changes for approval. Not made.",
+        "title": "Price changes for approval",
+        "hint": "Not made. The desk changes no price."
+      },
+      {
+        "heading": "Draft purchase order. Not placed.",
+        "title": "Draft purchase order",
+        "hint": "Not placed. The desk places no order."
+      }
+    ],
+    "marks": {
+      "decrease": "Decrease",
+      "increase": "Increase",
+      "held by a rule": "Held by a rule",
+      "hold": "Hold",
+      "order": "To order",
+      "no order": "No order",
+      "overstocked": "Overstocked",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "decrease": "person",
+      "increase": "person",
+      "held by a rule": "warn",
+      "hold": "plain",
+      "order": "person",
+      "no order": "plain",
+      "overstocked": "warn",
+      "not checked": "none"
+    },
+    "markHints": {
+      "decrease": "Our price is above the reference price by more than the band, and every pricing rule allows the move down to it",
+      "increase": "Our price is below the reference price by more than the band, and every pricing rule allows the move up to it",
+      "held by a rule": "The line is outside the band, and a pricing rule forbids the move to the reference price. No other price is proposed",
+      "hold": "The gap to the reference price is inside the band, the edge included. No change",
+      "order": "The line runs out before its next delivery. The quantity is the one the replenishment rules give",
+      "no order": "The line does not run out before its next delivery",
+      "overstocked": "The line has more than 56 days of cover. No order. Listed for the buyer",
+      "not checked": "A figure needed to work this line out was not with the case"
+    },
+    "markIcons": {
+      "decrease": "↓",
+      "increase": "↑",
+      "held by a rule": "⊘",
+      "order": "+",
+      "overstocked": "▲"
+    },
+    "quietMarks": [
+      "hold",
+      "no order"
+    ],
+    "rowFilter": true,
+    "tallyLabels": {
+      "hold": "inside the band",
+      "no order": "with no order"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "rowLabels": {
+      "source": "Held",
+      "policy": "Compared with",
+      "citation": "Result",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "approve_prices",
+      "label": "Approve the price changes",
+      "proposalPrefix": "approve the price changes",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve the price changes as they read on version {version}{edited} of the draft, in your name. The desk changes no price: the changes are made in the pricing system."
+    },
+    {
+      "id": "approve_some",
+      "label": "Approve some, hold the rest",
+      "outcome": "part_approved",
+      "needsNote": true,
+      "noteLabel": "Which changes you approve, and which you hold and why",
+      "noteHint": "Name each line. The desk records this in your name. It changes no price: the approved changes are made in the pricing system."
+    },
+    {
+      "id": "no_price_change",
+      "label": "Close with no price change",
+      "proposalPrefix": "no price change",
+      "outcome": "no_price_change",
+      "needsNote": true,
+      "noteLabel": "Why no price changes",
+      "noteHint": "For example: every line is inside the band. Or: a rule holds the only line outside it."
+    },
+    {
+      "id": "approve_order",
+      "label": "Approve the draft order",
+      "proposalPrefix": "approve the draft order",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve the draft purchase order as it reads on version {version}{edited} of the draft, in your name. The desk places no order: the order is placed in the purchasing system."
+    },
+    {
+      "id": "approve_changed",
+      "label": "Approve with a changed quantity",
+      "outcome": "approved_with_change",
+      "needsNote": true,
+      "noteLabel": "Which quantity you changed, and why",
+      "noteHint": "Change the quantity in the draft purchase order first, with \"Edit the text\". The desk records the order as it reads now, in your name. It places no order."
+    },
+    {
+      "id": "hold_order",
+      "label": "Hold the order",
+      "outcome": "order_held",
+      "needsNote": true,
+      "noteLabel": "Why the order is held, and until when",
+      "noteHint": "The desk records that nothing is to be ordered from this draft for now. It tells the supplier nothing."
+    },
+    {
+      "id": "no_order",
+      "label": "Close with no order",
+      "proposalPrefix": "no order",
+      "outcome": "no_order",
+      "needsNote": true,
+      "noteLabel": "Why nothing is ordered",
+      "noteHint": "For example: no line of this supplier runs out before its next delivery."
+    },
+    {
+      "id": "send_back",
+      "label": "Send back to the agent",
+      "proposalPrefix": "ask again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "Approved",
+    "part_approved": "Part approved",
+    "no_price_change": "No change",
+    "approved_with_change": "Approved, changed",
+    "order_held": "Held",
+    "no_order": "No order",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "part_approved",
+    "no_price_change",
+    "approved_with_change",
+    "order_held",
+    "no_order",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk changes no price and places no order: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "category",
+      "supplier",
+      "about",
+      "lines",
+      "rules",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other merchant or buyer can. You can still send it back to the agent.",
+    "reasonToApproveUnmet": false,
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as approved, as the draft reads below. The desk has changed no price and placed no order: the change or the order is made in the retailer's own system, in your name.",
+    "part_approved": "Recorded as approved in part, with your note. The desk has changed no price: the changes you approved are made in the pricing system, and the rest stay as they are.",
+    "no_price_change": "Recorded as closed with no price change, with your reason. No price changes.",
+    "approved_with_change": "Recorded as approved with a changed quantity, with your note. The desk has placed no order: the order goes out in the purchasing system, as it reads below.",
+    "order_held": "Recorded as held, with your reason. Nothing is ordered from this draft.",
+    "no_order": "Recorded as closed with no order, with your reason. Nothing is ordered."
+  },
+  "decisionLabels": {
+    "issued": "Approved",
+    "part_approved": "Approved in part",
+    "no_price_change": "Closed with no price change",
+    "approved_with_change": "Approved with a changed quantity",
+    "order_held": "Held the order",
+    "no_order": "Closed with no order",
+    "sent_back": "Sent back to the agent",
+    "removed": "Removed from the desk"
+  }
+}
