@@ -37,6 +37,8 @@ Each case states its case date. Every date in the questionnaire is read against 
 
 ## Which engine it needs
 
+The last line of each row is labelled "Reason" (`draft.rowLabels.check`), because it gives why the mark follows and what the officer should check.
+
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_LIBRARY_DIR`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, and the `case.queryFields`, `decisions[].proposalPrefix` and `draft.rowLabels` settings.
 
 **That version of the engine is not published yet.** The engine on GitHub today can only be the regulatory change desk and will not run this folder. This page will name the version once it is out.

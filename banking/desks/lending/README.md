@@ -55,6 +55,18 @@ The desk has no decision that approves or declines a loan. The loan officer, the
 | LAP-8001 | Credit analysis | Debt to income 0.197 against a limit of at most 0.40 |
 | LN-9001, a term loan of USD 250,000 | Document check | Exactly three differences: the rate margin (clause 3), the debt service cover covenant (clause 6a) and the security (clause 7) |
 
+## What each kind shows
+
+Each kind names its own decisions and marks (`routing.kinds.<kind>.decisions` and `.marks`). The server refuses a decision the kind does not offer.
+
+| Kind | Decisions | Marks |
+|---|---|---|
+| Application intake | Accept the draft, Ask for more, Refer on, redo | in order, missing, differs |
+| Credit analysis | Accept the draft, Refer on, redo | in order, outside policy, missing, differs |
+| Document check | Accept the draft, Refer on, redo | in order, differs, missing |
+
+Credit analysis and document check do not ask the applicant for documents: that is intake's work. The last line of each row is labelled "Note" (`draft.rowLabels.check`), because it is the agent's note on the row.
+
 ## Which engine it needs
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, the `routing` setting, and the `case.queryFields`, `case.jumpLabel`, `decisions[].proposalPrefix` (one prefix or a list), `draft.rowLabels`, `draft.plainSource`, `desk.issuedVerb` and `intake.fields[].options` settings. An earlier engine ignores `routing`, and every case would go to one agent with one instruction.

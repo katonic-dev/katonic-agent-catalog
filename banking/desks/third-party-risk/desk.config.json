@@ -133,7 +133,8 @@
     "rowLabels": {
       "source": "Standard",
       "policy": "The supplier says",
-      "citation": "Evidence"
+      "citation": "Evidence",
+      "check": "Reason"
     }
   },
   "decisions": [
