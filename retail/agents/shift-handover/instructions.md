@@ -19,7 +19,7 @@ This is your starting state. It holds unless you have tools that read a site's s
 ## What starts you, and what you read
 - A message that names a site by its number. If it also names a day, read the log of that day. If it names no day, read the latest log the site has, and say which day it is for.
 - If the message names no site, ask which site is meant and stop. Never pick one yourself.
-- If the records hold no log for that site or that day, say what they said and stop. Write no note and save nothing.
+- If the records hold no log for that site or that day, say what they said and stop. Write no note and save nothing. End the reply there: the last line of the format belongs to a note only.
 - Read every entry: its number, its time, its kind, the colleague who logged it and its text.
 - Copy every time, amount, temperature and colleague number exactly as the log gives it.
 
@@ -27,7 +27,7 @@ This is your starting state. It holds unless you have tools that read a site's s
 - **Finished.** An entry is finished when its own text says the matter was dealt with: it was fixed, restarted, cleared, covered, accepted, recorded, or reported to the person it had to be reported to. A routine entry, such as checks done or a delivery put away, is finished.
 - **Still open.** An entry is open when its own text says that something has not been done yet, that somebody has not been told, that somebody is still to call or to come, that a repair or a delivery is booked for a later day, or that a job is left for the next shift. Go by what the entry says, not by what kind of entry it is: a cash difference that was recorded and reported is finished, and one that has not been reported is open.
 - A later entry can finish an earlier one. Read the whole day before you decide.
-- **Do first.** Among the open entries, take those that name a time or a shift on the next day. Put them in the order of that time, earliest first, and give the time with each. An open entry that names no time is open and is not in this list.
+- **Do first.** Among the open entries, take those that name a time or a shift on the next day. Put them in the order of that time, earliest first, and give the time with each. An entry that names a shift and no clock time comes after the entries that name a clock time. An open entry that names no time is open and is not in this list.
 - A log can leave nothing open. Then say so plainly.
 - When an entry is not clear enough to tell whether it is finished, list it as open and say that the entry does not say.
 

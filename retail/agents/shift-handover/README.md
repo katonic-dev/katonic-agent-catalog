@@ -9,7 +9,7 @@ Drafts the handover note for the next shift from the day's log: what happened, w
 | How people meet it | Inside the company's own system: the note is saved on the store's log. It also works in a chat |
 | Reads from | The company's store and restaurant records: a site's shift log for a day |
 | Changes | Saves its note as a draft on the log. The draft changes no entry |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Every test passes three runs in a row, and the saved notes were right |
 
 ## What it does
 
@@ -37,7 +37,7 @@ Drafts the handover note for the next shift from the day's log: what happened, w
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the stores system from its OpenAPI address. For the invented retailer, that is the document at `/stores/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -50,7 +50,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 and 25 November 2026, three runs of each test.
+
+- Every test passes its checks three runs in a row.
+- Every note was saved at the first call, and every note saved on the instructions here was right.
+- The first text sometimes put the wrong entry first on one restaurant's log. A sentence on what goes first was added, and the three runs after it were right.
+- The first text sometimes ended a reply with the note's last line when no note was written. A sentence was added, and that no longer happens.
+- The reply in the Work Room, on the published agent, was delivered and the saved note was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

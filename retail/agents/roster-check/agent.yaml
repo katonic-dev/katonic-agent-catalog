@@ -49,12 +49,17 @@ sample_data:
   - ../../policy-library/working-time-and-staffing-rules-v1.2.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. It reads the rules through the people system.
-    The same rules are a document in the policy library. The working time
-    rules there are the company's statement of the rules of an invented
-    country.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Every test passes its checks three runs in a row
+    on the instructions here. The checks read the reply and not the saved
+    draft. The agent is not steady on the two staffing rules that need the
+    cover laid over the day (SR-1 and SR-3): on the two rosters that turn on
+    them the saved draft was right in about half the runs, and the saved
+    draft can hold fewer breaches than the table in the reply. The working
+    time rules were right in every run. A step in code that lays the cover
+    over the day is the cure; it is not built.

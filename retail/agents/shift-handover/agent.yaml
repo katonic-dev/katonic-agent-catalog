@@ -42,11 +42,15 @@ changes:
   - {tool: save_handover_note, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. Which entries are still open is a reading of
-    free text. The scheduled form, one run for each site at the end of the
-    day, is not written yet.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Every test passes its checks three runs in a row
+    on the instructions here (five runs in a row is the bar for
+    tests_passed), and every note saved to the invented retailer after the
+    change was right. The first text sometimes put the wrong entry first on
+    one restaurant's log and ended a reply with the note's last line when no
+    note was written: two sentences were added and both are cured.

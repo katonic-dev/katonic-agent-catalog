@@ -52,10 +52,17 @@ changes:
   - {tool: save_price_recommendations, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The pricing and replenishment desk is planned
-    and not yet written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Every test passes its checks three runs in a row
+    on the instructions here (five runs in a row is the bar for
+    tests_passed). The whole price file was saved and right in four runs of
+    four: three changes, four holds a rule forces and twenty-three holds
+    inside the band. Three sentences were added after the first round. In
+    one run of one test the agent said the pricing system was not connected,
+    which was untrue. A question about one line also saves a draft that
+    holds that one line.

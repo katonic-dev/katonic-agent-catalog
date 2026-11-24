@@ -9,7 +9,7 @@ Recommends a decrease, an increase or a hold for each line that has a published 
 | How people meet it | An application: the pricing and replenishment desk. It also works in a chat |
 | Reads from | The company's pricing system: the price file, the competitors' published prices and the pricing rules. The stock system: stock on hand and recent sales |
 | Changes | Saves its recommendations as a draft. The draft changes no price |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Every test passes its checks three runs in a row, and the saved price file was right every time |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Recommends a decrease, an increase or a hold for each line that has a published 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the pricing system and the stock system from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/pricing/openapi.json` and `/stock/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -52,7 +52,17 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 and 25 November 2026, three runs of each test.
+
+- Every test passes its checks three runs in a row.
+- The whole price file was saved and right in four runs of four: three changes, four holds a rule forces, and twenty-three holds inside the band.
+- One save was refused once, for a decrease sent as an increase, and the agent corrected it.
+- Three sentences were added after the first round: give our price, name the competitor, and say what the rules give.
+- In one run of one test the agent said the pricing system was not connected, which was untrue.
+- A question about one line also saves a draft that holds that one line.
+- The reply in the Work Room, on the published agent, was delivered and the saved draft was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

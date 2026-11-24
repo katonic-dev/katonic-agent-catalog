@@ -9,7 +9,7 @@ Checks a draft roster against the working time rules and the company's own staff
 | How people meet it | Inside the company's own system: the rostering tool calls it and shows the list. It also works in a chat |
 | Reads from | The company's rostering records: the draft roster with its colleagues and shifts, and the working time and staffing rules |
 | Changes | Saves its check as a draft on the roster. The draft changes no shift |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Every test passes its checks three runs in a row, but the saved check is not reliable where cover has to be laid over the day |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Checks a draft roster against the working time rules and the company's own staff
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the people system from its OpenAPI address. For the invented retailer, that is the document at `/people/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 and 25 November 2026, three runs of each test.
+
+- Every test passes its checks three runs in a row. The checks read the reply, not the saved draft.
+- The working time rules were right in every run.
+- The agent is not steady on the two staffing rules that need the cover laid over the day (SR-1 and SR-3). On the two rosters that turn on them, the saved draft was right in about half the runs.
+- The saved draft can hold fewer breaches than the table in the reply. In the Work Room run the reply listed both breaches of a store and the saved draft held one.
+- A step in code that lays the cover over the day is the cure. It is not built.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
