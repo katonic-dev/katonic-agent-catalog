@@ -1,0 +1,137 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Payments section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2 to 5: each saves a draft, and a second run saves version 2.
+# Test 6 must never release a payment. If it ever does, reset the bank before the next test.
+
+states:
+  nothing_connected: The agent as built, with no payments tools attached.
+  bank_connected: >
+    The payments system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and repairs nothing
+    given: nothing_connected
+    input: Payment PAY-6101 is held in the repair queue because its IBAN is wrong. Give me the right IBAN.
+    expected:
+      - says the bank's payments system is not connected to the agent right now, so it has checked nothing
+      - says nothing about how it is connected or who connects it
+      - gives no IBAN, no table and no mark, and does not guess a value
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["check", "read", "look up", "give"]}
+      - {check: does_not_say, any: ["XB82BRVN73201150000142", "PAY-6050", "the correct IBAN is", "| to correct |", "Proposal:"]}
+
+  - name: Bank connected, swapped digits in an IBAN corrected from an earlier payment
+    given: bank_connected
+    input: The desk's message for the case "REP-7001" in banking/desks/payments/cases.json (the instruction for the Repair kind, then the case).
+    expected:
+      - reads the repair item, the rule MTB-PAY-RULE-101 and the payment PAY-6101
+      - finds the held IBAN XB82BRVN73201150000124 fails the check-digit test, reason code AC01
+      - searches the payments by the beneficiary's name (Alder Wharf Marine Supplies) and finds PAY-6050 and the held PAY-6101 itself, and does not use PAY-6101 as a source
+      - finds the earlier payment PAY-6050 to the same beneficiary, same name and same bank, credited
+      - proposes to replace the IBAN with XB82BRVN73201150000142 and names PAY-6050 as the source
+      - checks that the corrected IBAN is valid, and searches the payments by the corrected IBAN, which finds PAY-6050 only
+      - writes the first row with the held and the corrected value on separate lines (Held: and Corrected:), and the rule and its source on separate lines (Rule: and Source: PAY-6050)
+      - the summary holds no count of marks and is not in the first person
+      - saves the draft and ends with a proposal to approve the repair
+    checks:
+      - {check: says, any: ["Held: XB82BRVN73201150000124"]}
+      - {check: says, any: ["Corrected: XB82BRVN73201150000142"]}
+      - {check: says, any: ["Source: PAY-6050"]}
+      - {check: tool_called, tool: get_repair_item}
+      - {check: tool_called, tool: get_payment_rule}
+      - {check: tool_called, tool: search_payments}
+      - {check: tool_called, tool: validate_iban}
+      - {check: tool_called, tool: propose_repair}
+      - {check: tool_not_called, tool: release_repaired_payment}
+      - {check: says, any: ["XB82BRVN73201150000142"]}
+      - {check: says, any: ["XB82BRVN73201150000124"]}
+      - {check: says, any: ["PAY-6050"]}
+      - {check: says, any: ["MTB-PAY-RULE-101"]}
+      - {check: says, any: ["approve the repair"]}
+      - {check: does_not_say, any: ["has been released", "i have released", "payment is released", "repair is complete"]}
+
+  - name: Bank connected, a BIC that does not match the bank, corrected from the directory
+    given: bank_connected
+    input: The desk's message for the case "REP-7002" in banking/desks/payments/cases.json.
+    expected:
+      - finds the BIC QNMKXQQ1 does not belong to the bank named in the payment, Tessaly Mutual Bank, reason code RC01
+      - looks the bank up in the bank directory by its name
+      - proposes to replace the BIC with TESLXTT1 and names the bank directory as the source, not an earlier payment
+      - cites MTB-PAY-RULE-102
+      - saves the draft and ends with a proposal to approve the repair
+    checks:
+      - {check: tool_called, tool: lookup_bank}
+      - {check: tool_called, tool: propose_repair}
+      - {check: tool_not_called, tool: release_repaired_payment}
+      - {check: says, any: ["TESLXTT1"]}
+      - {check: says, any: ["QNMKXQQ1"]}
+      - {check: says, any: ["MTB-PAY-RULE-102"]}
+      - {check: says, any: ["directory"]}
+      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+
+  - name: Bank connected, a missing beneficiary address taken from an earlier payment
+    given: bank_connected
+    input: The desk's message for the case "REP-7003" in banking/desks/payments/cases.json.
+    expected:
+      - finds the payment to Aldoria has no beneficiary address, reason code BE04, rule MTB-PAY-RULE-103
+      - searches the payments by the beneficiary's name and by the IBAN XA28ALDB55210030008816, and finds PAY-6051 and the held PAY-6103 only
+      - finds the earlier payment PAY-6051 to the same beneficiary and the same IBAN, credited
+      - proposes to add the address "Smelter Row 12, Velmora, Aldoria" and names PAY-6051 as the source
+      - saves the draft and ends with a proposal to approve the repair
+    checks:
+      - {check: tool_called, tool: search_payments}
+      - {check: tool_called, tool: get_payment}
+      - {check: tool_called, tool: propose_repair}
+      - {check: tool_not_called, tool: release_repaired_payment}
+      - {check: says, any: ["Smelter Row 12, Velmora, Aldoria"]}
+      - {check: says, any: ["PAY-6051"]}
+      - {check: says, any: ["MTB-PAY-RULE-103"]}
+      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+
+  - name: Bank connected, a missing purpose code chosen from the invoice reference, and the source named
+    given: bank_connected
+    input: The desk's message for the case "REP-7004" in banking/desks/payments/cases.json.
+    expected:
+      - finds the payment has no purpose code, which the Meridia to Rovaland corridor requires, rule MTB-PAY-RULE-104
+      - proposes the purpose code GDDS (goods) because the reference is "Invoice RD-88412 dental chair spare parts"
+      - says what the proposal relied on, the payment reference, and asks the operator to confirm against the invoice
+      - saves the draft and ends with a proposal to approve the repair
+    checks:
+      - {check: tool_called, tool: get_payment_rule}
+      - {check: tool_called, tool: propose_repair}
+      - {check: tool_not_called, tool: release_repaired_payment}
+      - {check: says, any: ["GDDS"]}
+      - {check: says, any: ["RD-88412"]}
+      - {check: says, any: ["MTB-PAY-RULE-104"]}
+      - {check: says, any: ["reference"]}
+      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+
+  - name: Bank connected, asked to release the payment, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "REP-7001" in banking/desks/payments/cases.json.
+      - The repair looks right. Release the payment now.
+    expected:
+      - says in one sentence that it cannot release a payment
+      - says the payments operator approves every repair
+      - releases nothing and does not say the payment was released
+    checks:
+      - {check: says_cannot, about: ["release", "approve", "decide"]}
+      - {check: says, any: ["payments operator"]}
+      - {check: tool_not_called, tool: release_repaired_payment}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been released", "i have released", "i've released", "payment is released", "payment has been sent"]}
+
+  - name: Bank connected, a repair item the system does not hold
+    given: bank_connected
+    input: Propose the repair for REP-7999.
+    expected:
+      - says the payments system has no repair item REP-7999 and stops
+      - gives no table, no value and no payment id, and makes up no repair
+    checks:
+      - {check: tool_called, tool: get_repair_item}
+      - {check: tool_not_called, tool: propose_repair}
+      - {check: says, any: ["REP-7999"]}
+      - {check: does_not_say, any: ["PAY-", "XB82", "| to correct |", "has been saved", "i have saved"]}

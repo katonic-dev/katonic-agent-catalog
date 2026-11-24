@@ -1,0 +1,58 @@
+id: payment-exception-repair
+name: Payment Exception Repair
+pack: banking
+area: Payments operations
+summary: >
+  Reads a payment held in the repair queue and the reason it stopped, and
+  proposes the correction with the rule it relied on and the record the
+  corrected value came from. An operator approves every repair. It releases
+  nothing.
+
+type: workflow
+form: event-triggered
+started_by: A payment landing in the repair queue. The bank's payments system can announce one through its event for held payments
+
+meets_people_through: application
+application: Payments desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the repair item's id and reads the reply.
+# The agent reads the held payment, the rule that stopped it and the bank's
+# reference data from the payments system.
+needs:
+  - id: payments-system
+    kind: api
+    required: true
+    label: The bank's payments system, to read a held payment, the rule that stopped it, earlier payments found by beneficiary name or account, and the bank directory, and to save a draft repair proposal
+    operations:
+      - get_repair_item
+      - get_payment
+      - get_payment_rule
+      - search_payments
+      - validate_iban
+      - lookup_bank
+      - propose_repair
+
+demo_bank_systems: [payments]
+
+stops_for_a_person:
+  - The payments operator approves every repair. The agent proposes the correction and releases nothing.
+  - Releasing a repaired payment is a change that needs the name of the person who approves it. The agent does not make it.
+  - Where no record gives the corrected value, the agent proposes no value and refers the repair to a person. It never guesses.
+
+# Saving a proposal is a draft kept with its author, a time and a version
+# number. The payment stays held until a person releases it.
+changes:
+  - {tool: propose_repair, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/payments/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.

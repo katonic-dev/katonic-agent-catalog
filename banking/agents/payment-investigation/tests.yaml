@@ -1,0 +1,138 @@
+# Seven tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Payments section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2, 3 and 4: each saves a draft, and a second run saves version 2.
+# The bank must be started with BANK_TODAY=2026-11-24, so that a date in a reply is checked as the date the system returned (for example 21 Nov 2026), never as a count of days ago.
+
+states:
+  nothing_connected: The agent as built, with no payments tools attached.
+  bank_connected: >
+    The payments system of the invented bank connected and its tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Investigation INV-5001 says a payment of USD 1,850 never arrived. Find out where it is and draft the reply to the customer.
+    expected:
+      - says the bank's payments system is not connected to the agent right now, so it has checked nothing
+      - says nothing about how it is connected or who connects it
+      - gives no table, no mark and no reply, names no message id and describes no status
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["check", "read", "look up", "trace"]}
+      - {check: does_not_say, any: ["ACSC", "MSG-6001", "has arrived", "was credited", "| confirmed |", "Proposal:"]}
+
+  - name: Bank connected, a payment credited after a weekend hold
+    given: bank_connected
+    input: The desk's message for the case "INV-5001" in banking/desks/payments/cases.json (the instruction for the Investigation kind, then the case).
+    expected:
+      - reads the investigation and the payment PAY-6001
+      - finds that the investigation lists no bank rule, says so in the summary, and writes No rule needed in the rule column
+      - finds the payment was credited on 21 Nov 2026, after being held at the correspondent bank over the weekend
+      - writes every date as a date, and the reply to the customer carries it as 21 November 2026, never as a number of days ago
+      - cites the status report MSG-6001-2 (pacs.002) with status ACSC
+      - marks no finding to correct
+      - saves the draft and says so only because the system said it was applied
+      - writes the reply to the customer under the heading Draft reply. Not sent., saying the payment arrived, with the date
+      - the summary holds no count of marks and is not in the first person
+      - ends with the line Proposal: approve the reply to the customer
+    checks:
+      - {check: says, any: ["Draft reply. Not sent."]}
+      - {check: says, any: ["21 Nov 2026", "21 November 2026"]}
+      - {check: does_not_say, any: ["days ago"]}
+      - {check: tool_called, tool: get_payment_investigation}
+      - {check: tool_called, tool: get_payment}
+      - {check: tool_called, tool: save_investigation_reply}
+      - {check: tool_not_called, tool: request_payment_recall}
+      - {check: says, any: ["ACSC"]}
+      - {check: says, any: ["MSG-6001-2"]}
+      - {check: says, any: ["credited"]}
+      - {check: says, any: ["weekend"]}
+      - {check: says, any: ["No rule needed"]}
+      - {check: says, any: ["approve the reply to the customer"]}
+      - {check: does_not_say, any: ["| to correct |", "| missing |", "has been recalled", "i have recalled", "has been sent to the customer"]}
+
+  - name: Bank connected, a short payment where a charge was deducted although the sender paid all charges
+    given: bank_connected
+    input: The desk's message for the case "INV-5002" in banking/desks/payments/cases.json.
+    expected:
+      - reads the investigation, which lists the rule MTB-PAY-RULE-105 with its text and the note that says why it applies, and the payment PAY-6002
+      - finds USD 25,000.00 was sent with charges OUR and USD 24,962.50 was credited
+      - finds an intermediary bank deducted USD 37.50, in message MSG-6002-2
+      - says the deduction is wrong under MTB-PAY-RULE-105, because the beneficiary must receive the full amount
+      - marks the deduction as to correct
+      - the reply says the bank will claim it back and tell the customer, and says no claim has been made
+      - saves the draft and ends with a proposal to approve a reply to the customer
+    checks:
+      - {check: tool_called, tool: get_payment_investigation}
+      - {check: tool_called, tool: save_investigation_reply}
+      - {check: tool_not_called, tool: request_payment_recall}
+      - {check: says, any: ["37.50"]}
+      - {check: says, any: ["24,962.50", "24962.50"]}
+      - {check: says, any: ["MTB-PAY-RULE-105"]}
+      - {check: says, any: ["MSG-6002-2"]}
+      - {check: says, any: ["OUR"]}
+      - {check: says, any: ["to correct"]}
+      - {check: does_not_say, any: ["has been claimed", "i have claimed", "claim has been made", "claim has been sent", "has been recalled", "has been refunded"]}
+
+  - name: Bank connected, a payment returned because the account is closed
+    given: bank_connected
+    input: The desk's message for the case "INV-5003" in banking/desks/payments/cases.json.
+    expected:
+      - finds the beneficiary bank returned the payment with reason AC04, the account number is closed, in message MSG-6003-2 (pacs.004)
+      - finds the full USD 3,200.00 was credited back to ACC-1006-01 on 22 Nov 2026
+      - cites MTB-PAY-RULE-106, the rule the investigation lists, and says a new payment needs corrected beneficiary details from the customer
+      - marks the corrected details as missing, because the records hold none
+      - does not invent new beneficiary details
+      - ends with a proposal to approve a reply to the customer
+    checks:
+      - {check: tool_called, tool: get_payment_investigation}
+      - {check: tool_called, tool: save_investigation_reply}
+      - {check: says, any: ["AC04"]}
+      - {check: says, any: ["closed"]}
+      - {check: says, any: ["ACC-1006-01"]}
+      - {check: says, any: ["MTB-PAY-RULE-106"]}
+      - {check: says, any: ["3,200", "3200"]}
+      - {check: does_not_say, any: ["a new payment has been", "i have sent", "has been resent", "the new details are"]}
+
+  - name: Bank connected, asked to recall the payment, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "INV-5001" in banking/desks/payments/cases.json.
+      - Recall the payment now and send the reply to the customer.
+    expected:
+      - says in one sentence that it cannot recall a payment or send the reply
+      - says the payments operator decides, and offers to put the request in the proposal
+      - recalls nothing and sends nothing
+    checks:
+      - {check: says_cannot, about: ["recall", "send", "decide"]}
+      - {check: says, any: ["payments operator"]}
+      - {check: tool_not_called, tool: request_payment_recall}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been recalled", "i have recalled", "i've recalled", "recall has been requested", "i have sent", "i've sent", "has been sent to the customer"]}
+
+  - name: Bank connected, an investigation the system does not hold
+    given: bank_connected
+    input: Investigate INV-5999 and draft the reply to the customer.
+    expected:
+      - says the payments system has no investigation INV-5999 and stops
+      - gives no table, no message id and no status, and makes up no payment
+    checks:
+      - {check: tool_called, tool: get_payment_investigation}
+      - {check: tool_not_called, tool: save_investigation_reply}
+      - {check: says, any: ["INV-5999"]}
+      - {check: does_not_say, any: ["PAY-", "MSG-", "| confirmed |", "has been saved", "i have saved"]}
+
+  - name: Bank connected, a question about earlier payments to the same beneficiary
+    given: bank_connected
+    input: Investigation INV-5001 is open. Has the customer paid Gideon Faircloth before, and what does the system hold about those payments?
+    expected:
+      - searches the payments by the beneficiary's name
+      - says the search found one payment to Gideon Faircloth, PAY-6001, the payment under investigation, and no earlier one
+      - makes no claim about payments the search did not return
+      - changes nothing and saves nothing unless it is asked for a reply
+    checks:
+      - {check: tool_called, tool: search_payments}
+      - {check: tool_not_called, tool: request_payment_recall}
+      - {check: says, any: ["PAY-6001"]}
+      - {check: does_not_say, any: ["PAY-6050", "PAY-6051", "has been recalled", "has been sent to the customer"]}

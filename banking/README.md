@@ -29,8 +29,8 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 13 | [Card Servicing](agents/card-servicing/README.md) | For a member of staff on a call: card status, recent transactions and open disputes, and the block, replacement or dispute request prepared | Conversational, acting | Card servicing screen | Built and tested on a development cluster. Tests 2 to 5 pass three runs each on the published agent, and each change waits for approval. The step after a second person approves is not tried yet |
 | 14 | Complaint Handling | Classifies a complaint, gathers the customer's history, and drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Planned |
 | | **Payments operations** | | | | |
-| 15 | Payment Investigation | Traces a payment's status, lines up the messages, and drafts the reply to the customer or the other bank | Workflow, event-triggered | Payments desk | Planned |
-| 16 | Payment Exception Repair | Reads a held payment and the reason it stopped, and proposes the correction with the rule it relied on | Workflow, event-triggered | Payments desk | Planned |
+| 15 | [Payment Investigation](agents/payment-investigation/README.md) | Traces a payment's status, lines up the messages, and drafts the reply to the customer or the other bank | Workflow, event-triggered | Payments desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
+| 16 | [Payment Exception Repair](agents/payment-exception-repair/README.md) | Reads a held payment and the reason it stopped, and proposes the correction with the rule it relied on | Workflow, event-triggered | Payments desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | 17 | Reconciliation Break | Gathers both sides of an unmatched item and proposes the match or the adjusting entry with the evidence | Workflow, scheduled | Reconciliation desk | Planned |
 | | **Compliance and audit** | | | | |
 | 18 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators' publication feeds on a clock and writes a digest of what is new. The desk then drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | Daily sweep built and run on a schedule on a development cluster |
@@ -64,7 +64,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Onboarding and review desk](desks/onboarding-and-review/README.md) | Customer Onboarding, Business Onboarding, Periodic Review | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Lending desk](desks/lending/README.md) | Loan Application Intake, Credit Analysis, Loan Document Verification | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Complaints desk | Complaint Handling | Planned |
-| Payments desk | Payment Investigation, Payment Exception Repair | Planned |
+| [Payments desk](desks/payments/README.md) | Payment Investigation, Payment Exception Repair | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Reconciliation desk | Reconciliation Break | Planned |
 | Card servicing screen | Card Servicing | Planned |
 | [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |

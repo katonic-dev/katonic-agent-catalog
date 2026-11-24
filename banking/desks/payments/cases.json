@@ -1,0 +1,75 @@
+{
+  "$comment": "Seven invented payments cases for the demo, from the invented bank Meridian Trust Bank. The customers, payments, banks and messages do not exist. Investigation: INV-5001 (arrived, held over a weekend), INV-5002 (short by a charge that should not have been taken), INV-5003 (returned, account closed). Repair: REP-7001 (IBAN digits swapped), REP-7002 (wrong BIC), REP-7003 (no address), REP-7004 (no purpose code). The dates are as at the bank date 2026-11-24: start the invented bank with BANK_TODAY=2026-11-24 so that the records the agent reads agree with them. Each case names only what the bank's payments system holds.",
+  "cases": [
+    {
+      "title": "Rosalind Heathcote-Brae, USD 1,850.00",
+      "kind": "Investigation",
+      "reference": "INV-5001",
+      "payment": "PAY-6001",
+      "customer": "Rosalind Heathcote-Brae (CUS-1014)",
+      "amount": "USD 1,850.00",
+      "received_on": "2026-11-24",
+      "text": "THE INVESTIGATION\nInvestigation: INV-5001, open\nType: Beneficiary not received\nRaised: 20 Nov 2026, by the contact centre\nClaim: The customer says her friend has not received the USD 1,850 sent on 18 Nov 2026 and asks where it is.\n\nTHE PAYMENT\nPayment: PAY-6001, USD 1,850.00, status credited\nSent: 18 Nov 2026, charges SHA\nSender: Rosalind Heathcote-Brae (CUS-1014), account ACC-1014-01\nBeneficiary: Gideon Faircloth, Tessaly Mutual Bank (TESLXTT1)\nIBAN: XT09TESL61000220004417\nReference: Deposit for rented flat\n\nMESSAGES ON FILE\nMessage: MSG-6001-1, pacs.008, outbound, 18 Nov 2026\nMessage: MSG-6001-2, pacs.002, inbound, 21 Nov 2026\n\nRULES THAT APPLY\nNone. The system lists no bank rule for this investigation.\n\nWHY IT IS HERE\nWhy: The customer asks where the payment is. The agent traces it and drafts the reply. A person approves the reply.\n\nEverything here is as the payments system holds it. The agent reads the investigation and the payment itself from the payments system."
+    },
+    {
+      "title": "Pinecrest Tooling Works Ltd, USD 25,000.00",
+      "kind": "Investigation",
+      "reference": "INV-5002",
+      "payment": "PAY-6002",
+      "customer": "Pinecrest Tooling Works Ltd (CUS-1018)",
+      "amount": "USD 25,000.00",
+      "received_on": "2026-11-24",
+      "text": "THE INVESTIGATION\nInvestigation: INV-5002, open\nType: Amount short\nRaised: 19 Nov 2026, by business banking\nClaim: The supplier says USD 24,962.50 arrived, not USD 25,000. The customer asks why it is short.\n\nTHE PAYMENT\nPayment: PAY-6002, USD 25,000.00, status credited\nSent: 16 Nov 2026, charges OUR\nSender: Pinecrest Tooling Works Ltd (CUS-1018), account ACC-1018-01\nBeneficiary: Corrowick Alloy Works, Brevnia Savings Union (BRVNXBB1)\nIBAN: XB76BRVN40550990001207\nReference: Invoice A-2291 alloy bars\n\nMESSAGES ON FILE\nMessage: MSG-6002-1, pacs.008, outbound, 16 Nov 2026\nMessage: MSG-6002-2, pacs.008, inbound, 17 Nov 2026\nMessage: MSG-6002-3, pacs.002, inbound, 18 Nov 2026\n\nRULES THAT APPLY\nRule: MTB-PAY-RULE-105, charges instructed as OUR\n\nEverything here is as the payments system holds it. The agent reads the investigation and the payment itself from the payments system."
+    },
+    {
+      "title": "Oskar Brindlemoor, USD 3,200.00",
+      "kind": "Investigation",
+      "reference": "INV-5003",
+      "payment": "PAY-6003",
+      "customer": "Oskar Brindlemoor (CUS-1006)",
+      "amount": "USD 3,200.00",
+      "received_on": "2026-11-24",
+      "text": "THE INVESTIGATION\nInvestigation: INV-5003, open\nType: Payment returned\nRaised: 22 Nov 2026, by the contact centre\nClaim: The customer sees a credit of USD 3,200 and asks why his payment came back.\n\nTHE PAYMENT\nPayment: PAY-6003, USD 3,200.00, status returned\nSent: 19 Nov 2026, charges SHA\nSender: Oskar Brindlemoor (CUS-1006), account ACC-1006-01\nBeneficiary: Hartsfell Rentals, Quenmark National Bank (QNMKXQQ1)\nIBAN: XQ66QNMK88100340007725\nReference: Deposit, garage unit\n\nMESSAGES ON FILE\nMessage: MSG-6003-1, pacs.008, outbound, 19 Nov 2026\nMessage: MSG-6003-2, pacs.004, inbound, 21 Nov 2026\n\nRULES THAT APPLY\nRule: MTB-PAY-RULE-106, returned payments\n\nEverything here is as the payments system holds it. The agent reads the investigation and the payment itself from the payments system."
+    },
+    {
+      "title": "Tobias Wrenfield, USD 4,200.00",
+      "kind": "Repair",
+      "reference": "REP-7001",
+      "payment": "PAY-6101",
+      "customer": "Tobias Wrenfield (CUS-1011)",
+      "amount": "USD 4,200.00",
+      "received_on": "2026-11-24",
+      "text": "THE HELD PAYMENT\nRepair item: REP-7001, held\nHeld since: 23 Nov 2026\nPayment: PAY-6101, USD 4,200.00, status held\nSender: Tobias Wrenfield (CUS-1011), account ACC-1011-01\nBeneficiary: Alder Wharf Marine Supplies, Brevnia Savings Union (BRVNXBB1)\nIBAN as held: XB82BRVN73201150000124\nReference: Invoice AW-5604 anchors\nHeld message: MSG-6101-1, pacs.008, outbound (held)\n\nWHY IT STOPPED\nStopped: The beneficiary IBAN fails the check-digit test (two digits look swapped).\nRule: MTB-PAY-RULE-101, IBAN must pass the check-digit test\nReason code: AC01, incorrect account number\n\nEverything here is as the payments system holds it. The agent reads the repair item and the payment itself from the payments system. An operator approves every repair."
+    },
+    {
+      "title": "Cassius Dunmore, USD 1,275.00",
+      "kind": "Repair",
+      "reference": "REP-7002",
+      "payment": "PAY-6102",
+      "customer": "Cassius Dunmore (CUS-1013)",
+      "amount": "USD 1,275.00",
+      "received_on": "2026-11-24",
+      "text": "THE HELD PAYMENT\nRepair item: REP-7002, held\nHeld since: 23 Nov 2026\nPayment: PAY-6102, USD 1,275.00, status held\nSender: Cassius Dunmore (CUS-1013), account ACC-1013-01\nBeneficiary: Tessaly Vineyards Co-operative, Tessaly Mutual Bank\nIBAN: XT83TESL61000770002203\nBIC as held: QNMKXQQ1\nReference: Wine order 0331\nHeld message: MSG-6102-1, pacs.008, outbound (held)\n\nWHY IT STOPPED\nStopped: The BIC QNMKXQQ1 belongs to another bank than the bank named in the payment (Tessaly Mutual Bank), and the bank code TESL inside the IBAN agrees with the name.\nRule: MTB-PAY-RULE-102, BIC must match the beneficiary bank\nReason code: RC01, bank identifier incorrect\n\nEverything here is as the payments system holds it. The agent reads the repair item and the payment itself from the payments system. An operator approves every repair."
+    },
+    {
+      "title": "Pinecrest Tooling Works Ltd, USD 18,750.00",
+      "kind": "Repair",
+      "reference": "REP-7003",
+      "payment": "PAY-6103",
+      "customer": "Pinecrest Tooling Works Ltd (CUS-1018)",
+      "amount": "USD 18,750.00",
+      "received_on": "2026-11-24",
+      "text": "THE HELD PAYMENT\nRepair item: REP-7003, held\nHeld since: 23 Nov 2026\nPayment: PAY-6103, USD 18,750.00, status held\nSender: Pinecrest Tooling Works Ltd (CUS-1018), account ACC-1018-01\nBeneficiary: Aldoria Steel Merchants, Aldoria Commerce Bank (ALDBXAA1)\nIBAN: XA28ALDB55210030008816\nAddress: none on the payment\nReference: Invoice AS-1044 steel coil\nHeld message: MSG-6103-1, pacs.008, outbound (held)\n\nWHY IT STOPPED\nStopped: No postal address for the beneficiary in a payment to Aldoria.\nRule: MTB-PAY-RULE-103, cross-border payments need the beneficiary address\nReason code: BE04, missing creditor address\n\nEverything here is as the payments system holds it. The agent reads the repair item and the payment itself from the payments system. An operator approves every repair."
+    },
+    {
+      "title": "Orchard Lane Dental Group, USD 6,300.00",
+      "kind": "Repair",
+      "reference": "REP-7004",
+      "payment": "PAY-6104",
+      "customer": "Orchard Lane Dental Group (CUS-1024)",
+      "amount": "USD 6,300.00",
+      "received_on": "2026-11-24",
+      "text": "THE HELD PAYMENT\nRepair item: REP-7004, held\nHeld since: 23 Nov 2026\nPayment: PAY-6104, USD 6,300.00, status held\nSender: Orchard Lane Dental Group (CUS-1024), account ACC-1024-01\nBeneficiary: Rovaland Dental Supplies, Rovaland Credit Bank (ROVAXRR1)\nIBAN: XR11ROVA30770120009954\nPurpose code: none on the payment\nReference: Invoice RD-88412 dental chair spare parts\nHeld message: MSG-6104-1, pacs.008, outbound (held)\n\nWHY IT STOPPED\nStopped: The payment has no purpose code, which the Rovaland corridor requires.\nRule: MTB-PAY-RULE-104, purpose code for the Meridia to Rovaland corridor\nReason code: none given\n\nEverything here is as the payments system holds it. The agent reads the repair item and the payment itself from the payments system. An operator approves every repair."
+    }
+  ]
+}

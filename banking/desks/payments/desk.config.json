@@ -1,0 +1,386 @@
+{
+  "$comment": "What makes the generic case desk the payments desk. Start it with DESK_CONFIG pointing at this file. Needs the settings-driven case desk engine that reads the routing key. The bank (Meridian Trust Bank), its customers, its payments and its banks are invented.",
+  "desk": {
+    "id": "payments",
+    "name": "Payments desk",
+    "caseNoun": "payments case",
+    "caseNounPlural": "payments cases",
+    "draftNoun": "proposal",
+    "deciderRole": "payments operator",
+    "tagline": "Payment investigations and held payments in one queue, a drafted reply or repair for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a payments case",
+    "arrivedVia": {
+      "feed": "the bank's payments system",
+      "officer": "the payments team"
+    },
+    "issuedVerb": "Approved by"
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "kind",
+      "reference",
+      "payment"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "customer",
+      "amount"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the investigation or the held payment from the payments system.",
+    "noTextNote": "No summary was supplied with this case. Work from the investigation or the repair item the case names, read from the payments system.",
+    "askPlaceholder": "For example: which message shows the date it was credited?",
+    "searchPlaceholder": "Search by customer, id or kind",
+    "demoNote": "Demo data: the bank, its customers, its payments and its banks are invented. Nothing here is a real payment.",
+    "listFields": [
+      "kind",
+      "reference",
+      "payment"
+    ],
+    "chipFields": [],
+    "listTitleLines": 2,
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the case)",
+    "replyButton": "Add the reply and draft again",
+    "replyNote": "A reply has been added at the end of the case. Read the investigation or the held payment from the payments system again, as new messages may have arrived, and draft again in the light of the reply.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The case"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Investigation": {
+        "agentEnv": "INVESTIGATION_AGENT_ID",
+        "instruction": "A payment investigation has arrived at the bank's payments desk. Work on the investigation named in the case below. Trace the payment's status, line up the messages exchanged, and draft the reply to the customer or the other bank. You recall nothing, amend nothing and return nothing: a person decides what is sent and what is done about the payment.\n\nRead the investigation, with the bank rules it lists (the rule ids, the text of each rule and the note that says why they apply), and the payment with its status timeline and its messages, from the payments system before you write anything. Where the claim or the reply turns on earlier payments to the same beneficiary, find them by the beneficiary's name or account and say what the search found. Use only ids the system returns. Every finding carries its evidence: the payment id, the message id with its type, or the rule id. Give every date and amount as the system gives it. Never fill a gap: where the records do not settle a point, say so and refer it to a person.\n\nReply in this shape and in no other.\nWrite every date as a date, never as a count of days ago: 18 Nov 2026 in the summary and the table, and 18 November 2026 inside the draft reply. A count of days may follow a date where it matters to a rule, for example \"received 18 Nov 2026, 6 days after it was sent\". Where a record gives a count of days, work the date out from the dates the system holds.\nWrite plain statements. Do not write in the first person. Only the draft reply speaks for the bank, and it may say \"we\".\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft reply was saved to the payments system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft proposal. For the payments operator. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per finding. Put no vertical bar inside a cell.\n| # | Finding | Evidence | What the records show | Rule | Mark | Note |\n# is 1, 2, 3 in order. Finding is what was checked, for example where the payment is now, when it was credited, the amount that arrived, a charge deducted, or why it came back. Evidence is the payment id, the message id with its type, or the rule id. What the records show is the value in a few words, with the date and the amount as the system gives them. Rule is the id of the bank rule the finding rests on, or \"No rule needed\". When the investigation lists no rule, write \"No rule needed\" in every row. Mark is exactly one of: confirmed, to correct, missing, unclear, in lower case. Note says why, and what the operator should check.\n4. When the proposal is a reply: a blank line, then the heading \"Draft reply. Not sent.\", then the reply, written as a message to the customer or the other bank. It starts with a greeting line, has short paragraphs with a blank line between them, and ends with the line \"Payments, Meridian Trust Bank\". It speaks for the bank. It states only facts that the findings support, each with its date or amount. It names a rule in words and never by its id. It says what the bank's rule says the bank will do, and promises no refund, recall or date that no record gives. It holds no full IBAN and no account number. When the proposal is to refer to a person, write no reply.\n5. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six, with no count of marks (the desk counts the marks from the table): the payment (id, amount, date, parties) and the investigation (id, what the customer says); what the records show, in one or two sentences; the bank rules the system lists for the investigation, or that it lists none; what a person must put right or supply, named in words, when there is anything; then the \"Saved:\" line.\nMarks: confirmed when the records show it; to correct when the records show that something went wrong which a person must put right, such as a charge taken that the rule says must not be taken; missing when the reply needs a fact the records do not hold; unclear when the records do not settle the point.\nThe \"Proposal:\" line is exactly one of: \"approve the reply to the customer\", \"approve the reply to the other bank\", or \"refer to a person:\" followed by what the records do not settle and what was checked. Never write that a recall, an amendment or a return has been made.",
+        "decisions": [
+          "approve",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "confirmed",
+          "to correct",
+          "missing",
+          "unclear"
+        ],
+        "rowLabels": {
+          "citation": "Rule"
+        }
+      },
+      "Repair": {
+        "agentEnv": "REPAIR_AGENT_ID",
+        "instruction": "A payment has landed in the bank's repair queue at the payments desk. Work on the repair item named in the case below. Read the held message and why it stopped, find the correct value, and propose the correction with the rule you relied on and where the corrected value came from. An operator approves every repair. You release nothing, send nothing and amend no payment: you propose.\n\nRead the repair item with the bank rule that stopped it, and the payment, from the payments system before you write anything. Use the system's own checks: its check of an IBAN, and its directory of banks. Where the rule allows a value to be taken from an earlier payment to the same beneficiary, search the payments by the beneficiary's name, and by the beneficiary's account (a full IBAN, or a part of at least six characters) where the held one may be only slightly wrong, and read each payment found in full. Use only this customer's own payments: a payment to the same beneficiary by another customer is not a source. A payment counts only if it was credited and the beneficiary's name and bank are the same. The held payment itself shows up in a search: it is not a source. When you have a corrected IBAN, search for it too: earlier payments that used it support it. Where the rule points to the bank directory, read the value from the directory. Use only ids the system returns. A corrected value comes from a record and never from a guess: name the record. If no record gives it, say so, propose no value and refer the repair to a person.\n\nReply in this shape and in no other.\nWrite every date as a date, never as a count of days ago, for example 18 Nov 2026. A count of days may follow a date where it matters to a rule, for example \"held since 23 Nov 2026, 1 day after it was submitted\". Where a record gives a count of days, work the date out from the dates the system holds.\nWrite plain statements. Do not write in the first person.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft proposal was saved to the payments system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft proposal. For the payments operator. Not issued.\"\n3. A Markdown table with exactly these seven columns, one row for each field you propose to correct, then one row for each check that supports it. Put no vertical bar inside a cell.\n| # | Field | Evidence | What the records show | Rule and source | Mark | Note |\n# is 1, 2, 3 in order. Field is the field of the held payment that was checked: the beneficiary IBAN, the beneficiary BIC, the beneficiary address or the purpose code, or the check that supports a correction. Evidence is the payment id, the message id with its type, or the rule id. In a row for a field you propose to correct, What the records show is exactly \"Held: \" and the held value, then <br>, then \"Corrected: \" and the corrected value (write \"Held: none\" when the field is empty), and Rule and source is exactly \"Rule: \" and the rule id, then <br>, then \"Source: \" and the record the corrected value comes from: an earlier payment id with the field, the bank directory entry, or the payment reference. In a row for a check, What the records show is the value that was confirmed, and Rule and source is the rule id. Mark is exactly one of: to correct, confirmed, missing, unclear, in lower case. Note says why, and what the operator should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six, with no count of marks (the desk counts the marks from the table): the held payment (id, amount, customer, beneficiary); why it stopped, with the rule id and the reason code if there is one; each correction in one line with the old value, the new value and where it comes from; the searches made and what each found, when a value comes from an earlier payment; then the \"Saved:\" line.\nMarks: to correct when the field has a proposed new value; confirmed when a check agrees, for example the earlier payment has the same beneficiary name and bank, or the corrected IBAN passes the check; missing when no record gives the value; unclear when the records disagree.\nThe \"Proposal:\" line is exactly one of: \"approve the repair:\" followed by each correction in one sentence (for example \"replace the beneficiary IBAN X with Y on PAY-6101\"), then \"Rule: \" and the rule id, then \"Source: \" and the record the value came from; or \"refer to a person:\" followed by what the records do not settle and what was checked. Never write that a payment has been released.",
+        "decisions": [
+          "approve_repair",
+          "return_payment",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "to correct",
+          "confirmed",
+          "missing",
+          "unclear"
+        ],
+        "rowLabels": {
+          "citation": "Rule and source"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "refer",
+        "send_back"
+      ],
+      "marks": [
+        "confirmed",
+        "to correct",
+        "missing",
+        "unclear"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the payments team (the form at the top of the list)",
+      "Sent by the bank's payments system when an investigation is raised or a payment is held (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "hint": "Who it concerns and the amount, for example: Tobias Wrenfield, USD 4,200.00. The kind and the ids go in their own fields.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Choose the kind of work. Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "Investigation",
+          "Repair"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Investigation or repair id",
+        "hint": "For example INV-5001 or REP-7001.",
+        "required": true
+      },
+      {
+        "key": "payment",
+        "label": "Payment id",
+        "hint": "For example PAY-6001.",
+        "required": true
+      },
+      {
+        "key": "customer",
+        "label": "Customer",
+        "hint": "The name and the customer id.",
+        "required": true
+      },
+      {
+        "key": "amount",
+        "label": "Amount",
+        "required": false,
+        "hint": "With the currency, for example USD 1,850.00"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "The parties, the payment, the messages on file and the rule that applies, with their ids"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A payments case has arrived whose kind of work is not one this desk knows. The kinds are Investigation and Repair. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the payments system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft proposal",
+      {
+        "heading": "Draft reply. Not sent.",
+        "title": "Draft reply",
+        "hint": "For the customer or the other bank. Edit it before you approve it."
+      }
+    ],
+    "marks": {
+      "confirmed": "Confirmed",
+      "to correct": "To correct",
+      "missing": "Missing",
+      "unclear": "Unclear"
+    },
+    "markTones": {
+      "confirmed": "ok",
+      "to correct": "warn",
+      "missing": "warn",
+      "unclear": "none"
+    },
+    "markHints": {
+      "confirmed": "The records show it, or a check agrees",
+      "to correct": "The records show something that must be put right, or a field with a proposed new value",
+      "missing": "The records do not hold a value or a fact that is needed",
+      "unclear": "The records do not settle the point. A person decides"
+    },
+    "reviewHeading": "Draft proposal",
+    "rowLabels": {
+      "source": "Evidence",
+      "policy": "The records show",
+      "citation": "Rule and source",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "proposalPrefix": "Proposal:"
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Approve the reply",
+      "proposalPrefix": [
+        "approve the reply"
+      ],
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve version {version}{edited} of the reply, in your name. It sends nothing and changes no payment. The reply is sent by the person who has the authority, from the payments system."
+    },
+    {
+      "id": "approve_repair",
+      "label": "Approve the repair",
+      "proposalPrefix": [
+        "approve the repair"
+      ],
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve version {version}{edited} of the repair, in your name. It releases nothing and changes no payment. The corrected payment is released in the payments system by the person who has the authority."
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask the customer for more",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to ask for, one item to a line",
+      "noteHint": "This text goes into the letter, one item to a line. The case waits here until the reply is added."
+    },
+    {
+      "id": "return_payment",
+      "label": "Return the payment",
+      "outcome": "returned",
+      "needsNote": true,
+      "noteLabel": "Why the payment goes back, and who is told",
+      "noteHint": "Use this when the held payment cannot be repaired. It returns nothing here: the person who has the authority returns it in the payments system."
+    },
+    {
+      "id": "refer",
+      "label": "Refer to a person",
+      "proposalPrefix": [
+        "refer to a person"
+      ],
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For the person who can settle it. Name them and give the reason."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the proposal",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the operator",
+    "sent_back": "Being redone",
+    "issued": "Approved",
+    "info_requested": "Waiting for a reply",
+    "referred": "Referred to a person",
+    "removed": "Removed",
+    "returned": "Return agreed"
+  },
+  "closedStatuses": [
+    "issued",
+    "returned",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk sends no reply, releases no payment, recalls none and returns none: a person does that in the payments system.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "payment",
+      "customer",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "payment",
+      "customer",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind",
+      "reference": "Id",
+      "customer": "Customer",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "letter_number": "Letter",
+      "draft_versions": "Proposal versions",
+      "payment": "Payment"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other payments operator can. You can still ask the agent to redo the proposal.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as approved. Nothing further happens on this desk. The reply is sent, or the repair released, in the payments system by the person who has the authority.",
+    "info_requested": "When the reply comes, add it here. The agent reads the case again and the proposal comes back for your decision.",
+    "referred": "Recorded as referred, with the name and the reason you gave. The decision is theirs.",
+    "returned": "Recorded as a return, with the reason you gave. Nothing is returned on this desk: the person who has the authority returns the payment in the payments system."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Your payment: more information needed",
+      "linkLabel": "Letter asking for information",
+      "prefix": "PY",
+      "days": 7,
+      "toField": "customer",
+      "opening": "We cannot go further with the payment below until we have more information. This is not a decision on your payment.",
+      "fields": [
+        "customer",
+        "payment",
+        "amount"
+      ],
+      "list": "note",
+      "listHeading": "What we need",
+      "dateLine": "Please send it by {until}.",
+      "body": [
+        "Quote {number} when you reply."
+      ],
+      "signature": "Payments, Meridian Trust Bank (an invented bank, for demonstration)",
+      "dates": "long"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Approved",
+    "info_requested": "Asked the customer for more information",
+    "returned": "Agreed to return the payment",
+    "referred": "Referred to a person",
+    "sent_back": "Asked the agent to redo the proposal",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

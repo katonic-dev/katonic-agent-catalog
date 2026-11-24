@@ -1,0 +1,56 @@
+id: payment-investigation
+name: Payment Investigation
+pack: banking
+area: Payments operations
+summary: >
+  Traces a payment's status, lines up the messages exchanged about it, and
+  drafts the reply to the customer or the other bank. It stops before any
+  recall, amendment or return: a payments operator decides what is sent and
+  what is done about the payment.
+
+type: workflow
+form: event-triggered
+started_by: A query on a payment. The bank's payments system can announce one through its event for new payment investigations
+
+meets_people_through: application
+application: Payments desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the investigation's id and reads the reply.
+# The agent reads the investigation with its rules, the payment and earlier
+# payments to the same beneficiary from the payments system.
+needs:
+  - id: payments-system
+    kind: api
+    required: true
+    label: The bank's payments system, to read an investigation with the bank rules it lists, the payment with its timeline and messages, earlier payments to the same beneficiary, and to save a draft reply
+    operations:
+      - get_payment_investigation
+      - get_payment
+      - get_payment_rule
+      - search_payments
+      - save_investigation_reply
+
+demo_bank_systems: [payments]
+
+stops_for_a_person:
+  - The payments operator reads the proposal and approves the reply, asks for more, or refers the case. The agent sends nothing to the customer or to another bank.
+  - A recall, an amendment, a return and a claim for a charge deducted by an intermediary bank are for a person. The agent proposes words for the reply and starts none of them.
+  - Where the records do not settle a point, the agent says so and refers the case to a person. It fills no gap.
+
+# Saving a reply is a draft kept with its author, a time and a version number,
+# with the findings it rests on. It sends nothing and changes no status.
+changes:
+  - {tool: save_investigation_reply, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/payments/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.
