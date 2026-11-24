@@ -1,0 +1,86 @@
+{
+  "$comment": "Nine invented cases for the demo, from the invented bank Meridian Trust Bank: three applications from individuals (ONB-1001 to ONB-1003), three from companies (ONB-1004 to ONB-1006) and three periodic reviews (KYR-1001 to KYR-1003). The customers, applicants, companies and documents do not exist. Dates are as at the bank date 2026-11-24. Each case names only what the bank's onboarding system holds.",
+  "cases": [
+    {
+      "title": "Odalys Merrowby (ONB-1001)",
+      "kind": "Individual onboarding",
+      "reference": "ONB-1001",
+      "applicant": "Odalys Merrowby",
+      "product": "Everyday Current Account",
+      "received_on": "2026-11-21",
+      "text": "APPLICATION\nApplication: ONB-1001\nKind: Individual\nProduct: Everyday Current Account\nReceived: 21 Nov 2026\nChannel: branch\n\nON THE FORM\nFull name: Odalys Merrowby\nDate of birth: 18 Apr 1990\nNationality: Meridia\nAddress: 14 Wren Alley, Port Ilvane, Meridia\nIdentity number: ending 2045\nOccupation: Dental nurse\nEmployer: Stillwater Clinic\nSource of funds: Salary\nExpected credits: USD 3,200 a month\n\nDOCUMENTS RECEIVED\nOND-1001-01: identity document, National identity card (extract)\nOND-1001-02: Proof of address (extract)\n\nWHAT THE BANK REQUIRES\nDocuments: an identity document that is valid, and a proof of address dated within the last 3 months (90 days).\nChecks: every field of the form against the identity document and the proof of address, and the applicant's name, date of birth and nationality against the bank's watchlist.\nA strong watchlist match is never opened by the branch. It is referred to Compliance.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Isadora Fenimore (ONB-1002)",
+      "kind": "Individual onboarding",
+      "reference": "ONB-1002",
+      "applicant": "Isadora Fenimore",
+      "product": "Everyday Current Account",
+      "received_on": "2026-11-22",
+      "text": "APPLICATION\nApplication: ONB-1002\nKind: Individual\nProduct: Everyday Current Account\nReceived: 22 Nov 2026\nChannel: branch\n\nON THE FORM\nFull name: Isadora Fenimore\nDate of birth: 2 Sep 1986\nNationality: Meridia\nAddress: 7 Cobble Row, Tallowby, Meridia\nIdentity number: ending 8377\nOccupation: Bookkeeper\nEmployer: Oakline Freight Co\nSource of funds: Salary\nExpected credits: USD 3,200 a month\n\nDOCUMENTS RECEIVED\nOND-1002-01: identity document, National identity card (extract)\nOND-1002-02: Proof of address (extract)\n\nWHAT THE BANK REQUIRES\nDocuments: an identity document that is valid, and a proof of address dated within the last 3 months (90 days).\nChecks: every field of the form against the identity document and the proof of address, and the applicant's name, date of birth and nationality against the bank's watchlist.\nA strong watchlist match is never opened by the branch. It is referred to Compliance.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Wynn Castellano (ONB-1003)",
+      "kind": "Individual onboarding",
+      "reference": "ONB-1003",
+      "applicant": "Wynn Castellano",
+      "product": "Everyday Current Account",
+      "received_on": "2026-11-23",
+      "text": "APPLICATION\nApplication: ONB-1003\nKind: Individual\nProduct: Everyday Current Account\nReceived: 23 Nov 2026\nChannel: branch\n\nON THE FORM\nFull name: Wynn Castellano\nDate of birth: 2 Feb 1962\nNationality: Brevnia\nAddress: 31 Saltpan Road, Marlow Reach, Meridia\nIdentity number: ending 9120\nOccupation: Machinery dealer\nEmployer: Self-employed\nSource of funds: Business income\nExpected credits: USD 3,200 a month\n\nDOCUMENTS RECEIVED\nOND-1003-01: identity document, National identity card (extract)\nOND-1003-02: Proof of address (extract)\n\nWHAT THE BANK REQUIRES\nDocuments: an identity document that is valid, and a proof of address dated within the last 3 months (90 days).\nChecks: every field of the form against the identity document and the proof of address, and the applicant's name, date of birth and nationality against the bank's watchlist.\nA strong watchlist match is never opened by the branch. It is referred to Compliance.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Cobblegate Print Supplies Ltd (ONB-1004)",
+      "kind": "Business onboarding",
+      "reference": "ONB-1004",
+      "applicant": "Cobblegate Print Supplies Ltd",
+      "product": "Business Current Account",
+      "received_on": "2026-11-20",
+      "text": "APPLICATION\nApplication: ONB-1004\nKind: Business\nProduct: Business Current Account\nReceived: 20 Nov 2026\nChannel: branch\n\nON THE FORM\nCompany name: Cobblegate Print Supplies Ltd\nRegistration number: XM-REG-912044\nRegistered address: Unit 9, Printers Yard, Tallowby, Meridia\nCountry: Meridia\nActivity: paper and printing supplies\nDirectors: Bertrand Ulverstone\nOwners declared: Bertrand Ulverstone, person, Meridia, 100 percent\nSignatory: Bertrand Ulverstone\nExpected turnover: USD 480,000 a year\n\nDOCUMENTS RECEIVED\nOND-1004-01: Company registry extract\nOND-1004-02: constitutional documents, Articles of association (extract)\nOND-1004-03: Ownership declaration\n\nWHAT THE BANK REQUIRES\nDocuments: a company registry extract issued within the last 3 months, the constitutional documents, and an ownership declaration signed by a director.\nChecks: the company, every director on the registry extract and every owner of 25 percent or more are screened. The directors on the registry extract are compared with the directors on the form.\nThe ownership chain is built down to the people behind it. Every gap is listed. A gap is never filled from memory or guessed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Larkfield Marine Services Ltd (ONB-1005)",
+      "kind": "Business onboarding",
+      "reference": "ONB-1005",
+      "applicant": "Larkfield Marine Services Ltd",
+      "product": "Business Current Account",
+      "received_on": "2026-11-18",
+      "text": "APPLICATION\nApplication: ONB-1005\nKind: Business\nProduct: Business Current Account\nReceived: 18 Nov 2026\nChannel: branch\n\nON THE FORM\nCompany name: Larkfield Marine Services Ltd\nRegistration number: XM-REG-912377\nRegistered address: Pier 3, Dock Road, Port Ilvane, Meridia\nCountry: Meridia\nActivity: boat repair and marine fuel\nDirectors: Corwin Ashdown\nOwners declared: Vardane Holdings Ltd, company, Quenmark, 60 percent; Corwin Ashdown, person, Meridia, 40 percent\nSignatory: Corwin Ashdown\nExpected turnover: USD 910,000 a year\nNote on the form: The holding company is in Quenmark. Our accountant keeps its records.\n\nDOCUMENTS RECEIVED\nOND-1005-01: Company registry extract\nOND-1005-02: constitutional documents, Articles of association (extract)\nOND-1005-03: Ownership declaration\n\nWHAT THE BANK REQUIRES\nDocuments: a company registry extract issued within the last 3 months, the constitutional documents, and an ownership declaration signed by a director.\nChecks: the company, every director on the registry extract and every owner of 25 percent or more are screened. The directors on the registry extract are compared with the directors on the form.\nThe ownership chain is built down to the people behind it. Every gap is listed. A gap is never filled from memory or guessed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Thistlewick Bakehouse Ltd (ONB-1006)",
+      "kind": "Business onboarding",
+      "reference": "ONB-1006",
+      "applicant": "Thistlewick Bakehouse Ltd",
+      "product": "Business Current Account",
+      "received_on": "2026-11-19",
+      "text": "APPLICATION\nApplication: ONB-1006\nKind: Business\nProduct: Business Current Account\nReceived: 19 Nov 2026\nChannel: branch\n\nON THE FORM\nCompany name: Thistlewick Bakehouse Ltd\nRegistration number: XM-REG-912566\nRegistered address: 2 Oven Lane, Marlow Reach, Meridia\nCountry: Meridia\nActivity: bakery and cafe\nDirectors: Nerys Hallowfield\nOwners declared: Nerys Hallowfield, person, Meridia, 70 percent; Garrick Oldacre, person, Meridia, 30 percent\nSignatory: Nerys Hallowfield\nExpected turnover: USD 260,000 a year\n\nDOCUMENTS RECEIVED\nOND-1006-01: Company registry extract\nOND-1006-02: constitutional documents, Articles of association (extract)\nOND-1006-03: Ownership declaration\n\nWHAT THE BANK REQUIRES\nDocuments: a company registry extract issued within the last 3 months, the constitutional documents, and an ownership declaration signed by a director.\nChecks: the company, every director on the registry extract and every owner of 25 percent or more are screened. The directors on the registry extract are compared with the directors on the form.\nThe ownership chain is built down to the people behind it. Every gap is listed. A gap is never filled from memory or guessed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Cassius Dunmore (KYR-1001)",
+      "kind": "Periodic review",
+      "reference": "KYR-1001",
+      "applicant": "Cassius Dunmore",
+      "product": "Customer CUS-1013, rating standard",
+      "received_on": "2026-11-18",
+      "text": "REVIEW\nReview: KYR-1001\nCustomer: Cassius Dunmore (CUS-1013)\nKind: Individual\nReason: periodic review\nLast review: 17 Nov 2025\nWas due: 16 Nov 2026\nRisk rating: standard\nDocuments in: 18 Nov 2026\n\nTHE PROFILE THE BANK HOLDS\nName: Cassius Dunmore\nDate of birth: 4 Sep 1965\nNationality: Meridia\nAddress: 5 Thistledown Mews, Port Ilvane, Meridia\nIdentity number: ending 1947\nOccupation: Harbour pilot\nEmployer: Tallowby Council Works\nSource of funds: Salary\n\nFRESH DOCUMENTS RECEIVED\nKYD-1001-01: identity document, National identity card (extract)\nKYD-1001-02: Proof of address (extract)\n\nWHAT THE BANK REQUIRES\nA proof of address must be dated within the last 3 months (90 days).\nEvery owner of 25 percent or more of a business must be identified, and every owner that is a company must be traced to the people behind it.\nKharnovia (QP) is on the bank's higher-risk list. An owner, director or customer there needs enhanced checks and a higher risk rating.\nThe customer is screened again against the bank's watchlist. A change of risk rating needs the approval of a named person before the review is completed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Leopold Fenwick-Aral (KYR-1002)",
+      "kind": "Periodic review",
+      "reference": "KYR-1002",
+      "applicant": "Leopold Fenwick-Aral",
+      "product": "Customer CUS-1015, rating standard",
+      "received_on": "2026-11-18",
+      "text": "REVIEW\nReview: KYR-1002\nCustomer: Leopold Fenwick-Aral (CUS-1015)\nKind: Individual\nReason: periodic review\nLast review: 9 Nov 2025\nWas due: 9 Nov 2026\nRisk rating: standard\nDocuments in: 18 Nov 2026\n\nTHE PROFILE THE BANK HOLDS\nName: Leopold Fenwick-Aral\nDate of birth: 11 Jul 1958\nNationality: Meridia\nAddress: 8 Kestrel Hill, Marlow Reach, Meridia\nIdentity number: ending 7785\nOccupation: Quantity surveyor\nEmployer: Ferrow Brothers Builders\nSource of funds: Salary\n\nFRESH DOCUMENTS RECEIVED\nKYD-1002-01: Proof of address (extract)\nKYD-1002-02: occupation letter, Self-employment registration letter (extract)\n\nWHAT THE BANK REQUIRES\nA proof of address must be dated within the last 3 months (90 days).\nEvery owner of 25 percent or more of a business must be identified, and every owner that is a company must be traced to the people behind it.\nKharnovia (QP) is on the bank's higher-risk list. An owner, director or customer there needs enhanced checks and a higher risk rating.\nThe customer is screened again against the bank's watchlist. A change of risk rating needs the approval of a named person before the review is completed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    },
+    {
+      "title": "Orchard Lane Dental Group (KYR-1003)",
+      "kind": "Periodic review",
+      "reference": "KYR-1003",
+      "applicant": "Orchard Lane Dental Group",
+      "product": "Customer CUS-1024, rating standard",
+      "received_on": "2026-11-18",
+      "text": "REVIEW\nReview: KYR-1003\nCustomer: Orchard Lane Dental Group (CUS-1024)\nKind: Business\nReason: periodic review\nLast review: 30 Oct 2025\nWas due: 4 Nov 2026\nRisk rating: standard\nDocuments in: 18 Nov 2026\n\nTHE PROFILE THE BANK HOLDS\nName: Orchard Lane Dental Group\nRegistration number: XM-REG-007168\nAddress: 30 Orchard Lane, Tallowby, Meridia\nActivity: dental clinics\nDirectors: Ottoline Brackenridge, Hamish Brackenridge\nOwners: Ottoline Brackenridge, person, Meridia, 55 percent; Hamish Brackenridge, person, Meridia, 45 percent\n\nFRESH DOCUMENTS RECEIVED\nKYD-1003-01: Company registry extract\nKYD-1003-02: Ownership declaration\n\nWHAT THE BANK REQUIRES\nA proof of address must be dated within the last 3 months (90 days).\nEvery owner of 25 percent or more of a business must be identified, and every owner that is a company must be traced to the people behind it.\nKharnovia (QP) is on the bank's higher-risk list. An owner, director or customer there needs enhanced checks and a higher risk rating.\nThe customer is screened again against the bank's watchlist. A change of risk rating needs the approval of a named person before the review is completed.\n\nEverything here is as the onboarding system holds it. The agent reads the documents themselves from that system."
+    }
+  ]
+}

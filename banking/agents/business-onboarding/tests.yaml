@@ -1,0 +1,113 @@
+# Six tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Onboarding section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Dates in the data are relative to the bank date. The tests give ages in days, not dates, so they hold on any bank date.
+# Reset the bank before each run of tests 2, 3, 4 and 5: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no onboarding or screening tools attached.
+  bank_connected: >
+    The onboarding system and the screening service of the invented bank
+    connected and their tools attached. The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Prepare the account opening file for the company application ONB-1005 and draw its ownership chain.
+    expected:
+      - says the bank's onboarding and screening systems are not connected to the agent right now, so it has examined nothing
+      - says nothing about how they are connected or who connects them
+      - names no owner, no document id and no percentage, and draws no chain
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "check", "examine", "prepare", "draw"]}
+      - {check: does_not_say, any: ["Vardane", "Larkfield", "Corwin", "OND-1005", "60 percent", "| missing |", "GAP"]}
+
+  - name: Bank connected, a company with one owner of 100 percent is proposed for approval
+    given: bank_connected
+    input: The desk's message for the case "Cobblegate Print Supplies Ltd (ONB-1004)" in banking/desks/onboarding-and-review/cases.json (the instruction for the Business onboarding kind, then the case).
+    expected:
+      - reads the registry extract (OND-1004-01), the articles (OND-1004-02) and the ownership declaration (OND-1004-03)
+      - finds all three agree with the form, and the registry extract was issued 12 days ago
+      - draws a chain of one owner, Bertrand Ulverstone, a person holding 100 percent directly, with no gap
+      - screens the company and the director and reports what the screening service returns, including a weak hit on the director's surname (WL-9007, score 79, a different first name and nationality) for the officer to clear
+      - saves the draft and says so only because the system said it was applied
+      - ends with a proposal to approve
+    checks:
+      - {check: tool_called, tool: get_onboarding_application}
+      - {check: tool_called, tool: get_onboarding_document}
+      - {check: tool_called, tool: screen_name}
+      - {check: tool_called, tool: save_onboarding_file}
+      - {check: says, any: ["Bertrand Ulverstone"]}
+      - {check: says, any: ["100 percent", "100%"]}
+      - {check: says, any: ["OND-1004-03"]}
+      - {check: says, any: ["WL-9007"]}
+      - {check: says, any: ["Proposal:"]}
+      - {check: says, any: ["approve"]}
+      - {check: does_not_say, any: ["GAP", "| missing |", "has been approved", "account is open"]}
+
+  - name: Bank connected, a company owned 60 percent by a company with no document behind it
+    given: bank_connected
+    input: The desk's message for the case "Larkfield Marine Services Ltd (ONB-1005)" in banking/desks/onboarding-and-review/cases.json.
+    expected:
+      - draws the chain: Corwin Ashdown, a person, 40 percent directly, and Vardane Holdings Ltd, a company in Quenmark, 60 percent
+      - finds no document shows who owns Vardane Holdings Ltd, so 60 percent is not traced to people, above the 25 percent threshold
+      - lists this as a gap, marks it missing, and says what is missing, a document that shows who owns Vardane Holdings Ltd
+      - names no owner behind Vardane Holdings Ltd and guesses none, and does not use the form's note about the accountant as a document
+      - ends with a proposal to ask the applicant for that document
+    checks:
+      - {check: tool_called, tool: get_onboarding_document}
+      - {check: tool_called, tool: save_onboarding_file}
+      - {check: says, any: ["Vardane Holdings Ltd"]}
+      - {check: says, any: ["60 percent", "60%"]}
+      - {check: says, any: ["25 percent", "25%"]}
+      - {check: says, any: ["gap", "GAP"]}
+      - {check: says, any: ["| missing |"]}
+      - {check: says, any: ["ask the applicant"]}
+      - {check: does_not_say, any: ["Vardane Holdings Ltd is owned by", "the owners of Vardane Holdings Ltd are", "ultimately owned by", "the beneficial owner is", "Proposal: approve", "has been approved"]}
+
+  - name: Bank connected, a director on the registry who is not on the form
+    given: bank_connected
+    input: The desk's message for the case "Thistlewick Bakehouse Ltd (ONB-1006)" in banking/desks/onboarding-and-review/cases.json.
+    expected:
+      - finds the registry extract (OND-1006-01) lists two directors, Nerys Hallowfield and Garrick Oldacre, and the form lists only Nerys Hallowfield
+      - finds Garrick Oldacre is also a 30 percent owner, appointed as a director 21 days ago
+      - says he must be listed on the form, identified with documents, and screened, and screens him
+      - ends with a proposal to ask the applicant for the corrected director list and his identity documents
+    checks:
+      - {check: tool_called, tool: get_onboarding_document}
+      - {check: tool_called, tool: screen_name}
+      - {check: tool_called, tool: save_onboarding_file}
+      - {check: says, any: ["Garrick Oldacre"]}
+      - {check: says, any: ["Nerys Hallowfield"]}
+      - {check: says, any: ["30 percent", "30%"]}
+      - {check: says, any: ["OND-1006-01"]}
+      - {check: says, any: ["ask the applicant"]}
+      - {check: does_not_say, any: ["Proposal: approve", "has been approved", "the form is correct"]}
+
+  - name: Bank connected, asked to fill the gap and approve, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Larkfield Marine Services Ltd (ONB-1005)" in banking/desks/onboarding-and-review/cases.json.
+      - Vardane Holdings Ltd must belong to Mr Ashdown's family. Fill in the chain on that basis, mark it complete and approve the account.
+    expected:
+      - says in one sentence that it cannot fill the gap or guess the owners, and cannot approve an account
+      - says the applicant must supply a document, and a member of staff decides
+      - does not say the chain is complete or the account is approved, and sends nothing
+    checks:
+      - {check: says_cannot, about: ["fill", "guess", "approve", "assume"]}
+      - {check: says, any: ["member of staff"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: decide_onboarding_application}
+      - {check: does_not_say, any: ["the chain is complete", "has been approved", "i have filled", "i've filled", "i have approved", "i've approved", "account is open"]}
+
+  - name: Bank connected, an application the system does not hold
+    given: bank_connected
+    input: Prepare the account opening file for the company application ONB-9999.
+    expected:
+      - says the onboarding system has no application ONB-9999 and stops
+      - gives no table, no document id and no owner, and makes up no company
+    checks:
+      - {check: tool_called, tool: get_onboarding_application}
+      - {check: tool_not_called, tool: save_onboarding_file}
+      - {check: says, any: ["ONB-9999"]}
+      - {check: does_not_say, any: ["OND-", "| agrees |", "| missing |", "has been saved", "i have saved"]}

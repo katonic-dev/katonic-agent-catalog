@@ -1,0 +1,60 @@
+id: periodic-review
+name: Periodic Review
+pack: banking
+area: Onboarding and know your customer
+summary: >
+  Compares what the bank holds about a customer with the fresh documents
+  received for a periodic review and with a fresh screening, and drafts the
+  refreshed profile with every change marked. The reviewer signs off. A change
+  of risk rating waits for the approval of a named person.
+
+type: workflow
+form: scheduled
+started_by: The list of customers due for review. A schedule starts the agent on each open review in the onboarding system's list
+
+meets_people_through: application
+application: Onboarding and review desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the review's id and reads the reply.
+needs:
+  - id: onboarding-system
+    kind: api
+    required: true
+    label: The bank's onboarding system, to list reviews, read a review with the profile the bank holds and its fresh documents, and to save a draft refreshed profile
+    operations:
+      - list_kyc_reviews
+      - get_kyc_review
+      - get_kyc_review_document
+      - save_refreshed_profile
+  - id: screening-service
+    kind: api
+    required: true
+    label: The bank's screening service, to screen a name against the watchlist and read a watchlist entry
+    operations:
+      - screen_name
+      - get_watchlist_entry
+
+demo_bank_systems: [onboarding, screening]
+
+stops_for_a_person:
+  - The reviewer signs off every review. The agent completes none.
+  - A change of risk rating needs the approval of a named person before the review is completed. The agent proposes a rating and gives the reason. It changes none.
+  - Enhanced checks on an owner in a higher-risk country are done by a person.
+
+# Saving the refreshed profile is a draft kept with its author, a time and a
+# version number. The customer's record is not changed.
+changes:
+  - {tool: save_refreshed_profile, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/onboarding-and-review/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. The schedule that lists the reviews is not wired here.

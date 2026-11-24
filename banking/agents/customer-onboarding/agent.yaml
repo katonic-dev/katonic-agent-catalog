@@ -1,0 +1,62 @@
+id: customer-onboarding
+name: Customer Onboarding
+pack: banking
+area: Onboarding and know your customer
+summary: >
+  Reads the documents an individual applicant sent, extracts the details,
+  checks them against the application form and the bank's screening service,
+  and prepares the account opening file. A member of staff approves or
+  declines every account. The agent opens none and declines none.
+
+type: workflow
+form: event-triggered
+started_by: An application from an individual arriving with its documents. The bank's onboarding system can announce one through its event for new onboarding applications
+
+meets_people_through: application
+application: Onboarding and review desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the application's id and reads the reply.
+# The agent reads the application and its documents from the onboarding system
+# and screens the applicant's name with the screening service.
+needs:
+  - id: onboarding-system
+    kind: api
+    required: true
+    label: The bank's onboarding system, to read an application, its documents and the account opening requirements, and to save a draft file
+    operations:
+      - get_onboarding_application
+      - get_onboarding_document
+      - get_onboarding_requirements
+      - save_onboarding_file
+  - id: screening-service
+    kind: api
+    required: true
+    label: The bank's screening service, to screen a name against the watchlist and read a watchlist entry
+    operations:
+      - screen_name
+      - get_watchlist_entry
+
+demo_bank_systems: [onboarding, screening]
+
+stops_for_a_person:
+  - A member of staff approves or declines every account. The agent opens none and declines none.
+  - A strong watchlist match goes to Compliance. The agent proposes the referral and says nothing to the applicant about the reason.
+  - Whether a difference between the form and a document is an error is for the officer and the applicant. The agent shows both values and chooses neither.
+
+# Saving the file is a draft kept with its author, a time and a version number.
+# It sends nothing and does not change the application's status.
+changes:
+  - {tool: save_onboarding_file, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/onboarding-and-review/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model.

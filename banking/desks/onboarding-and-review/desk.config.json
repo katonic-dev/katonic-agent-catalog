@@ -1,0 +1,379 @@
+{
+  "$comment": "What makes the generic case desk the onboarding and review desk. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. The bank (Meridian Trust Bank), its applicants, its customers and their documents are invented.",
+  "desk": {
+    "id": "onboarding-and-review",
+    "name": "Onboarding and review desk",
+    "caseNoun": "file",
+    "caseNounPlural": "files",
+    "draftNoun": "file",
+    "deciderRole": "onboarding officer",
+    "tagline": "Applications from individuals and from companies, and customers due a periodic review, in one queue. A drafted file for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a file",
+    "issuedVerb": "Approved by",
+    "arrivedVia": {
+      "feed": "the bank's onboarding system",
+      "officer": "the onboarding team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "product"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the application or the review from the onboarding system.",
+    "noTextNote": "No summary was supplied with this case. Work from the application or the review the case names, read from the bank's onboarding system.",
+    "askPlaceholder": "For example: which document gave the date of birth?",
+    "searchPlaceholder": "Search by name, id or kind",
+    "demoNote": "Demo data: the bank, its applicants, its customers and their documents are invented. Nothing here is a real account decision.",
+    "listFields": [
+      "kind",
+      "received_on"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "jumpLabel": "The case",
+    "replyHeading": "Reply received",
+    "replyLabel": "What the applicant sent (it is added to the case)",
+    "replyButton": "Add the reply and prepare the file again",
+    "replyNote": "The applicant has replied. The reply is at the end of the case. Read the application from the bank's onboarding system again, as new documents may have arrived, and check every item again in the light of it.",
+    "replyEvent": "added the applicant's reply"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Individual onboarding": {
+        "agentEnv": "INDIVIDUAL_ONBOARDING_AGENT_ID",
+        "instruction": "A new account opening application from an individual has arrived at the bank's onboarding desk. Work on the application named in the case below. Read the documents the applicant sent, extract the details, check them against the application form and against the bank's screening, and prepare the account opening file. You open no account and decline none: a member of staff approves or declines every account.\n\nRead the application, its documents and the bank's account opening requirements from the bank's onboarding system, and screen the applicant's name, date of birth and nationality with the bank's screening service, before you write anything. Use only ids the systems return. Give every finding with the document id or record id it came from. Where the form and a document disagree, show both and choose neither. Never fill a gap. Do not tell the applicant anything: a person does.\n\nWrite plain statements. Do not write in the first person. Write no count of marks anywhere in the Summary: the desk counts them from the table. Write every date as in 18 Nov 2026. Show an identity number only by its last four characters, as in ending 2045, never in full.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the bank's onboarding system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft file. For the onboarding officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Checked against | The file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Checked against is the application form, the bank's requirement or the profile the bank holds. The file shows is the value found, in a few words. Source is the document id or record id, with the line or clause it came from. Mark is exactly one of: agrees, differs, missing, needs a person, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six: the applicant, the product and the application id; the documents received against the documents required; each difference and each missing item, one line each, with the document ids; the screening result; then the \"Saved:\" line.\nRows: one row for each document the bank requires for an individual, then one row for each field of the form that a document also gives (full name, date of birth, nationality, identity number, address), then one row for the screening of the applicant. Mark a row agrees when the form and the document or record say the same; differs when they do not, or when a document is out of date (a proof of address older than 90 days, or an expired identity document); missing when something the bank requires is not on file; needs a person when screening returns a strong or a possible match. A one-letter difference in a name is a difference. Capital letters, accents, the order of words in an address and Rd for Road are not.\nA hit is a strong match only when the name matches closely, the date of birth and the nationality both match the entry, and the entry's identity number, where it has one, is the person's own. A hit is a possible match when the name resembles an entry but the date of birth or the nationality differs or is not known. In either case report what agrees and what differs, and leave the decision to the officer.\nThe \"Proposal:\" line is exactly one of: \"approve\" and a short reason, when every document agrees, the proof of address is in date and screening returns no hit; \"ask the applicant for\" followed by a numbered list of exactly what to ask for, when something is missing, out of date or differs; or \"refer to compliance\" and the watchlist entry id, when screening returns a strong match. A strong match is never opened by the branch, and the proposal says that nothing is to be said to the applicant about the reason. Never propose declining: only a person declines.",
+        "decisions": [
+          "approve",
+          "ask_applicant",
+          "refer_compliance",
+          "decline",
+          "send_back"
+        ],
+        "marks": [
+          "agrees",
+          "differs",
+          "missing",
+          "needs a person"
+        ]
+      },
+      "Business onboarding": {
+        "agentEnv": "BUSINESS_ONBOARDING_AGENT_ID",
+        "instruction": "A new account opening application from a company has arrived at the bank's onboarding desk. Work on the application named in the case below. Work in four stages, in this order: first read the company registry extract and the constitutional documents; then draw the ownership chain from the registry extract and the ownership declaration, down to the people behind it; then list every director and every owner of 25 percent or more for screening and screen each of them and the company; then prepare the file. You open no account and decline none: a member of staff approves or declines every account.\n\nRead the application, its documents and the bank's account opening requirements from the bank's onboarding system before you write anything. Use only ids the systems return. Give every finding with the document id or record id it came from. Where the form and a document disagree, show both and choose neither. A gap in the ownership chain is listed and never filled in: where no document shows who stands behind an owner that is a company, say so, name no owner and guess none. Never fill any gap. Do not tell the applicant anything: a person does.\n\nWrite plain statements. Do not write in the first person. Write no count of marks anywhere in the Summary: the desk counts them from the table. Write every date as in 18 Nov 2026. Show an identity number only by its last four characters, as in ending 2045, never in full. Begin the Item of a row about a gap in the ownership chain with GAP:.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the bank's onboarding system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft file. For the onboarding officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Checked against | The file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Checked against is the application form, the bank's requirement or the profile the bank holds. The file shows is the value found, in a few words. Source is the document id or record id, with the line or clause it came from. Mark is exactly one of: agrees, differs, missing, needs a person, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six: the company, the product and the application id; the documents received against the documents required; the ownership chain in one or two lines, with every gap marked GAP; each director on the registry extract who is not on the form; the screening result; then the \"Saved:\" line.\nRows: one row for each document the bank requires for a business, then one row for each field of the form that a document also gives (company name, registration number, registered address, directors), then one row for each owner in the ownership chain, then one row for the screening of the company and for each director and each owner of 25 percent or more. Mark a row agrees when the form and the document or record say the same; differs when they do not (a director on the registry extract who is not on the form is a difference), or when a document is out of date (a registry extract issued more than 3 months ago); missing when something the bank requires is not on file, including a gap in the ownership chain and an owner who cannot be screened because no document names them; needs a person when screening returns a strong or a possible match. A gap row names the owner it follows from, says what is missing, and says that nothing was filled in.\nA hit is a strong match only when the name matches closely, the date of birth and the nationality both match the entry, and the entry's identity number, where it has one, is the person's own. A hit is a possible match when the name resembles an entry but the date of birth or the nationality differs or is not known. In either case report what agrees and what differs, and leave the decision to the officer.\nThe \"Proposal:\" line is exactly one of: \"approve\" and a short reason, when every document agrees, the ownership chain has no gap, every director and owner of 25 percent or more is on the form and screened, and screening returns no hit; \"ask the applicant for\" followed by a numbered list of exactly what to ask for, when something is missing, out of date or differs; or \"refer to compliance\" and the watchlist entry id, when screening returns a strong match, with the note that nothing is to be said to the applicant about the reason. Where screening returns only a possible match and everything else agrees, still propose approve and say in the same line that the possible match is for the officer to clear first. Never propose declining: only a person declines.",
+        "decisions": [
+          "approve",
+          "ask_applicant",
+          "refer_compliance",
+          "decline",
+          "send_back"
+        ],
+        "marks": [
+          "agrees",
+          "differs",
+          "missing",
+          "needs a person"
+        ]
+      },
+      "Periodic review": {
+        "agentEnv": "PERIODIC_REVIEW_AGENT_ID",
+        "instruction": "A customer is due a periodic review at the bank's onboarding desk. Work on the review named in the case below. Compare what the bank holds about the customer with the fresh documents received for this review and with a fresh screening, and draft the refreshed profile with every change marked. You complete no review and change no risk rating: the reviewer signs off, and a change of risk rating waits for the approval of a named person.\n\nRead the review, with the profile the bank holds, and every fresh document from the bank's onboarding system, and screen the customer again with the bank's screening service (for a business, the company and every owner of 25 percent or more), before you write anything. Use only ids the systems return. Give every finding with the document id it came from. Where a fresh document and the held profile differ, show both values and mark the change. Never fill a gap: a field that no fresh document covers is not marked, and the Summary says which fields those are. Never change what the bank holds: you only draft.\n\nWrite plain statements. Do not write in the first person. Write no count of marks anywhere in the Summary: the desk counts them from the table. Write every date as in 18 Nov 2026. Show an identity number only by its last four characters, as in ending 2045, never in full.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then the lines described below, with no blank line between them. The last of them starts \"Saved:\" and says whether the draft was saved to the bank's onboarding system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft file. For the onboarding officer. Not issued.\"\n3. A Markdown table with exactly these seven columns and one row per item. Put no vertical bar inside a cell.\n| # | Item | Checked against | The file shows | Source | Mark | Note |\n# is 1, 2, 3 in order. Item is what is checked. Checked against is the application form, the bank's requirement or the profile the bank holds. The file shows is the value found, in a few words. Source is the document id or record id, with the line or clause it came from. Mark is exactly one of: agrees, changed, missing, needs a person, in lower case. Note says why, and what the officer should check.\n4. A blank line, then one line that starts \"Proposal:\". Write nothing after it.\n\nSummary lines, at most six: the customer, the review id and the date of the last review; each change, one line each, with the old value, the new value and the document id; the fresh screening result; the risk rating held and the rating proposed; the fields that no fresh document covers; then the \"Saved:\" line.\nRows: one row for each field of the held profile that a fresh document speaks to; for a business, one row for each owner (changed when the person or the share differs, and a new owner is changed); one row for the fresh screening; and a last row for the risk rating. Mark a row agrees when the fresh document says what the bank holds; changed when it says something different, with the old value in Checked against and the new value in The file shows; missing when a fresh document the review needs for a field is not in the review; needs a person when screening returns a hit, when an owner or customer is in a country on the bank's higher-risk list and so needs enhanced checks, and for a risk rating that differs from the held one. The risk rating row is agrees when the rating you propose is the one the bank holds, with the reason. A fresh proof of address older than 90 days is not accepted as a proof of address.\nA hit is a strong match only when the name matches closely, the date of birth and the nationality both match the entry, and the entry's identity number, where it has one, is the person's own. A hit is a possible match when the name resembles an entry but the date of birth or the nationality differs or is not known. In either case report what agrees and what differs, and leave the decision to the officer.\nThe \"Proposal:\" line is exactly one of: \"approve\" and what changed, or that nothing changed, when the risk rating stays as it is; \"send the rating change for approval\" followed by the rating you propose and the reason, when you propose a different rating, with the note that a named person must approve the change before the review is completed; or \"ask the customer for\" followed by a numbered list of exactly what to ask for, when a fresh document is missing or out of date. Never complete the review yourself.",
+        "decisions": [
+          "approve",
+          "ask_applicant",
+          "refer_compliance",
+          "rating_approval",
+          "send_back"
+        ],
+        "marks": [
+          "agrees",
+          "changed",
+          "missing",
+          "needs a person"
+        ]
+      }
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the onboarding team (the form at the top of the list)",
+      "Sent by the bank's onboarding system when an application arrives or a review falls due (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "hint": "Who it concerns and the id, for example Odalys Merrowby (ONB-1001). The queue shows this.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "required": true,
+        "options": [
+          "Individual onboarding",
+          "Business onboarding",
+          "Periodic review"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Application or review id",
+        "hint": "ONB-1001 for an application, KYR-1001 for a review.",
+        "required": true
+      },
+      {
+        "key": "applicant",
+        "label": "Applicant or customer",
+        "hint": "The person or the company, as named on the application or the review.",
+        "required": true
+      },
+      {
+        "key": "product",
+        "label": "Product, or the customer for a review",
+        "hint": "For example Everyday Current Account, or Customer CUS-1013, rating standard.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the bank on",
+        "hint": "The day the application or the fresh documents arrived.",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "hint": "Short labelled lines. The agent reads the documents themselves from the onboarding system.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "An onboarding case has arrived whose kind of work is not one this desk knows. The kinds are Individual onboarding, Business onboarding and Periodic review. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the bank's systems. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft file"
+    ],
+    "marks": {
+      "agrees": "Agrees",
+      "differs": "Differs",
+      "missing": "Missing",
+      "changed": "Changed",
+      "needs a person": "Needs a person"
+    },
+    "markTones": {
+      "agrees": "ok",
+      "differs": "warn",
+      "missing": "err",
+      "changed": "warn",
+      "needs a person": "person"
+    },
+    "markHints": {
+      "agrees": "The documents or records say what the form, the requirement or the held profile says",
+      "differs": "A document disagrees with the form, or is out of date. The agent shows both and chooses neither",
+      "missing": "Not on file, or a gap in the ownership chain. Nothing is filled in",
+      "changed": "A fresh document shows something other than what the bank holds. Both values are shown",
+      "needs a person": "A watchlist match, an owner in a higher-risk country, or a change of risk rating. Not a failed check: only a person can decide it"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft file",
+    "rowLabels": {
+      "source": "Checked against",
+      "policy": "The file shows",
+      "citation": "Source",
+      "check": "Note"
+    },
+    "passMark": "agrees",
+    "plainSource": true
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Approve",
+      "proposalPrefix": "approve",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve version {version}{edited} of the file, in your name. This desk opens no account, completes no review and changes no rating: that is done in the bank's own onboarding system."
+    },
+    {
+      "id": "ask_applicant",
+      "label": "Ask for more",
+      "proposalPrefix": "ask",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to ask for, one item to a line",
+      "noteHint": "This text goes into the letter, one item to a line. Name no owner and guess none. The file waits here until the reply is added."
+    },
+    {
+      "id": "refer_compliance",
+      "label": "Refer to Compliance",
+      "proposalPrefix": "refer to compliance",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "The watchlist entry and why you refer",
+      "noteHint": "No letter is written. Say nothing to the applicant about the reason."
+    },
+    {
+      "id": "rating_approval",
+      "label": "Send the rating change for approval",
+      "proposalPrefix": "send the rating change for approval",
+      "outcome": "rating_referred",
+      "needsNote": true,
+      "noteLabel": "Who approves the change, and the reason",
+      "noteHint": "A named person must approve a change of risk rating before the review is completed in the bank's system."
+    },
+    {
+      "id": "decline",
+      "label": "Decline",
+      "proposalPrefix": "decline",
+      "outcome": "declined",
+      "needsNote": true,
+      "noteLabel": "The reason the bank can state",
+      "noteHint": "The agent never proposes this. Only a person declines an account."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the file",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the officer",
+    "sent_back": "Being redone",
+    "issued": "Approved",
+    "info_requested": "Waiting for the applicant",
+    "referred": "Referred to Compliance",
+    "rating_referred": "Rating change sent for approval",
+    "declined": "Declined",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "rating_referred",
+    "declined",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk opens no account, completes no review and changes no risk rating: a member of staff does that, in the bank's own system.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "applicant",
+      "product",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "applicant",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind",
+      "reference": "Id",
+      "applicant": "Applicant or customer",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "letter_number": "Letter",
+      "draft_versions": "File versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other onboarding officer can. You can still ask the agent to redo the file.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true,
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Approving a file in which an item is not marked Agrees needs a reason",
+    "reasonToApproveUnmetLabel": "Why you approve although an item is not marked Agrees (for a watchlist match, how you cleared it)"
+  },
+  "next": {
+    "issued": "Recorded as approved. Nothing further happens on this desk. A member of staff opens the account, or signs off the review, in the bank's onboarding system.",
+    "info_requested": "When the reply comes, add it here. The agent reads the case again and the file comes back for your decision.",
+    "referred": "Recorded as referred to Compliance. Compliance decides. Nothing is sent to the applicant.",
+    "rating_referred": "Recorded as sent for approval. The review is completed in the bank's system only when a named person has approved the new rating.",
+    "declined": "Recorded as declined. The bank's own system holds the decision."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Your account: more information needed",
+      "linkLabel": "Letter asking for information",
+      "prefix": "OB",
+      "days": 14,
+      "toField": "applicant",
+      "opening": "We cannot go further with the file below until we have more information. This is not a decision on your application or your account.",
+      "fields": [
+        "reference"
+      ],
+      "list": "note",
+      "listHeading": "What we need",
+      "dateLine": "Please send it by {until}.",
+      "body": [
+        "Quote {number} when you reply."
+      ],
+      "signature": "Onboarding, Meridian Trust Bank (an invented bank, for demonstration)",
+      "dateStyle": "long"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Approved",
+    "info_requested": "Asked for more information",
+    "referred": "Referred to Compliance",
+    "rating_referred": "Sent the rating change for approval",
+    "declined": "Declined",
+    "sent_back": "Asked the agent to redo the file",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}
