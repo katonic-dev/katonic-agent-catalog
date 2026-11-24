@@ -231,8 +231,13 @@ Registering a system's MCP address (`<the app's address>/<system>/mcp`) with the
 
 ## What was proven
 
-On 24 November 2026, on a development cluster of the platform, the deployment, the import of the `cards` and `core` documents, and agents calling the tools were run, and the bank answered. In that run the bank's key check was switched off (`BANK_AUTH=off`) and the import used no sign-in.
+On 24 November 2026, on a development cluster of the platform, the set-up in this guide was run with the key switched on:
 
-The set-up shown in this guide, with the key switched on, the key as a secret setting and the import signing in with the `X-API-Key` header, is the one to use. It had not been run end to end on a cluster when this was written.
+- The bank was deployed from this repository with `BANK_API_KEY` as a secret setting, `BANK_TODAY` and `BANK_PUBLIC_SCHEME` set to `https`, access Public, on the smallest compute tier. It was live a little over two minutes after **Ship app**.
+- Without a key, the health path, the landing page and the OpenAPI document of `cards` answered, and a data call was refused with 401. A wrong key was refused with 401 too. The same call was answered with the key in the `X-API-Key` header, and with the key sent as `Authorization: Bearer`.
+- The `cards` document was imported with the authentication API Key (Header), the header `X-API-Key` and the key as its value. The connection showed seven tools.
+- A draft agent with the one tool `get_card` from that connection was asked for a card three times in its Test tab. Each time the tool call finished, and the reply gave the card's status and masked number as the bank holds them.
 
-The bank's side of that set-up was run on a laptop on the same day, with the key switched on: the health path, the landing page and the OpenAPI documents of `cards` and `core` answered without a key, a data call without the key was refused with 401, and the same call with the key in the `X-API-Key` header was answered.
+Not run with the key: the `core` document, whose steps are the same as for `cards`, and a published agent, since the test used a draft.
+
+Earlier on the same day the same steps were run on that cluster with the key check switched off (`BANK_AUTH=off`) and no sign-in on the import, for `cards`, `core` and other systems. Agents built on those tools were published and tested there.

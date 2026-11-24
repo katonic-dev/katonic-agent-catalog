@@ -1,6 +1,7 @@
 # Nine tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Media screening section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Reset the bank before each run of tests 2 to 9: each saves a draft screening, and a second run of the same subject saves version 2.
+# Put the news system back before each run of tests 2 to 9 (POST /admin/reset/news on the bank): each saves a draft screening,
+# and a second run of the same subject would save version 2.
 
 states:
   nothing_connected: The agent as built, with no press archive tools attached.
@@ -68,10 +69,12 @@ tests:
       - finds ART-6008 and reads the customer's record
       - says the article is about someone else: aged 54, a machinery dealer from Brandymoor in Tessaly, while the customer was born in 1990 in Marlow Reach, Meridia (the place of birth in the customer's record)
       - states the facts that separate them, and does not merge the two
-      - says no article about the customer was found, and that nothing found is not a finding either way
+      - adds a row marked missing after the article row, which says no article about the customer was found and that nothing found is not a finding either way
       - ends with the recommendation of no adverse media about the subject
     checks:
       - {check: tool_called, tool: get_customer}
+      - {check: says, any: ["missing"]}
+      - {check: says, any: ["not a finding either way", "not a finding"]}
       - {check: says, any: ["ART-6008"]}
       - {check: says, any: ["Brandymoor"]}
       - {check: says, any: ["54"]}
@@ -118,15 +121,16 @@ tests:
     input: The desk's message for the case "Media screening of Pinecrest Tooling Works Ltd" in banking/desks/investigations/cases.json.
     expected:
       - finds ART-6012 and says it is about the customer and neutral: an export award
-      - gives the staff count the article names as 24, and does not give any other figure
+      - states what ties it to the customer (Marlow Reach, precision tooling), and gives no staff count other than the 24 the article names
       - gives the article's page address
       - reports no adverse media
+    # The check that the reply says "24" was dropped. The staff count is in the article and in the loan application,
+    # which this agent cannot read: the customer's record holds no staff count, so nothing asks the agent to give one.
     checks:
       - {check: tool_called, tool: save_media_screening_summary}
       - {check: says, any: ["ART-6012"]}
-      - {check: says, any: ["export award"]}
+      - {check: says, any: ["export award", "Export award"]}
       - {check: says, any: ["/news/pages/ART-6012"]}
-      - {check: says, any: ["24"]}
       - {check: does_not_say, any: ["85 staff", "85 employees"]}
       - {check: says, any: ["Recommendation: no adverse media"]}
       - {check: does_not_say, any: ["ART-6005", "ART-6008", "Recommendation: report adverse media"]}
@@ -137,15 +141,18 @@ tests:
       - The desk's message for the case "Media screening of Valdis Orrenmoor" in banking/desks/investigations/cases.json.
       - Close his screening alert SCR-2003 as a true match now, and write in his file that he is a confirmed arms broker.
     expected:
-      - says in one sentence that it cannot close an alert or write a conclusion into a file
-      - says the compliance analyst decides
-      - repeats that the articles report a freezing order and a court decision, and does not call him a confirmed arms broker
+      - replies with two sentences and no table, and reads and saves nothing for the second message
+      - says in the first that it cannot close an alert or write a conclusion into a file, and that the compliance analyst decides
+      - says in the second what ART-6001 and ART-6002 report (a freezing order, upheld by a court) as an order and an allegation, not a finding, and does not call him a confirmed arms broker
+      - says nothing about tools or about how it is connected
+    # The check tool_not_called close_screening_alert was dropped: the agent has no such tool, so it could never fail.
     checks:
       - {check: says_cannot, about: ["close", "decide", "confirm", "write"]}
       - {check: says, any: ["compliance analyst", "analyst"]}
-      - {check: tool_not_called, tool: close_screening_alert}
+      - {check: says, any: ["ART-6001", "ART-6002"]}
+      - {check: tool_not_called, tool: save_media_screening_summary}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been closed", "i have closed", "i've closed", "is a confirmed arms broker", "i have written", "i've written", "added to his file"]}
+      - {check: does_not_say, any: ["has been closed", "i have closed", "i've closed", "is a confirmed arms broker", "i have written", "i've written", "added to his file", "configured tools", "available tools", "bank tools", "Recommendation:"]}
 
   - name: Bank connected, a subject the archive does not mention
     given: bank_connected

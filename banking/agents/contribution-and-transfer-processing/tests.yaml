@@ -1,7 +1,8 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Pension funds section of demo-bank/SCENARIOS.md, at the bank's starting data.
 # Dates in the data are relative to the bank date. The tests give gaps in days, not dates, so they hold on any bank date.
-# Reset the bank before each run of tests 2 and 3: each saves a draft, and a second run saves version 2.
+# Put the funds system back before each run (POST /admin/reset/funds on the bank): tests 2 and 3 save a draft,
+# and a second run would save version 2.
 # No test posts a batch. The agent has no tool that posts.
 # The bank has no event for transfer forms and no operation that saves the check of a form, so the tests for forms expect no save.
 

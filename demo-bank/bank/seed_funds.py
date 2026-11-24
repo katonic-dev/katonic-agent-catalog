@@ -142,14 +142,14 @@ def build_forms(today: date) -> dict:
                 "Member name: Idony Carrowmere\nMember id: MEM-5003\nDate of birth: 14/03/1983\n"
                 "Receiving scheme: Hallowmere Workplace Pension\n"
                 "Receiving scheme account number: 5 8 2 [unreadable] 7 1 [4 or 9] 3 0\n"
-                "Amount to transfer: whole fund value\nSignature: [present]\n"
+                "Amount to transfer: whole fund value\nSignature: present\n"
                 f"Date signed: {sig_date}\nReceived by the trust arm: {(today - timedelta(days=12)).strftime('%d/%m/%Y')}"}
     f["FRM-4002"] = {
         "form_id": "FRM-4002", "member_id": "MEM-5002", "received_on": d_ago(today, 9), "scan_quality": "good",
         "text": "TRANSFER OUT REQUEST, FORM TF-2 (text read from a scan by machine)\n"
                 "Member name: Sabine Tarrowgate\nMember id: MEM-5002\nDate of birth: 02/12/1979\n"
                 "Receiving scheme: Brindlemoor Retirement Trust\nReceiving scheme account number: 6 1 4 0 9 2 7 7 3 5\n"
-                "Amount to transfer: whole fund value\nSignature: [present]\n"
+                "Amount to transfer: whole fund value\nSignature: present\n"
                 f"Date signed: {(today - timedelta(days=10)).strftime('%d/%m/%Y')}\nReceived by the trust arm: {(today - timedelta(days=9)).strftime('%d/%m/%Y')}"}
     return f
 
