@@ -1,0 +1,73 @@
+id: aml-investigation
+name: AML Investigation
+pack: banking
+area: Financial crime
+summary: >
+  Builds the case file for a transaction monitoring alert: the account's
+  history, the counterparties, earlier alerts, the customer's contacts with the
+  bank and press coverage, and drafts the narrative and saves it on the alert. Each next lookup
+  depends on what the last one found. It opens no case and files no report: the
+  investigator decides and files.
+
+type: autonomous
+form: autonomous
+started_by: A transaction monitoring alert. The bank's monitoring system can announce a new alert through its event for new monitoring alerts, and a person, or the Investigations desk, can also start the investigation
+
+meets_people_through: application
+application: Investigations desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the alert's id and reads the reply.
+# The agent decides which lookup to make next from what the last one returned.
+needs:
+  - id: monitoring-system
+    kind: api
+    required: true
+    label: The bank's transaction monitoring system, to read an alert with its rule and the investigations already saved on it, the customer's alert history, a counterparty and a case, and to save a draft investigation on the alert (findings with their evidence ids, the narrative and a recommendation)
+    operations:
+      - get_monitoring_alert
+      - get_monitoring_rule
+      - list_customer_alert_history
+      - get_counterparty
+      - get_case
+      - save_alert_investigation
+  - id: core-banking-system
+    kind: api
+    required: true
+    label: The bank's core system, to read the customer, the account's transactions and the customer's contacts
+    operations:
+      - get_customer
+      - list_account_transactions
+      - list_customer_contacts
+  - id: press-archive
+    kind: api
+    required: false
+    label: The bank's press archive, to look for coverage of the customer and the counterparties
+    operations:
+      - search_news
+      - get_news_article
+
+demo_bank_systems: [aml, core, news]
+
+stops_for_a_person:
+  - The investigator decides whether to open a case, how urgent it is and whether to file a report. The agent opens no case, closes no alert and files nothing.
+  - Whether an explanation is enough is for the investigator. The agent shows what supports concern and what explains the activity, and says what is missing.
+
+# Saving an investigation is a draft kept with its author, a time and a version
+# number, on an alert that is still open. It opens no case. When a person opens a
+# case from the alert, the latest saved narrative becomes the first narrative of
+# the case. Opening a case is a change, and the agent does not have that operation.
+changes:
+  - {tool: save_alert_investigation, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/investigations/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026. The saved findings take ids of transactions, alerts, rules, contacts and counterparties only, so an article is named in the narrative.

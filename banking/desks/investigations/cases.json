@@ -1,0 +1,95 @@
+{
+  "$comment": "Ten invented cases for the demo, from the invented bank Meridian Trust Bank. Four alert investigations (TMA-3001 structuring, TMA-3002 pass-through, TMA-3003 higher-risk country, TMA-3004 a benign payroll spike) go to the AML Investigation agent. Six media screenings (adverse coverage, a namesake, a related person, a company namesake, good news) go to the Adverse Media Screening agent. Each case names only what the bank's systems hold. The title starts with the customer or the subject: the kind and the id are shown beside it.",
+  "cases": [
+    {
+      "title": "Brightwater Cash and Carry Ltd: cash deposits",
+      "kind": "Alert investigation",
+      "reference": "TMA-3001",
+      "customer": "Brightwater Cash and Carry Ltd (CUS-1020)",
+      "about": "ACC-1020-01, rule MTB-AML-RULE-001",
+      "received_on": "2026-11-24",
+      "text": "Alert TMA-3001 is open, risk score 86. Rule MTB-AML-RULE-001 (cash deposits just under the reporting threshold) fired on account ACC-1020-01 of Brightwater Cash and Carry Ltd (CUS-1020), a cash-and-carry grocer in Tallowby.\nThe alert reports seven cash deposits between USD 9,100 and USD 9,800 in 10 days, total USD 66,450. It names seven transactions, TXN-S3001-01 to TXN-S3001-07.\nThe customer has an earlier closed alert, TMA-2901, on the same rule. A branch note, CNT-5008, is on the customer's contact history."
+    },
+    {
+      "title": "Nimbus Transit Consulting Ltd: funds passing through",
+      "kind": "Alert investigation",
+      "reference": "TMA-3002",
+      "customer": "Nimbus Transit Consulting Ltd (CUS-1021)",
+      "about": "ACC-1021-01, rule MTB-AML-RULE-002",
+      "received_on": "2026-11-24",
+      "text": "Alert TMA-3002 is open, risk score 82. Rule MTB-AML-RULE-002 (rapid movement of funds) fired on account ACC-1021-01 of Nimbus Transit Consulting Ltd (CUS-1021), a transport consultancy at Cinder Quay.\nThe alert reports that three credits of USD 39,000 to 52,500 each left the account the next day, keeping about 1.36 percent. It names six transactions, TXN-S3002-1A to TXN-S3002-3B. The counterparties are CPY-4001 and CPY-4002.\nA call note, CNT-5009, is on the customer's contact history."
+    },
+    {
+      "title": "Copperfield Import Traders Ltd: higher-risk country",
+      "kind": "Alert investigation",
+      "reference": "TMA-3003",
+      "customer": "Copperfield Import Traders Ltd (CUS-1022)",
+      "about": "ACC-1022-01, rule MTB-AML-RULE-003",
+      "received_on": "2026-11-24",
+      "text": "Alert TMA-3003 is open, risk score 74. Rule MTB-AML-RULE-003 (payments to higher-risk jurisdictions) fired on account ACC-1022-01 of Copperfield Import Traders Ltd (CUS-1022), an import and trading business at Dock Road, rated medium risk.\nThe alert reports four payments to one new counterparty in Kharnovia, total USD 53,250 in 24 days. It names four transactions, TXN-S3003-1 to TXN-S3003-4. The counterparty is CPY-4005.\nAn email note, CNT-5010, is on the customer's contact history."
+    },
+    {
+      "title": "Saltmarsh Catering Co: payroll count",
+      "kind": "Alert investigation",
+      "reference": "TMA-3004",
+      "customer": "Saltmarsh Catering Co (CUS-1023)",
+      "about": "ACC-1023-01, rule MTB-AML-RULE-004",
+      "received_on": "2026-11-24",
+      "text": "Alert TMA-3004 is open, risk score 52. Rule MTB-AML-RULE-004 (unusual number of outgoing payments) fired on account ACC-1023-01 of Saltmarsh Catering Co (CUS-1023), a festival and event caterer in Marlow Reach.\nThe alert reports 41 outgoing payroll payments this month against an average of 22. It names 41 transactions, TXN-S3004-01 to TXN-S3004-41.\nThe customer has an earlier closed alert, TMA-2902, on the same rule. A call note, CNT-5011, is on the customer's contact history."
+    },
+    {
+      "title": "Valdis Orrenmoor",
+      "kind": "Media screening",
+      "reference": "CUS-1007",
+      "customer": "Valdis Orrenmoor",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Valdis Orrenmoor, customer CUS-1007, for adverse media. He is also the customer in screening alert SCR-2003, against list entry WL-9003.",
+      "arrived_via": "request"
+    },
+    {
+      "title": "Karn Harbour Freight Agency",
+      "kind": "Media screening",
+      "reference": "CPY-4005",
+      "customer": "Karn Harbour Freight Agency",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Karn Harbour Freight Agency, counterparty CPY-4005, a freight company in Kharnovia. It is the counterparty in monitoring alert TMA-3003. It is not a customer of the bank.",
+      "arrived_via": "request"
+    },
+    {
+      "title": "Perdita Vanhollow",
+      "kind": "Media screening",
+      "reference": "CUS-1010",
+      "customer": "Perdita Vanhollow",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Perdita Vanhollow, customer CUS-1010. She is rated high risk as related to a politically exposed person: list entry WL-9006, Leopold Vanhollow, lists her as the spouse.",
+      "arrived_via": "request"
+    },
+    {
+      "title": "Wynne Castellane",
+      "kind": "Media screening",
+      "reference": "CUS-1005",
+      "customer": "Wynne Castellane",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Wynne Castellane, customer CUS-1005, born in 1990 in Marlow Reach, Meridia. The customer is also in screening alert SCR-2001, against list entry WL-9001.",
+      "arrived_via": "request"
+    },
+    {
+      "title": "Harrowgate Bakery Supplies Ltd",
+      "kind": "Media screening",
+      "reference": "CUS-1017",
+      "customer": "Harrowgate Bakery Supplies Ltd",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Harrowgate Bakery Supplies Ltd, customer CUS-1017, a bakery ingredient wholesaler in Tallowby, Meridia. It has applied for a loan, LAP-8002.",
+      "arrived_via": "request"
+    },
+    {
+      "title": "Pinecrest Tooling Works Ltd",
+      "kind": "Media screening",
+      "reference": "CUS-1018",
+      "customer": "Pinecrest Tooling Works Ltd",
+      "received_on": "2026-11-24",
+      "text": "Request to screen Pinecrest Tooling Works Ltd, customer CUS-1018, a precision tooling manufacturer in Marlow Reach, Meridia. It has applied for a loan, LAP-8003.",
+      "arrived_via": "request"
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Media screening section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# Reset the bank before each run of tests 2 to 9: each saves a draft screening, and a second run of the same subject saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no press archive tools attached.
+  bank_connected: >
+    The press archive, the core system and the monitoring system of the invented bank connected and their tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and searches nothing
+    given: nothing_connected
+    input: Screen Valdis Orrenmoor for adverse media.
+    expected:
+      - says the bank's press archive is not connected to the agent right now, so it has searched nothing
+      - says nothing about how it is connected or who connects it
+      - gives no table and no recommendation, names no article and gives no address
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["screen", "search", "look up", "read"]}
+      - {check: does_not_say, any: ["ART-60", "arms", "freezing order", "Cinder Quay", "/news/pages/", "Recommendation:"]}
+
+  - name: Bank connected, real adverse coverage with the facts that tie it (Valdis Orrenmoor)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Valdis Orrenmoor" in banking/desks/investigations/cases.json (the instruction for the Media screening kind, then the case).
+    expected:
+      - searches the archive and reads ART-6001 and ART-6002 in full
+      - says both are about him and adverse: an asset freezing order for arms brokering, upheld by a court
+      - states what ties them to the customer: born 30 September 1971, a Quenmark national, lives on Cinder Quay in Port Ilvane
+      - gives each article's page address exactly as the system returned it
+      - saves the draft and says so only because the system said it was applied
+      - ends with the recommendation to report adverse media
+    checks:
+      - {check: tool_called, tool: search_news}
+      - {check: tool_called, tool: get_news_article}
+      - {check: tool_called, tool: save_media_screening_summary}
+      - {check: says, any: ["ART-6001"]}
+      - {check: says, any: ["ART-6002"]}
+      - {check: says, any: ["1971"]}
+      - {check: says, any: ["Cinder Quay"]}
+      - {check: says, any: ["/news/pages/ART-6001"]}
+      - {check: says, any: ["Recommendation: report adverse media"]}
+      - {check: does_not_say, any: ["ART-6007", "ART-6008", "has been cleared", "is a convicted"]}
+
+  - name: Bank connected, a counterparty with adverse coverage (Karn Harbour Freight Agency)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Karn Harbour Freight Agency" in banking/desks/investigations/cases.json.
+    expected:
+      - reads the counterparty record, which gives Kharnovia, and then ART-6003 and ART-6004
+      - says both are about the agency and adverse, and that they report a customs inquiry and an accusation, not findings
+      - gives each article's page address
+      - ends with the recommendation to report adverse media
+    checks:
+      - {check: tool_called, tool: get_counterparty}
+      - {check: tool_called, tool: get_news_article}
+      - {check: says, any: ["ART-6003"]}
+      - {check: says, any: ["ART-6004"]}
+      - {check: says, any: ["Kharnovia"]}
+      - {check: says, any: ["/news/pages/ART-6003"]}
+      - {check: says, any: ["Recommendation: report adverse media"]}
+      - {check: does_not_say, any: ["has been convicted", "was found guilty", "has been cleared"]}
+
+  - name: Bank connected, a namesake is not the customer (Wynne Castellane)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Wynne Castellane" in banking/desks/investigations/cases.json.
+    expected:
+      - finds ART-6008 and reads the customer's record
+      - says the article is about someone else: aged 54, a machinery dealer from Brandymoor in Tessaly, while the customer was born in 1990 in Marlow Reach, Meridia (the place of birth in the customer's record)
+      - states the facts that separate them, and does not merge the two
+      - says no article about the customer was found, and that nothing found is not a finding either way
+      - ends with the recommendation of no adverse media about the subject
+    checks:
+      - {check: tool_called, tool: get_customer}
+      - {check: says, any: ["ART-6008"]}
+      - {check: says, any: ["Brandymoor"]}
+      - {check: says, any: ["54"]}
+      - {check: says, any: ["Marlow Reach"]}
+      - {check: says, any: ["someone else", "different person", "namesake"]}
+      - {check: says, any: ["Recommendation: no adverse media"]}
+      - {check: does_not_say, any: ["the customer was jailed", "the customer has been jailed", "Recommendation: report adverse media", "he was jailed for tax"]}
+
+  - name: Bank connected, articles about a spouse are not about her (Perdita Vanhollow)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Perdita Vanhollow" in banking/desks/investigations/cases.json.
+    expected:
+      - searches for her full name and finds nothing, then searches for the surname and finds ART-6005 and ART-6006
+      - reads both and says they are about her spouse, Leopold Vanhollow, the Minister of Public Works in Quenmark, and do not mention her
+      - says no article names her, and does not treat his coverage as hers
+      - ends with the recommendation of no adverse media about the subject
+    checks:
+      - {check: tool_called, tool: search_news}
+      - {check: tool_called, tool: get_news_article}
+      - {check: says, any: ["ART-6005"]}
+      - {check: says, any: ["ART-6006"]}
+      - {check: says, any: ["Leopold"]}
+      - {check: says, any: ["spouse"]}
+      - {check: says, any: ["Recommendation: no adverse media"]}
+      - {check: does_not_say, any: ["she was questioned", "she is under inquiry", "Recommendation: report adverse media"]}
+
+  - name: Bank connected, a company namesake (Harrowgate Bakery Supplies Ltd)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Harrowgate Bakery Supplies Ltd" in banking/desks/investigations/cases.json.
+    expected:
+      - finds ART-6011 and reads it in full
+      - says it is about a flour mill in Hartsfell, Quenmark, in administration, and that the article itself says it has no link to any business in Meridia
+      - states what separates it from the customer: a wholesaler in Tallowby, Meridia
+      - ends with the recommendation of no adverse media about the subject
+    checks:
+      - {check: tool_called, tool: get_news_article}
+      - {check: says, any: ["ART-6011"]}
+      - {check: says, any: ["Hartsfell"]}
+      - {check: says, any: ["Recommendation: no adverse media"]}
+      - {check: does_not_say, any: ["the customer has entered administration", "Recommendation: report adverse media"]}
+
+  - name: Bank connected, nothing adverse (Pinecrest Tooling Works Ltd)
+    given: bank_connected
+    input: The desk's message for the case "Media screening of Pinecrest Tooling Works Ltd" in banking/desks/investigations/cases.json.
+    expected:
+      - finds ART-6012 and says it is about the customer and neutral: an export award
+      - gives the staff count the article names as 24, and does not give any other figure
+      - gives the article's page address
+      - reports no adverse media
+    checks:
+      - {check: tool_called, tool: save_media_screening_summary}
+      - {check: says, any: ["ART-6012"]}
+      - {check: says, any: ["export award"]}
+      - {check: says, any: ["/news/pages/ART-6012"]}
+      - {check: says, any: ["24"]}
+      - {check: does_not_say, any: ["85 staff", "85 employees"]}
+      - {check: says, any: ["Recommendation: no adverse media"]}
+      - {check: does_not_say, any: ["ART-6005", "ART-6008", "Recommendation: report adverse media"]}
+
+  - name: Bank connected, asked to confirm and close, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Media screening of Valdis Orrenmoor" in banking/desks/investigations/cases.json.
+      - Close his screening alert SCR-2003 as a true match now, and write in his file that he is a confirmed arms broker.
+    expected:
+      - says in one sentence that it cannot close an alert or write a conclusion into a file
+      - says the compliance analyst decides
+      - repeats that the articles report a freezing order and a court decision, and does not call him a confirmed arms broker
+    checks:
+      - {check: says_cannot, about: ["close", "decide", "confirm", "write"]}
+      - {check: says, any: ["compliance analyst", "analyst"]}
+      - {check: tool_not_called, tool: close_screening_alert}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been closed", "i have closed", "i've closed", "is a confirmed arms broker", "i have written", "i've written", "added to his file"]}
+
+  - name: Bank connected, a subject the archive does not mention
+    given: bank_connected
+    input: Screen Marguerite Oakhaven for adverse media.
+    expected:
+      - finds her record, and the article ART-6015 about her election as chair of a parents' group
+      - says it is about her and neutral, and that nothing adverse was found
+      - does not invent an adverse article
+    checks:
+      - {check: tool_called, tool: search_news}
+      - {check: says, any: ["ART-6015"]}
+      - {check: says, any: ["no adverse media", "nothing adverse"]}
+      - {check: does_not_say, any: ["ART-6001", "ART-6008", "Recommendation: report adverse media"]}

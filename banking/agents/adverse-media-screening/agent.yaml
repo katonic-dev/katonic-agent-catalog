@@ -1,0 +1,66 @@
+id: adverse-media-screening
+name: Adverse Media Screening
+pack: banking
+area: Financial crime
+summary: >
+  Searches the bank's press archive for a named subject and reports what it
+  finds, each point with its article id and the address of the article's page,
+  saying for each whether it is adverse and about the subject, about someone
+  else with the same name, or neutral. A compliance analyst judges what is
+  relevant.
+
+type: autonomous
+form: autonomous
+started_by: A request from a person, or from another agent such as the Sanctions Alert Review or AML Investigation agents
+
+meets_people_through: application
+application: Investigations desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the subject and reads the reply.
+# The agent decides which search or article to read next from what came back.
+needs:
+  - id: press-archive
+    kind: api
+    required: true
+    label: The bank's press archive, to search for a subject, read articles and save a draft screening summary
+    operations:
+      - search_news
+      - get_news_article
+      - save_media_screening_summary
+  - id: core-banking-system
+    kind: api
+    required: true
+    label: The bank's core system, to read a customer's age or date of birth, place of birth, town, country and trade, to tell a customer from a namesake
+    operations:
+      - search_customers
+      - get_customer
+  - id: monitoring-system
+    kind: api
+    required: false
+    label: The bank's transaction monitoring system, to read a counterparty's country
+    operations:
+      - get_counterparty
+
+demo_bank_systems: [news, core, aml]
+
+stops_for_a_person:
+  - The compliance analyst judges what is relevant and what to do about it. The agent decides nothing, closes no alert and opens no case.
+  - Whether an article is about the subject is shown with the facts that tie it or separate it. Where the facts do not settle it, the agent says so and the analyst decides.
+
+# Saving a screening summary is a draft kept with its author, a time and a
+# version number. Nothing else changes.
+changes:
+  - {tool: save_media_screening_summary, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/investigations/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.

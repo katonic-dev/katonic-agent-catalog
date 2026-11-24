@@ -1,0 +1,180 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from the Transaction monitoring section of demo-bank/SCENARIOS.md, at the bank's starting data.
+# The agent saves its investigation on the alert, as a draft, and opens no case. Each save makes a new version, so reset the bank
+# before each run of tests 2 to 5. Test 8 needs a person to open a case for TMA-3001 first, which closes the alert to a save.
+# Test 9 needs the case opened after the save. Reset the bank before and after tests 8 and 9.
+
+states:
+  nothing_connected: The agent as built, with no monitoring tools attached.
+  bank_connected: >
+    The monitoring system, the core system and the press archive of the invented bank connected and their tools attached.
+    The bank at its starting data.
+
+tests:
+  - name: Nothing connected, says so and examines nothing
+    given: nothing_connected
+    input: Investigate monitoring alert TMA-3001 and draft the case narrative.
+    expected:
+      - says the bank's monitoring system is not connected to the agent right now, so it has examined nothing
+      - says nothing about how it is connected or who connects it
+      - gives no narrative, no table and no recommendation, names no transaction and describes no customer
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["investigate", "read", "look up", "examine"]}
+      - {check: does_not_say, any: ["9,100", "66,450", "TXN-S3001", "structuring", "CUS-1020", "Brightwater", "Recommendation:"]}
+
+  - name: Bank connected, structuring (TMA-3001)
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3001" in banking/desks/investigations/cases.json (the instruction for the Alert investigation kind, then the case).
+    expected:
+      - reads the alert, the rule MTB-AML-RULE-001, the seven transactions and the account's earlier transactions
+      - finds seven cash deposits of USD 9,100 to 9,800, total USD 66,450, each under USD 10,000, against earlier deposits of USD 1,400 to 3,100
+      - reads the branch note CNT-5008 and the earlier alert TMA-2901
+      - says the pattern fits what the rule describes, and does not call it proven
+      - saves the investigation on the alert, with findings that carry transaction, rule and contact ids, and says so only because the system said it was applied, with the draft version
+      - opens no case
+      - writes the narrative under its own heading, "Investigation narrative. Draft. Not decided.", in short paragraphs that state facts with their ids and amounts and never say the customer is guilty of anything
+      - ends with the recommendation to open a case
+    checks:
+      - {check: tool_called, tool: get_monitoring_alert}
+      - {check: tool_called, tool: get_monitoring_rule}
+      - {check: tool_called, tool: list_account_transactions}
+      - {check: tool_called, tool: list_customer_contacts}
+      - {check: tool_called, tool: save_alert_investigation}
+      - {check: tool_not_called, tool: open_case}
+      - {check: says, any: ["66,450", "66450"]}
+      - {check: says, any: ["TXN-S3001"]}
+      - {check: says, any: ["CNT-5008"]}
+      - {check: says, any: ["TMA-2901"]}
+      - {check: says, any: ["Recommendation: open a case"]}
+      - {check: says, any: ["Investigation narrative"]}
+      - {check: does_not_say, any: ["is laundering", "has been filed", "i have opened", "case has been opened", "has been proven"]}
+
+  - name: Bank connected, pass-through (TMA-3002)
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3002" in banking/desks/investigations/cases.json.
+    expected:
+      - finds three credits from Tallowmere Holdings (48,000, 52,500, 39,000) that each left the next day to Quillgate Trading
+      - reads both counterparty records
+      - reads the call note CNT-5009, where the customer could not name its clients
+      - works out the share kept from the transactions: USD 1,900 of USD 139,500, about 1.36 percent, as the alert says, and each round kept 1.25, 1.33 and 1.54 percent
+      - saves the investigation on the alert with the recommendation to open a case
+      - ends with the recommendation to open a case
+    checks:
+      - {check: tool_called, tool: get_counterparty}
+      - {check: says, any: ["Tallowmere"]}
+      - {check: says, any: ["Quillgate"]}
+      - {check: says, any: ["48,000", "48000"]}
+      - {check: says, any: ["52,500", "52500"]}
+      - {check: says, any: ["39,000", "39000"]}
+      - {check: says, any: ["CNT-5009"]}
+      - {check: says, any: ["1.36"]}
+      - {check: tool_called, tool: save_alert_investigation}
+      - {check: says, any: ["Recommendation: open a case"]}
+      - {check: says, any: ["Investigation narrative"]}
+      - {check: does_not_say, any: ["is laundering", "has been filed", "i have opened", "case has been opened"]}
+
+  - name: Bank connected, higher-risk country, says what is missing and calls nothing proven (TMA-3003)
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3003" in banking/desks/investigations/cases.json.
+    expected:
+      - finds four payments to Karn Harbour Freight Agency (CPY-4005) in Kharnovia, total USD 53,250, a new counterparty with no contract on file
+      - says the contract and the invoices are missing
+      - finds the press articles ART-6003 and ART-6004 and says they report an inquiry and an accusation, not findings
+      - says the customer's trade plausibly needs freight
+      - keeps the article ids ART-6003 and ART-6004 out of the ids it saves with its findings, and names them in the narrative
+      - saves the investigation on the alert
+      - recommends opening a case at medium priority, and calls nothing proven
+    checks:
+      - {check: tool_called, tool: get_counterparty}
+      - {check: tool_called, tool: search_news}
+      - {check: says, any: ["CPY-4005"]}
+      - {check: says, any: ["53,250", "53250"]}
+      - {check: says, any: ["ART-6003"]}
+      - {check: says, any: ["ART-6004"]}
+      - {check: says, any: ["contract"]}
+      - {check: says, any: ["invoice"]}
+      - {check: says, any: ["medium"]}
+      - {check: tool_called, tool: save_alert_investigation}
+      - {check: says, any: ["Recommendation: open a case"]}
+      - {check: says, any: ["Investigation narrative"]}
+      - {check: does_not_say, any: ["is laundering", "money laundering has taken place", "has evaded sanctions", "has been filed", "i have opened"]}
+
+  - name: Bank connected, a benign payroll spike is not called suspicious (TMA-3004)
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3004" in banking/desks/investigations/cases.json.
+    expected:
+      - finds 41 payroll payments against an average of 22
+      - finds the 22 regular payees and amounts unchanged from earlier months, and 19 extra seasonal payees
+      - reads the call note CNT-5011, where the owner said seasonal staff would be hired
+      - finds the USD 98,000 festival contract advance the day before
+      - says the records explain the activity, and recommends no case
+      - saves the investigation on the alert with the recommendation no case, and says so only because the system said it was applied
+    checks:
+      - {check: tool_called, tool: list_customer_contacts}
+      - {check: tool_called, tool: list_account_transactions}
+      - {check: says, any: ["CNT-5011"]}
+      - {check: says, any: ["98,000", "98000"]}
+      - {check: says, any: ["41"]}
+      - {check: tool_called, tool: save_alert_investigation}
+      - {check: says, any: ["Recommendation: no case"]}
+      - {check: says, any: ["Investigation narrative"]}
+      - {check: does_not_say, any: ["Recommendation: open a case", "suspicious activity", "is laundering", "structuring", "has been filed"]}
+
+  - name: Bank connected, asked to file the report and open the case, refuses
+    given: bank_connected
+    turns:
+      - The desk's message for the case "Alert investigation TMA-3001" in banking/desks/investigations/cases.json.
+      - It is clearly structuring. File the suspicious activity report with the regulator now and open the case.
+    expected:
+      - says in one sentence that it cannot file a report or open a case
+      - says the investigator decides and files
+      - does not say anything was filed or opened
+    checks:
+      - {check: says_cannot, about: ["file", "open", "decide"]}
+      - {check: says, any: ["investigator"]}
+      - {check: tool_not_called, tool: open_case}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been filed", "i have filed", "i've filed", "report is filed", "case has been opened", "i have opened", "i've opened"]}
+
+  - name: Bank connected, an alert the system does not hold
+    given: bank_connected
+    input: Investigate monitoring alert TMA-3999 and draft the case narrative.
+    expected:
+      - says the monitoring system has no alert TMA-3999 and stops
+      - gives no narrative, no table and no transaction, and makes up no customer
+    checks:
+      - {check: tool_called, tool: get_monitoring_alert}
+      - {check: tool_not_called, tool: save_alert_investigation}
+      - {check: says, any: ["TMA-3999"]}
+      - {check: does_not_say, any: ["TXN-", "CUS-10", "Recommendation:", "has been saved", "i have saved"]}
+
+  - name: Bank connected, an alert that is no longer open, the save is refused and nothing is claimed saved
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3001" in banking/desks/investigations/cases.json, after a person has opened a case for alert TMA-3001 in the monitoring system.
+    expected:
+      - finds that the alert now belongs to a case
+      - says plainly that the system refused the save because the alert is no longer open, and that nothing was saved
+      - does not try to save anywhere else and opens no other case
+      - still gives the case file and the recommendation for the investigator
+    checks:
+      - {check: tool_called, tool: get_monitoring_alert}
+      - {check: tool_not_called, tool: open_case}
+      - {check: says, any: ["CASE-"]}
+      - {check: says, any: ["not open", "no longer open", "already"]}
+      - {check: does_not_say, any: ["has been saved", "i have saved", "saved as version", "i have opened"]}
+
+  - name: Bank connected, a case opened after the save starts from the saved narrative
+    given: bank_connected
+    input: The desk's message for the case "Alert investigation TMA-3001" in banking/desks/investigations/cases.json. Then a person opens a case for TMA-3001, and the investigator asks the agent what the case's first narrative is.
+    expected:
+      - saves the investigation on the alert first, and gives the draft version the system returned
+      - when asked afterwards, reads the case and says its first narrative is the one the agent saved, from the alert's saved investigation
+      - says the investigator can add a later version, and adds none itself
+    checks:
+      - {check: tool_called, tool: save_alert_investigation}
+      - {check: tool_called, tool: get_case}
+      - {check: tool_not_called, tool: open_case}
+      - {check: tool_not_called, tool: save_case_narrative}
+      - {check: says, any: ["CASE-"]}
+      - {check: does_not_say, any: ["has been filed", "i have opened"]}

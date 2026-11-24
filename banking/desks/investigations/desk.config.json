@@ -1,0 +1,375 @@
+{
+  "$comment": "What makes the generic case desk the investigations desk. Two agents sit behind it. The routing setting picks the agent and the drafting instruction by the case's kind: Alert investigation goes to the AML Investigation agent, Media screening to the Adverse Media Screening agent. Needs the case desk engine that reads DESK_CONFIG, routing and waitingStatuses. Start it with DESK_CONFIG pointing at this file. The bank (Meridian Trust Bank), its customers, its alerts and its press archive are invented.",
+  "desk": {
+    "id": "investigations",
+    "name": "Investigations desk",
+    "caseNoun": "investigation",
+    "caseNounPlural": "investigations",
+    "draftNoun": "case file",
+    "deciderRole": "investigator",
+    "tagline": "Transaction monitoring alerts and adverse media requests in one queue, a drafted case file for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add an investigation",
+    "arrivedVia": {
+      "feed": "the bank's monitoring system",
+      "officer": "the investigations team",
+      "request": "a request by a person or by another agent"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "customer"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "about"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the alert or searches the archive.",
+    "noTextNote": "No summary was supplied with this case. Work from the alert or the subject the case names, read from the bank's systems.",
+    "askPlaceholder": "For example: which record did you take that from?",
+    "searchPlaceholder": "Search by customer, id or kind",
+    "demoNote": "Demo data: the bank, its customers, its alerts and its press archive are invented. Nothing here is a real investigation.",
+    "listFields": [
+      "kind",
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the case)",
+    "replyButton": "Add the reply and review again",
+    "replyNote": "A reply has been added at the end of the case. Read the records again, as new documents may have arrived, and review every finding again in the light of it.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The case"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Alert investigation": {
+        "agentEnv": "AML_AGENT_ID",
+        "instruction": "A transaction monitoring alert has arrived at the bank's investigations desk. Work on the alert named in the case below. Build the case file: the account's history, the counterparties, the customer's earlier alerts, the customer's contacts with the bank and any press coverage, and draft the narrative and the findings, and save them on the alert as a draft. You open no case, close no alert and file no report: the investigator decides and files.\n\nRead the alert from the monitoring system first, and then follow what each lookup finds: the rule that fired, the transactions the alert names and the account's other transactions around them, each counterparty, the customer's record, the customer's earlier alerts and cases, the customer's contacts, and the press archive for the customer and for each counterparty. Use only ids the systems return. Every statement carries its evidence. Where the evidence is thin or two records disagree, say so and do not choose. Never fill a gap: a contract, an invoice or a reason that is not on record is missing. The alert also shows every investigation already saved on it: read them and say whether yours agrees. Never call an activity suspicious or proven, and never call the customer guilty of anything or name a crime: say that the records fit the pattern the rule describes, or that they explain it. An article about someone else with the same name is not a finding: leave it out of the table and say in the narrative that it was set aside, and why.\n\nReply in this shape and in no other.\nWrite plain statements. Do not write in the first person.\n1. The heading \"Summary\", then at most four lines in plain sentences, with no blank line between them: who the customer is and which rule fired on which account; what the records show, in one line; what is missing, in one line; then a line that starts \"Saved:\" and says whether the investigation was saved on the alert in the monitoring system, and as which version, using only what the system's reply said. If the system refused, for example because the alert is no longer open or an id was not accepted, give what it said. If you did not try to save, say why. Do not count the marks in the Summary: the desk counts them from the table.\n2. A blank line, then the heading \"Draft case file. For the investigator. Not decided.\"\n3. A Markdown table with exactly these seven columns and one row per finding. Put no vertical bar inside a cell.\n| # | Finding | Evidence | What it shows | Found at | Mark | What to check |\n# is 1, 2, 3 in order. Finding is one fact in a few words. Evidence is the ids it rests on: a transaction id, an alert id, a rule id, a contact id, a counterparty id or an article id. What it shows is the value or the words of the record, with the amounts as the record gives them. Found at is the system and the record, for example the account's transactions or the counterparty record, and for an article the address of its page exactly as the system returned it. Mark is exactly one of: supports concern, explains the activity, neutral, unclear, missing, in lower case. What to check says why the mark follows and what the investigator should check.\n4. A blank line, then the heading \"Investigation narrative. Draft. Not decided.\" and under it the case narrative, as short paragraphs of plain sentences with a blank line between them and no heading of their own. One paragraph each for: who the customer is and which rule fired on which account; what the account's history shows, with the amounts and the dates; what the counterparties show; what the customer's contacts with the bank show, and the earlier alerts and cases; what the press archive holds, or that it holds nothing; what is missing and who could supply it. Every sentence says which ids it rests on and states facts with their amounts. Nothing in it says or implies that the customer is guilty of anything.\n5. A blank line, then one line that starts \"Recommendation:\". It is exactly one of: \"open a case\" followed by a full stop and the reason, with a priority (low, medium or high) only when the records give a basis for it; \"no case\" followed by a full stop and the reason; or \"ask for\" followed by what is missing and from whom. Write nothing after it.\n\nMarks. \"supports concern\": the record fits the pattern the rule describes, or adds to it. \"explains the activity\": the record gives an innocent reading of the same activity, stated or evidenced. \"neutral\": background that bears on neither. \"unclear\": the record does not say enough to settle what it shows, or two records disagree: say which. \"missing\": a record or a document that should be there and is not, or a search that found nothing. A record that supports concern does not prove anything, and a record that explains the activity does not close the matter: say so in What to check where it matters.\nSaving. The investigation is saved on the alert as a draft: the findings, the narrative and a recommendation. Send one finding for each row. Each saved finding carries the ids of the records that show it, and the system takes only ids of transactions, alerts, rules, contacts and counterparties there. It does not take an article id: name an article in the narrative and keep it out of the saved ids. A row about something missing still carries an id, for example the alert's. The system takes two recommendations, to open a case and no case. If your last line is \"ask for\", save nothing and say on the \"Saved:\" line that the system holds no value for it. When a person opens a case from the alert, the latest saved narrative becomes the first narrative of the case, so write it as the narrative a case would start from.",
+        "decisions": [
+          "open_case",
+          "no_case",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "supports concern",
+          "explains the activity",
+          "neutral",
+          "unclear",
+          "missing"
+        ]
+      },
+      "Media screening": {
+        "agentEnv": "MEDIA_AGENT_ID",
+        "instruction": "A request to screen a subject has arrived at the bank's investigations desk. Work on the subject named in the case below. Search the press archive for the subject and report what you find, each point with its article id and the address of the article's page, saying for each whether it is adverse and about the subject, about someone else with the same name, or neutral. You decide nothing: a compliance analyst judges what is relevant.\n\nSearch the archive for the subject's name, and for the parts of it when the full name finds nothing. Read every article the search returns in full before you call it about the subject: the archive holds people and companies that share a name. Read the subject's record from the bank's systems for the age or date of birth, the place of birth (for a person, a town and a country), the town, the country or the trade to compare. A person with the same name is not the subject unless age, place, trade or another detail ties them together, and the tie must be stated. A relative of the subject is not the subject. Never merge two people. Use only ids and addresses the systems return. Where an article does not say enough to settle who it is about, say so and do not choose.\n\nReply in this shape and in no other.\nWrite plain statements. Do not write in the first person.\n1. The heading \"Summary\", then at most five lines in plain sentences, with no blank line between them: the subject and the words searched for; how many articles the search returned and how many were read; for each article, who it is about and the fact that ties it to the subject or separates it; then a line that starts \"Saved:\" and says whether the draft was saved to the news system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so. Do not count the marks in the Summary: the desk counts them from the table.\n2. A blank line, then the heading \"Draft media screening. For the compliance analyst. Not decided.\"\n3. A Markdown table with exactly these seven columns and one row per article read, and one row marked missing when nothing was found about the subject. Put no vertical bar inside a cell.\n| # | Finding | Evidence | What it shows | Found at | Mark | What to check |\n# is 1, 2, 3 in order. Finding is what the article reports, in a few words. Evidence is the article id, or \"none\" on the missing row. What it shows is who the article is about and why: the age, town, country, trade or other facts the article gives, set beside the same facts in the bank's records. Found at is the address of the article's page, exactly as the system returned it. Mark is exactly one of: supports concern, neutral, someone else, unclear, missing, in lower case. What to check says what the analyst should check.\n4. A blank line, then one line that starts \"Recommendation:\". It is exactly one of: \"report adverse media\" followed by a full stop and the article ids; \"no adverse media about the subject\" followed by a full stop and the reason; or \"ask the analyst to look at\" followed by the article ids that cannot be settled. Write nothing after it.\n\nMarks. \"supports concern\": the article is about the subject and reports wrongdoing, a charge, a sanction or an inquiry. \"neutral\": the article is about the subject and reports nothing adverse. \"someone else\": the article is about a person or a company with the same or a similar name, or about a relative, and a fact in it separates them from the subject. \"unclear\": the article does not say enough to settle who it is about: say what is missing and do not guess. \"missing\": the search found no article about the subject. Say in What to check that an article reports an allegation, an inquiry or a charge, and not a finding, where that is so.",
+        "decisions": [
+          "accept",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "supports concern",
+          "neutral",
+          "someone else",
+          "unclear",
+          "missing"
+        ],
+        "markLabels": {
+          "supports concern": "Adverse",
+          "neutral": "Not adverse",
+          "someone else": "Someone else",
+          "unclear": "Unclear",
+          "missing": "None found"
+        },
+        "markHints": {
+          "supports concern": "The article is about the subject and reports wrongdoing, a charge, a sanction or an inquiry. An allegation or an inquiry is not a finding",
+          "neutral": "The article is about the subject and reports nothing adverse",
+          "someone else": "The article is about a person or a company with the same or a similar name, or about a relative, and a fact in it separates them from the subject",
+          "unclear": "The article does not say enough to settle who it is about. The agent says what is missing and does not choose",
+          "missing": "The search found no article about the subject. Nothing found is not a finding either way"
+        },
+        "markTones": {
+          "supports concern": "err",
+          "neutral": "plain",
+          "someone else": "info",
+          "unclear": "warn",
+          "missing": "plain"
+        },
+        "rowLabels": {
+          "source": "Article",
+          "policy": "Who it is about",
+          "citation": "Found in",
+          "check": "What to check"
+        }
+      }
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the investigations team (the form at the top of the list)",
+      "Sent by the bank's monitoring system when an alert arrives, or by a person or another agent asking for a media screening (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The customer or the subject, then the work. For example: Brightwater Cash and Carry Ltd: cash deposits"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Alert investigation",
+          "Media screening"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Alert id, or the subject's customer, entry or counterparty id",
+        "required": true,
+        "hint": "For example TMA-3001 for an alert, CUS-1007 for a customer or CPY-4005 for a counterparty"
+      },
+      {
+        "key": "customer",
+        "label": "Customer or subject",
+        "required": true,
+        "hint": "The name only, with the customer id for an alert"
+      },
+      {
+        "key": "about",
+        "label": "Account and rule, or what to search for",
+        "required": false,
+        "hint": "For an alert, the account and the rule. For a screening, the words to search for, if they differ from the name"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "What the bank's systems already say about the case"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived whose kind of work is not one this desk knows. The kinds are Alert investigation and Media screening. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the bank's systems. Last, write one line that starts \"Recommendation:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft case file",
+      {
+        "heading": "Investigation narrative. Draft. Not decided.",
+        "title": "Investigation narrative",
+        "hint": "Written to start a case from. Every sentence rests on record ids. Edit it before you decide: the register keeps every version."
+      }
+    ],
+    "marks": {
+      "supports concern": "Supports concern",
+      "explains the activity": "Explains the activity",
+      "neutral": "Neutral",
+      "someone else": "Someone else",
+      "unclear": "Unclear",
+      "missing": "Missing"
+    },
+    "markTones": {
+      "supports concern": "err",
+      "explains the activity": "ok",
+      "neutral": "plain",
+      "someone else": "info",
+      "unclear": "warn",
+      "missing": "warn"
+    },
+    "markHints": {
+      "supports concern": "The record fits the pattern the rule describes, or the article is about the subject and adverse. It proves nothing by itself",
+      "explains the activity": "The record gives an innocent reading of the same activity. It does not close the matter",
+      "neutral": "Background that bears on neither side, or an article about the subject that reports nothing adverse",
+      "someone else": "The article is about a person or a company with the same or a similar name, and a fact in it separates them from the subject",
+      "unclear": "The record or article does not say enough to settle it, or two records disagree. The agent says which and does not choose",
+      "missing": "A record or document that should be there is not, or a search found nothing"
+    },
+    "proposalPrefix": "Recommendation:",
+    "reviewHeading": "Draft case file",
+    "rowLabels": {
+      "source": "Evidence",
+      "policy": "What it shows",
+      "citation": "Found at",
+      "check": "What to check"
+    }
+  },
+  "decisions": [
+    {
+      "id": "open_case",
+      "label": "Open a case",
+      "outcome": "case_to_open",
+      "needsNote": true,
+      "noteLabel": "Why, and the priority",
+      "noteHint": "Records your decision. The desk opens no case in the monitoring system and files nothing: you open the case there, and any report is filed by a person, elsewhere.",
+      "proposalPrefix": [
+        "open a case"
+      ]
+    },
+    {
+      "id": "no_case",
+      "label": "No case needed",
+      "outcome": "no_case",
+      "needsNote": true,
+      "noteLabel": "What explains the activity",
+      "noteHint": "Records your decision. The desk closes no alert in the monitoring system: you close it there, under your own name.",
+      "proposalPrefix": [
+        "no case"
+      ]
+    },
+    {
+      "id": "accept",
+      "label": "Accept the findings",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you accept version {version}{edited} of the findings as the file note, in your name. It changes nothing in the bank's systems and files nothing.",
+      "proposalPrefix": [
+        "report adverse media",
+        "no adverse media about the subject"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask for more",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to ask for, one item to a line",
+      "noteHint": "An internal request, for example to the customer's relationship manager for a contract or invoices. Nothing is sent to the customer. The case waits here until the reply is added.",
+      "proposalPrefix": [
+        "ask for"
+      ]
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority, for example the head of compliance. Name them and give the reason."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the case file",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the investigator",
+    "sent_back": "Being redone",
+    "case_to_open": "Decided: open a case",
+    "no_case": "Decided: no case",
+    "issued": "Findings accepted",
+    "referred": "Referred on",
+    "info_requested": "Waiting for a reply",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "case_to_open",
+    "no_case",
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk opens no case, closes no alert and files no report: the investigator does that, in the bank's own systems.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "customer",
+      "about",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "customer",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind",
+      "reference": "Id",
+      "customer": "Customer or subject",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Case file versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other investigator can. You can still ask the agent to redo the case file.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "case_to_open": "Recorded in the register. Open the case in the monitoring system under your own name. The desk does not, and it files no report.",
+    "no_case": "Recorded in the register. Close the alert in the monitoring system under your own name: the desk does not.",
+    "issued": "Recorded as accepted. Nothing further happens on this desk.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs.",
+    "info_requested": "When the reply comes, add it here. The agent reads the records again and the case file comes back for your decision."
+  },
+  "decisionLabels": {
+    "case_to_open": "Decided: open a case",
+    "no_case": "Decided: no case",
+    "issued": "Accepted the findings",
+    "referred": "Referred on",
+    "info_requested": "Asked for more",
+    "sent_back": "Asked the agent to redo the case file",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}
