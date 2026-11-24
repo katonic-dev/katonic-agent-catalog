@@ -1,0 +1,41 @@
+{
+  "$comment": "Four invented fraud cases for the demo, from the invented bank Meridian Trust Bank, written for the bank date 2026-11-24: start the bank with BANK_TODAY=2026-11-24 so that its records agree with the dates here. FRD-3001 is card fraud (refund). FRD-3002 is a genuine payment the customer confirmed (release). FRD-3003 is an account takeover (refund). FRD-3004 is a forgotten subscription that belongs with disputes (release). The customers, cards and payments do not exist. Each case names only what the bank's fraud system holds.",
+  "cases": [
+    {
+      "title": "Marguerite Oakhaven, online purchases abroad",
+      "case": "FRD-3001",
+      "customer": "Marguerite Oakhaven (CUS-1012)",
+      "flagged": "Three card payments, card CRD-2008",
+      "amount": "USD 2,219.90",
+      "received_on": "2026-11-24",
+      "text": "Case FRD-3001 was opened on 22 Nov 2026 with priority high, raised by rule FRD-RULE-001. Marguerite Oakhaven (CUS-1012), card CRD-2008 (ending 5527).\nThree online purchases in Norvania were flagged, on 22 Nov 2026 between 02:14 and 03:05 local time (CTX-2008-F01, CTX-2008-F02 and CTX-2008-F03), USD 2,219.90 in all. The case says all of the card's earlier purchases were chip payments in Meridia, the last on 19 Nov 2026.\nThe customer's contact history holds two calls, CNT-5201 on 21 Nov 2026, 22:40 and CNT-5202 on 22 Nov 2026, 07:15. The case has two notes, FN-3001-1 and FN-3001-2.\nEverything here is as the fraud system holds it. The agent reads the case, the rule, the card's payments and the customer's contacts from the bank's systems. It blocks, releases and refunds nothing."
+    },
+    {
+      "title": "Leopold Fenwick-Aral, large first payment",
+      "case": "FRD-3002",
+      "customer": "Leopold Fenwick-Aral (CUS-1015)",
+      "flagged": "One payment, PAY-6401, held",
+      "amount": "USD 18,500",
+      "received_on": "2026-11-24",
+      "text": "Case FRD-3002 was opened on 23 Nov 2026 with priority medium, raised by rule FRD-RULE-002. Leopold Fenwick-Aral (CUS-1015).\nPayment PAY-6401 of USD 18,500 on 23 Nov 2026 to Brookhaven Joinery Works in Tessaly was flagged. It is his first payment to this payee, and it is held.\nThe customer's contact history holds two calls, CNT-5203 on 4 Nov 2026 and CNT-5204 on 23 Nov 2026 (a call-back by the fraud team). He has an earlier fraud case, FRD-2902, which was released on 29 Jan 2026. The case has one note, FN-3002-1.\nEverything here is as the fraud system holds it. The agent reads the case, the rule, the payment and the customer's contacts from the bank's systems. It blocks, releases and refunds nothing."
+    },
+    {
+      "title": "Rosalind Heathcote-Brae, account takeover pattern",
+      "case": "FRD-3003",
+      "customer": "Rosalind Heathcote-Brae (CUS-1014)",
+      "flagged": "One payment, PAY-6402, credited",
+      "amount": "USD 7,400",
+      "received_on": "2026-11-24",
+      "text": "Case FRD-3003 was opened on 23 Nov 2026 with priority high, raised by rule FRD-RULE-003. Rosalind Heathcote-Brae (CUS-1014).\nPayment PAY-6402 of USD 7,400 on 23 Nov 2026 to Marrowfield Remittance Agents in Aldoria was flagged. It was made in the mobile app. The case records four security events between 10:02 and 10:41, 39 minutes. The payment has been credited.\nThe customer's contact history holds a call, CNT-5205, on 25 Sep 2026. The case has one note, FN-3003-1.\nEverything here is as the fraud system holds it. The agent reads the case, the rule, the payment and the customer's contacts from the bank's systems. It blocks, releases and refunds nothing."
+    },
+    {
+      "title": "Oskar Brindlemoor, a charge reported as fraud",
+      "case": "FRD-3004",
+      "customer": "Oskar Brindlemoor (CUS-1006)",
+      "flagged": "One card payment, card CRD-2006",
+      "amount": "USD 11.99",
+      "received_on": "2026-11-24",
+      "text": "Case FRD-3004 was opened on 22 Nov 2026 with priority low, raised by rule FRD-RULE-004 after a customer report. Oskar Brindlemoor (CUS-1006), card CRD-2006 (ending 6670).\nCard payment CTX-2006-S04 of USD 11.99 on 22 Nov 2026, 03:10 to Streamline Video Club, online, was flagged. The customer reported it by phone on 22 Nov 2026, CNT-5206.\nHe has an earlier fraud case, FRD-2901, which was released on 30 Apr 2026. The case has one note, FN-3004-1.\nEverything here is as the fraud system holds it. The agent reads the case, the rule, the card's payments and the customer's contacts from the bank's systems. It blocks, releases and refunds nothing."
+    }
+  ]
+}

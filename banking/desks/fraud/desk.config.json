@@ -1,0 +1,290 @@
+{
+  "$comment": "What makes the generic case desk the fraud desk. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads DESK_CONFIG, the draft sections and the per mark signs and tones. The bank (Meridian Trust Bank), its customers, its cards and its fraud cases are invented. The demo cases are written for the bank date 2026-11-24: start the bank with BANK_TODAY=2026-11-24.",
+  "desk": {
+    "id": "fraud",
+    "name": "Fraud desk",
+    "caseNoun": "fraud case",
+    "caseNounPlural": "fraud cases",
+    "draftNoun": "case summary",
+    "deciderRole": "fraud analyst",
+    "tagline": "Flagged card payments and payments, the facts for and against fraud set out in time order with their records, a recommended next step and a draft message to the customer, a place to decide, and the register afterwards.",
+    "addLabel": "Add a fraud case",
+    "arrivedVia": {
+      "feed": "the bank's fraud system",
+      "officer": "the fraud team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "case",
+      "customer",
+      "amount"
+    ],
+    "queryFields": [
+      "title",
+      "case",
+      "customer",
+      "flagged"
+    ],
+    "detailFields": [],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the case from the fraud system.",
+    "noTextNote": "No summary was supplied with this case. Work from the fraud case the case names, read from the fraud system.",
+    "askPlaceholder": "For example: what did the customer say, and when?",
+    "searchPlaceholder": "Search by customer, case id or card",
+    "demoNote": "Demo data: the bank, its customers, its cards and its fraud cases are invented. Nothing here is a real fraud decision.",
+    "listFields": [
+      "case",
+      "amount"
+    ],
+    "chipFields": [
+      "flagged"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "jumpLabel": "The case"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the fraud team (the form at the top of the list)",
+      "Sent by the bank's fraud system when a card payment or a payment is flagged (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title (the customer and what happened)",
+        "required": true
+      },
+      {
+        "key": "case",
+        "label": "Fraud case id",
+        "required": true
+      },
+      {
+        "key": "customer",
+        "label": "Customer",
+        "required": true
+      },
+      {
+        "key": "flagged",
+        "label": "What was flagged (card payments or a payment)",
+        "required": true
+      },
+      {
+        "key": "amount",
+        "label": "Amount at risk (for example USD 2,219.90)",
+        "required": false,
+        "shownAs": "{value} at risk"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A card payment or a payment has been flagged at the bank's fraud desk. Work on the fraud case named in the case below. Gather the flagged payments, the device and channel details, the customer's earlier contacts and the notes on the case, and draft the case summary, the recommended action and a message to the customer. You block nothing, release nothing and refund nothing: the fraud analyst decides.\n\nRead the fraud case from the fraud system first, then the rule that flagged it, and then the card's other payments or the customer's other payments where the case concerns them. For a card, read the country, the town and whether the card was present for every payment, the flagged ones and the earlier ones. Use only ids the systems return. Every statement carries its evidence. Where the evidence is thin or two records disagree, say so and do not choose. Never fill a gap. Never call a payment fraud, or a customer a fraudster: say that the records point to fraud, or away from it.\n\nReply in this shape and in no other.\nWrite plain statements. Do not write in the first person. Do not count the marks anywhere: the desk counts them from the table. Write every date as day, short month and year and every time as hours and minutes, for example 22 Nov 2026, 02:14, never as 2026-11-22 and never as a number of days ago. Give a card as its last four digits only.\n1. The heading \"Summary\", then at most five lines, with no blank line between them: the case, the customer and the rule that flagged it; what was flagged, with the ids, the date and time and the amount; what the customer has said, with the contact ids and when, written as the customer's account as the bank recorded it; what is missing or disagrees; then a line that starts \"Saved:\" and says whether the draft was saved to the fraud system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft case summary. For the fraud analyst. Not decided.\"\n3. A Markdown table with exactly these seven columns and one row per fact. Put no vertical bar inside a cell.\n| # | Fact | Record | What it shows | Found at | Mark | Note |\n# is 1, 2, 3 in order. Fact is one fact in a few words. Record is the id of the record it rests on: a card payment id, a payment id, a contact id, a case note id, a fraud case id or a rule id, and for a security event or the channel details the id of the fraud case or of the device. What it shows is the value or the words of the record. Found at is the system and the record, for example the case's security events or the card's payment list. Mark is exactly one of: points to fraud, points away from fraud, not known, background, in lower case. Note says why the mark follows and what the analyst should check.\nOrder of the rows. Read down the table as the analyst reads the case: the rule that flagged it; then the card's usual payments together in ONE row (Fact \"The card's usual payments\", or \"Three earlier payments to the same merchant\" where they are the same merchant and amount), with the first and last payment ids in Record, one line to each payment, oldest first, separated by <br>, each line starting with its place in the order as a label (\"First:\", \"Second:\", \"Third:\"), and one Note for the row; then the flagged payments, oldest first, each in a row of its own; then how they were made (the channel and device details); then the security events in time order, one row each; then what the customer said, one row for each contact, earliest first; then each note on the case; then the customer's earlier fraud cases. Leave out a group that the case does not have.\nRows for a payment. The lines of a usual-payments row read \"First: 22 Nov 2026, 02:14. USD 640.00. Silverkeld Gadget Mart, Silverkeld, Norvania (QN). Online, card not present.\". In every other row for a payment, What it shows is written as labelled lines, one line to each, separated by <br> in the table cell, in this order: \"When:\" the date and time, \"Amount:\" the amount, \"Where:\" the merchant and the place (town and country name with its code), and for a card payment \"Card:\" how it was made (chip or online, card present or not); for a payment of the customer's own, \"To:\" the payee, its place and bank, then \"Reference:\" and \"Status:\". For example: When: 22 Nov 2026, 02:14<br>Amount: USD 640.00<br>Where: Silverkeld Gadget Mart, Silverkeld, Norvania (QN)<br>Card: Online, card not present. A security event has \"When:\" and \"Event:\". Give them as the records hold them, for the earlier payments and for the flagged ones. Say plainly when every earlier payment was made in person at home and the flagged ones were not: that fits a pattern of the first rule and does not say who made the payments.\nRows for what the customer said. What the customer says is the customer's account and not a record of fact. Start its Fact with \"Customer says:\". In Found at say that the record is a contact or a note written by the bank and that the words are the customer's. Where one contact holds both something the bank did (for example, the customer passed the security questions) and what the customer said, write them apart as labelled lines in What it shows: \"When: ...<br>Bank: ...<br>Customer: ...\". A contact that holds only what the customer said has \"When:\", \"Contact:\" (the kind of contact and who it was with, for example phone call from her home number) and \"Customer:\" (what the customer said). Never call a statement a lie.\nMarks. \"points to fraud\": the record fits a fraud pattern, or it is the customer's statement that a payment is not theirs. \"points away from fraud\": the record fits a payment the customer made or agreed to. \"not known\": a statement or a record that the other records do not settle. \"background\": the rule that flagged the case, the card's usual payments, a note that adds nothing, and earlier cases: they set the scene and point neither way. No mark proves anything, and a mark that points away from fraud does not close the case.\n4. A blank line, then the heading \"What the records show. Draft. Not decided.\" and under it the account for the case file, as short paragraphs of plain sentences with a blank line between them and no heading of their own. One paragraph each for: the case, the customer and the rule; the earlier payments and the flagged ones, with dates, times, amounts, places and whether the card was present, or the payment and the events around it; what the customer said and when, as the customer's account; what is missing or disagrees. Every sentence says which ids it rests on. Nothing in it says or implies that a person committed fraud or that a payment is fraud: it says that the records fit a pattern, or fit the customer's account.\n5. A blank line, then the heading \"Message to the customer. Draft. Not sent.\" and under it the message, as a short letter in the bank's own voice: a greeting with the customer's name, two or three short paragraphs, and a closing line with \"Meridian Trust Bank, fraud team\". It accuses no one, does not say that the action has been taken, says what the bank will do once the analyst has decided, and says that nothing is sent until then. Where the action is a recall, it says that a recall asks the receiving bank and does not guarantee the money comes back. It carries no card number beyond its last four digits and no figure the records do not give.\n6. A blank line, then one line that starts \"Recommendation:\". It is \"refund\", \"block\" or \"release\", then a short clause that says the next step for the analyst, then a full stop, then one or two sentences of reason, and the words \"The fraud analyst decides.\" Write nothing after it.\nRecommendation. \"refund\" when the records point to fraud and money has already been taken: card payments are refunded and a sent payment is recalled, which asks the receiving bank and does not guarantee the money back. \"block\" when the records point to fraud and nothing has left, for example a held payment. \"release\" when the records point away from fraud. A charge that belongs with disputes, for example a subscription the customer forgot, is \"release\", and the line says it belongs with disputes in the cards system. When the records do not settle it, say so in the reason and choose the action the evidence supports least harmfully for the customer. The recommendation is a next step for the analyst and never a finding that a payment is fraud.\n\nSaving. Save the account under \"What the records show\" as the summary, the recommendation as the recommended action (block, release or refund) and the message to the customer, through the fraud system's operation that saves a case summary as a draft. Save once for each request. Nothing is sent to the customer and the case stays open.",
+    "sections": [
+      "Summary",
+      "Draft case summary",
+      {
+        "heading": "What the records show. Draft. Not decided.",
+        "title": "What the records show",
+        "hint": "Written for the case file. Every sentence rests on record ids, and none calls a person or a payment fraud. Edit it before you decide: the register keeps every version."
+      },
+      {
+        "heading": "Message to the customer. Draft. Not sent.",
+        "title": "Message to the customer",
+        "hint": "Not sent. Nothing goes to the customer until the analyst has decided, and a person sends it."
+      }
+    ],
+    "marks": {
+      "points to fraud": "Points to fraud",
+      "points away from fraud": "Points away from fraud",
+      "not known": "Not known",
+      "background": "Background"
+    },
+    "markTones": {
+      "points to fraud": "err",
+      "points away from fraud": "person",
+      "not known": "warn",
+      "background": "none"
+    },
+    "markHints": {
+      "points to fraud": "The record fits a fraud pattern, or it is the customer's statement that a payment is not theirs. It proves nothing by itself",
+      "points away from fraud": "The record fits a payment the customer made or agreed to. It does not close the case",
+      "not known": "A statement or a record that the other records do not settle",
+      "background": "The rule that flagged the case, the card's usual payments, a note that adds nothing, an earlier case. It points neither way"
+    },
+    "proposalPrefix": "Recommendation:",
+    "reviewHeading": "Draft case summary",
+    "rowLabels": {
+      "source": "Record",
+      "policy": "What it shows",
+      "citation": "Found at",
+      "check": "Note"
+    },
+    "markIcons": {
+      "points to fraud": "▲",
+      "points away from fraud": "▽",
+      "not known": "?",
+      "background": "•"
+    },
+    "tallyLabels": {
+      "points to fraud": "point to fraud",
+      "points away from fraud": "point away from fraud",
+      "not known": "not known",
+      "background": "background"
+    },
+    "proposalFirst": true
+  },
+  "decisions": [
+    {
+      "id": "block",
+      "label": "Fraud: block",
+      "outcome": "blocked",
+      "needsNote": true,
+      "noteLabel": "Why you confirm fraud",
+      "noteHint": "Fraud confirmed: stop the card, or the held payment. Records your decision in the desk's register. The desk blocks nothing in the fraud system: you decide the case there, under your own name.",
+      "proposalPrefix": [
+        "block"
+      ]
+    },
+    {
+      "id": "refund",
+      "label": "Fraud: refund",
+      "outcome": "refunded",
+      "needsNote": true,
+      "noteLabel": "Why you confirm fraud, and what is returned",
+      "noteHint": "Fraud confirmed, and the money is returned: a card payment is refunded and a sent payment is recalled, which asks the receiving bank and does not guarantee the money back. Records your decision in the desk's register. The desk refunds nothing: you decide the case in the fraud system, under your own name.",
+      "proposalPrefix": [
+        "refund"
+      ]
+    },
+    {
+      "id": "release",
+      "label": "Not fraud: release",
+      "outcome": "released",
+      "needsNote": true,
+      "noteLabel": "Why it is not fraud",
+      "noteHint": "Not fraud: release a held payment, or close the case. Records your decision in the desk's register. The desk releases nothing in the fraud system.",
+      "proposalPrefix": [
+        "release"
+      ]
+    },
+    {
+      "id": "to_disputes",
+      "label": "Not fraud: send to disputes",
+      "outcome": "to_disputes",
+      "needsNote": true,
+      "noteLabel": "Why it belongs with disputes",
+      "noteHint": "For a charge that is not fraud but that the customer disputes, for example a subscription the customer forgot. Opening the dispute, or asking the merchant to cancel, is done in the cards system by a person."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the summary",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the analyst",
+    "sent_back": "Being redone",
+    "blocked": "Decided: block",
+    "refunded": "Decided: refund",
+    "released": "Decided: release",
+    "to_disputes": "Sent to disputes",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "blocked",
+    "refunded",
+    "released",
+    "to_disputes",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk blocks, releases and refunds nothing: the fraud analyst decides the case in the bank's fraud system.",
+    "columns": [
+      "case_id",
+      "title",
+      "case",
+      "customer",
+      "flagged",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "case",
+      "customer",
+      "amount",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "case": "Case",
+      "customer": "Customer",
+      "amount": "Amount at risk",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Summary versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other fraud analyst can. You can still ask the agent to redo the summary.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "blocked": "Recorded in the register. Decide the case in the fraud system under your own name: the desk does not block anything.",
+    "refunded": "Recorded in the register. Decide the case in the fraud system under your own name: the desk does not refund anything.",
+    "released": "Recorded in the register. Decide the case in the fraud system under your own name: the desk does not release anything.",
+    "to_disputes": "Recorded in the register. A person opens the dispute or asks the merchant to cancel, in the cards system."
+  },
+  "decisionLabels": {
+    "blocked": "Decided: block",
+    "refunded": "Decided: refund",
+    "released": "Decided: release",
+    "to_disputes": "Sent to disputes",
+    "sent_back": "Asked the agent to redo the summary",
+    "removed": "Removed from the desk"
+  }
+}

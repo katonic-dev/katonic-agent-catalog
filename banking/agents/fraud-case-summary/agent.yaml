@@ -1,0 +1,65 @@
+id: fraud-case-summary
+name: Fraud Case Summary
+pack: banking
+area: Financial crime
+summary: >
+  Gathers the flagged payments, the device and channel details, the customer's
+  earlier contacts and the notes on a fraud case, and drafts the case summary,
+  the recommended action and a message to the customer. It blocks, releases and
+  refunds nothing: the fraud analyst decides.
+
+type: workflow
+form: event-triggered
+started_by: A flagged card payment or payment arriving at the bank. The bank's fraud system can announce one through its event for new fraud cases
+
+meets_people_through: application
+application: Fraud desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the case's id and reads the reply.
+# The agent reads the case, the rule, the card's payments and the payments from the bank's systems.
+needs:
+  - id: fraud-system
+    kind: api
+    required: true
+    label: The bank's fraud system, to read a case and its rule, and to save a draft summary
+    operations:
+      - get_fraud_case
+      - get_fraud_rule
+      - save_fraud_case_summary
+  - id: cards-system
+    kind: api
+    required: true
+    label: The bank's cards system, to read the other payments made with a flagged card, each with its country, its town and whether the card was present
+    operations:
+      - list_card_transactions
+  - id: payments-system
+    kind: api
+    required: false
+    label: The bank's payments system, to read a flagged payment and the customer's other payments
+    operations:
+      - search_payments
+      - get_payment
+
+demo_bank_systems: [fraud, cards, payments]
+
+stops_for_a_person:
+  - The fraud analyst decides to block, release or refund. The agent blocks nothing, releases nothing, refunds nothing and sends nothing to the customer.
+  - Whether a customer's statement is true is not for the agent. It shows the statement beside the records and does not call anyone a fraudster.
+
+# Saving a case summary is a draft kept with its author, a time and a version
+# number. The case stays open and nothing is sent.
+changes:
+  - {tool: save_fraud_case_summary, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/fraud/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.
