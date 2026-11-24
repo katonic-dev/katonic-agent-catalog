@@ -1,0 +1,498 @@
+{
+  "$comment": "What makes the generic case desk the customer care desk of Rowanmere Market. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. Four kinds of case sit in one queue, and each goes to its own agent: Customer ticket, Return request, Complaint, Public review. Rowanmere Group, its customers and every record are invented.",
+  "desk": {
+    "id": "customer-care",
+    "name": "Customer care desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "care lead",
+    "tagline": "Customer tickets, return requests, complaints and public reviews in one queue, a draft for each from its own agent, a place to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "issuedVerb": "Return approved by",
+    "documentLinkLabel": "Download the assessment as approved",
+    "arrivedVia": {
+      "feed": "the care and orders systems",
+      "officer": "the care team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "jumpLabel": "Records",
+    "metaFields": [
+      "about"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "order",
+      "email"
+    ],
+    "showText": "text",
+    "textHeading": "The records, as the desk holds them",
+    "noTextShown": "The desk holds no records for this case. Correct the details and add them, or remove the case.",
+    "noTextNote": "No records were supplied with this case. Say so under the heading \"Summary\", write no table and no draft, and write the last line as: Proposal: ask again: the case came with no records.",
+    "askPlaceholder": "For example: which sentence of the article does the reply rest on?",
+    "searchPlaceholder": "Search by number, customer, order or kind",
+    "demoNote": "Demo data: Rowanmere Group, its customers and every ticket, return request, complaint, review and order are invented.",
+    "listFields": [
+      "kind"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "flags": [
+      {
+        "label": "Safety or legal",
+        "tone": "err",
+        "reply": "Class: A"
+      },
+      {
+        "label": "Overdue",
+        "tone": "err",
+        "reply": "Response due on",
+        "matches": [
+          "has passed"
+        ]
+      },
+      {
+        "label": "For a person",
+        "tone": "person",
+        "reply": "Marked for a person"
+      },
+      {
+        "label": "No article",
+        "tone": "person",
+        "reply": "No help article answers"
+      },
+      {
+        "label": "Leader decides",
+        "tone": "person",
+        "reply": "The policy does not decide"
+      },
+      {
+        "label": "Repeat contact",
+        "tone": "warn",
+        "reply": "Class: B"
+      }
+    ]
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Customer ticket": {
+        "agentEnv": "CUSTOMER_SERVICE_AGENT_ID",
+        "instruction": "A customer ticket has arrived at the customer care desk of Rowanmere Market's online shop. Find the help article that answers the customer's question and draft the reply. You send nothing to the customer: a member of the care team sends every reply.\n\nWork from this message only. Read nothing from any system and save nothing, because the desk keeps the draft. Write no line about saving a draft. Copy every number, every date and every amount exactly. Write plain statements and, outside the text for the customer, do not write in the first person. The case below carries the ticket and the twelve help articles, HA-01 to HA-12, as the care system holds them. Invent no article, no article number, no figure and no order detail. Promise no refund, no replacement, no credit, no cancellation, no delivery date and no exception. Give no view on whether a product is safe for a person with an allergy or a medical condition, and no legal view.\n\nHow to decide:\n- An article answers the ticket when it states what the customer asked: the charge, the number of days, the steps to take, or whether something is allowed. The reply then rests on that article and says what the article says and nothing more.\n- An article that only touches the same subject does not answer the question. A price match, an account the shop does not describe, or whether a food is safe for someone, is answered by no article.\n- Read all twelve articles before concluding that none answers the question.\n- When no article answers, write a short holding reply: thank the customer, say that the question has gone to a colleague who will write back, and give no answer and no promise.\n- When an article says what the customer should send or do next, say that. Do not say what the care team will then decide.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most four lines with no blank line between them: the ticket number, the day it arrived and the subject; in one sentence, what the customer asks; and either the number and title of the article that answers it, or exactly \"No help article answers this question.\" Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft answer. For the care team. Nothing sent.\"\n3. A Markdown table with exactly these seven columns and one row for each thing the customer asks. Put no vertical bar inside a cell.\n| # | Point | Customer asks | Article says | Article | Mark | Before sending |\n# is 1, 2, 3 in order. Point is what is asked, in a few words. Customer asks is the customer's own question, in a few words. Article says quotes what the article states, with its figures, or says \"No article states this\". Article is the number and title of the article, or \"None\". Mark is exactly one of: met, no article, not checked, in lower case. \"met\" means a help article states what the customer asked. \"no article\" means none of the twelve does. Before sending is what a person should check before the reply goes.\n4. A blank line, then a line that is exactly \"Draft reply. Not sent.\" and under it the reply to the customer, word for word. Address the customer by the name on the ticket. Answer in the first two sentences, with the figure or the step from the article. Plain words, short sentences, no more than 120 words. No apology for something the ticket does not show went wrong. End the reply with: Rowanmere Market customer care\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"send the reply:\" followed by the number of the article the reply rests on; or \"pass to a colleague:\" followed by what no article answers and what the colleague needs to settle. Write nothing after that line.",
+        "decisions": [
+          "send_reply",
+          "pass_on",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Customer asks",
+          "policy": "Article says",
+          "citation": "Article",
+          "check": "Before sending"
+        },
+        "markLabels": {
+          "met": "Answered"
+        },
+        "markHints": {
+          "met": "A help article states what the customer asked, and the draft reply rests on it"
+        }
+      },
+      "Return request": {
+        "agentEnv": "RETURNS_PROCESSING_AGENT_ID",
+        "instruction": "A return request has arrived at the customer care desk of Rowanmere Market's online shop. Check it against the Returns Policy, say which condition it meets or fails, and prepare a proposal and a message to the customer. You approve no return, refuse none and issue no refund: a person in the care team decides.\n\nWork from this message only. Read nothing from any system and save nothing, because the desk keeps the assessment. Write no line about saving a draft. Copy every number, every date and every amount exactly. Write plain statements and, outside the text for the customer, do not write in the first person. The case below carries the request, the order it is on and the Returns Policy, as the orders system holds them. Use the policy's conditions as written, each with its number. Apply no condition that is not in the policy and bend none. Take the condition and the reason as the request states them. Invent no order, no date, no condition number and no amount. Do not say that a refund has been or will be paid.\n\nHow to check, in this order. Write a row for a check only when it applies to the request.\n- \"The order\": the item must be a line of the order, and the quantity asked for must not be more than the quantity bought (condition 4.1).\n- \"Damaged, faulty or wrong item\": when the reason is damage on arrival, a wrong item or a fault, section 5 decides, and it sets aside sections 2 and 3 where it says so. Check the day and, for damage, the photograph. Where the policy says it does not decide the case, mark the row \"not decided\".\n- \"The window\": for any other reason, compare the day of the request with the window. Count the days as the case gives them. Day 30 is inside the window.\n- \"The category\": for a change of mind, check the item's category against section 3.\n- \"The condition of the item\": for a change of mind, check what the request reports against section 2.\n- The first condition that is not met decides a refusal. When every condition that applies is met, propose approval. The refund is the price paid for the quantity returned (condition 4.2).\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the request number, the order number and the customer; the item, the quantity, the day it was delivered, the day the return was asked for and the day number; the reason and the condition reported; and the result. The result is exactly one of: \"Result: approve under condition\" with the number and the refund in USD; \"Result: refuse under condition\" with the number; or \"The policy does not decide this request:\" with the condition number and who decides. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft assessment. For the care team. Nothing approved or refused.\"\n3. A Markdown table with exactly these seven columns and one row for each check that applies. Put no vertical bar inside a cell.\n| # | Check | Request shows | Policy says | Condition | Mark | Note |\n# is 1, 2, 3 in order. Check is one of the five names above. Request shows is what the request and the order show. Policy says is the condition in a few of its own words. Condition is \"Returns Policy\" and the condition number, for example \"Returns Policy 1.1\". Mark is exactly one of: met, not met, not decided, not checked, in lower case. Note says what the row means for the proposal, and names any section the row sets aside.\n4. A blank line, then a line that is exactly \"Draft message to the customer. Not sent.\" and under it a short message in plain words, no more than 100 words. For a proposed approval: that the request meets the policy and what happens next under the policy, written so that it holds only once a person has approved. For a proposed refusal: the condition in plain words, without blame. For a referral: that a colleague is looking at the request. No promise of a date. End the message with: Rowanmere Market customer care\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"approve:\" followed by the condition that decides and the refund in USD; \"refuse:\" followed by the condition that decides, in a few words; or \"refer to a person:\" followed by the condition and who the policy says decides. Write nothing after that line.",
+        "decisions": [
+          "approve",
+          "refuse_return",
+          "pass_on",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Request shows",
+          "policy": "Policy says",
+          "citation": "Condition",
+          "check": "Note"
+        }
+      },
+      "Complaint": {
+        "agentEnv": "COMPLAINT_HANDLING_AGENT_ID",
+        "instruction": "A complaint has arrived at the customer care desk of Rowanmere Market. Give it its class under the Complaints Procedure, work out the date the response is due, set out what happened, and draft the response. You send nothing to the customer: a care lead decides, and any goodwill is the care lead's own decision.\n\nWork from this message only. Read nothing from any system and save nothing, because the desk keeps the classification and the response. Write no line about saving a draft. Copy every number, every date and every amount exactly. Write plain statements and, outside the text for the customer, do not write in the first person. The case below carries the complaint, its contact history, the order it is about with its charges, refunds and carrier scans, the Complaints Procedure and today's date (the line \"Today\"), as the care and orders systems hold them. The contact history holds the earlier contacts. The complaint itself is not one of them. Use no class and no number of days that is not in the procedure. Invent no contact, no date, no order detail and no reason. Admit no fault on the company's behalf and do not say the customer is wrong. Offer no money, refund, credit, voucher or goodwill, and do not say that one will follow. Blame no carrier, no driver and no colleague.\n\nHow to classify. Take the classes in the order the procedure gives, and stop at the first that fits.\n- First: does the complaint describe an injury, an illness, an allergic reaction or a hazard, or does the customer say they will take legal action? The customer's own words decide. Then the class is A, safety or legal, whatever else is true.\n- Second: two or more earlier contacts about the same matter in the contact history make it class B, repeat contact. One does not.\n- Third and fourth: if the company did not do what it said it would, such as a late, missing, damaged or wrong delivery, it is class C, service failure. If the company did what its policy says and the customer objects to the policy or the charge, it is class D, policy disagreement. A demand for a manager does not change the class.\n- The response is due on the day the complaint was received plus the days the procedure gives for the class, in calendar days, with the day it was received as day 0.\n- Where the order does not show what the customer describes, such as a second charge or a wrong item in the box, say that the record does not show it. That is not a statement that the customer is mistaken.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most five lines with no blank line between them: the complaint number, the customer, the day it was received and the order; in one sentence, what the customer complains of; a line that starts \"Class:\" with the class letter, its name in plain words, its section and the reason in a few words, for example \"Class: C, service failure, section 2.3: a late delivery\"; the earlier contacts about the same matter, as a number; and one sentence that starts \"Response due on\" with the date, and ends \", which has passed\" when that date is before today's date. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft classification. For a care lead. Nothing sent.\"\n3. A Markdown table with exactly these seven columns and one row for each thing the customer says. Put no vertical bar inside a cell.\n| # | Point | Customer says | Records show | Record | Mark | For the care lead |\n# is 1, 2, 3 in order. Point is the matter, in a few words. Customer says is the customer's own statement, in a few words. Records show is what the order, its scans and the contact history show, with dates. Record is the order number, \"Carrier scans\" or \"Contact history\", or \"None\". Mark is exactly one of: met, not shown, for a person, not checked, in lower case. \"met\" means the records show what the customer describes. \"not shown\" means the records hold nothing that shows it. \"for a person\" is for an injury, an illness, an allergic reaction, a hazard or a legal threat: write what the customer says, decide nothing about it, and write under Records show only what the order holds. For the care lead is what a person must decide, such as whether goodwill is offered.\n4. A blank line, then a line that is exactly \"Draft response. Not sent.\" and under it the response to the customer, word for word. For every class except A: thank the customer and say in one sentence what the complaint is about; say what the records show, with dates, and say so when they do not explain what happened; say what happens next and by when, using the due date. No more than 150 words. For class A: an acknowledgement only. Thank the customer for telling the company, say that the Customer Relations Lead has the complaint and will be in touch, and say nothing about what happened, who is at fault or what will be done. No more than 60 words. End the response with: Rowanmere Market customer relations\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"send the response:\" followed by the class letter and name, its section and the date the response is due, for example \"send the response: class C, service failure, section 2.3, response due 2026-12-02\"; or, for class A and for no other, \"pass to the Customer Relations Lead:\" followed by the same and the reason in a few words. Write nothing after that line.",
+        "decisions": [
+          "send_response",
+          "pass_to_lead",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Customer says",
+          "policy": "Records show",
+          "citation": "Record",
+          "check": "For the care lead"
+        },
+        "markLabels": {
+          "met": "In the records"
+        },
+        "markHints": {
+          "met": "The order, its scans or the contact history show what the customer describes",
+          "for a person": "An injury, an illness, a hazard or a legal threat. The agent decides nothing about it: the Customer Relations Lead reads it the same day"
+        }
+      },
+      "Public review": {
+        "agentEnv": "REVIEW_REPLY_AGENT_ID",
+        "instruction": "A public review has arrived at the customer care desk of Rowanmere Market. First decide whether it describes a safety or legal matter. If it does, mark it for a person and draft no reply. If it does not, draft a reply in the brand's voice, from the Brand Voice Guide. You post nothing: a person posts every reply.\n\nWork from this message only. Read nothing from any system and save nothing, because the desk keeps the draft. Write no line about saving a draft. Copy every number, every date and every amount exactly. Write plain statements and, outside the text for the customer, do not write in the first person. The case below carries the review and the Brand Voice Guide. Follow the guide's rules as written, each with its number. Offer no money, refund, voucher, replacement or gift. Argue with no reviewer and do not say that a reviewer is mistaken. Name no colleague, and use no name for the reviewer other than the display name. Ask for no personal details. State nothing about what happened that the review itself does not say.\n\nThe safety and legal check comes first. Mark a review for a person, and draft no reply, when the reviewer's words describe any of these: an injury, an illness, an allergic reaction, something found in food, a hazard in a store such as a wet floor that caused a fall, or a lawyer, a solicitor, a claim or legal action.\n- The words decide, not the rating. A one-star review about a colleague's manner or empty shelves is not a safety or legal matter and gets a reply.\n- When in doubt, mark it. Give the reason in one plain sentence that says what the review describes. Do not judge whether it is true.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most three lines with no blank line between them: the review number, the site, what it is about, the rating and the display name; in one sentence, what the reviewer says; and either exactly \"No safety or legal matter.\" or a line that starts \"Marked for a person:\" with the reason in one sentence. Put no count of marks or of rows in the Summary. The desk counts them from the table.\n2. A blank line, then the heading \"Draft check. For the care team. Nothing posted.\"\n3. A Markdown table with exactly these seven columns. Put no vertical bar inside a cell.\n| # | Check | Review says | Draft reply | Guide rule | Mark | Before posting |\nThe first row is always the check \"Safety or legal matter\", under rule V-11. For a review that passes it, add one row for each of these checks of the draft: \"Opens with thanks, by display name\" (V-1), \"Length\" (V-2, with the number of words), \"Praise\" (V-5) where the review praises, \"Criticism\" (V-6 to V-9) where it criticises, and \"Closing line\" (V-13). For a marked review write the first row only. Review says is the reviewer's own words that the row rests on, or \"Nothing on this\". Draft reply is what the draft does on that point, or \"No reply drafted\". Mark is exactly one of: met, for a person, not checked, in lower case. \"met\" means the draft follows the rule, or, in the first row, that the review describes no safety or legal matter. Before posting is what a person should check.\n4. A blank line, then a line that is exactly \"Draft reply. Not posted.\" and under it the reply, word for word, no longer than the guide's limit, ending with the guide's closing line on a line of its own. For a marked review write under that line exactly: No reply drafted.\n5. A blank line, then one line that starts \"Proposal:\" and is exactly one of: \"publish the reply: no safety or legal matter\"; or \"mark for a person:\" followed by the reason and that the Customer Relations Lead reads the review first. Write nothing after that line.",
+        "decisions": [
+          "publish_reply",
+          "mark_for_person",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "Review says",
+          "policy": "Draft reply",
+          "citation": "Guide rule",
+          "check": "Before posting"
+        },
+        "markLabels": {
+          "met": "Follows the guide"
+        },
+        "markHints": {
+          "met": "The draft follows this rule of the Brand Voice Guide",
+          "for a person": "The review describes a safety or legal matter. No reply is drafted: the Customer Relations Lead reads it first"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the care team (the form at the top of the list)",
+      "Sent by the care or orders system when a ticket, a return request, a complaint or a review arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case",
+        "hint": "The number of the ticket, the return request, the complaint or the review, and who it is from. For example CT-2611-021 from Wren Castellane-Voss.",
+        "required": true
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "hint": "Each kind goes to its own agent.",
+        "required": true,
+        "options": [
+          "Customer ticket",
+          "Return request",
+          "Complaint",
+          "Public review"
+        ]
+      },
+      {
+        "key": "customer",
+        "label": "From",
+        "hint": "The customer's name, or the display name on a review.",
+        "required": true
+      },
+      {
+        "key": "about",
+        "label": "About",
+        "hint": "The subject of a ticket or a complaint, the item of a return, or the rating of a review and what it is about.",
+        "required": false
+      },
+      {
+        "key": "order",
+        "label": "Order",
+        "hint": "The order number, for example RM-58131. Leave it empty when none is named.",
+        "required": false
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "hint": "The address on the ticket, the complaint or the order.",
+        "required": false
+      },
+      {
+        "key": "received_on",
+        "label": "Received",
+        "hint": "The day the ticket or the complaint arrived, the return was asked for, or the review was posted.",
+        "required": false,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "Records",
+        "hint": "What the care and orders systems hold for the case. Each part starts with a heading in capitals: the ticket with the help articles, the return request with its order and the Returns Policy, the complaint with its contact history, its order and the Complaints Procedure, or the review with the Brand Voice Guide.",
+        "required": false,
+        "type": "textarea"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived at the customer care desk whose kind of work is not one this desk knows. The kinds are Customer ticket, Return request, Complaint and Public review. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and no draft. Last, write one line that starts \"Proposal:\" and says to correct the kind of work.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Draft reply. Not sent.",
+        "title": "Draft reply to the customer",
+        "hint": "Not sent. The desk sends nothing."
+      },
+      {
+        "heading": "Draft message to the customer. Not sent.",
+        "title": "Draft message to the customer",
+        "hint": "Not sent. It holds only once a person has decided."
+      },
+      {
+        "heading": "Draft response. Not sent.",
+        "title": "Draft response to the customer",
+        "hint": "Not sent. It admits no fault and offers no money."
+      },
+      {
+        "heading": "Draft reply. Not posted.",
+        "title": "Draft reply to the review",
+        "hint": "Not posted. The desk posts nothing."
+      }
+    ],
+    "marks": {
+      "met": "Met",
+      "not met": "Not met",
+      "not decided": "Policy does not decide",
+      "no article": "No article answers",
+      "not shown": "Not in the records",
+      "for a person": "For a person",
+      "does not apply": "Does not apply",
+      "not checked": "Not checked"
+    },
+    "markTones": {
+      "met": "ok",
+      "not met": "err",
+      "not decided": "person",
+      "no article": "person",
+      "not shown": "warn",
+      "for a person": "person",
+      "does not apply": "none",
+      "not checked": "none"
+    },
+    "markHints": {
+      "met": "The request meets this condition of the Returns Policy",
+      "not met": "The request does not meet this condition. The first condition that is not met decides a refusal",
+      "not decided": "The Returns Policy says it does not decide this. The Customer Care Team Leader does",
+      "no article": "None of the twelve help articles states this. A colleague answers it",
+      "not shown": "The order, its scans and the contact history do not show this. That is not a statement that the customer is mistaken",
+      "for a person": "A person reads this first",
+      "does not apply": "This condition does not apply to the request",
+      "not checked": "The record needed to check this was not with the case"
+    },
+    "markIcons": {
+      "not shown": "≠"
+    },
+    "proposalPrefix": "Proposal:",
+    "passMark": "met",
+    "reviewHeading": "Draft",
+    "summaryAboveRows": true,
+    "plainSource": true,
+    "rowLabels": {
+      "source": "Shown",
+      "policy": "Held",
+      "citation": "Record",
+      "check": "Note"
+    }
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Approve the return",
+      "proposalPrefix": "approve",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you approve this return on version {version}{edited} of the assessment, in your name. The desk pays no refund and changes nothing in the orders system."
+    },
+    {
+      "id": "refuse_return",
+      "label": "Refuse the return",
+      "proposalPrefix": "refuse",
+      "outcome": "return_refused",
+      "needsNote": true,
+      "noteLabel": "The reason for the refusal",
+      "noteHint": "Name the condition in plain words. The desk records this in your name. It sends nothing and changes nothing in the care or orders system."
+    },
+    {
+      "id": "send_reply",
+      "label": "Send the reply",
+      "proposalPrefix": "send the reply",
+      "outcome": "reply_to_send",
+      "needsNote": true,
+      "noteLabel": "Who sends the reply, and how",
+      "noteHint": "The desk records your decision and the reply as it reads now. It sends the customer nothing: the reply goes out in the care system, in the sender's name."
+    },
+    {
+      "id": "send_response",
+      "label": "Send the response",
+      "proposalPrefix": "send the response",
+      "outcome": "response_to_send",
+      "needsNote": true,
+      "noteLabel": "Who sends it, and any goodwill you have decided",
+      "noteHint": "Goodwill is your own decision as care lead, not the agent's. Write the amount and the reason, or write that none is offered. The desk pays nothing and sends nothing."
+    },
+    {
+      "id": "pass_to_lead",
+      "label": "Pass to the Customer Relations Lead",
+      "proposalPrefix": "pass to the customer relations lead",
+      "outcome": "with_the_lead",
+      "needsNote": true,
+      "noteLabel": "Why it goes to the Lead",
+      "noteHint": "For a complaint that describes an injury, an illness, a hazard or a legal threat, and for any other you will not answer yourself. The desk records this in your name. It sends nothing and changes nothing in the care or orders system."
+    },
+    {
+      "id": "publish_reply",
+      "label": "Publish the reply",
+      "proposalPrefix": "publish the reply",
+      "outcome": "reply_to_publish",
+      "needsNote": true,
+      "noteLabel": "Who posts the reply, and where",
+      "noteHint": "The desk records your decision and the reply as it reads now. It posts nothing: the reply is posted on the review site, in the poster's name."
+    },
+    {
+      "id": "mark_for_person",
+      "label": "Mark for a person, no reply",
+      "proposalPrefix": "mark for a person",
+      "outcome": "for_a_person",
+      "needsNote": true,
+      "noteLabel": "Why a person reads it first, and who",
+      "noteHint": "No reply is posted. The desk records this in your name. It sends nothing and changes nothing in the care or orders system."
+    },
+    {
+      "id": "pass_on",
+      "label": "Pass to a colleague",
+      "proposalPrefix": [
+        "pass to a colleague",
+        "refer to a person"
+      ],
+      "outcome": "passed_on",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a ticket no help article answers, and a return the policy does not decide. Name the team or the person. The desk records this in your name. It sends nothing and changes nothing in the care or orders system."
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent again",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being drafted again",
+    "issued": "Return approved",
+    "return_refused": "Return refused",
+    "reply_to_send": "Reply to send",
+    "response_to_send": "Response to send",
+    "with_the_lead": "With the Lead",
+    "reply_to_publish": "Reply to publish",
+    "for_a_person": "Marked for a person",
+    "passed_on": "Passed on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "return_refused",
+    "reply_to_send",
+    "response_to_send",
+    "with_the_lead",
+    "reply_to_publish",
+    "for_a_person",
+    "passed_on",
+    "removed"
+  ],
+  "waitingStatuses": [],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk sends nothing, posts nothing and pays nothing: it records what a person decided.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "customer",
+      "about",
+      "order",
+      "email",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other care lead can. You can still ask the agent again.",
+    "reasonToApproveUnmet": true,
+    "reasonToApproveUnmetText": "Approving a return while a condition is not met needs a reason",
+    "reasonToApproveUnmetLabel": "Why you approve although a condition is not met",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as approved, in your name. The desk has paid no refund and changed nothing in the orders system: the return is approved there, and the refund follows the policy.",
+    "return_refused": "Recorded as refused, with your reason. The desk has sent the customer nothing: the refusal is made in the orders system.",
+    "reply_to_send": "Recorded. The desk has sent the customer nothing: the reply goes out in the care system, as it reads below.",
+    "response_to_send": "Recorded, with your note on goodwill. The desk has sent the customer nothing and paid nothing: the response goes out in the care system, as it reads below.",
+    "with_the_lead": "Recorded as passed to the Customer Relations Lead, with your reason. The desk has sent nothing. No response goes to the customer before the Lead has read the complaint.",
+    "reply_to_publish": "Recorded. The desk has posted nothing: the reply is posted on the review site, as it reads below.",
+    "for_a_person": "Recorded as marked for a person, with your reason. No reply is posted.",
+    "passed_on": "Recorded as passed to a colleague, with the name and the reason you gave. The desk has sent nothing."
+  },
+  "decisionLabels": {
+    "issued": "Approved the return",
+    "return_refused": "Refused the return",
+    "reply_to_send": "Decided to send the reply",
+    "response_to_send": "Decided to send the response",
+    "with_the_lead": "Passed to the Lead",
+    "reply_to_publish": "Decided to publish the reply",
+    "for_a_person": "Marked for a person, no reply",
+    "passed_on": "Passed to a colleague",
+    "sent_back": "Asked the agent again",
+    "removed": "Removed from the desk"
+  }
+}
