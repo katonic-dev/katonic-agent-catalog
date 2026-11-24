@@ -9,7 +9,7 @@ Reads a period's guest comments from the company's feedback system, groups them 
 | How people meet it | Through the company's own system: the analysis is a draft kept in the feedback system and sent to operations |
 | Reads from | The company's guest feedback and its restaurant list |
 | Changes | Saves its analysis as a draft. The draft changes no comment and no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. The comments that describe harm are listed first, all seven, in every run. The counts by theme vary from run to run |
 
 ## What it does
 
@@ -35,7 +35,7 @@ Reads a period's guest comments from the company's feedback system, groups them 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 24 November 2026.
 
 1. In Control Room, Tools, import the customer care system from its OpenAPI address. For the invented retailer, that is the document at `/care/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. Import the store and restaurant system the same way (`/stores/openapi.json`).
@@ -49,7 +49,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 24 November 2026, against the invented retailer at its starting data, three runs of each test.
+
+- Five of the seven tests pass three runs in a row.
+- In every run that read the whole month, all seven comments that describe harm were listed first, by the right references.
+- The counts by theme vary from run to run. The test on the counts failed one run in three, and the table was not always sorted largest first.
+- In the saved draft the list of harm comments was right every time. The counts by restaurant were not reliable.
+- Every reply in the Work Room, on the published agent, was delivered.
+
+A model that reads 260 comments does not count them the same way twice. Where the counts matter, build the scheduled form with a code step that counts after the model has given each comment its theme. That form is not built yet.
 
 ## Try it
 

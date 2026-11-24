@@ -47,9 +47,17 @@ changes:
   - {tool: save_feedback_analysis, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 24 November 2026. Not promoted.
+    Three runs of each test. Five of the seven tests pass three runs in a
+    row. In every run that read the whole month, all seven comments that
+    describe harm were listed first by the right references. The counts by
+    theme vary from run to run, so the test on the counts failed one run in
+    three, and counts by restaurant in the saved draft are not reliable.
+    A model that reads 260 comments does not count them the same way twice:
+    the scheduled form should count in a code step after the model has
+    given each comment its theme. That form is not built yet.
