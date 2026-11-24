@@ -369,7 +369,7 @@
         "Quote {number} when you reply."
       ],
       "signature": "Payments, Meridian Trust Bank (an invented bank, for demonstration)",
-      "dates": "long"
+      "dateStyle": "long"
     }
   },
   "decisionLabels": {
