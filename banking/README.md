@@ -31,7 +31,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | | **Payments operations** | | | | |
 | 15 | [Payment Investigation](agents/payment-investigation/README.md) | Traces a payment's status, lines up the messages, and drafts the reply to the customer or the other bank | Workflow, event-triggered | Payments desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | 16 | [Payment Exception Repair](agents/payment-exception-repair/README.md) | Reads a held payment and the reason it stopped, and proposes the correction with the rule it relied on | Workflow, event-triggered | Payments desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
-| 17 | Reconciliation Break | Gathers both sides of an unmatched item and proposes the match or the adjusting entry with the evidence | Workflow, scheduled | Reconciliation desk | Planned |
+| 17 | [Reconciliation Break](agents/reconciliation-break/README.md) | Gathers both sides of an unmatched item and proposes the match or the adjusting entry with the evidence | Workflow, scheduled | Reconciliation desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | | **Compliance and audit** | | | | |
 | 18 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators' publication feeds on a clock and writes a digest of what is new. The desk then drafts a gap analysis against the bank's policies | Workflow, scheduled | Regulatory change desk | Daily sweep built and run on a schedule on a development cluster |
 | 19 | [Policy and Procedures Assistant](agents/policy-and-procedures-assistant/README.md) | Answers staff questions from the bank's own policies and procedures, citing the document | Conversational, answering | Chat | Built and tested as a draft. Not yet published |
@@ -65,7 +65,7 @@ A desk is the shared case desk with a different queue. Each one shows the cases,
 | [Lending desk](desks/lending/README.md) | Loan Application Intake, Credit Analysis, Loan Document Verification | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Complaints desk](desks/complaints/README.md) | Complaint Handling | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | [Payments desk](desks/payments/README.md) | Payment Investigation, Payment Exception Repair | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
-| Reconciliation desk | Reconciliation Break | Planned |
+| [Reconciliation desk](desks/reconciliation/README.md) | Reconciliation Break | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Card servicing screen | Card Servicing | Planned |
 | [Third-party risk desk](desks/third-party-risk/README.md) | Third-Party Risk Assessment | Settings written and tested end to end against a stand-in agent. Needs an engine version that is not published yet |
 | Research desk | Equity Research Report | Planned |

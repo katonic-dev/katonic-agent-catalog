@@ -1,0 +1,65 @@
+{
+  "$comment": "Five invented breaks for the demo, from the invented bank Meridian Trust Bank. The correspondent banks, accounts and entries do not exist. They follow the bank's records at the bank date 2026-11-24, so start the bank with BANK_TODAY=2026-11-24 for the desk and the bank to agree. Every date is written as a date. BRK-4001: a mistyped character in the reference, match. BRK-4002: one statement credit for two ledger entries of a batch, match. BRK-4003: a bank charge of 15.00, match with an adjusting entry. BRK-4004: a duplicate ledger posting, reverse the later entry. BRK-4005: nothing behind the item, refer to a person. Each case names only what the bank's reconciliation system holds.",
+  "cases": [
+    {
+      "title": "Aldoria Commerce Bank, statement credit USD 12,480.00",
+      "reference": "BRK-4001",
+      "account": "NOS-ALDB-01",
+      "item": "STM-8101",
+      "side": "Statement",
+      "amount": "12,480.00 USD credit",
+      "opened": "2026-11-19",
+      "age": "5 days",
+      "received_on": "2026-11-24",
+      "text": "THE BREAK\nBreak: BRK-4001, open\nAccount: NOS-ALDB-01, Nostro account, USD, at Aldoria Commerce Bank\nOpened: 19 Nov 2026, 5 days before the bank date of 24 Nov 2026\n\nTHE UNMATCHED ITEM\nEntry: STM-8101, statement side\nAmount: 12,480.00 USD, credit\nValue date: 19 Nov 2026\nReference: INV-558210-AQ\nNarrative: Incoming transfer, Corrowick Alloy Works\n\nWHY IT IS HERE\nWhy: The statement item has no matched ledger entry.\nCandidates listed: LED-7101, LED-7102\n\nEverything here is as the reconciliation system holds it. The agent reads the break and its candidates itself from the reconciliation system."
+    },
+    {
+      "title": "Quenmark National Bank, statement credit USD 8,000.00",
+      "reference": "BRK-4002",
+      "account": "NOS-QNMK-01",
+      "item": "STM-8201",
+      "side": "Statement",
+      "amount": "8,000.00 USD credit",
+      "opened": "2026-11-20",
+      "age": "4 days",
+      "received_on": "2026-11-24",
+      "text": "THE BREAK\nBreak: BRK-4002, open\nAccount: NOS-QNMK-01, Nostro account, USD, at Quenmark National Bank\nOpened: 20 Nov 2026, 4 days before the bank date of 24 Nov 2026\n\nTHE UNMATCHED ITEM\nEntry: STM-8201, statement side\nAmount: 8,000.00 USD, credit\nValue date: 20 Nov 2026\nReference: SETT-BATCH-0457\nNarrative: Batch settlement credit\n\nWHY IT IS HERE\nWhy: The statement item has no matched ledger entry.\nCandidates listed: LED-7201, LED-7202, LED-7203\n\nEverything here is as the reconciliation system holds it. The agent reads the break and its candidates itself from the reconciliation system."
+    },
+    {
+      "title": "Tessaly Mutual Bank, statement credit USD 9,985.00",
+      "reference": "BRK-4003",
+      "account": "NOS-TESL-01",
+      "item": "STM-8301",
+      "side": "Statement",
+      "amount": "9,985.00 USD credit",
+      "opened": "2026-11-21",
+      "age": "3 days",
+      "received_on": "2026-11-24",
+      "text": "THE BREAK\nBreak: BRK-4003, open\nAccount: NOS-TESL-01, Nostro account, USD, at Tessaly Mutual Bank\nOpened: 21 Nov 2026, 3 days before the bank date of 24 Nov 2026\n\nTHE UNMATCHED ITEM\nEntry: STM-8301, statement side\nAmount: 9,985.00 USD, credit\nValue date: 21 Nov 2026\nReference: TRF-77120\nNarrative: Incoming transfer TRF-77120, less charges 15.00\n\nWHY IT IS HERE\nWhy: The statement item has no matched ledger entry.\nCandidates listed: LED-7301\n\nEverything here is as the reconciliation system holds it. The agent reads the break and its candidates itself from the reconciliation system."
+    },
+    {
+      "title": "Aldoria Commerce Bank, ledger debit USD 4,175.50",
+      "reference": "BRK-4004",
+      "account": "NOS-ALDB-01",
+      "item": "LED-7402",
+      "side": "Ledger",
+      "amount": "4,175.50 USD debit",
+      "opened": "2026-11-17",
+      "age": "7 days",
+      "received_on": "2026-11-24",
+      "text": "THE BREAK\nBreak: BRK-4004, open\nAccount: NOS-ALDB-01, Nostro account, USD, at Aldoria Commerce Bank\nOpened: 17 Nov 2026, 7 days before the bank date of 24 Nov 2026\n\nTHE UNMATCHED ITEM\nEntry: LED-7402, ledger side\nAmount: 4,175.50 USD, debit\nValue date: 17 Nov 2026\nReference: PO-3382\nNarrative: Supplier payment PO-3382\nBatch: BATCH-0460, posted 17 Nov 2026 at 14:04\n\nWHY IT IS HERE\nWhy: The ledger entry has no matched statement entry.\nCandidates listed: LED-7401\n\nEverything here is as the reconciliation system holds it. The agent reads the break and its candidates itself from the reconciliation system."
+    },
+    {
+      "title": "Quenmark National Bank, statement debit USD 3,275.40",
+      "reference": "BRK-4005",
+      "account": "NOS-QNMK-01",
+      "item": "STM-8501",
+      "side": "Statement",
+      "amount": "3,275.40 USD debit",
+      "opened": "2026-11-15",
+      "age": "9 days, over the 5-day limit",
+      "received_on": "2026-11-24",
+      "text": "THE BREAK\nBreak: BRK-4005, open\nAccount: NOS-QNMK-01, Nostro account, USD, at Quenmark National Bank\nOpened: 15 Nov 2026, 9 days before the bank date of 24 Nov 2026\n\nTHE UNMATCHED ITEM\nEntry: STM-8501, statement side\nAmount: 3,275.40 USD, debit\nValue date: 15 Nov 2026\nReference: UNK-77QX\nNarrative: ADJ 77-QX NO REMITTANCE INFORMATION\n\nWHY IT IS HERE\nWhy: The statement item has no matched ledger entry.\nCandidates listed: none\nThe ledger and statement entries can be read and searched in the reconciliation system.\nThe break is older than 5 days. Under RECON-RULE-005 a break with no candidate that is older than 5 days is escalated the same day.\n\nEverything here is as the reconciliation system holds it. The agent reads the break itself from the reconciliation system."
+    }
+  ]
+}

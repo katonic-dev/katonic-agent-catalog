@@ -1,0 +1,60 @@
+id: reconciliation-break
+name: Reconciliation Break
+pack: banking
+area: Payments operations
+summary: >
+  Gathers both sides of an unmatched item after a reconciliation run, examines
+  each candidate entry, and proposes the match or the adjusting entry with the
+  evidence and the matching rule it relied on. Where nothing can be resolved
+  it says so, lists what was checked, and refers the break to a person. It
+  posts nothing.
+
+type: workflow
+form: scheduled
+started_by: A reconciliation run finishing, once for every unmatched item. The bank's reconciliation system can also announce a new break through its event for reconciliation breaks
+
+meets_people_through: application
+application: Reconciliation desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the break's id and reads the reply. The
+# agent reads the break, its candidates, the matching rules and the ledger and
+# statement entries from the reconciliation system, and searches them.
+needs:
+  - id: reconciliation-system
+    kind: api
+    required: true
+    label: The bank's reconciliation system, to read a break with its candidates, the matching rules, one ledger or statement entry, and to search the ledger and statement entries by account, amount, value date and reference, and to save a draft proposal
+    operations:
+      - list_reconciliation_breaks
+      - get_reconciliation_break
+      - get_reconciliation_rule
+      - get_ledger_entry
+      - get_statement_entry
+      - search_ledger_entries
+      - search_statement_entries
+      - propose_break_resolution
+
+demo_bank_systems: [recon]
+
+stops_for_a_person:
+  - A person approves every posting. The agent proposes the match, the adjusting entry or the reversal and posts nothing.
+  - Where no entry could belong to the item, the agent says so, lists what was checked, and refers the break to the Reconciliation Team lead. It does not match it, write it off or adjust it.
+  - A break the rules cannot settle is never forced. A person decides.
+
+# Saving a proposal is a draft kept with its author, a time and a version
+# number. Nothing is matched, posted or reversed until a person posts it.
+changes:
+  - {tool: propose_break_resolution, waits_for_approval: false}
+
+sample_data:
+  - ../../desks/reconciliation/cases.json
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026.
