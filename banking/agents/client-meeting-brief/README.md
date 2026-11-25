@@ -9,7 +9,7 @@ For each of a relationship manager's meetings the next day, it writes one brief:
 | How people meet it | Through the bank's own system: the brief goes to the relationship manager |
 | Reads from | The bank's client meetings system, its customer records (credit exposure) and its press archive |
 | Changes | Nothing in the bank's records. It saves a brief as a draft. Nothing is sent |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All seven tests pass five runs in a row |
 
 ## What it does
 
