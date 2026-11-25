@@ -9,7 +9,7 @@ Reads a payment held in the repair queue and the reason it stopped, and proposes
 | How people meet it | An application: the Payments desk |
 | Reads from | The bank's payments system: the repair item, the rule that stopped it, the payment, earlier payments found by beneficiary name or account, the check of an IBAN and the bank directory |
 | Changes | Saves a draft repair proposal. The draft releases nothing: the payment stays held |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

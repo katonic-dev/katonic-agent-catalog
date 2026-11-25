@@ -39,7 +39,8 @@ tests:
     checks:
       - {check: says, any: ["Held: XB82BRVN73201150000124"]}
       - {check: says, any: ["Corrected: XB82BRVN73201150000142"]}
-      - {check: says, any: ["Source: PAY-6050"]}
+      # The source names the earlier payment; "Source: earlier payment PAY-6050 beneficiary IBAN" is the same answer (one run of five wrote it so).
+      - {check: says, any: ["Source: PAY-6050", "Source: earlier payment PAY-6050"]}
       - {check: tool_called, tool: get_repair_item}
       # No check on reading the rule or the payment by themselves: the repair item the system returns holds the rule with its text and the whole payment.
       - {check: tool_called, tool: search_payments}
