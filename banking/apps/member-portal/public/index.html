@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My pension · Meridian Trust Pension Scheme</title>
+<link rel="stylesheet" href="portal.css">
+</head>
+<body>
+<p class="invented" role="note">Invented: the Meridian Trust Pension Scheme, its member and every figure on this page are made up for a demonstration. They are not real.</p>
+<header class="top">
+  <div class="brand"><span class="mark" aria-hidden="true">MT</span><span class="brandname">Meridian Trust Pensions</span></div>
+  <nav class="nav" aria-label="Sections">
+    <a class="on" href="#" aria-current="page">My pension</a><a href="#">Funds</a><a href="#">Contributions</a><a href="#">Documents</a><a href="#">Help</a>
+  </nav>
+  <div class="who"><span class="store">Tobias Wrenfield · MEM-5001</span><span class="sample">Example member site</span></div>
+</header>
+
+<div class="layout">
+<main class="page">
+  <div class="headline">
+    <h1>Good afternoon, Tobias</h1>
+    <p>Meridian Trust Pension Scheme · member since 16 Dec 2018 · employer Harbourlight Services</p>
+    <a class="jump" href="#chat">Ask the fund assistant</a>
+  </div>
+
+  <section class="tiles" aria-label="My pension">
+    <article class="tile">
+      <h2>Your pension pot</h2>
+      <p class="big">USD 29,676.74 <span>at prices of 31 Oct 2026</span></p>
+      <ul>
+        <li><b>Funds held</b><span>3</span></li>
+        <li><b>Status</b><span>Active member</span></li>
+        <li><b>Contributions go to</b><span>Meridia Balanced Growth Fund</span></li>
+      </ul>
+      <p class="hint">Values move with unit prices. This is not today’s value.</p>
+    </article>
+    <article class="tile notice">
+      <h2>Notice</h2>
+      <p class="noticehead">Fund fact sheets for October are published</p>
+      <p>Each fact sheet gives the fund’s charges, its risk level and its unit price at 31 Oct 2026. You can ask the fund assistant what a fact sheet says.</p>
+      <p class="hint">The assistant gives information. It does not give advice.</p>
+    </article>
+  </section>
+
+  <section class="strip" aria-label="Your holdings">
+    <h2>Your holdings</h2>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Fund</th><th>Units</th><th>Unit price</th><th>Value</th><th>Risk level</th></tr></thead>
+      <tbody>
+      <tr><td>Meridia Cautious Income Fund</td><td>4,210.50</td><td>USD 1.284</td><td>USD 5,406.28</td><td><span class="pill good">2 of 7</span></td></tr>
+      <tr><td>Meridia Balanced Growth Fund</td><td>6,800.00</td><td>USD 2.0715</td><td>USD 14,086.20</td><td><span class="pill wait">4 of 7</span></td></tr>
+      <tr><td>Meridia Global Equity Fund</td><td>2,950.25</td><td>USD 3.452</td><td>USD 10,184.26</td><td><span class="pill wait">6 of 7</span></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <footer class="pagefoot">
+    <p>The Meridian Trust Pension Scheme is invented. The member, the funds, the figures and the notice on this page are invented examples. Links in the menu go nowhere.</p>
+  </footer>
+</main>
+
+<aside class="chat" id="chat" aria-label="Fund assistant">
+  <div class="chathead">
+    <span class="chatdot" id="dot" aria-hidden="true"></span>
+    <div><p class="chattitle">Ask the fund assistant</p><p class="chatsub" id="mode">Your holdings and the fund fact sheets</p></div>
+  </div>
+  <div class="log" id="log" aria-live="polite">
+    <div class="msg bot"><p>Hello Tobias. Ask about your holdings or about what a fund’s fact sheet says. This assistant gives information, not advice.</p></div>
+  </div>
+  <div class="chips" id="chips">
+    <button type="button">What do I hold, and what is it worth?</button>
+    <button type="button">What are the charges on the Balanced Growth Fund?</button>
+    <button type="button">Which fund should I move my savings into?</button>
+  </div>
+  <form class="ask" id="ask">
+    <input id="q" type="text" autocomplete="off" placeholder="Type a question" aria-label="Your question">
+    <button type="submit" id="send">Send</button>
+  </form>
+</aside>
+</div>
+<script src="portal.js"></script>
+</body>
+</html>
