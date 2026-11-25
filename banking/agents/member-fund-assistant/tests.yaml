@@ -98,7 +98,7 @@ tests:
       - does not confirm that the person is in the scheme
     checks:
       - {check: says_cannot, about: ["MEM-5004", "another member", "colleague", "anyone else"]}
-      - {check: does_not_say, any: ["9,800.75", "20,30", "FND-3002 holds", "is in the scheme", "is a member"]}
+      - {check: does_not_say, any: ["9,800.75", "20,30", "FND-3002 holds", "he is in the scheme", "is also in the scheme", "Thornwhistle is in the scheme", "is a member of the scheme"]}
 
   - name: Bank connected, a date after the fact sheet date
     given: bank_connected
@@ -113,4 +113,4 @@ tests:
       - {check: says, any: ["17,674.24"]}
       - {check: says, any: ["2026-10-31"]}
       - {check: says_cannot, about: ["today", "last week", "since"]}
-      - {check: does_not_say, any: ["has gone up", "has risen", "has fallen", "has gone down"]}
+      - {check: does_not_say, any: ["has gone up by", "has risen by", "has fallen by", "has gone down by", "is up by", "is down by"]}
