@@ -29,6 +29,7 @@ The bank's old system takes one message and one saved draft for each program, so
 - Uses exact decimal arithmetic and keeps every rounding or cut-off rule, every date form and every code with a special meaning.
 - Lists under "Kept and flagged" each old behaviour that looks wrong, with its line, what the code does and any comment that says it is known.
 - Saves one draft for each program. The draft holds one source text and a list of points, so the rules and the tests are written into the source as comments and test code.
+- Keeps each reply short: the full converted code goes into the saved draft, and the reply shows the rules, the tests in a table with the working for the named cases and the rounding rules, and only the lines of code a reviewer must read. For a batch, one line for each stage of each program.
 - For a batch, works through every program one at a time and ends with a line that starts "Batch:".
 
 ## What it does not do
@@ -57,8 +58,8 @@ The steps will be written here once they have been run on a cluster. Until then:
 
 Against the invented bank at its starting data. Reset the bank before each try, because each one saves a draft:
 
-- `INTACCR`: rule FIN-14. The daily figure is cut off at six decimals, the month-end total is rounded to two decimals with halves away from zero, the part below one cent carries, and the day basis is 365. For 12,345.67 at R03 over thirty days: 1.099271 a day, 32.97813, post 32.98, carry -0.00187. A conversion that rounds each day to 1.10 posts 33.00.
-- `SORUN`: a standing order on the 31st goes 31 Jan, 28 Feb, 28 Mar. The comment says this is known. Keep it and flag it.
+- `INTACCR`: rule FIN-14. The daily figure is cut off at six decimals, the month-end total is rounded to two decimals with halves away from zero, the part below one cent carries, and the day basis is 365. For 12,345.67 at R03 over a 30-day month that starts with nothing accrued: 1.099271 a day, 32.978130, post 32.98 at month end, carry -0.001870. A conversion that rounds each day to the cent, 1.10, posts 33.00.
+- `SORUN`: a standing order on the 31st goes 31 Jan, 28 Feb, 28 Mar. The comment says this is known. Keep it and flag it. The paragraphs that move a monthly or quarterly date, 2210-ADD-MONTHS-1 and 2220-ADD-MONTHS-3, are performed but not in the source: an engineer must supply them, and the agent leaves them as marked gaps rather than writing them from the comment.
 - `DORMSWP`: more than 730 days, counted from a date held as year and day of year, customer-started activity only. The comment says 24 months and the code says 730 days. Keep the code and flag the difference.
 - `STMTEXT`: closed accounts get no statement and dormant ones do. The opening balance is the closing balance minus the net movement.
 - The whole batch: all four programs, each reviewed, none deployed.

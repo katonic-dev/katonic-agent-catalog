@@ -26,12 +26,16 @@ tests:
 
   - name: Bank connected, INTACCR keeps the rounding rule through all four stages
     given: bank_connected
-    input: Convert INTACCR to Python. Include a test for the saver account 4410007732 from the sample rows, and a test for a balance of 12,345.67 at rate code R03 over 30 days.
+    # The 12,345.67 case is a plain case (no sample row is at R03 with that balance), checked by hand with Decimal:
+    # 12,345.67 x 0.0325 / 365 = 1.0992719863..., cut off 1.099271; x 30 = 32.978130; month end rounds half away to 32.98;
+    # carried 32.978130 - 32.98 = -0.001870. Rounding each day to the cent the program posts in: 1.10 x 30 = 33.00.
+    # Sample 4410007732: 88,000.00 x 0.0325 / 365 = 7.8356164383..., cut off 7.835616.
+    input: Convert INTACCR to Python. Include a test for the saver account 4410007732 from the sample rows, and a test for a balance of 12,345.67 at rate code R03 over a 30-day month that starts with nothing accrued, through the month-end posting.
     expected:
       - stage 1 lists rules with line references, including FIN-14 (daily interest truncated at six decimals and never rounded, month-end total rounded to two decimals with halves away from zero, the part below one cent carried, day basis 365 also in a leap year), the balance divided by 100, the rate chosen by the overdraft flag (ROD agreed, RUN not agreed) and only active accounts
-      - stage 2 works the sample account 4410007732, 88,000.00 at R03, to a daily 7.835616, and the 12,345.67 case to 1.099271 a day, 32.97813 over thirty days, 32.98 posted, -0.00187 carried
-      - stage 2 says what a conversion that rounds each day to 1.10 would post, 33.00, and that the test must catch it
-      - stage 3 uses decimal arithmetic and not binary floating point, truncates and does not round the daily figure, and uses 365
+      - stage 2 works the sample account 4410007732, 88,000.00 at R03, to a daily 7.835616, and the 12,345.67 case to 1.099271 a day, 32.978130 (or 32.97813) after thirty days, 32.98 posted at month end, -0.001870 (or -0.00187) carried
+      - stage 2 says what a conversion that rounds each day to the cent, 1.10, would post for the same case, 33.00, and that the test must catch it
+      - stage 3 shows the lines that keep FIN-14, and they use decimal arithmetic and not binary floating point, truncate and do not round the daily figure, and use 365
       - stage 4 lists every difference, or says there is none, and says whether the code was run
       - saves one draft with points to check, and says it was saved only because the system said it was applied
     checks:
@@ -53,12 +57,15 @@ tests:
     input: Convert SORUN to Python.
     expected:
       - stage 1 gives the rules with line references, including skipping an order the account cannot cover unless it has an agreed overdraft, no retry, the exception report, and the next date moving on even when the order was skipped
-      - names the monthly date rule, a standing order on the 31st goes 31 Jan, 28 Feb, 28 Mar, quotes the comment that says this is known, and keeps it in the converted code
+      - says that the program performs 2210-ADD-MONTHS-1 and 2220-ADD-MONTHS-3 but the source does not contain them, that an engineer must supply them, and does not write them from the comment; the converted code calls them as gaps that stop with an error
+      - gives the monthly date rule as one taken from the comment, a standing order on the 31st goes 31 Jan, 28 Feb, 28 Mar, quotes the comment that says this is known, and writes a test of it for the supplied paragraph
       - lists it under kept and flagged and does not fix it
-      - saves one draft whose points to check include the flagged behaviour
+      - saves one draft whose points to check include the flagged behaviour and the missing paragraphs
     checks:
+      # The two paragraphs are performed at lines 95 and 97 of the source as returned and are not in it; the bank holds them nowhere.
       - {check: tool_called, tool: get_legacy_program}
       - {check: tool_called, tool: save_converted_program}
+      - {check: says, any: ["2210-ADD-MONTHS-1", "ADD-MONTHS-1"]}
       - {check: says, any: ["28 Mar", "28 March"]}
       - {check: says, any: ["28 Feb", "28 February"]}
       - {check: says, any: ["known"]}
@@ -113,7 +120,7 @@ tests:
     input: Convert the whole batch of programs.
     expected:
       - reads the list of programs and works through INTACCR, STMTEXT, DORMSWP and SORUN, one at a time, in the order listed
-      - reports the four stages for each
+      - reports each program in the short form for a batch, one line for each of the four stages, its kept and flagged list and its line on the save
       - saves one draft for each program, and ends with a line that starts "Batch:" giving four worked and how many saved
       - says an engineer reviews every stage and that nothing is deployed
     checks:
