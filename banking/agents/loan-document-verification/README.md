@@ -9,7 +9,7 @@ Compares the signed contract and the security documents of an approved loan with
 | How people meet it | An application: the Lending desk |
 | Reads from | The bank's lending system: the approved terms and the loan's documents |
 | Changes | Saves a draft list of differences. The draft changes no loan |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

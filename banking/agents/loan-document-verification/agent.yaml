@@ -46,7 +46,8 @@ sample_data:
   - ../../desks/lending/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 25 November 2026. Not promoted. All six tests pass five runs in a row on the second version of the instructions: test 1 with no tools, tests 2 to 6 in the Work Room with the desk's own message, a new conversation for each run, the lending system put back before each run that saves. Test 6 uses a loan whose funds are already released: the bank refuses the saved comparison, and in every run the agent tried once, quoted the refusal and said nothing was saved. Two things to know. In two runs of test 6 the summary said seven terms agree where the table showed eight; no test checks that count. Asked to confirm a contract for release, the agent read the approved terms once more before refusing in some runs, which changes nothing. One run was lost to a restart and run again. Nothing was released or approved in any run: the agent saves a draft list of differences and a banker decides. The first version passed two of six; what changed is in the instructions and tests of this folder, in the desk's instruction, and in the bank, which gained the released loan LN-9006. Not tried: the desk calling this agent, and the API form.
