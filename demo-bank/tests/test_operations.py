@@ -824,6 +824,45 @@ def test_ctl_4_multi_factor_two_service_accounts_exempt(client):
     assert get(client, "/audit/tickets", params={"date_from": TODAY, "date_to": TODAY})["count"] == 0
 
 
+def whole(record):
+    return {k: v for k, v in record.items() if k != "demo_data"}
+
+
+def test_one_list_call_returns_everything_a_control_test_plan_needs(client):
+    # An agent may call one operation at most eight times in a turn: one list call must cover a whole plan, with no get per item.
+    reviews = get(client, "/audit/access-reviews")["items"]
+    assert len(reviews) == 11
+    for r in reviews:
+        assert r == whole(get(client, f"/audit/access-reviews/{r['review_id']}"))
+    by_id = {r["review_id"]: r for r in reviews}
+    assert by_id["ACR-1004"]["staff_accounts_with_mfa"] == 145 and by_id["ACR-1004"]["mfa_exemptions"] == []
+    assert by_id["ACR-1007"]["mfa_exemptions"][0]["account_id"] == "svc-recon-batch" and by_id["ACR-1007"]["mfa_exemptions"][0]["ticket_id"] == "TKT-3001"
+    assert by_id["ACR-1011"]["mfa_exemptions"][0]["account_id"] == "svc-card-feed" and by_id["ACR-1011"]["mfa_exemptions"][0]["ticket_id"] == "TKT-3002"
+    # several systems or quarters in one filter; one value still works as before
+    assert get(client, "/audit/access-reviews", params={"system": "core-banking,card-platform"})["count"] == 8
+    assert get(client, "/audit/access-reviews", params={"quarter": "2026-Q2, 2026-Q3"})["count"] == 5
+    assert get(client, "/audit/access-reviews", params={"system": "payments-hub", "quarter": "2026-Q2"})["count"] == 0
+    sample = ",".join(f"CHG-220{i}" for i in range(1, 6))
+    changes = get(client, "/audit/changes", params={"change_ids": sample})["items"]
+    assert [c["change_id"] for c in changes] == sample.split(",")
+    for c in changes:
+        full = whole(get(client, f"/audit/changes/{c['change_id']}"))
+        assert {k: v for k, v in c.items() if k != "rollback_plan_recorded"} == full and c["rollback_plan_recorded"] == bool(full["rollback_plan"])
+    assert get(client, "/audit/changes", params={"system": "card-platform,online-banking"})["count"] == 3
+    tests = get(client, "/audit/recovery-tests")["items"]
+    assert len(tests) == 8 and all(t == whole(get(client, f"/audit/recovery-tests/{t['recovery_test_id']}")) for t in tests)
+    assert get(client, "/audit/recovery-tests", params={"system": "card-platform,payments-hub"})["count"] == 4
+    tickets = get(client, "/audit/tickets")["items"]
+    assert all(t == whole(get(client, f"/audit/tickets/{t['ticket_id']}")) for t in tickets)
+    approval = get(client, "/audit/tickets", params={"system": "online-banking", "text": "approval"})["items"]
+    tk = [t for t in approval if not t["related_change_id"]]
+    assert len(tk) == 1 and tk[0]["status"] == "open" and "No approval has been recorded yet." in tk[0]["comments"]
+    assert [t["ticket_id"] for t in get(client, "/audit/tickets", params={"ticket_ids": "TKT-3001,TKT-3002"})["items"]] == ["TKT-3002", "TKT-3001"]
+    assert get(client, "/audit/tickets", params={"system": "payments-hub,card-platform", "text": "multi-factor"})["count"] == 2
+    for tid in ("CTL-1001", "CTL-1002", "CTL-1003", "CTL-1004"):
+        assert all("one call" in i["where_to_look"] for i in plan(client, tid)["evidence_plan"] if i["record_type"] != "ticket")
+
+
 def pack(**kw):
     base = {"evidence_found": [{"item_no": 1, "record_ids": ["ACR-1001"], "note": "Signed off."}],
             "evidence_missing": [{"item_no": 7, "searched": ["list_access_reviews system=payments-hub quarter=2026-Q2: no record"],

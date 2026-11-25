@@ -54,6 +54,13 @@ def build(ctx: Ctx):
     def in_range(day, date_from, date_to):
         return (not date_from or day >= date_from) and (not date_to or day <= date_to)
 
+    def several(value):
+        """A filter value may name one thing or several separated by commas; an empty value means no filter."""
+        return {v.strip() for v in value.split(",") if v.strip()}
+
+    def matches(value, wanted):
+        return not wanted or value in wanted
+
     @reg(app, "get", "/control-tests", "list_control_tests", "List control tests",
          "List control tests: test_id, title, the policy and clause it tests, the systems in scope, the period and status. Start here to see which "
          "controls need evidence.")
@@ -68,19 +75,25 @@ def build(ctx: Ctx):
         return get_or_404("control_tests", test_id, "control test", "Use list_control_tests to find ids.")
 
     @reg(app, "get", "/tickets", "search_tickets", "Search tickets",
-         "Search the ticket system. Filter by words in the title, description or comments, by system and by the date opened. Each row has ticket_id, "
-         "system, type, title, opened date, status and the related change id. Read one with get_ticket. Use it to find explanations and approvals.")
+         "Search the ticket system. Filter by words in the title, description or comments, by one or several systems, by ticket ids and by the date "
+         "opened. Each row is the whole ticket: ticket_id, system, type, title, opened and closed dates, status, raised_by, assigned_to, the "
+         "description, the related change id and the comments, so get_ticket is not needed for a ticket in the result. One call with no filter "
+         "returns every ticket. Use it to find explanations and approvals.")
     def search_tickets(text: str = Query("", description="Words to look for in the title, description and comments. Not case sensitive. Leave empty for all."),
-                       system: str = Query("", description="Only tickets for this system, for example payments-hub. Leave empty for all."),
+                       system: str = Query("", description="Only tickets for this system, for example payments-hub, or for several separated by commas. Leave empty for all."),
                        date_from: str = Query("", description="First opened date to include, YYYY-MM-DD. Leave empty for no limit."),
-                       date_to: str = Query("", description="Last opened date to include, YYYY-MM-DD. Leave empty for no limit.")):
+                       date_to: str = Query("", description="Last opened date to include, YYYY-MM-DD. Leave empty for no limit."),
+                       ticket_ids: str = Query("", description="Only these tickets, for example TKT-3006,TKT-3007. Leave empty for all.")):
         words = text.lower().split()
+        systems, ids = several(system), several(ticket_ids)
         rows = []
         for t in d()["tickets"].values():
             blob = (t["title"] + " " + t["description"] + " " + " ".join(t["comments"])).lower()
-            if (system and t["system"] != system) or not in_range(t["opened"], date_from, date_to) or not all(w in blob for w in words):
+            if (not matches(t["system"], systems) or not matches(t["ticket_id"], ids) or not in_range(t["opened"], date_from, date_to)
+                    or not all(w in blob for w in words)):
                 continue
-            rows.append({k: t[k] for k in ("ticket_id", "system", "type", "title", "opened", "status", "related_change_id")})
+            rows.append({k: t[k] for k in ("ticket_id", "system", "type", "title", "opened", "closed", "status", "raised_by", "assigned_to",
+                                           "description", "related_change_id", "comments")})
         rows.sort(key=lambda r: (r["opened"], r["ticket_id"]), reverse=True)
         return listing(rows)
 
@@ -92,14 +105,21 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/changes", "list_change_records", "List change records",
          "List change records: change_id, system, title, type (standard, normal or emergency), whether the system is critical, the date implemented, "
-         "the approver and whether a rollback plan is recorded. Filter by system and by the date implemented. Read one with get_change_record.")
-    def list_change_records(system: str = Query("", description="Only changes to this system, for example core-banking. Leave empty for all."),
+         "the approver (empty if none is named), whether a rollback plan is recorded and the rollback plan itself (empty if none), who requested it, "
+         "the status, the description and the ticket id. Each row is the whole record, so get_change_record is not needed for a change in the "
+         "result. Filter by one or several systems, by change ids and by the date implemented. One call with change_ids set to a test's sample "
+         "returns every sampled change.")
+    def list_change_records(system: str = Query("", description="Only changes to this system, for example core-banking, or to several separated by commas. Leave empty for all."),
                             date_from: str = Query("", description="First implemented date to include, YYYY-MM-DD. Leave empty for no limit."),
-                            date_to: str = Query("", description="Last implemented date to include, YYYY-MM-DD. Leave empty for no limit.")):
+                            date_to: str = Query("", description="Last implemented date to include, YYYY-MM-DD. Leave empty for no limit."),
+                            change_ids: str = Query("", description="Only these changes, for example CHG-2201,CHG-2202. Leave empty for all.")):
+        systems, ids = several(system), several(change_ids)
         rows = [{"change_id": c["change_id"], "system": c["system"], "title": c["title"], "type": c["type"], "critical_system": c["critical_system"],
                  "implemented_on": c["implemented_on"], "approver": c["approver"], "rollback_plan_recorded": bool(c["rollback_plan"]),
-                 "ticket_id": c["ticket_id"]}
-                for c in d()["change_records"].values() if (not system or c["system"] == system) and in_range(c["implemented_on"], date_from, date_to)]
+                 "ticket_id": c["ticket_id"], "rollback_plan": c["rollback_plan"], "requested_by": c["requested_by"], "status": c["status"],
+                 "description": c["description"], "tested_before_release": c["tested_before_release"]}
+                for c in d()["change_records"].values()
+                if matches(c["system"], systems) and matches(c["change_id"], ids) and in_range(c["implemented_on"], date_from, date_to)]
         rows.sort(key=lambda r: (r["implemented_on"], r["change_id"]))
         return listing(rows)
 
@@ -110,12 +130,17 @@ def build(ctx: Ctx):
         return get_or_404("change_records", change_id, "change record", "Use list_change_records to find ids.")
 
     @reg(app, "get", "/access-reviews", "list_access_reviews", "List access reviews",
-         "List quarterly access reviews: review_id, system, quarter (for example 2026-Q2), the date completed, who reviewed and signed off, and the "
-         "counts. A quarter with no row has no review record. Filter by system and quarter. Read one with get_access_review.")
-    def list_access_reviews(system: str = Query("", description="Only reviews of this system, for example payments-hub. Leave empty for all."),
-                            quarter: str = Query("", description="Only this quarter, for example 2026-Q2. Leave empty for all.")):
-        rows = [{k: r[k] for k in ("review_id", "system", "quarter", "completed_on", "reviewer", "signed_off_by", "staff_accounts_reviewed")}
-                for r in d()["access_reviews"].values() if (not system or r["system"] == system) and (not quarter or r["quarter"] == quarter)]
+         "List quarterly access reviews: review_id, system, quarter (for example 2026-Q2), the date completed, who reviewed and signed off, the "
+         "staff accounts reviewed and removed, how many use multi-factor sign-in, every account exempt from it with the ticket that approved the "
+         "exemption, and the notes. Each row is the whole review, so get_access_review is not needed for a review in the result. A system and "
+         "quarter with no row has no review record. Filter by one or several systems and one or several quarters. One call with no filter returns "
+         "every review of every system and quarter.")
+    def list_access_reviews(system: str = Query("", description="Only reviews of this system, for example payments-hub, or of several separated by commas. Leave empty for all."),
+                            quarter: str = Query("", description="Only this quarter, for example 2026-Q2, or several separated by commas. Leave empty for all.")):
+        systems, quarters = several(system), several(quarter)
+        rows = [{k: r[k] for k in ("review_id", "system", "quarter", "completed_on", "reviewer", "signed_off_by", "staff_accounts_reviewed",
+                                   "access_removed", "staff_accounts_with_mfa", "mfa_exemptions", "notes")}
+                for r in d()["access_reviews"].values() if matches(r["system"], systems) and matches(r["quarter"], quarters)]
         rows.sort(key=lambda r: (r["system"], r["quarter"]))
         return listing(rows)
 
@@ -126,11 +151,14 @@ def build(ctx: Ctx):
         return get_or_404("access_reviews", review_id, "access review", "Use list_access_reviews to find ids.")
 
     @reg(app, "get", "/recovery-tests", "list_recovery_tests", "List recovery tests",
-         "List recovery tests: recovery_test_id, system, test date, scenario, the target and the achieved recovery time in hours, and the result. "
-         "Filter by system. Read one with get_recovery_test.")
-    def list_recovery_tests(system: str = Query("", description="Only tests of this system, for example card-platform. Leave empty for all.")):
-        rows = [{k: r[k] for k in ("recovery_test_id", "system", "test_date", "scenario", "rto_target_hours", "rto_achieved_hours", "result")}
-                for r in d()["recovery_tests"].values() if not system or r["system"] == system]
+         "List recovery tests: recovery_test_id, system, test date, scenario, the target and the achieved recovery time in hours, the result, who "
+         "tested, the report reference and any findings. Each row is the whole test, so get_recovery_test is not needed for a test in the result. "
+         "Filter by one or several systems. One call with no filter returns every recovery test of every system, newest first within each system.")
+    def list_recovery_tests(system: str = Query("", description="Only tests of this system, for example card-platform, or of several separated by commas. Leave empty for all.")):
+        systems = several(system)
+        rows = [{k: r[k] for k in ("recovery_test_id", "system", "test_date", "scenario", "rto_target_hours", "rto_achieved_hours", "result",
+                                   "tested_by", "report_reference", "findings")}
+                for r in d()["recovery_tests"].values() if matches(r["system"], systems)]
         rows.sort(key=lambda r: (r["system"], r["test_date"]), reverse=True)
         return listing(rows)
 

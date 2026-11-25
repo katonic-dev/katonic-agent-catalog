@@ -202,7 +202,7 @@ def build_audit(today: date) -> dict:
     for system in ACCESS_SCOPE:
         for yq in qs:
             plan.append(item(len(plan) + 1, f"Access review of {system} for {label(yq)}", "access_review",
-                             f"list_access_reviews with system={system} and quarter={label(yq)}"))
+                             f"list_access_reviews with system={system} and quarter={label(yq)}; one call with no filter returns the reviews of every item in this plan"))
     test("CTL-1001", "Access to critical systems is reviewed every quarter", "6.1",
          "Show that access to each critical system in scope was reviewed in each of the last four completed quarters.",
          ["List the access reviews for each system in scope.", "For each system and each quarter, find the review record and note who signed it off and when.",
@@ -211,7 +211,8 @@ def build_audit(today: date) -> dict:
     # CTL-1002: change control
     sample = ["CHG-2201", "CHG-2202", "CHG-2203", "CHG-2204", "CHG-2205"]
     plan = [item(i + 1, f"Change record {c} with a rollback plan and a named approver", "change_record",
-                 f"get_change_record for {c}; its ticket is {changes[c]['ticket_id']}") for i, c in enumerate(sample)]
+                 f"get_change_record for {c}; its ticket is {changes[c]['ticket_id']}; one call of list_change_records with change_ids={','.join(sample)} "
+                 f"returns every change in this plan in full") for i, c in enumerate(sample)]
     test("CTL-1002", "Changes to critical systems have a rollback plan and a named approver", "3.1",
          "Show that each sampled change to a critical system went through change control with a rollback plan and a named approver.",
          ["Take the five changes sampled for this test.", "Read each change record. Note the rollback plan and the approver.",
@@ -219,7 +220,7 @@ def build_audit(today: date) -> dict:
          plan, sorted({changes[c]["system"] for c in sample}), d_ago(today, 160), today.isoformat())
     # CTL-1003: recovery tested yearly
     plan = [item(i + 1, f"Latest recovery test of {s}, dated within the 12 months before the bank date", "recovery_test",
-                 f"list_recovery_tests with system={s}") for i, s in enumerate(CRITICAL)]
+                 f"list_recovery_tests with system={s}; one call with no filter returns the tests of every item in this plan") for i, s in enumerate(CRITICAL)]
     test("CTL-1003", "Recovery of each critical system is tested at least once a year", "2.2",
          "Show that each critical system has a recovery test dated within the last 12 months.",
          ["List the recovery tests for each critical system.", "Find the most recent test of each and note its date, result and recovery time against the target.",
@@ -227,7 +228,8 @@ def build_audit(today: date) -> dict:
          plan, CRITICAL, months_back(today, 12).isoformat(), today.isoformat())
     # CTL-1004: multi-factor sign-in
     plan = [item(i + 1, f"Latest access review of {s} showing the multi-factor status of staff accounts", "access_review",
-                 f"list_access_reviews with system={s}, newest quarter") for i, s in enumerate(ACCESS_SCOPE)]
+                 f"list_access_reviews with system={s}, newest quarter; one call with no filter returns the reviews of every item in this plan, "
+                 f"with the exemptions") for i, s in enumerate(ACCESS_SCOPE)]
     plan.append(item(len(plan) + 1, "Any exemption from multi-factor sign-in, with the ticket that approved it", "ticket",
                      "search_tickets with text 'multi-factor'"))
     test("CTL-1004", "Staff accounts that reach critical systems use multi-factor sign-in", "6.2",

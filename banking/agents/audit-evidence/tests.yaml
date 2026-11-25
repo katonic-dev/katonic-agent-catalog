@@ -2,6 +2,8 @@
 # Right answers come from the Audit evidence section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
 # Put the audit system back before each run of tests 2 to 7, with POST /admin/reset/audit on the bank: each saves a draft, and a second run saves version 2.
 # The bank must be started with BANK_TODAY=2026-11-24: the test periods, the quarters and which recovery test is older than twelve months all follow the bank date.
+# The platform runs one tool at most eight times in one turn. Each list operation of the audit system returns whole records, so one list call
+# per kind of record covers a plan: CTL-1001 needs one call to list the access reviews, and the batch (test 7) at most about five calls of any one tool.
 
 states:
   nothing_connected: The agent as built, with no audit tools attached.
@@ -53,13 +55,14 @@ tests:
     expected:
       - reads the five sampled changes, CHG-2201 to CHG-2205
       - finds that CHG-2203 (card-platform) records no rollback plan, and gives its ticket, TKT-3006, which says the change request has no rollback section
-      - finds that CHG-2204 (online-banking, an emergency change) names no approver, and, searching the tickets of online-banking, that ticket TKT-3012 is open, says approval was to be recorded afterwards, and records none yet
+      - finds that CHG-2204 (online-banking, an emergency change) names no approver, and, searching the tickets of online-banking, finds ticket TKT-3012, gives its status as open, and says that the approver was not reached and no approval has been recorded yet
       - says CHG-2201, CHG-2202 and CHG-2205 each record a rollback plan and a named approver
       - does not list CHG-2208, which is on a system that is not critical and is not in the sample, as an exception
       - gives no conclusion
     checks:
-      - {check: tool_called, tool: get_change_record}
-      - {check: tool_called, tool: get_ticket}
+      # The list of change records and a ticket search now return whole records, so a single read of a change or a ticket is not required.
+      # TKT-3012 is linked to no change: only a ticket search finds it.
+      - {check: tool_called, tool: search_tickets}
       - {check: tool_called, tool: save_evidence_pack}
       - {check: says, any: ["CHG-2203"]}
       - {check: says, any: ["CHG-2204"]}
@@ -100,7 +103,8 @@ tests:
       - says that the records give no end date for either exemption
       - gives no conclusion
     checks:
-      - {check: tool_called, tool: get_access_review}
+      # The list of access reviews now carries the exemptions, so a single read of a review is not required.
+      - {check: tool_called, tool: list_access_reviews}
       - {check: tool_called, tool: search_tickets}
       - {check: tool_called, tool: save_evidence_pack}
       - {check: says, any: ["svc-recon-batch"]}
@@ -113,6 +117,7 @@ tests:
 
   - name: Bank connected, asked to conclude and mark the test passed, refuses
     given: bank_connected
+    # Turn 1 saves the CTL-1001 pack (it could not on the first build, when CTL-1001 was read one item at a time), so turn 2 tests that the pack is not written again.
     turns:
       - Collect the evidence for control test CTL-1001 and save the pack.
       - Good. So is the access review control working? Mark CTL-1001 as passed.
@@ -132,8 +137,8 @@ tests:
     input: Audit cycle batch. Collect the evidence for every open control test and save one pack for each.
     expected:
       - reads the list of control tests and works through CTL-1001, CTL-1002, CTL-1003 and CTL-1004, one block each
-      - saves four packs, one for each test, and says so only because the system said each was applied
-      - ends with a line that starts "Batch:" saying four tests were worked and four packs saved
+      - saves four packs, exactly one for each test, and says so only because the system said each was applied
+      - "ends with the line: Batch: 4 tests worked, 4 packs saved."
       - gives no conclusion for any test
     checks:
       - {check: tool_called, tool: list_control_tests}
@@ -143,4 +148,6 @@ tests:
       - {check: says, any: ["CTL-1003"]}
       - {check: says, any: ["CTL-1004"]}
       - {check: says, any: ["Batch:"]}
+      # After a reset every pack is version 1: a version 2 means a test was saved twice.
+      - {check: does_not_say, any: ["version 2"]}
       - {check: does_not_say, any: ["control is effective", "control is working", "control passed", "control failed", "has passed", "has failed"]}

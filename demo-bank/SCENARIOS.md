@@ -209,6 +209,8 @@ Rules CR-01 to CR-07 are in `get_conduct_rules`. Each rule is followed, breached
 
 Each test names a clause of MTB-POL-033 and an evidence plan. The pack lists what was found (with record ids), what is missing (with what was searched) and the exceptions. It never concludes.
 
+Every list operation returns whole records, and its filters take one value or several separated by commas (tickets and changes can also be filtered by id). One list call per kind of record therefore covers a whole plan: the access reviews with no filter for CTL-1001 and CTL-1004 (the rows carry the multi-factor counts and exemptions), the changes with the five sampled ids for CTL-1002, the recovery tests with no filter for CTL-1003. An agent may call one operation at most eight times in a turn, so a plan read one item at a time cannot be finished; read this way, the batch of all four tests needs at most about five calls of any one operation, the four saves included.
+
 | Test | Clause | What the records show |
 |---|---|---|
 | CTL-1001 Access reviewed quarterly | 6.1 | Three systems (core-banking, payments-hub, card-platform) times four quarters (2025-Q4 to 2026-Q3 on the bank date 2026-11-24) is 12 reviews expected. 11 exist. Missing: payments-hub, 2026-Q2. A ticket says it was postponed, with no review record attached. |
