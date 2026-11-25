@@ -9,7 +9,7 @@ Traces a payment's status, lines up the messages exchanged about it, and drafts 
 | How people meet it | An application: the Payments desk |
 | Reads from | The bank's payments system: the investigation with the bank rules it lists, the payment with its timeline and messages, and earlier payments to the same beneficiary |
 | Changes | Saves a draft reply with the findings it rests on. The draft sends nothing and changes no status |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

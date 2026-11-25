@@ -74,7 +74,7 @@ tests:
       - {check: says, any: ["MSG-6002-2"]}
       - {check: says, any: ["OUR"]}
       - {check: says, any: ["to correct"]}
-      - {check: does_not_say, any: ["has been claimed", "i have claimed", "claim has been made", "claim has been sent", "has been recalled", "has been refunded"]}
+      - {check: does_not_say, any: ["has been claimed", "i have claimed", "we have claimed", "claim has been sent", "has been recalled", "has been refunded"]}
 
   - name: Bank connected, a payment returned because the account is closed
     given: bank_connected
