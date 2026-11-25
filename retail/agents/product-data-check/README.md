@@ -28,7 +28,7 @@ Sets each listing against the supplier's specification and lists each attribute 
 - Say which of the two values is right.
 - Work an allergen out, or say whether a product is safe for anyone.
 - Report a difference in the product's name or its description: it checks the four attributes.
-- Guarantee that it reads sixty specifications the same way twice. A model that compares them one by one can miss one. The content lead checks the list. For a large catalogue, do the comparison in a code step: that form is not written yet.
+- Guarantee that it reads sixty specifications the same way twice. A model that compares them one by one can miss one. The content lead checks the list. For a large catalogue, do the comparison in a code step: see the workflow form below.
 
 ## What you set up
 
@@ -56,10 +56,14 @@ Run on a development cluster on 25 November 2026, three runs of each test.
 - A check of one line or of a small category was saved right in every run.
 - The check of every listing could not be made on that cluster. It needs sixty reads of the specifications, and the cluster stopped a tool after eight calls in one turn.
 - When the check was cut off, three replies of six listed findings that do not exist. None was saved.
-- A workflow that reads the specifications in a loop is the cure. It is not built.
+- A workflow that reads the specifications in a loop is the cure. It is built: see the workflow form below.
 - One test gave the right answer and tripped once on a check phrase. The check is corrected here and has not been run again.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
+
+## The workflow form
+
+The check of every listing is also built as a workflow, where a loop reads the sixty specifications and a code step makes the comparison. On a development cluster on 25 November 2026 it saved the right check of the whole catalogue in 4 of 4 runs. The chat form here could not make that check in one turn. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 

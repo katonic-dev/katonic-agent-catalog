@@ -27,7 +27,7 @@ Finds the lines that run out before their next delivery, works out the cases to 
 - Place an order, approve a plan or tell a supplier anything.
 - Order for a line that does not run out, however low it looks.
 - Adjust a quantity for a promotion, the weather or a hunch. The rules give the quantity and the buyer changes it.
-- Guarantee its arithmetic. Sixty lines are worked out one by one and a model can slip. The buyer checks the plan. For a large range, do the sums in a code step: that form is not written yet.
+- Guarantee its arithmetic. Sixty lines are worked out one by one and a model can slip. The buyer checks the plan. For a large range, do the sums in a code step: see the workflow form below.
 
 ## What you set up
 
@@ -56,12 +56,16 @@ Run on a development cluster on 24 and 25 November 2026, three runs of each test
 - A question about one line is answered rightly: three tests pass three runs in a row and a fourth passes two of three.
 - The whole weekly plan is not reliable. It was saved right in five runs of ten across the texts tried, and in two runs of three on the instructions here.
 - The five lines that run out are nearly always in the plan. The fault is extra lines that do not run out: in one run five lines with 15 to 19 days of cover were ordered against 10 days to delivery.
-- Comparing days of cover with days to delivery over sixty lines is arithmetic the model does without a tool. A step in code that does the comparison is the cure. It is not built.
+- Comparing days of cover with days to delivery over sixty lines is arithmetic the model does without a tool. A step in code that does the comparison is the cure. It is built: see the workflow form below.
 - One sentence was added after the first round: name an open order by its reference.
 - One test asks two things and its checks want four, so it fails on a right answer. The check needs the change.
 - The reply in the Work Room, on the published agent, was delivered. The plan it saved was wrong in the way described above.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
+
+## The workflow form
+
+The weekly plan is also built as a workflow, where a code step works out every line and a model only writes the reply. On a development cluster on 25 November 2026 it saved the whole plan right in 6 of 6 runs, against 5 of 10 for the chat form here. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 

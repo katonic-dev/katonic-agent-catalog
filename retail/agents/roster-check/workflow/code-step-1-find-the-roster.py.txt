@@ -1,0 +1,12 @@
+import re
+msg = r'''$trigger.message'''
+data = $n_wz_mwvyhplm_8
+by_id = re.search(r"RS-\d{6}-[RS]\d{3}", msg)
+by_site = re.search(r"\b([RS])-?(\d{3})\b", msg)
+found = "NONE"
+for row in data["items"]:
+    if by_id and row["roster_id"] == by_id.group(0):
+        found = row["roster_id"]
+    elif not by_id and by_site and row["site_id"] == by_site.group(1) + "-" + by_site.group(2):
+        found = row["roster_id"]
+print(found, end="")

@@ -1,0 +1,93 @@
+"""Refund and Discount Audit, the code step: the company's till rules applied to every till row of a period, by code.
+Plain Python, standard library only.
+
+audit(tills) takes what list_till_entries returns for one period (every row of it) and gives back the body
+save_till_audit accepts: rows (each with row_id, rules, note), site_id, summary, drafted_by.
+
+As Till Controls version 1.3 state the rules:
+- TC-1: a refund above USD 50.00 with no approver (exactly 50.00 needs no approval)
+- TC-2: a refund with no original receipt number, whatever the amount
+- TC-3: a discount above 20 percent with no reason code (exactly 20 percent needs no code)
+- TC-4: a void after payment with no second person (no approver)
+The rules give 50.00 and 20 percent in words only, with no figure field, so they are constants here.
+A row outside two rules is listed once, with both. No reason is given and nothing is said about any colleague.
+"""
+import json
+from fractions import Fraction
+
+REFUND_APPROVAL_ABOVE = Fraction(50)      # TC-1, in the words of the rule only
+DISCOUNT_CODE_ABOVE_PERCENT = Fraction(20)  # TC-3, in the words of the rule only
+
+
+def _f(x):
+    return Fraction(str(x))
+
+
+def _money(x):
+    return "%.2f" % float(x)
+
+
+def _pct(x):
+    return ("%f" % float(x)).rstrip("0").rstrip(".")
+
+
+def breaks(row):
+    """The rules one row is outside, and what the row shows, in plain words."""
+    rules, shows = [], []
+    empty = lambda v: v is None or str(v).strip() == ""  # noqa: E731
+    if row["kind"] == "refund":
+        if _f(row["amount"]) > REFUND_APPROVAL_ABOVE and empty(row.get("approver_id")):
+            rules.append("TC-1")
+            shows.append("no approver")
+        if empty(row.get("original_receipt")):
+            rules.append("TC-2")
+            shows.append("no receipt number")
+    elif row["kind"] == "discount":
+        if row.get("discount_percent") is not None and _f(row["discount_percent"]) > DISCOUNT_CODE_ABOVE_PERCENT and empty(row.get("reason_code")):
+            rules.append("TC-3")
+            shows.append("%s percent of %s, no reason code" % (_pct(row["discount_percent"]), _money(row["sale_amount"]) if row.get("sale_amount") is not None else "the sale"))
+    elif row["kind"] == "void":
+        if row.get("after_payment") is True and empty(row.get("approver_id")):
+            rules.append("TC-4")
+            shows.append("after payment, no second person")
+    return rules, " and ".join(shows)
+
+
+def audit(tills, site_id=""):
+    items = tills["items"]
+    if tills.get("total") is not None and int(tills["total"]) != len(items):
+        raise SystemExit("Only %d of %s rows of the period were read. Nothing was audited." % (len(items), tills["total"]))
+    rows, by_site, by_cashier, times = [], {}, {}, {"TC-1": 0, "TC-2": 0, "TC-3": 0, "TC-4": 0}
+    for r in sorted(items, key=lambda r: r["row_id"]):
+        if site_id and r["site_id"] != site_id:
+            continue
+        rules, shows = breaks(r)
+        if not rules:
+            continue
+        for x in rules:
+            times[x] += 1
+        by_site[r["site_id"]] = by_site.get(r["site_id"], 0) + 1
+        by_cashier[r["cashier_id"]] = by_cashier.get(r["cashier_id"], 0) + 1
+        rows.append({"row_id": r["row_id"], "rules": rules,
+                     "note": "%s %s, %s, till %s, cashier id %s, %s of %s: %s." % (
+                         r["date"], r["time"], r["site_id"], r["till"], r["cashier_id"], r["kind"], _money(r["amount"]), shows)})
+    n = len(rows)
+    read = len([r for r in items if not site_id or r["site_id"] == site_id])
+    summary = "%d rows read. %d rows are outside the rules, and the rules are broken %d times: %s." % (
+        read, n, sum(times.values()), ", ".join("%s %d" % (k, v) for k, v in times.items()))
+    if n:
+        top_sites = sorted(by_site.items(), key=lambda kv: (-kv[1], kv[0]))
+        top_cash = sorted(by_cashier.items(), key=lambda kv: (-kv[1], kv[0]))
+        summary += " By site, as a count of rows: %s; %d other sites have one row each." % (
+            ", ".join("%s %d" % kv for kv in top_sites if kv[1] > 1) or "no site has more than one", len([1 for kv in top_sites if kv[1] == 1]))
+        summary += " By cashier id, as a count of rows: %s; no other id is on more than one." % (
+            ", ".join("%s %d" % kv for kv in top_cash if kv[1] > 1) or "no id is on more than one")
+        summary += " A count of rows is not a finding about anyone."
+    else:
+        summary += " No row is outside the rules."
+    return {"rows": rows, "site_id": site_id, "summary": summary, "drafted_by": "Refund and Discount Audit (code step)"}
+
+
+if __name__ == "__main__":
+    import sys
+    print(json.dumps(audit(json.load(open(sys.argv[1], encoding="utf-8"))), indent=1))

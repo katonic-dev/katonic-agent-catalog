@@ -57,9 +57,13 @@ Run on a development cluster on 24 and 25 November 2026, three runs of each test
 - The working time rules were right in every run.
 - The agent is not steady on the two staffing rules that need the cover laid over the day (SR-1 and SR-3). On the two rosters that turn on them, the saved draft was right in about half the runs.
 - The saved draft can hold fewer breaches than the table in the reply. In the Work Room run the reply listed both breaches of a store and the saved draft held one.
-- A step in code that lays the cover over the day is the cure. It is not built.
+- A step in code that lays the cover over the day is the cure. It is built: see the workflow form below.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
+
+## The workflow form
+
+The same check is also built as a workflow, where a code step finds every breach and a model only writes the reply. On a development cluster on 25 November 2026 it saved the right draft in 18 of 18 runs, against 14 of 26 for the chat form here. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 

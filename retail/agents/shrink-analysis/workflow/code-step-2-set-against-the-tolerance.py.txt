@@ -1,0 +1,64 @@
+# Shrink Analysis, the code step. The model does none of this.
+import json
+from fractions import Fraction
+
+
+def _f(x):
+    return Fraction(str(x))
+
+
+def _money(x):
+    return "{:,.2f}".format(float(x))
+
+
+def analyse(by_store, by_line, tolerance, tills=None):
+    store_tol, line_tol = _f(tolerance["store_tolerance_percent"]), _f(tolerance["line_tolerance_percent"])
+    period = by_store.get("period", "")
+
+    def beyond(row, tol):
+        return _f(row["loss_value"]) * 100 > tol * _f(row["sales_value"])
+
+    held = {}
+    for r in (tills or {}).get("items", []):
+        d = held.setdefault(r["site_id"], {"refund": [0, Fraction(0)], "void": [0, Fraction(0)], "discount": [0, Fraction(0)]})
+        if r["kind"] in d:
+            d[r["kind"]][0] += 1
+            d[r["kind"]][1] += _f(r["amount"])
+
+    stores = sorted((r for r in by_store["items"] if beyond(r, store_tol)), key=lambda r: (-_f(r["loss_percent"]), r["site_id"]))
+    within = sorted((r for r in by_store["items"] if not beyond(r, store_tol)), key=lambda r: (-_f(r["loss_percent"]), r["site_id"]))
+    lines = sorted((r for r in by_line["items"] if beyond(r, line_tol)), key=lambda r: (-_f(r["loss_percent"]), r["sku"]))
+    next_line = sorted((r for r in by_line["items"] if not beyond(r, line_tol)), key=lambda r: (-_f(r["loss_percent"]), r["sku"]))
+
+    out_stores = []
+    for r in stores:
+        note = "Loss of %s on sales of %s, %.2f percent, %d units. The store tolerance is %s percent." % (
+            _money(r["loss_value"]), _money(r["sales_value"]), float(r["loss_percent"]), r["loss_units"], tolerance["store_tolerance_percent"])
+        t = held.get(r["site_id"])
+        if t:
+            note += " The tills hold for the period: %d refunds (%s), %d voids (%s), %d discounts (%s). A till row carries no line." % (
+                t["refund"][0], _money(t["refund"][1]), t["void"][0], _money(t["void"][1]), t["discount"][0], _money(t["discount"][1]))
+        out_stores.append({"site_id": r["site_id"], "loss_percent": r["loss_percent"], "note": note})
+    out_lines = [{"sku": r["sku"], "loss_percent": r["loss_percent"],
+                  "note": "%s: %d units lost, loss of %s on sales of %s, %.2f percent, %d stores counted. The line tolerance is %s percent." % (
+                      r["name"], r["loss_units"], _money(r["loss_value"]), _money(r["sales_value"]), float(r["loss_percent"]),
+                      r.get("stores_counted", 0), tolerance["line_tolerance_percent"])} for r in lines]
+    summary = "Period %s. %d of %d stores are beyond the store tolerance of %s percent: %s." % (
+        period, len(stores), len(by_store["items"]), tolerance["store_tolerance_percent"],
+        ", ".join("%s (%.2f percent)" % (r["site_id"], float(r["loss_percent"])) for r in stores) or "none")
+    if within:
+        summary += " The nearest of the others is %s at %.2f percent, within tolerance." % (within[0]["site_id"], float(within[0]["loss_percent"]))
+    summary += " %d of %d lines are beyond the line tolerance of %s percent: %s." % (
+        len(lines), len(by_line["items"]), tolerance["line_tolerance_percent"],
+        ", ".join("%s (%.2f percent)" % (r["sku"], float(r["loss_percent"])) for r in lines) or "none")
+    if next_line:
+        summary += " The next line is %s at %.2f percent, within tolerance." % (next_line[0]["sku"], float(next_line[0]["loss_percent"]))
+    summary += " These are figures. They say nothing about why stock was lost."
+    return {"stores_beyond_tolerance": out_stores, "lines_beyond_tolerance": out_lines, "summary": summary,
+            "drafted_by": "Shrink Analysis (code step)"}
+
+by_store = $n_wz_mww02eb8_7
+by_line = $n_wz_mww02fpp_9
+tol = {"store_tolerance_percent": $n_wz_mww02cwv_5.store_tolerance_percent, "line_tolerance_percent": $n_wz_mww02cwv_5.line_tolerance_percent}
+tills = $n_wz_mww02h49_11
+print(json.dumps(analyse(by_store, by_line, tol, tills)), end="")

@@ -63,5 +63,5 @@ state:
     lines that run out are nearly always there, and the fault is extra lines
     that do not run out. Comparing days of cover with days to delivery over
     sixty lines is arithmetic the model does without a tool. A step in code
-    that does the comparison is the cure; it is not built. One test asks two
+    that does the comparison is the cure; it is built as the workflow form in this folder. One test asks two
     things and its checks want four, so it fails on a right answer.

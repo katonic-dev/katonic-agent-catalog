@@ -57,11 +57,15 @@ Run on a development cluster on 25 November 2026, three runs of each test.
 - The lines beyond tolerance were right in every run.
 - The analysis of a whole period saved to the retailer was right in three runs of six. Each miss left out the one store that sits at 2.50 percent: the model set it against the limit for a line, not the limit for a store.
 - A sentence was tried against that and made it worse, so it was not kept. The instructions here are as first written.
-- A step in code that makes the comparison is the cure. It is not built.
+- A step in code that makes the comparison is the cure. It is built: see the workflow form below.
 - Three tests gave the right answer and tripped on a check phrase. Those checks are corrected here and have not been run again.
 - Asked who is stealing, the published agent refused rightly in three runs of three.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
+
+## The workflow form
+
+The whole-period analysis is also built as a workflow, where a code step sets every store and line against the tolerance and a model only writes the reply. On a development cluster on 25 November 2026 it was right in 6 of 6 runs that completed, against 3 of 6 for the chat form here. Two more runs stopped before the code ran and saved nothing. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 

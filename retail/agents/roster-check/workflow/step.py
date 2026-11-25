@@ -1,0 +1,126 @@
+"""Roster Check, the code step: every breach of the working time rules (WT-1 to WT-8) and the staffing rules
+(SR-1 to SR-3) in one draft roster, worked out by code. Plain Python, standard library only.
+
+check_roster(roster, rules) takes the roster exactly as get_draft_roster returns it, and the rules exactly as
+get_working_time_rules returns them (the limits are read from there), and returns
+{"roster_id", "site_id", "week_start", "week_end", "breaches": [...], "summary"} where each breach has the five
+fields save_roster_check accepts: rule, colleague_id, shift_id, day, what_the_roster_shows.
+
+Rules as Working Time and Staffing Rules version 1.2 states them. A figure exactly on a limit keeps the rule.
+"""
+import json
+from datetime import date
+
+# The limits. Each is read from get_working_time_rules where the rules give it as a figure ("limit").
+# Two are given only in the words of a rule, so they stay here: a break is due on a shift longer than 6 hours (WT-4),
+# and a young worker's shift starts no earlier than 06:00 (WT-7). The figures below are used when no rules are passed.
+DEFAULT_LIMITS = {"WT-1": 10, "WT-2": 11, "WT-3": 48, "WT-4": 30, "WT-5": 8, "WT-6": 40, "WT-7": "22:00", "SR-2": 2}
+BREAK_AFTER_HOURS = 6         # WT-4, in the words of the rule only
+YOUNG_EARLIEST = 6 * 60       # WT-7, in the words of the rule only
+DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+
+
+def _mins(hhmm):
+    h, m = hhmm.split(":")
+    return int(h) * 60 + int(m)
+
+
+def _hhmm(m):
+    return "%02d:%02d" % (m // 60, m % 60)
+
+
+def _hours(mins):
+    h, m = divmod(mins, 60)
+    if m == 0:
+        return "%d hours" % h
+    return "%d hours %d minutes" % (h, m)
+
+
+def _uncovered(shifts, opens, closes):
+    """The stretches between opens and closes that no shift in the list covers, as (start, end) in minutes."""
+    spans = sorted((max(_mins(s["start"]), opens), min(_mins(s["end"]), closes)) for s in shifts)
+    gaps, reached = [], opens
+    for start, end in spans:
+        if end <= start:
+            continue
+        if start > reached:
+            gaps.append((reached, start))
+        reached = max(reached, end)
+    if reached < closes:
+        gaps.append((reached, closes))
+    return gaps
+
+
+def check_roster(roster, rules=None):
+    lim = dict(DEFAULT_LIMITS)
+    for r in (rules or {}).get("rules", []):
+        if r.get("rule") in lim and r.get("limit") is not None:
+            lim[r["rule"]] = r["limit"]
+    MAX_SHIFT_HOURS, MIN_REST_MINUTES, MAX_WEEK_HOURS = lim["WT-1"], lim["WT-2"] * 60, lim["WT-3"]
+    BREAK_MINUTES, YOUNG_MAX_SHIFT_HOURS, YOUNG_MAX_WEEK_HOURS = lim["WT-4"], lim["WT-5"], lim["WT-6"]
+    YOUNG_LATEST, MIN_TO_OPEN_AND_CLOSE = _mins(lim["WT-7"]), lim["SR-2"]
+    people = {c["colleague_id"]: c for c in roster["colleagues"]}
+    opens, closes = _mins(roster["opens"]), _mins(roster["closes"])
+    out = []
+
+    def add(rule, colleague="", shift="", day="", what=""):
+        out.append({"rule": rule, "colleague_id": colleague, "shift_id": shift, "day": day, "what_the_roster_shows": what})
+
+    for cid in sorted(people):
+        person = people[cid]
+        young = person.get("age_band") == "young_worker"
+        own = sorted((s for s in roster["shifts"] if s["colleague_id"] == cid), key=lambda s: (s["date"], s["start"]))
+        week = 0
+        for s in own:
+            length = _mins(s["end"]) - _mins(s["start"])
+            week += length
+            span = "%s, %s to %s" % (s["day"].capitalize(), s["start"], s["end"])
+            if length > MAX_SHIFT_HOURS * 60:
+                add("WT-1", cid, s["shift_id"], s["day"], "A shift of %s (%s). The rule allows %d hours." % (_hours(length), span, MAX_SHIFT_HOURS))
+            if length > BREAK_AFTER_HOURS * 60 and s.get("break_minutes", 0) < BREAK_MINUTES:
+                add("WT-4", cid, s["shift_id"], s["day"], "A shift of %s (%s) with a break of %d minutes. A shift longer than %d hours has a break of at least %d minutes."
+                    % (_hours(length), span, s.get("break_minutes", 0), BREAK_AFTER_HOURS, BREAK_MINUTES))
+            if young and length > YOUNG_MAX_SHIFT_HOURS * 60:
+                add("WT-5", cid, s["shift_id"], s["day"], "A young worker's shift of %s (%s). The rule allows %d hours." % (_hours(length), span, YOUNG_MAX_SHIFT_HOURS))
+            if young and (_mins(s["start"]) < YOUNG_EARLIEST or _mins(s["end"]) > YOUNG_LATEST):
+                add("WT-7", cid, s["shift_id"], s["day"], "A young worker's shift runs %s. No shift of a young worker starts before %s or ends after %s."
+                    % (span, _hhmm(YOUNG_EARLIEST), _hhmm(YOUNG_LATEST)))
+        for before, after in zip(own, own[1:]):
+            days = (date.fromisoformat(after["date"]) - date.fromisoformat(before["date"])).days
+            rest = days * 1440 + _mins(after["start"]) - _mins(before["end"])
+            if rest < MIN_REST_MINUTES:
+                add("WT-2", cid, after["shift_id"], after["day"], "%s of rest: the shift on %s ends at %s and the shift on %s starts at %s. The rule asks for %d hours."
+                    % (_hours(rest), before["day"].capitalize(), before["end"], after["day"].capitalize(), after["start"], MIN_REST_MINUTES // 60))
+        if week > MAX_WEEK_HOURS * 60:
+            add("WT-3", cid, "", "", "%s rostered in the week. The rule allows %d." % (_hours(week), MAX_WEEK_HOURS))
+        if young and week > YOUNG_MAX_WEEK_HOURS * 60:
+            add("WT-6", cid, "", "", "A young worker with %s rostered in the week. The rule allows %d." % (_hours(week), YOUNG_MAX_WEEK_HOURS))
+        if len({s["day"] for s in own}) >= 7:
+            add("WT-8", cid, "", "", "A shift on every day of the week. The rule asks for one day with no shift.")
+
+    for day in DAYS:
+        today = [s for s in roster["shifts"] if s["day"] == day]
+        for a, b in _uncovered([s for s in today if s["role"] == "shift_manager"], opens, closes):
+            add("SR-1", "", "", day, "No shift manager on shift from %s to %s on %s." % (_hhmm(a), _hhmm(b), day.capitalize()))
+        for a, b in _uncovered([s for s in today if people[s["colleague_id"]].get("first_aider")], opens, closes):
+            add("SR-3", "", "", day, "No first aider on shift from %s to %s on %s." % (_hhmm(a), _hhmm(b), day.capitalize()))
+        at_open = [s for s in today if _mins(s["start"]) <= opens < _mins(s["end"])]
+        at_close = [s for s in today if _mins(s["start"]) < closes <= _mins(s["end"])]
+        for label, at, there in (("opening", opens, at_open), ("closing", closes, at_close)):
+            if len(there) < MIN_TO_OPEN_AND_CLOSE:
+                lone = there[0] if len(there) == 1 else None
+                who = "only %s (shift %s) is" % (lone["colleague_id"], lone["shift_id"]) if lone else "nobody is"
+                add("SR-2", lone["colleague_id"] if lone else "", lone["shift_id"] if lone else "", day,
+                    "On %s %s on shift at the %s time, %s. The rule asks for %d." % (day.capitalize(), who, label, _hhmm(at), MIN_TO_OPEN_AND_CLOSE))
+
+    out.sort(key=lambda b: (b["rule"], b["colleague_id"], DAYS.index(b["day"]) if b["day"] else -1))
+    n = len(out)
+    summary = "No breach. The roster keeps every rule." if n == 0 else "%d breach%s of the rules: %s." % (n, "" if n == 1 else "es", ", ".join(b["rule"] for b in out))
+    return {"roster_id": roster["roster_id"], "site_id": roster["site_id"], "week_start": roster["week_start"], "week_end": roster["week_end"],
+            "rules_document": roster.get("rules_document", ""), "breach_count": n, "breaches": out, "summary": summary}
+
+
+if __name__ == "__main__":
+    import sys
+    rules = json.load(open(sys.argv[2], encoding="utf-8")) if len(sys.argv) > 2 else None
+    print(json.dumps(check_roster(json.load(open(sys.argv[1], encoding="utf-8")), rules), indent=1))

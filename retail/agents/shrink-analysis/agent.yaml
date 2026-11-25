@@ -61,5 +61,5 @@ state:
     at 2.50 percent, which the model set against the limit for a line and
     not the limit for a store. A sentence tried against it made it worse and
     was not kept. A step in code that makes the comparison is the cure; it
-    is not built. Three tests gave the right answer and tripped on a check
+    is built as the workflow form in this folder. Three tests gave the right answer and tripped on a check
     phrase; those checks are corrected here and not run again.

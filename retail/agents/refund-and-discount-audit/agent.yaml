@@ -55,4 +55,4 @@ state:
     added a row, and in the Work Room the reply listed 27 of the 28 and the
     saved draft 25. A model that reads 180 rows does not check each one the
     same way twice: the scheduled form should check the rules in a code step
-    and leave the wording to the model. That form is not built yet.
+    and leave the wording to the model. That form is built in the workflow folder.

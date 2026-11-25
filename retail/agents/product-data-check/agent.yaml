@@ -55,4 +55,4 @@ state:
     cluster stopped a tool after eight calls in one turn. When it was cut
     off, three replies of six listed findings that do not exist; none was
     saved. A workflow that reads the specifications in a loop is the cure;
-    it is not built. The instructions are as first written.
+    it is built in the workflow folder. The instructions are as first written.

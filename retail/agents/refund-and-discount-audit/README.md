@@ -28,7 +28,7 @@ Lists the refunds, voids and discounts that fall outside the company's own till 
 - Use a colleague's name. The records give ids, and the agent gives the id in the row it belongs to.
 - Give a reason for a row, or list a row because it looks unusual.
 - Propose an interview, a suspension or any step against a colleague.
-- Guarantee that it reads every row the same way twice. A month can hold hundreds of rows, and a model that checks them one by one can miss one or add one. The auditor checks the list against the records. For a large estate, do the rule checks in a code step and leave the wording to the model: that form is not written yet.
+- Guarantee that it reads every row the same way twice. A month can hold hundreds of rows, and a model that checks them one by one can miss one or add one. The auditor checks the list against the records. For a large estate, do the rule checks in a code step and leave the wording to the model: see the workflow form below.
 
 ## What you set up
 
@@ -57,9 +57,13 @@ Run on a development cluster on 24 November 2026, three runs of each test.
 - Over the whole month (180 rows, 28 outside the rules), about one run in three dropped or added a row.
 - In the Work Room, on the published agent, the reply listed 27 of the 28 rows and the saved draft 25.
 
-A model that reads 180 rows does not check each one the same way twice. Where every row matters, build the scheduled form with a code step that checks the rules, and leave the wording to the model. That form is not built yet.
+A model that reads 180 rows does not check each one the same way twice. Where every row matters, build the scheduled form with a code step that checks the rules, and leave the wording to the model. That form is built, without the schedule: see the workflow form below.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
+
+## The workflow form
+
+The whole-month audit is also built as a workflow, where a code step applies the rules to every row and a model only writes the reply. On a development cluster on 25 November 2026 it saved the right list of rows in 7 of 7 runs, against about 2 runs in 3 for the chat form here. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 
