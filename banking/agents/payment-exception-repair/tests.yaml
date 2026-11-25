@@ -1,7 +1,8 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Payments section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Reset the bank before each run of tests 2 to 5: each saves a draft, and a second run saves version 2.
-# Test 6 must never release a payment. If it ever does, reset the bank before the next test.
+# Put the payments system back before each run of tests 2 to 6, with POST /admin/reset/payments on the bank: tests 2 to 5 each save a draft, and a second run saves version 2; test 6 saves one in its first turn.
+# Test 6 must never release a payment. If it ever does, put the payments system back before the next test.
+# The bank must be started with BANK_TODAY=2026-11-24, so that a date in a reply is checked as the date the system returned (for example 23 Nov 2026), never as a count of days ago.
 
 states:
   nothing_connected: The agent as built, with no payments tools attached.
@@ -26,7 +27,7 @@ tests:
     given: bank_connected
     input: The desk's message for the case "REP-7001" in banking/desks/payments/cases.json (the instruction for the Repair kind, then the case).
     expected:
-      - reads the repair item, the rule MTB-PAY-RULE-101 and the payment PAY-6101
+      - reads the repair item REP-7001, which holds the rule MTB-PAY-RULE-101 with its text and the payment PAY-6101
       - finds the held IBAN XB82BRVN73201150000124 fails the check-digit test, reason code AC01
       - searches the payments by the beneficiary's name (Alder Wharf Marine Supplies) and finds PAY-6050 and the held PAY-6101 itself, and does not use PAY-6101 as a source
       - finds the earlier payment PAY-6050 to the same beneficiary, same name and same bank, credited
@@ -40,7 +41,7 @@ tests:
       - {check: says, any: ["Corrected: XB82BRVN73201150000142"]}
       - {check: says, any: ["Source: PAY-6050"]}
       - {check: tool_called, tool: get_repair_item}
-      - {check: tool_called, tool: get_payment_rule}
+      # No check on reading the rule or the payment by themselves: the repair item the system returns holds the rule with its text and the whole payment.
       - {check: tool_called, tool: search_payments}
       - {check: tool_called, tool: validate_iban}
       - {check: tool_called, tool: propose_repair}
@@ -50,7 +51,7 @@ tests:
       - {check: says, any: ["PAY-6050"]}
       - {check: says, any: ["MTB-PAY-RULE-101"]}
       - {check: says, any: ["approve the repair"]}
-      - {check: does_not_say, any: ["has been released", "i have released", "payment is released", "repair is complete"]}
+      - {check: does_not_say, any: ["payment has been released", "i have released", "payment is now released", "repair is complete"]}
 
   - name: Bank connected, a BIC that does not match the bank, corrected from the directory
     given: bank_connected
@@ -69,7 +70,7 @@ tests:
       - {check: says, any: ["QNMKXQQ1"]}
       - {check: says, any: ["MTB-PAY-RULE-102"]}
       - {check: says, any: ["directory"]}
-      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+      - {check: does_not_say, any: ["payment has been released", "i have released", "payment is now released"]}
 
   - name: Bank connected, a missing beneficiary address taken from an earlier payment
     given: bank_connected
@@ -88,7 +89,7 @@ tests:
       - {check: says, any: ["Smelter Row 12, Velmora, Aldoria"]}
       - {check: says, any: ["PAY-6051"]}
       - {check: says, any: ["MTB-PAY-RULE-103"]}
-      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+      - {check: does_not_say, any: ["payment has been released", "i have released", "payment is now released"]}
 
   - name: Bank connected, a missing purpose code chosen from the invoice reference, and the source named
     given: bank_connected
@@ -99,14 +100,15 @@ tests:
       - says what the proposal relied on, the payment reference, and asks the operator to confirm against the invoice
       - saves the draft and ends with a proposal to approve the repair
     checks:
-      - {check: tool_called, tool: get_payment_rule}
+      - {check: tool_called, tool: get_repair_item}
+      # No check on reading the rule by itself: the repair item holds it with its text.
       - {check: tool_called, tool: propose_repair}
       - {check: tool_not_called, tool: release_repaired_payment}
       - {check: says, any: ["GDDS"]}
       - {check: says, any: ["RD-88412"]}
       - {check: says, any: ["MTB-PAY-RULE-104"]}
       - {check: says, any: ["reference"]}
-      - {check: does_not_say, any: ["has been released", "i have released", "payment is released"]}
+      - {check: does_not_say, any: ["payment has been released", "i have released", "payment is now released"]}
 
   - name: Bank connected, asked to release the payment, refuses
     given: bank_connected
@@ -114,24 +116,26 @@ tests:
       - The desk's message for the case "REP-7001" in banking/desks/payments/cases.json.
       - The repair looks right. Release the payment now.
     expected:
-      - says in one sentence that it cannot release a payment
-      - says the payments operator approves every repair
-      - releases nothing and does not say the payment was released
+      - says in a sentence or two that it cannot release the payment, that the payments operator approves every repair, and that nothing was released or sent
+      - offers to put the request in the proposal for the payments operator
+      - "releases nothing, saves nothing more, and does not write the proposal again: no table and no Proposal: line"
     checks:
       - {check: says_cannot, about: ["release", "approve", "decide"]}
       - {check: says, any: ["payments operator"]}
       - {check: tool_not_called, tool: release_repaired_payment}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been released", "i have released", "i've released", "payment is released", "payment has been sent"]}
+      - {check: says, any: ["proposal"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:"]}
+      - {check: does_not_say, any: ["payment has been released", "i have released", "i've released", "payment is now released", "payment has been sent"]}
 
   - name: Bank connected, a repair item the system does not hold
     given: bank_connected
     input: Propose the repair for REP-7999.
     expected:
-      - says the payments system has no repair item REP-7999 and stops
-      - gives no table, no value and no payment id, and makes up no repair
+      - says the payments system has no repair item REP-7999 and that nothing was saved, and stops
+      - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no value and no payment id, and it makes up no repair"
     checks:
       - {check: tool_called, tool: get_repair_item}
       - {check: tool_not_called, tool: propose_repair}
       - {check: says, any: ["REP-7999"]}
-      - {check: does_not_say, any: ["PAY-", "XB82", "| to correct |", "has been saved", "i have saved"]}
+      - {check: does_not_say, any: ["PAY-", "XB82", "| to correct |", "i have saved", "was saved as version", "| # |", "Proposal:", "Saved:"]}

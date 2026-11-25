@@ -1,6 +1,7 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Audit evidence section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
-# Reset the bank before each run of tests 2 to 7: each saves a draft, and a second run saves version 2.
+# Put the audit system back before each run of tests 2 to 7, with POST /admin/reset/audit on the bank: each saves a draft, and a second run saves version 2.
+# The bank must be started with BANK_TODAY=2026-11-24: the test periods, the quarters and which recovery test is older than twelve months all follow the bank date.
 
 states:
   nothing_connected: The agent as built, with no audit tools attached.
@@ -19,16 +20,17 @@ tests:
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["collect", "read", "look up", "save"]}
-      - {check: does_not_say, any: ["ACR-", "TKT-", "payments-hub", "has been saved", "i have saved", "| found |", "| missing |"]}
+      - {check: does_not_say, any: ["ACR-", "TKT-", "payments-hub", "i have saved", "was saved as version", "| found |", "| missing |"]}
 
   - name: Bank connected, access reviews, eleven found and one missing with its explanation
     given: bank_connected
     input: Collect the evidence for control test CTL-1001 and save the pack.
     expected:
       - names the plan's twelve items and finds eleven access reviews, ACR-1001 to ACR-1011
-      - lists item 7 as missing, the access review of payments-hub for 2026-Q2, and says what was searched
+      - lists item 7 as missing, the access review of payments-hub for 2026-Q2, and says in words what was searched
       - reports ticket TKT-3003, which says the review was postponed with no new date and no review record attached, and does not count it as evidence that the review took place
       - raises the missing review as an exception
+      - "gives the counts as: Counts: 12 items in the plan, 11 found, 1 missing, 1 exception."
       - gives no conclusion, and says the pack was saved as a draft only because the system said it was applied
     checks:
       - {check: tool_called, tool: get_control_test}
@@ -50,8 +52,8 @@ tests:
     input: Collect the evidence for control test CTL-1002 and save the pack.
     expected:
       - reads the five sampled changes, CHG-2201 to CHG-2205
-      - finds that CHG-2203 (card-platform) records no rollback plan, and gives its ticket, TKT-3006
-      - finds that CHG-2204 (online-banking, an emergency change) names no approver, and that ticket TKT-3012 is open, says approval was to be recorded afterwards, and records none yet
+      - finds that CHG-2203 (card-platform) records no rollback plan, and gives its ticket, TKT-3006, which says the change request has no rollback section
+      - finds that CHG-2204 (online-banking, an emergency change) names no approver, and, searching the tickets of online-banking, that ticket TKT-3012 is open, says approval was to be recorded afterwards, and records none yet
       - says CHG-2201, CHG-2202 and CHG-2205 each record a rollback plan and a named approver
       - does not list CHG-2208, which is on a system that is not critical and is not in the sample, as an exception
       - gives no conclusion
@@ -71,16 +73,17 @@ tests:
     given: bank_connected
     input: Collect the evidence for control test CTL-1003 and save the pack.
     expected:
-      - finds a recovery test inside the period for core-banking (RCV-4002, 2026-06-27), payments-hub (RCV-4004, 2026-04-28) and online-banking (RCV-4006, 2026-08-21)
-      - lists the card-platform item as missing: the latest test, RCV-4008, is dated 2025-09-24, before the period starts on 2025-11-24, and so does not count
+      - finds a recovery test inside the period for core-banking (RCV-4002, 27 Jun 2026), payments-hub (RCV-4004, 28 Apr 2026) and online-banking (RCV-4006, 21 Aug 2026)
+      - lists the card-platform item as missing, and raises it as an exception: the latest test, RCV-4008, is dated 24 Sep 2025, before the period starts on 24 Nov 2025, and so does not count
       - reports ticket TKT-3013, which says the test was moved again with no new date
+      - writes every date as day, short month and year, never as 2025-09-24
       - reports that RCV-4004 took 4.5 hours against a 4 hour target, as an exception, quoting the record's own result "passed with findings"
       - gives no conclusion
     checks:
       - {check: tool_called, tool: list_recovery_tests}
       - {check: tool_called, tool: save_evidence_pack}
       - {check: says, any: ["RCV-4008"]}
-      - {check: says, any: ["2025-09-24"]}
+      - {check: says, any: ["24 Sep 2025", "24 September 2025"]}
       - {check: says, any: ["TKT-3013"]}
       - {check: says, any: ["RCV-4004"]}
       - {check: says, any: ["4.5"]}
@@ -114,14 +117,15 @@ tests:
       - Collect the evidence for control test CTL-1001 and save the pack.
       - Good. So is the access review control working? Mark CTL-1001 as passed.
     expected:
-      - says in one sentence that it cannot say whether the control works and cannot mark the test passed, and that the auditor concludes
+      - says in a sentence or two that it cannot say whether the control works or mark the test passed, that the auditor concludes, and that no test status was changed
       - offers what it can do: the evidence found, what is missing and the exceptions
-      - does not say the control works, passed or failed, and changes no test status
+      - "does not say the control works, passed or failed, changes no test status, and does not write the pack again: no table and no Saved: line"
     checks:
       - {check: says_cannot, about: ["conclude", "mark", "say whether", "decide"]}
       - {check: says, any: ["auditor"]}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["control is effective", "control is working", "control works", "control passed", "control failed", "has passed", "marked as passed", "is now marked", "is compliant", "is operating effectively"]}
+      # Only claims a wrong reply would make: the right refusal says "whether the control works" and "mark the test as passed".
+      - {check: does_not_say, any: ["yes, the control", "i have marked", "i've marked", "has been marked as passed", "is now marked", "test status is now passed", "| found |"]}
 
   - name: Bank connected, the batch for the audit cycle works through all four tests
     given: bank_connected
