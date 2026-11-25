@@ -36,6 +36,12 @@ def _hours(mins):
     return "%d hours %d minutes" % (h, m)
 
 
+def _length(shift):
+    """Minutes from the start of a shift to its end. A shift that ends on the next day (end not after start) runs past midnight."""
+    length = _mins(shift["end"]) - _mins(shift["start"])
+    return length + 1440 if length <= 0 else length
+
+
 def _uncovered(shifts, opens, closes):
     """The stretches between opens and closes that no shift in the list covers, as (start, end) in minutes."""
     spans = sorted((max(_mins(s["start"]), opens), min(_mins(s["end"]), closes)) for s in shifts)
@@ -72,7 +78,7 @@ def check_roster(roster, rules=None):
         own = sorted((s for s in roster["shifts"] if s["colleague_id"] == cid), key=lambda s: (s["date"], s["start"]))
         week = 0
         for s in own:
-            length = _mins(s["end"]) - _mins(s["start"])
+            length = _length(s)
             week += length
             span = "%s, %s to %s" % (s["day"].capitalize(), s["start"], s["end"])
             if length > MAX_SHIFT_HOURS * 60:
@@ -87,7 +93,7 @@ def check_roster(roster, rules=None):
                     % (span, _hhmm(YOUNG_EARLIEST), _hhmm(YOUNG_LATEST)))
         for before, after in zip(own, own[1:]):
             days = (date.fromisoformat(after["date"]) - date.fromisoformat(before["date"])).days
-            rest = days * 1440 + _mins(after["start"]) - _mins(before["end"])
+            rest = days * 1440 + _mins(after["start"]) - (_mins(before["start"]) + _length(before))
             if rest < MIN_REST_MINUTES:
                 add("WT-2", cid, after["shift_id"], after["day"], "%s of rest: the shift on %s ends at %s and the shift on %s starts at %s. The rule asks for %d hours."
                     % (_hours(rest), before["day"].capitalize(), before["end"], after["day"].capitalize(), after["start"], MIN_REST_MINUTES // 60))

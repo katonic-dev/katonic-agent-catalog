@@ -50,6 +50,7 @@ Run on 25 November 2026 against the invented retailer. The people system was res
 
 - In the first build the reply named exactly the rules the code found in 18 of 18 runs, with the last line exact.
 - Nine runs were made on the second build. Seven completed and all seven saved the right draft. One stopped because the sandbox did not start. One was the site with no roster, which ends as a failed run. Neither saved anything.
+- `step.py` has one guard more than the text that ran on the cluster: a shift that ends on the next day is given its true length, by adding 24 hours, and the rest before the next shift is counted from its true end. The result for every roster of the invented retailer is the same with and without it, because none has such a shift.
 - The reads took about 0.3 seconds each, the two Code steps 3.7 and 4.4 seconds, the save 0.06 seconds and the reply 4.8 seconds.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
@@ -64,4 +65,5 @@ A test counts as passed here only after five runs in a row. That has not been do
 - The sandbox failed to start in a few runs: one of the nine runs on the second build, and one run earlier the same day. Each such run saved nothing and said why. The person has to run it again.
 - The reply is still written by a model. It changed nothing in these runs, but nothing in the form stops it. The saved draft does not pass through the model.
 - On the development cluster the model step ran on the Fast tier.
+- A shift that runs past midnight is only partly handled. `step.py` gives it its true length and its true rest. The text that ran on the cluster does not. Neither counts such a shift as cover for the staffing rules, on either day, and neither tests the hours after midnight against the evening limit for a young worker.
 - A person meets a workflow in the Work Room as a "Run workflow" button, an input box and a result page. There is no chat.

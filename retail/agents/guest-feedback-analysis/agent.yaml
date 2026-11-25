@@ -60,4 +60,5 @@ state:
     three, and counts by restaurant in the saved draft are not reliable.
     A model that reads 260 comments does not count them the same way twice:
     the scheduled form should count in a code step after the model has
-    given each comment its theme. That form is not built yet.
+    given each comment its theme. That form is built as the workflow form
+    in this folder.

@@ -12,7 +12,7 @@ This form is a workflow of fixed steps: tools read the till rules and every till
 | 4 | Read every till row of the period | Tool | `list_till_entries`, with the period of step 2 and a limit of 500 | All 180 rows of the month, and the total the system holds |
 | 5 | Apply the rules to every row | Code | [`code-step-2-apply-the-rules.py.txt`](code-step-2-apply-the-rules.py.txt), with the output of step 4 | The body of the save as JSON text: rows with their rules, summary, author |
 | 6 | Save the audit | HTTP request | POST to the tills system's audit address for the period (`/tills/audits/<period>` in the invented retailer), a Content-Type header, body `$<step 5>.result` | The answer of the tills system |
-| 7 | Write the reply | LLM | The audit from step 5 and the status of the save from step 6 | The reply |
+| 7 | Write the reply | LLM | The audit from step 5 and the answer of the save from step 6. The prompt tells it to give the version number of the saved draft | The reply |
 | 8 | Result | Output | The reply from step 7 | What the person sees |
 
 Notes on the code:
@@ -43,14 +43,16 @@ Run on 25 November 2026 against the invented retailer, with the request "Audit r
 
 | | This form | The chat form |
 |---|---|---|
-| List of rows saved right over the whole month | 7 of 7 | about 2 runs in 3 |
+| List of rows saved right over the whole month | 8 of 8 | about 2 runs in 3 |
 | Saves in a run | One | |
 | Run time on the Test tab | 24.7 to 27.2 seconds | |
 | Run time in the Work Room | 28.9 seconds | |
 
-- Right means the 28 rows of SCENARIOS.md with their rules, and no other row. Six runs were on the Test tab and one in the Work Room.
+- Right means the 28 rows of SCENARIOS.md with their rules, and no other row. Six runs were on the Test tab and one in the Work Room. The eighth run came after a change to the model step.
 - In all six Test tab runs the reply held all 28 row ids and no other row id, with the last line exact.
 - Most of the run time is the model writing the table of 28 rows.
+- In the first seven runs the model was given only the status of the save, so the reply did not give the version number of the saved draft. The model step was then changed: it now gets what the system answered when the audit was saved, and is told to give the version number.
+- One run on the whole month was made after that change. The saved 28 rows and their rules were right, the reply held the 28 row ids and no other, the last line was exact, and the reply read "Draft: the audit was saved as a draft, version 1." It took 25.1 seconds.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
@@ -61,6 +63,5 @@ A test counts as passed here only after five runs in a row. That has not been do
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: the year and month.
 - An audit of one site is not built. The code can do it: for the invented retailer it gives 12 rows for `S-106` and none for `R-117`. The site would have to be taken from the message by a second narrow Code step, at about 4 seconds more a run.
 - A month that has not ended gets a thin answer. Asked for 2026-11, the run completes, the system holds no rows, the save is refused with status 409, and the reply says the audit was not saved. Nothing is saved. The reply prints an empty table and does not say in plain words that the month has not ended. That needs a Branch step, which could not be placed between two steps by hand.
-- The reply lacks the version number of the saved draft. In the build that was tested, the model was given only the status of the save and not the text of its answer. That was a slip in the prompt and is not a limit of the form. Step 8 of the build list above gives the model the whole answer.
-- The sandbox failed to start in a few runs of the five workflows built that day, about 4 runs in 60. Each such run saved nothing and said why. None of the seven runs counted above was among them.
+- The sandbox failed to start in a few runs of the five workflows built that day, about 4 runs in 60. Each such run saved nothing and said why. None of the eight runs counted above was among them.
 - The reply is still written by a model. The saved audit does not pass through the model.

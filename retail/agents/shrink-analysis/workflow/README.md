@@ -54,6 +54,7 @@ Run on 25 November 2026 against the invented retailer, with the request "Run the
 - Right means both stores, `S-106` and `S-103`, and the three lines, every time. The chat form left `S-106` out in its three misses.
 - Five of the completed runs were on the Test tab and one in the Work Room. In all six the reply held 850.85, 489.24, 2.44, 6.68, 5.81, 5.48 and 1.33, and no cashier id or approver id.
 - The two runs that did not complete stopped because the sandbox did not start. Nothing was saved in either.
+- `step.py` has one guard more than the text that ran on the cluster: it stops, with nothing to save, when the till read says it holds more rows than it gave. The text that ran on the cluster would add up a part of the till rows and say nothing. One read at a limit of 500 holds a month of up to 500 till rows.
 - In the Work Room run the period step took 4.7 seconds, the four reads 0.3 to 0.9 seconds each, the second Code step 3.9 seconds, the save 0.06 seconds and the reply 9.0 seconds.
 
 A test counts as passed here only after five runs in a row. That has not been done yet.

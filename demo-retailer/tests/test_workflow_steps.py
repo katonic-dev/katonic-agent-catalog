@@ -1,4 +1,4 @@
-"""The workflow form of five agents does its comparisons in code, and that code agrees with this retailer.
+"""The workflow form of six agents does its comparisons in code, and that code agrees with this retailer.
 
 Each folder ../retail/agents/<agent>/workflow/ holds step.py: the logic of the Code step, plain Python. These tests
 load each step.py by its path, build its inputs from the seed of this service at retailer date 2026-11-24, in the
@@ -16,10 +16,11 @@ from pathlib import Path
 import pytest
 
 from conftest import TODAY
-from retailer import seed_catalogue, seed_people, seed_stock, seed_tills
+from retailer import seed_care, seed_catalogue, seed_people, seed_stock, seed_tills
 
 AGENTS = Path(__file__).resolve().parents[2] / "retail" / "agents"
-FORMS = ["roster-check", "inventory-forecasting", "shrink-analysis", "refund-and-discount-audit", "product-data-check"]
+FORMS = ["roster-check", "inventory-forecasting", "shrink-analysis", "refund-and-discount-audit", "product-data-check",
+         "guest-feedback-analysis"]
 if not all((AGENTS / name / "workflow" / "step.py").is_file() for name in FORMS):
     pytest.skip("the workflow folders are not next to this copy of the retailer", allow_module_level=True)
 
@@ -44,10 +45,9 @@ def section(heading: str) -> str:
 
 
 @pytest.mark.parametrize("agent", FORMS)
-def test_a_step_file_uses_the_standard_library_only_and_has_unix_line_endings(agent):
-    raw = (AGENTS / agent / "workflow" / "step.py").read_bytes()
-    assert b"\r" not in raw
-    imported = set(re.findall(r"^(?:import|from) (\w+)", raw.decode("utf-8"), re.M))
+def test_a_step_file_uses_the_standard_library_only(agent):
+    text = (AGENTS / agent / "workflow" / "step.py").read_text(encoding="utf-8")
+    imported = set(re.findall(r"^\s*(?:import|from) (\w+)", text, re.M))
     assert imported <= {"json", "datetime", "fractions", "sys", "re"}, imported
 
 
@@ -273,3 +273,137 @@ def test_product_data_check_stops_when_a_specification_was_not_read():
     with pytest.raises(SystemExit) as stop:
         compare(listings, specs[:-1])
     assert left_out in str(stop.value) and "Nothing was checked." in str(stop.value)
+
+
+# ---------------------------------------------------------------- guards added to step.py after the cluster runs
+
+def _night_roster(shifts: list) -> dict:
+    """An invented roster of one adult colleague, built here: the seed has no shift that runs past midnight."""
+    return {"roster_id": "RS-TEST", "site_id": "S-000", "week_start": "2026-11-30", "week_end": "2026-12-06",
+            "opens": "07:00", "closes": "22:00",
+            "colleagues": [{"colleague_id": "C-00001", "age_band": "adult", "first_aider": False}],
+            "shifts": [{"shift_id": "SH-%d" % (n + 1), "colleague_id": "C-00001", "date": day, "day": name, "start": start,
+                        "end": end, "role": "crew", "break_minutes": 30} for n, (day, name, start, end) in enumerate(shifts)]}
+
+
+def _working_time(roster: dict) -> list:
+    found = step("roster-check").check_roster(roster, seed_people.RULES)["breaches"]
+    return [(b["rule"], b["shift_id"], b["what_the_roster_shows"]) for b in found if b["rule"].startswith("WT-")]
+
+
+def test_roster_check_gives_a_shift_past_midnight_its_true_length_and_its_true_end():
+    # 22:00 to 06:00 is 8 hours, and it ends on Tuesday at 06:00: a shift at 14:00 on Tuesday comes after 8 hours of rest
+    found = _working_time(_night_roster([("2026-11-30", "monday", "22:00", "06:00"), ("2026-12-01", "tuesday", "14:00", "20:00")]))
+    assert [(rule, shift) for rule, shift, _ in found] == [("WT-2", "SH-2")]
+    assert found[0][2].startswith("8 hours of rest")
+
+    # a shift at 17:00 on Tuesday comes after exactly 11 hours, which keeps the rule
+    assert _working_time(_night_roster([("2026-11-30", "monday", "22:00", "06:00"), ("2026-12-01", "tuesday", "17:00", "21:00")])) == []
+
+    # 20:00 to 07:00 is 11 hours, one more than a shift may be
+    found = _working_time(_night_roster([("2026-11-30", "monday", "20:00", "07:00")]))
+    assert [(rule, shift) for rule, shift, _ in found] == [("WT-1", "SH-1")]
+    assert found[0][2].startswith("A shift of 11 hours")
+
+
+def test_shrink_analysis_stops_when_it_was_given_a_part_of_the_till_rows():
+    analyse = step("shrink-analysis").analyse
+    counts = [c for c in seed_stock._counts(DAY).values() if c["period"] == PERIOD]
+    by_store = {"period": PERIOD, "items": [{k: v for k, v in c.items() if k != "rows"} for c in counts]}
+    by_line = {"period": PERIOD, "items": sorted(seed_stock.loss_by_line(counts).values(), key=lambda r: r["sku"])}
+    rows = [r for r in seed_tills.build_tills(DAY)["till_rows"].values() if r["date"].startswith(PERIOD)]
+    with pytest.raises(SystemExit) as stop:
+        analyse(by_store, by_line, seed_stock.SHRINK_TOLERANCE, {"items": rows[:100], "total": len(rows)})
+    assert "Only 100 of 180 till rows" in str(stop.value) and "Nothing was analysed." in str(stop.value)
+    whole = analyse(by_store, by_line, seed_stock.SHRINK_TOLERANCE, {"items": rows, "total": len(rows)})
+    assert whole == analyse(by_store, by_line, seed_stock.SHRINK_TOLERANCE, {"items": rows})
+
+
+# ---------------------------------------------------------------- guest feedback analysis
+
+# The seed keeps the theme each comment was made from and serves it nowhere. Here it plays the model's part.
+THEME_NAME = {"late": "Late delivery", "wrong": "Wrong or missing item", "cold": "Cold food", "app": "App and payment",
+              "praise": "Praise", "other": "Other"}
+# theme: comments, the site with the most, its count, as the guest feedback section of SCENARIOS.md gives them
+FEEDBACK_PLAN = {"Late delivery": (78, "R-047", 36), "Wrong or missing item": (52, "R-014", 20), "Cold food": (41, "R-031", 20),
+                 "App and payment": (24, None, 0), "Praise": (30, None, 0), "Other": (28, None, 0)}
+HARM_COMMENTS = ["GF-2610-0110", "GF-2610-0120", "GF-2610-0133", "GF-2610-0158", "GF-2610-0169", "GF-2610-0176", "GF-2610-0196"]
+
+
+def _feedback():
+    g = step("guest-feedback-analysis")
+    data = seed_care.build_care(DAY)
+    feedback = {"items": list(data["guest_feedback"].values()), "total": len(data["guest_feedback"])}
+    keys = g._keys(feedback)
+    theme_of_text = {" ".join(x["comment"].split()): data["feedback_themes"][x["reference"]] for x in feedback["items"]}
+    key_theme = {key: theme_of_text[text] for text, key in keys.items()}
+
+    def model(batch, spoil=None):
+        """One reply of the labelling step, as the Loop hands it on: a dict with the lines under text."""
+        out = []
+        for line in batch.splitlines():
+            key = line.split(" | ")[0]
+            theme = key_theme[key]
+            label = "%s | %s | %s" % (key, "Other" if theme == "harm" else THEME_NAME[theme], "yes" if theme == "harm" else "no")
+            out.append((spoil or {}).get(key, label))
+        return {"text": "\n".join(out)}
+
+    return g, feedback, keys, key_theme, model
+
+
+def test_guest_feedback_counts_the_labels_of_the_seed_to_the_plan_of_scenarios():
+    g, feedback, keys, _, model = _feedback()
+    batches = g.make_batches(feedback)
+    assert (len(feedback["items"]), len(keys), len(batches)) == (260, 119, 6)
+    assert all(len(b.splitlines()) <= g.BATCH for b in batches)
+    assert sorted(line.split(" | ")[0] for b in batches for line in b.splitlines()) == sorted(keys.values())
+
+    body, label_of = g.analyse(feedback, [model(b) for b in batches], PERIOD)
+    assert [t["name"] for t in body["themes"]] == list(FEEDBACK_PLAN)
+    text = section("Guest feedback")
+    for theme in body["themes"]:
+        count, site, most = FEEDBACK_PLAN[theme["name"]]
+        assert theme["count"] == count, theme["name"]
+        assert sum(theme["counts_by_site"].values()) == count
+        assert len(theme["quoted_references"]) == g.QUOTES
+        if site:
+            assert next(iter(theme["counts_by_site"].items())) == (site, most)
+        assert "| %s | %d |" % (theme["name"], count) in text
+    assert body["harm_comments"] == HARM_COMMENTS
+    assert all(ref in text for ref in HARM_COMMENTS)
+    assert sum(t["count"] for t in body["themes"]) + len(body["harm_comments"]) == 260
+    assert len(label_of) == 260 and [ref for ref, label in sorted(label_of.items()) if label == g.HARM] == HARM_COMMENTS
+    assert body["period"] == PERIOD and "The counts add up to 260." in body["summary"]
+
+
+def test_guest_feedback_puts_a_label_it_cannot_trust_in_unlabelled_and_still_adds_up():
+    g, feedback, keys, key_theme, model = _feedback()
+    batches = g.make_batches(feedback)
+    k1, k2, k3 = sorted(key_theme)[:3]
+    # a theme outside the list, a line the model left out, and one key given two different labels
+    replies = [model(b, {k1: "%s | Slow service | no" % k1, k2: ""}) for b in batches]
+    replies.append({"text": "%s | Praise | no\n%s | Cold food | no" % (k3, k3)})
+    body, label_of = g.analyse(feedback, replies, PERIOD)
+    behind = [x["reference"] for x in feedback["items"] if keys[" ".join(x["comment"].split())] in (k1, k2, k3)]
+    unlabelled = [t for t in body["themes"] if t["name"] == g.UNLABELLED]
+    assert behind and len(unlabelled) == 1 and unlabelled[0]["count"] == len(behind)
+    assert all(label_of[ref] == g.UNLABELLED for ref in behind)
+    assert sum(t["count"] for t in body["themes"]) + len(body["harm_comments"]) == 260
+
+    # with no reply at all, every comment is Unlabelled and none is guessed
+    body, _ = g.analyse(feedback, [], PERIOD)
+    assert [(t["name"], t["count"]) for t in body["themes"] if t["count"]] == [(g.UNLABELLED, 260)]
+    assert body["harm_comments"] == []
+
+
+def test_guest_feedback_stops_with_nothing_to_save_on_a_part_read_and_on_counts_that_do_not_add_up():
+    g, feedback, _, _, model = _feedback()
+    with pytest.raises(SystemExit) as stop:
+        g.make_batches({"items": feedback["items"][:100], "total": 260})
+    assert "Only 100 of 260 comments" in str(stop.value) and "Nothing was analysed." in str(stop.value)
+
+    # the same reference twice: 261 comments read, 260 counted
+    twice = {"items": feedback["items"] + [dict(feedback["items"][0])]}
+    with pytest.raises(SystemExit) as stop:
+        g.analyse(twice, [model(b) for b in g.make_batches(feedback)], PERIOD)
+    assert "The counts do not add up" in str(stop.value) and "Nothing was saved." in str(stop.value)

@@ -57,7 +57,11 @@ Run on a development cluster on 24 November 2026, against the invented retailer 
 - In the saved draft the list of harm comments was right every time. The counts by restaurant were not reliable.
 - Every reply in the Work Room, on the published agent, was delivered.
 
-A model that reads 260 comments does not count them the same way twice. Where the counts matter, build the scheduled form with a code step that counts after the model has given each comment its theme. That form is not built yet.
+A model that reads 260 comments does not count them the same way twice. Where the counts matter, build the form with a code step that counts after the model has given each comment its theme. That form is built: see the workflow form below.
+
+## The workflow form
+
+The whole-month analysis is also built as a workflow, where a model gives each comment its theme and a code step checks the labels and counts them. On a development cluster on 25 November 2026 the counts added up in 6 of 6 runs and all seven harm comments were listed in every run. Five runs agreed on every label and a sixth moved three comments, where the counts of the chat form here vary from run to run. The steps, the code and the limits are in [`workflow/README.md`](workflow/README.md).
 
 ## Try it
 

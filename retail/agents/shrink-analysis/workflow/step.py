@@ -27,6 +27,8 @@ def _money(x):
 def analyse(by_store, by_line, tolerance, tills=None):
     store_tol, line_tol = _f(tolerance["store_tolerance_percent"]), _f(tolerance["line_tolerance_percent"])
     period = by_store.get("period", "")
+    if tills and tills.get("total") is not None and int(tills["total"]) > len(tills.get("items", [])):
+        raise SystemExit("Only %d of %s till rows of the period were read. Nothing was analysed." % (len(tills.get("items", [])), tills["total"]))
 
     def beyond(row, tol):
         return _f(row["loss_value"]) * 100 > tol * _f(row["sales_value"])

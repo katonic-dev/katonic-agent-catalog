@@ -52,13 +52,16 @@ Run on 25 November 2026 against the invented retailer, with the request "Check t
 
 | | This form | The chat form |
 |---|---|---|
-| Whole catalogue: saved check right | 4 of 4 | Could not be made in one turn. The cluster stopped a tool after eight calls |
+| Whole catalogue: saved check right | 5 of 5 | Could not be made in one turn. The cluster stopped a tool after eight calls |
 | Specification reads in one run | 60, in every run | |
 | Run time on the Test tab | 23.8 to 26.1 seconds | |
 | Run time in the Work Room | 25.4 seconds | |
+| Run time with the unused step removed, one run | 20.2 seconds | |
 | Time of the Loop step, 60 reads | 6.7 to 8.4 seconds | |
 
-- Right means the ten findings of SCENARIOS.md, with attribute, kind and both values, and no other. Three runs were on the Test tab and one in the Work Room.
+- Right means the ten findings of SCENARIOS.md, with attribute, kind and both values, and no other. Three runs were on the Test tab and one in the Work Room. The fifth run came after an unused step was removed.
+- The first four runs were made on a build that still held a Code step from a first attempt, between the listings and the Loop. No later step used it. It cost about 4.5 seconds a run, and the run times of those four runs include it. The steps and the build list here leave it out.
+- That step was then removed, and the listings read was connected straight to the Loop. One run on the whole catalogue was right, value for value, in 20.2 seconds: listings 0.6 seconds, loop 6.9 for the 60 reads, compare 4.4, save 0.1, reply 8.2.
 - The stop after eight calls belongs to a chat agent's turn. A workflow Loop is not held by it.
 - Sixty reads at a parallel limit of 4 come to about 0.13 seconds a read.
 
@@ -70,7 +73,8 @@ A test counts as passed here only after five runs in a row. That has not been do
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered.
 - The person's message reaches a workflow as text. Nothing is taken from it here: no Code step reads the message, and the workflow always checks the whole catalogue.
 - A check of one category is not built. The code takes a category. The workflow would need a narrow Code step to take it from the message.
-- One unused step is left in the cluster build. A Code step that lists the line ids sits between the listings and the Loop, from a first attempt. No later step uses it. It costs about 4.5 seconds a run, and the run times above include it. It is left out of the steps and the build list here. With it removed, a run would take about 20 seconds: listings 0.3 seconds, loop 7 to 8, code 4 to 5, save under 0.1, reply 7 to 8. That shorter build has not been run.
+- A Loop that reaches the number in its "Max iter" box stops quietly. The run says the Loop succeeded and goes on. With the box at 20, the Loop made 20 of the 60 reads. Only the code's own guard stopped the run: "No specification was read for 40 of 60 lines", and nothing was saved. That guard, that every line has a specification, is what keeps a part check from being saved as the whole. Keep it in any change to the code.
+- A builder must set "Max iter" to the number of lines or more, and check it again after any edit. When the published workflow was opened for editing, the box read 20 and not the 60 that had been set and published, and the "Iterate over" box was empty. Both had to be set again.
 - The step list in the Work Room shows an extra line, "Tool dispatch 20.0s", beside the Loop step. The run still took 25.4 seconds in all, so that figure is not time added on top. What it measures is not known.
-- The sandbox failed to start in a few runs of the five workflows built that day, about 4 runs in 60. Each such run saved nothing and said why. None of the four runs counted above was among them.
+- The sandbox failed to start in a few runs of the five workflows built that day, about 4 runs in 60. Each such run saved nothing and said why. None of the five runs counted above was among them.
 - The reply is still written by a model. The saved check does not pass through the model.
