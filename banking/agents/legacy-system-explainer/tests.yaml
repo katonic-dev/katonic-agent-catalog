@@ -52,7 +52,8 @@ tests:
       - {check: says, any: ["YYYYDDD", "day of year"]}
       - {check: says, any: ["customer"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["every transaction", "any transaction on the account"]}
+      # The wrong answer is that every transaction sets the date. "Not every transaction" is the right answer in other words.
+      - {check: does_not_say, any: ["updated by every transaction", "updated on every transaction", "set by every transaction", "set on every transaction", "any transaction on the account"]}
 
   - name: Bank connected, AC_BAL is held in cents
     given: bank_connected
@@ -119,7 +120,8 @@ tests:
       - {check: says, any: ["S"]}
       - {check: says_cannot, about: ["S", "meaning", "determine", "state"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["S means suspended", "S stands for", "S is suspended", "S means stopped"]}
+      # A claimed meaning, not a sentence saying the source does not show what S means.
+      - {check: does_not_say, any: ["S is suspended", "S is stopped", "S = suspended", "S = stopped", "S stands for suspended", "S stands for stopped", "S means suspended, ", "S means stopped, "]}
 
   - name: Bank connected, drafts the documentation of ACMAST and saves it
     given: bank_connected
