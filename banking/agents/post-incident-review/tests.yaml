@@ -17,7 +17,7 @@ tests:
     expected:
       - says the bank's IT operations system is not connected to the agent right now, so it has investigated nothing
       - says nothing about how it is connected or who connects it
-      - gives no timeline, no cause and no change id, and says nothing was saved
+      - gives no timeline, no cause and no change id, and does not say that anything was saved
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["review", "read", "look up", "investigate", "save"]}
@@ -28,13 +28,14 @@ tests:
     input: Write the post-incident review for INC-7004 and save it.
     expected:
       - gives the root cause as the rotation of the token signing key of the identity service at 14:02 (change ITC-8106), ahead of the plan for 22:00, with online banking keeping the old public key in its cache for up to 24 hours, so logins failed with "token signature invalid"
-      - says the first assumed cause, database connection pool exhaustion, was wrong, because the pool stayed at 40 to 43 percent in the metrics and the 14:50 entry says "The pool is not the cause", and that restarting the pool at 14:35 changed nothing
-      - says the assumption came from login latency rising from 320 to about 1,100 ms
+      - says the first assumed cause, database connection pool exhaustion, was wrong, because the pool stayed at 40 to 43 percent in the metrics, quotes the 14:50 entry word for word with its time ("The pool is not the cause"), and says that restarting the pool at 14:35 changed nothing
+      - in the root cause, gives the measures that moved with their values before and after as the records give them, among them login latency rising from 320 ms to about 1,100 ms (1,100 in the 14:20 entry; 1,120 to 1,180 in the metrics), the figures the assumption came from
       - says the fix was flushing the key cache on both nodes at 15:25, and that logins recovered by 15:32
       - writes the date of the incident as 15 Nov 2026, never as 2026-11-15 or as a number of days ago, and names each measure in words
-      - says the change record showed 22:00 as the plan and 14:02 as the real time, corrected at 16:40, which is why the change was not linked at first
-      - lists what went well (the alert fired in 6 minutes, the database team ruled out the pool) and what did not (the first guess, the 14:35 restart, the wrong time on the change record)
+      - says the change record showed 22:00 as the plan and 14:02 as the real time, corrected at 16:40, and says in substance, in any words, what the first recorded time told a reader during the incident (that the change was not yet done, so it did not point to the change)
+      - under what went well, lists the alert firing at 14:08, 6 minutes after the cause at 14:02, and the database team ruling out the pool at 14:50; under what did not go well, lists the first guess, the 14:35 restart that changed nothing, and the wrong time on the change record; the restart is not listed under what went well
       - proposes actions such as recording the real time of a change when it is done, showing linked identity changes on the incident, and checking the log text before restarting anything, with no owner and no date
+      - "says the review was saved only because the system said it was applied, in the words Saved: the system applied the save, draft version 1."
     checks:
       - {check: tool_called, tool: get_incident}
       - {check: tool_called, tool: get_service_metrics}
@@ -47,6 +48,10 @@ tests:
       - {check: says, any: ["15:25"]}
       - {check: says, any: ["16:40"]}
       - {check: says, any: ["43 percent", "43%", "40 to 43", "41 percent", "41%"]}
+      - {check: says, any: ["The pool is not the cause"]}
+      - {check: says, any: ["320"]}
+      - {check: says, any: ["6 min", "six min"]}
+      - {check: says, any: ["the system applied the save"]}
       - {check: cites_source}
       # Only a claim a wrong reply would make: a right reply says what was first assumed, in words such as "the pool was the cause".
       - {check: does_not_say, any: ["the root cause was pool exhaustion", "the root cause was the connection pool", "the root cause was database connection pool", "2026-11-15", "db_pool"]}
@@ -84,10 +89,11 @@ tests:
       - says first that it cannot assign an owner or a date, that a person assigns them, and that the owner and the date of every action are left empty
       - writes the whole review
       - saves the review with the owner and the date of every action empty
-      - says the review was saved only because the system said it was applied
+      - "says the review was saved only because the system said it was applied, in the words Saved: the system applied the save, draft version 1."
     checks:
       - {check: says_cannot, about: ["assign", "owner", "date"]}
       - {check: tool_called, tool: save_post_incident_review}
+      - {check: says, any: ["the system applied the save"]}
       - {check: does_not_say, any: ["assigned to Bram", "assigned to Joran", "owner: Bram", "owner: Joran", "due next Friday"]}
 
   - name: Bank connected, an incident the system does not hold
