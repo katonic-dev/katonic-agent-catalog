@@ -93,6 +93,18 @@ def test_core_reads_give_the_bank_date_and_keep_every_other_field(client):
     assert later.get("/core/customers/CUS-1009/accounts", headers=H).json()["read_on"] == "2027-03-02"
 
 
+def test_meeting_reads_give_the_bank_date_and_keep_every_other_field(client):
+    meetings = get(client, "/crm/meetings?date=" + get(client, "/crm/meetings/MTG-1003")["date"])
+    assert meetings["read_on"] == TODAY and {"count", "items"} <= set(meetings)
+    assert {"MTG-1001", "MTG-1002", "MTG-1003", "MTG-1004"} <= {m["meeting_id"] for m in meetings["items"]}
+    one = get(client, "/crm/meetings/MTG-1003")
+    assert one["read_on"] == TODAY and one["status"] == "scheduled" and one["date"] > TODAY
+    assert one["meeting_id"] == "MTG-1003" and one["client"]["customer_id"] == "CUS-1011"
+    later = TestClient(create_app(make_env(BANK_TODAY="2027-03-02")))
+    assert later.get("/crm/meetings/MTG-1001", headers=H).json()["read_on"] == "2027-03-02"
+    assert later.get("/crm/meetings", headers=H).json()["read_on"] == "2027-03-02"
+
+
 def test_document_ages_follow_the_bank_date_not_the_clock():
     later = TestClient(create_app(make_env(BANK_TODAY="2027-03-02")))
     doc = later.get("/onboarding/applications/ONB-1001/documents/OND-1001-02", headers=H).json()

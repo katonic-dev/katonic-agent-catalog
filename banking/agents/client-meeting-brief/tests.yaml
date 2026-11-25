@@ -4,6 +4,8 @@
 # MTG-1004 belongs to another manager and must not appear in her briefs.
 # Start the bank with BANK_TODAY=2026-11-24. Before each run of tests 2 to 6 put back the one system,
 # POST /admin/reset/crm on the bank: each saves a draft (test 6 in its first turn), and a second run saves version 2.
+# The meetings list and each meeting give the bank's date as read_on (2026-11-24). The model's own clock may say a later
+# day: tests 3 and 4 fail if the agent takes today from that clock and calls a scheduled meeting already held.
 
 states:
   nothing_connected: The agent as built, with no meetings, customer or news tools attached.
@@ -44,6 +46,8 @@ tests:
       - {check: tool_called, tool: save_meeting_brief}
       - {check: says, any: ["ART-6001"]}
       - {check: says, any: ["ART-6002"]}
+      # ART-6002 reports what happens next: his lawyer said he will appeal.
+      - {check: says, any: ["appeal"]}
       - {check: says, any: ["19,279.32", "19279.32"]}
       - {check: says, any: ["MTG-1006"]}
       - {check: says, any: ["Quenmark"]}
@@ -55,6 +59,7 @@ tests:
     given: bank_connected
     input: Prepare the brief for meeting MTG-1002.
     expected:
+      - takes today from the date of reading the meetings system gives (24 Nov 2026), not from its own clock, and briefs the meeting, which is dated 25 Nov 2026 and scheduled
       - reads the meeting: Pinecrest Tooling Works Ltd, CUS-1018, 11:00, an update on the equipment loan application and the next documents
       - names the application in progress, LAP-8003, USD 120,000.00, status received, received 9 Nov 2026
       - gives the lending: LN-9002 with 180,000.00 outstanding, and collateral of 240,000.00 (two CNC machines)
@@ -74,11 +79,13 @@ tests:
       - {check: says, any: ["MTG-1005"]}
       - {check: cites_source}
       - {check: does_not_say, any: ["is likely to be approved", "is likely to be declined", "approval is likely", "approval is expected"]}
+      - {check: does_not_say, any: ["already past", "has already passed", "no brief was prepared"]}
 
   - name: Bank connected, the third meeting has nothing new
     given: bank_connected
     input: Prepare the brief for meeting MTG-1003.
     expected:
+      - takes today from the date of reading the meetings system gives (24 Nov 2026), not from its own clock, and briefs the meeting, which is dated 25 Nov 2026 and scheduled
       - reads the meeting: Tobias Wrenfield, CUS-1011, 14:30, a yearly review of his accounts and his pension
       - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all, the held total as the holdings give it (deposits plus investments), not added by the agent
       - says none recorded for loans, applications, complaints and contact, naming the systems looked in, and finds no press
@@ -92,6 +99,7 @@ tests:
       - {check: says, any: ["MEM-5001"]}
       - {check: says, any: ["none recorded", "no articles"]}
       - {check: does_not_say, any: ["ART-60"]}
+      - {check: does_not_say, any: ["already past", "has already passed", "no brief was prepared"]}
 
   - name: Bank connected, the batch for tomorrow covers her three meetings and no one else's
     given: bank_connected
@@ -129,10 +137,10 @@ tests:
     input: Prepare the briefs for the meetings of Sunniva Haldane-Rook on 2026-11-30.
     expected:
       - reads the list of meetings and finds none for that manager on that date
-      - says so, prepares no brief and saves nothing
+      - says so, with the date written as 30 Nov 2026, prepares no brief and saves nothing
       - makes up no meeting, client or id
     checks:
       - {check: tool_called, tool: list_client_meetings}
       - {check: tool_not_called, tool: save_meeting_brief}
       - {check: says, any: ["30 Nov 2026", "30 November 2026"]}
-      - {check: does_not_say, any: ["MTG-1001", "Orrenmoor", "i have saved", "i've saved", "Saved:"]}
+      - {check: does_not_say, any: ["MTG-1001", "Orrenmoor", "i have saved", "i've saved", "Saved:", "2026-11-30"]}

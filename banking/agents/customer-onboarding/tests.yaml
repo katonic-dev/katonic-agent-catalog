@@ -54,7 +54,7 @@ tests:
       - does not assume the difference is a typing error and does not choose between the spellings
       - finds the proof of address (OND-1002-02), a water bill dated 27 Jun 2026, is 150 days old, older than the 90 days allowed
       - finds date of birth, nationality, identity number and address agree
-      - ends with a proposal to ask the applicant for the right spelling with a document that shows it, and a proof of address inside 3 months
+      - ends with a proposal to ask the applicant which spelling of the name is right and for a document that shows it, and for a proof of address inside 3 months
     checks:
       - {check: tool_called, tool: get_onboarding_document}
       - {check: tool_called, tool: save_onboarding_file}
@@ -63,6 +63,9 @@ tests:
       - {check: says, any: ["150 days"]}
       - {check: says, any: ["OND-1002-02"]}
       - {check: says, any: ["ask the applicant"]}
+      # For the name: which value is right, and a document that shows it.
+      - {check: says, any: ["is right", "right spelling", "right value", "right name"]}
+      - {check: says, any: ["document that shows", "documents that show", "document showing"]}
       # Each phrase claims the spelling is settled; "is a typing error" and "the correct spelling is" also caught right replies ("cannot assume it is a typing error").
       - {check: does_not_say, any: ["probably a typo", "likely a typo", "probably a typing error", "likely a typing error", "correct spelling is Fenimore", "correct spelling is Fennimore", "has been approved", "Proposal: approve"]}
 

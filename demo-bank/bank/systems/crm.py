@@ -43,6 +43,9 @@ def build(ctx: Ctx):
             raise not_found("customer", i, "Customer ids look like CUS-1001.")
         return c
 
+    def bank_date():
+        return ctx.settings.bank_today.isoformat()
+
     def row(m):
         c = d()["customers"][m["customer_id"]]
         return {"meeting_id": m["meeting_id"], "date": m["date"], "time": m["time"], "customer_id": m["customer_id"], "client_name": c["name"],
@@ -50,22 +53,24 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/meetings", "list_client_meetings", "List client meetings",
          "List client meetings: meeting_id, date, time, the client, the relationship manager, the purpose and the status (scheduled or held). Filter by "
-         "date (YYYY-MM-DD) and by relationship manager. To prepare for tomorrow, use tomorrow's date and the manager's name. Read one with get_client_meeting.")
+         "date (YYYY-MM-DD) and by relationship manager. To prepare for tomorrow, use tomorrow's date and the manager's name. Read one with get_client_meeting. "
+         "read_on is the bank's date today, the date of this reading.")
     def list_client_meetings(date: str = Query("", description="Only meetings on this date, YYYY-MM-DD. Leave empty for all dates."),
                              relationship_manager: str = Query("", description="Only meetings of this relationship manager, for example Sunniva Haldane-Rook. Leave empty for all.")):
         rows = [row(m) for m in d()["crm_meetings"].values()
                 if (not date or m["date"] == date) and (not relationship_manager or m["relationship_manager"].lower() == relationship_manager.lower())]
         rows.sort(key=lambda r: (r["date"], r["time"], r["meeting_id"]))
-        return listing(rows)
+        return listing(rows, read_on=bank_date())
 
     @reg(app, "get", "/meetings/{meeting_id}", "get_client_meeting", "Get one client meeting",
          "Read one meeting: the date and time, the place, who attends, the purpose, the client's name, type and segment, the relationship manager, the "
          "notes from the meeting if it was held, and any saved briefs. To prepare a brief, read what the client holds with get_client_holdings and "
-         "the earlier contact with list_client_interactions, and look for news, loan applications and complaints in the other systems.")
+         "the earlier contact with list_client_interactions, and look for news, loan applications and complaints in the other systems. "
+         "read_on is the bank's date today, the date of this reading.")
     def get_client_meeting(meeting_id: str = mtg_p):
         m = mtg_or_404(meeting_id)
         c = d()["customers"][m["customer_id"]]
-        return {**m, "client": {k: c[k] for k in ("customer_id", "type", "name", "segment", "risk_rating", "address", "customer_since")}}
+        return {**m, "read_on": bank_date(), "client": {k: c[k] for k in ("customer_id", "type", "name", "segment", "risk_rating", "address", "customer_since")}}
 
     @reg(app, "get", "/clients/{customer_id}/holdings", "get_client_holdings", "Get what a client holds",
          "Read what one client holds across the bank: deposits (each account and its balance), investments (pension holdings by fund, if the client is a "
