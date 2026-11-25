@@ -63,6 +63,8 @@ tests:
       - saves one draft whose points to check include the flagged behaviour and the missing paragraphs
     checks:
       # The two paragraphs are performed at lines 95 and 97 of the source as returned and are not in it; the bank holds them nowhere.
+      # The comment at lines 86 to 88 settles the expected dates (31 Jan gives 28 Feb, which gives 28 Mar, in a year that is not a leap year),
+      # so the test of the monthly rule is written against the paragraph an engineer supplies; a row that only lists it as open does not meet the third line.
       - {check: tool_called, tool: get_legacy_program}
       - {check: tool_called, tool: save_converted_program}
       - {check: says, any: ["2210-ADD-MONTHS-1", "ADD-MONTHS-1"]}
