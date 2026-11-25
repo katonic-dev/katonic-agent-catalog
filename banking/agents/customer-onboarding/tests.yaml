@@ -64,7 +64,7 @@ tests:
       - {check: says, any: ["OND-1002-02"]}
       - {check: says, any: ["ask the applicant"]}
       # For the name: which value is right, and a document that shows it.
-      - {check: says, any: ["is right", "right spelling", "right value", "right name"]}
+      - {check: says, any: ["is right", "right spelling", "right value", "right name", "is correct", "correct spelling", "correct value", "correct name"]}
       - {check: says, any: ["document that shows", "documents that show", "document showing"]}
       # Each phrase claims the spelling is settled; "is a typing error" and "the correct spelling is" also caught right replies ("cannot assume it is a typing error").
       - {check: does_not_say, any: ["probably a typo", "likely a typo", "probably a typing error", "likely a typing error", "correct spelling is Fenimore", "correct spelling is Fennimore", "has been approved", "Proposal: approve"]}

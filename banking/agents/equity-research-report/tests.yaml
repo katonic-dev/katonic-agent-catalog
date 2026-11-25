@@ -82,8 +82,8 @@ tests:
       - {check: says, any: ["15.1"]}
       - {check: says, any: ["restated"]}
       - {check: says, any: ["| differs |"]}
-      # 12.9 and 13.0 times are the price to earnings on the EPS first published (2.85 / 0.220), cut off or rounded.
-      - {check: does_not_say, any: ["price target of", "target price of", "is undervalued", "is overvalued", "i recommend", "12.9", "13.0 times", "is a buy", "is a sell"]}
+      # The price to earnings on the EPS first published (2.85 / 0.220, 13.0 times) may be shown beside the restated one, labelled as the earlier value: the instructions ask for both.
+      - {check: does_not_say, any: ["price target of", "target price of", "is undervalued", "is overvalued", "i recommend", "is a buy", "is a sell"]}
 
   - name: Bank connected, a consensus older than the filing is not used and the filing's outlook is
     given: bank_connected
