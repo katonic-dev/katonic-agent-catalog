@@ -2,7 +2,7 @@
 
 36 agents a retailer or a restaurant operator can build on the Katonic platform, and the desks and applications people use them through. They are written against one invented company, Rowanmere Group: a store chain with an online shop, and a restaurant chain that is partly franchised.
 
-**Status: work in progress.** All thirty-six folders are written, and each agent has been built on a development cluster and run through its tests three times. The State column says how each one did, and where one is not yet reliable. No test here has been run five times in a row, which is the bar for "passed".
+**Status: work in progress.** All thirty-six folders are written, and each agent has been built on a development cluster and run three times through every test that could be run there. The State column says how each one did, and where one is not yet reliable. No test here has been run five times in a row, which is the bar for "passed".
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. An operation that changes a record waits for a named person.
 
