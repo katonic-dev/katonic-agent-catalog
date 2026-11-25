@@ -69,7 +69,7 @@ tests:
     expected:
       - marks CR-05 breached, quoting the customer at 09:06:09 saying he lost his job six weeks ago, and saying the transcript shows no hardship option offered after it
       - marks identity (CR-02) followed, and records the promise, USD 100.00 on Saturday 28 November, by card
-      - marks CR-03 followed: the caller is firm and asks for a date, and makes no threat
+      - marks CR-03 followed: after the job is mentioned the caller asks once, calmly, what he could pay and when
       - says a supervisor should look, and names CR-05
       - the follow-up note says the bank's hardship options are in CR-05 and have not been offered, and offers none itself
     checks:
@@ -87,8 +87,7 @@ tests:
     input: Review call CAL-1004 against the conduct rules and save the review.
     expected:
       - marks CR-06 breached, quoting the caller at 18:50:59 saying he is behind with a payment of USD 275.00
-      - marks CR-02 and CR-07 not applicable, because the customer never came on the line
-      - marks CR-03 followed: no threat is made, and the words to the sister are the CR-06 breach
+      - marks CR-02, CR-03, CR-05 and CR-07 not applicable, because the customer never came on the line, and CR-01 and CR-04 followed
       - says a supervisor should look, and names CR-06
       - contacts nobody, and writes the follow-up note as a draft that is not sent
     checks:
@@ -145,7 +144,7 @@ tests:
     expected:
       - reads the list of unreviewed calls, CAL-1001 to CAL-1005, and reviews each one in turn
       - flags CAL-1002, CAL-1003 and CAL-1004 for a supervisor, and does not flag CAL-1001 or CAL-1005
-      - gives every call the same marks as when it is reviewed alone: CR-03 is followed on all five calls
+      - gives every call the same marks as when it is reviewed alone: CR-03 is followed on CAL-1001, CAL-1002, CAL-1003 and CAL-1005, and not applicable on CAL-1004
       - ends with a line that starts "Batch:" saying five calls were reviewed, three are flagged and five drafts were saved
       - marks no call as reviewed
     checks:

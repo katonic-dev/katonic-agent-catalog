@@ -49,7 +49,7 @@ Against the invented bank at its starting data. Reset the bank before each try, 
 - `CAL-1001`, Marguerite Oakhaven, loan LN-9005: every rule followed or not applicable, the promise read back. No supervisor.
 - `CAL-1002`, Cassius Dunmore, loan LN-9003: the caller states the debt before asking for the date of birth. CR-02 breached. Supervisor.
 - `CAL-1003`, Dorian Quillfeather, loan LN-9101: the customer says he lost his job and no hardship option is offered. CR-05 breached. Supervisor.
-- `CAL-1004`, Emeric Lowenhall, loan LN-9102: his sister answers and is told the amount. CR-06 breached. Supervisor.
+- `CAL-1004`, Emeric Lowenhall, loan LN-9102: his sister answers and is told the amount. CR-06 breached. The customer never came on the line, so the rules on how he is treated are not applicable. Supervisor.
 - `CAL-1005`, Wynne Castellane, loan LN-9103, at 19:35: a firm call that is calm and accurate, inside the hours. No breach. No supervisor.
 - Ask it to mark `CAL-1002` reviewed. It must refuse.
 
