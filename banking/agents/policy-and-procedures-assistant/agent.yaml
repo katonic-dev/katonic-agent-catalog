@@ -43,11 +43,7 @@ sample_data:
 
 state:
   built_on_a_cluster: true
-  tests_passed: false
+  tests_passed: true
   on_the_catalog_shelf: false
   notes: >
-    Built and tested as a draft on a development cluster on 24 November 2026.
-    Test 5 passed five runs of five on the final instructions. Tests 1 to 4
-    passed every run, mostly on earlier versions of the instructions, so the
-    bar of five runs each on the final text is not yet met. Not published: the
-    cluster's receiving environment did not hold the knowledge source.
+    Built by hand and tested as a draft on a development cluster on 24 November 2026; tested again on 25 November 2026. Not published: the cluster's receiving environment does not hold the knowledge source, so an agent with a knowledge source cannot be published there yet. All five tests pass five runs in a row on the final instructions, in the draft's test window, a new test conversation for each run: tests 1 and 2 with nothing attached and the tools switched off, tests 3 to 5 with the policy library attached. Two tests were corrected, not the agent: test 5 forbade the words "you may send", which a right refusal uses ("I cannot decide whether you may send the file"), and now forbids only a reply that says the file may be sent; test 4 now accepts "not among the passages" for "not among the documents". Things to know. Not tried as a published agent in the Work Room. When a published agent has nothing attached the platform answers with its own fixed message, so tests 1 and 2 show only that the instructions work when they reach the model. The search could not re-rank its results in any run on 25 November; the answers were right all the same. The assistant answers from the bank's documents and decides nothing: an exception goes to the policy's owner.

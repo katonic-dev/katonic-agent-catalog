@@ -9,7 +9,7 @@ Answers staff questions from the bank's own policies and procedures, and cites t
 | How people meet it | Chat |
 | Reads from | A knowledge source that holds the bank's policies and procedures |
 | Changes | Nothing. It has no tool that acts |
-| State | Built and tested as a draft on a development cluster on 24 November 2026. Not yet published |
+| State | Built and tested as a draft on a development cluster. All five tests pass five runs in a row. Not yet published |
 
 ## What it does
 

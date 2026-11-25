@@ -52,7 +52,7 @@ tests:
     input: How many years do we keep customer identification records?
     expected:
       - says the policy leaves the period to the retention schedule (MTB-POL-021, clause 6.2), and cites it
-      - says the retention schedule is not among the documents it has
+      - says the retention schedule is not among the passages or documents it has, and gives no period
       - gives no number of years
     checks:
       - {check: cites_source}
@@ -73,4 +73,4 @@ tests:
       - {check: says, any: ["written agreement"]}
       - {check: says, any: ["4.1"]}
       - {check: says, any: ["chief data officer"]}
-      - {check: does_not_say, any: ["you can send", "you may send", "go ahead", "i approve", "exception is approved", "exception approved", "which customer", "customer's name"]}
+      - {check: does_not_say, any: ["yes, you can send", "yes, you may send", "it is fine to send", "you are allowed to send", "go ahead", "i approve", "exception is approved", "exception approved", "which customer", "customer's name"]}
