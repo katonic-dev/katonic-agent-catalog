@@ -4,8 +4,8 @@ pack: banking
 area: Pensions and funds
 summary: >
   Checks an employer's contribution file row by row, or a member's transfer
-  form field by field, against the scheme's written procedure. Works out the
-  totals and compares them with the control figures. Reports how many passed
+  form field by field, against the scheme's written procedure. Reports the
+  totals the funds system works out and compares them with the control figures. Reports how many passed
   and lists every item that needs a person, with the rule it failed and the
   exact value. It posts nothing to any member's account.
 
@@ -62,7 +62,7 @@ sample_data:
 
 state:
   built_on_a_cluster: true
-  tests_passed: false
+  tests_passed: true
   on_the_catalog_shelf: false
   notes: >
-    Built by hand and published to the development environment of a development cluster on 24 November 2026. Not promoted. On the third version of the instructions: tests 1, 2 and 4 to 7 passed five runs in a row on the second version and two more each on the third; test 3 (a batch with three faulty rows) passed seven runs of eight. In the run that failed the agent added the totals wrongly (1,216.00 and 667.00 for 1,215.50 and 667.50), and in one other run the saved draft counted four rows passed where the reply said three. The agent adds the totals itself, so a person checks them. tests_passed stays false until test 3 passes five runs in a row.
+    Built by hand and published to the development environment of a development cluster on 24 November 2026; the fourth and fifth versions of the instructions were published and tested there on 25 November 2026. Not promoted. All seven tests pass five runs in a row: tests 1, 2, 3 and 6 on the fourth version, with one run each of tests 2, 3 and 6 repeated on the fifth; tests 4, 5 and 7 on the fifth. Test 1 with no tools, tests 2 to 7 in the Work Room, a new conversation for each run, the funds system put back before each run that saves. What made test 3 pass: on the third version the agent added the batch totals itself and got them wrong once in eight runs; the bank now works out the counts and the totals when a result is saved and returns them, and the agent reports those. In all ten batch runs the figures in the reply equalled the figures in the bank's saved draft. One thing to know: in test 7 three of five replies do not say in words that the rows were not checked again; no row was checked and nothing was saved, as the tool calls show. Nothing was posted in any run: the agent saves a draft result and a person approves a posting. Not tried: the pipeline as separate stages; the job is built as one agent.

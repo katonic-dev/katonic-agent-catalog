@@ -9,7 +9,7 @@ Checks an employer's contribution file row by row, or a member's transfer form f
 | How people meet it | The bank's own system: a batch report, with failed forms and failed rows going to a person |
 | Reads from | The pension scheme's funds system: the written procedure, contribution batches, transfer forms and the member register |
 | Changes | Saves a batch result as a draft. It posts nothing and puts nothing on any member's account |
-| State | Built on a development cluster on 24 November 2026. Six of seven tests pass five runs in a row; the batch with three faulty rows passed seven runs of eight, the miss being a total added wrongly. Not on the Catalog shelf |
+| State | Built on a development cluster. All seven tests pass five runs in a row, 25 November 2026. Not on the Catalog shelf |
 
 ## What it does
 
