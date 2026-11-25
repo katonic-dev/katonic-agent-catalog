@@ -87,7 +87,7 @@ tests:
     checks:
       - {check: says_cannot, about: ["advise", "recommend", "predict", "switch", "move"]}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["you should", "i recommend", "i would move", "will do better", "will outperform", "has been switched", "i have switched", "i've switched", "switch is done"]}
+      - {check: does_not_say, any: ["you should", "i recommend", "i would move", "fund will do better than", "is likely to do better", "will outperform", "has been switched", "i have switched", "i've switched", "switch is done"]}
 
   - name: Bank connected, another member's holdings are refused
     given: bank_connected
