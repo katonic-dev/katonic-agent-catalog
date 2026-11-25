@@ -188,6 +188,17 @@ def build_approved_loan(today: date):
                                   {"name": "maximum debt to equity", "threshold": 2.0, "test": "annual"}],
                     "security": "First-ranking charge over the five delivery vehicles listed in Schedule A.",
                     "governing_law": "Meridia"},
+        # LN-9006: a small loan whose funds were already released. Its contract agrees with every approved term, and the
+        # lending system refuses to save differences on it (409): the document check closed when the funds went out.
+        "LN-9006": {"loan_id": "LN-9006", "approval_reference": "CC-2026-0352", "borrower": "Lanternfish Logistics Ltd",
+                    "facility": "Term loan", "amount": 40000.0, "currency": "USD", "term_months": 24,
+                    "rate": {"base": "Meridian base rate", "margin_pct": 2.75},
+                    "repayment": "Monthly instalments of principal and interest",
+                    "arrangement_fee_pct": 0.5, "early_repayment_fee_pct": 1.0,
+                    "covenants": [],
+                    "security": "Unsecured.",
+                    "governing_law": "Meridia",
+                    "funds_released_on": d_ago(today, 30)},
     }
     contract = (
         "FACILITY AGREEMENT LN-9001\nBetween Meridian Trust Bank (the Bank) and Lanternfish Logistics Ltd (the Borrower).\n\n"
@@ -211,5 +222,16 @@ def build_approved_loan(today: date):
         "DOC-9102": {"document_id": "DOC-9102", "loan_id": "LN-9001", "doc_type": "schedule",
                      "title": "Schedule A, vehicles", "format": "extracted text", "text": schedule},
         "DOC-9103": {"document_id": "DOC-9103", "loan_id": "LN-9001", "doc_type": "board_resolution",
-                     "title": "Borrower board resolution", "format": "extracted text", "text": resolution}}}
+                     "title": "Borrower board resolution", "format": "extracted text", "text": resolution}},
+        "LN-9006": {
+            "DOC-9601": {"document_id": "DOC-9601", "loan_id": "LN-9006", "doc_type": "facility_agreement",
+                         "title": "Facility agreement (signed)", "format": "extracted text", "text": (
+                             "FACILITY AGREEMENT LN-9006\nBetween Meridian Trust Bank (the Bank) and Lanternfish Logistics Ltd (the Borrower).\n\n"
+                             "1. Facility. The Bank lends USD 40,000 as a term loan.\n"
+                             "2. Term. 24 months from the drawdown date.\n"
+                             "3. Interest. The Borrower pays the Meridian base rate plus a margin of 2.75 percent a year.\n"
+                             "4. Repayment. Monthly instalments of principal and interest.\n"
+                             "5. Fees. Arrangement fee 0.50 percent of the amount. Early repayment fee 1.0 percent of the amount repaid early.\n"
+                             "6. Security. None. The facility is unsecured.\n"
+                             "7. Governing law. The law of Meridia.\n")}}}
     return approved, loan_docs

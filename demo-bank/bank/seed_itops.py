@@ -212,6 +212,12 @@ def build_certificates(today: date) -> list[dict]:
     return [{"certificate": c, "service": s, "expires_at": e, "purpose": p} for c, s, e, p in rows]
 
 
+def _day(d: date) -> str:
+    """A date as day, short month and year, for example 12 Nov 2026."""
+    month = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")[d.month - 1]
+    return f"{d.day} {month} {d.year}"
+
+
 def tl(today, ago, hhmm, who, entry):
     return {"time": stamp(today, ago, hhmm), "who": who, "entry": entry}
 
@@ -243,7 +249,8 @@ def build_incidents(today: date) -> dict:
                      tl(today, 0, "05:12", ON_CALL["cards"], "Acknowledged the alert."),
                      tl(today, 0, "05:25", ON_CALL["cards"], "The authorisation log shows repeated lines: TLS handshake failed, certificate has expired (peer: card processor, "
                                                            "client certificate cardproc-mtls-client)."),
-                     tl(today, 0, "05:40", ON_CALL["cards"], "Checked the change calendar and the change list for card-authorisation. The last change was 12 days ago (ITC-8104). "
+                     tl(today, 0, "05:40", ON_CALL["cards"], "Checked the change calendar and the change list for card-authorisation. "
+                                                           f"The last change was on {_day(today - timedelta(days=12))} (ITC-8104). "
                                                            "Nothing is planned for today."),
                      tl(today, 0, "06:05", ON_CALL["cards"], "The certificate dashboard DASH-1003 shows cardproc-mtls-client expired at 04:58 today."),
                      tl(today, 0, "06:30", ON_CALL["cards"], "Urgent renewal requested from the certificate team. The renewed certificate is not yet issued.")],

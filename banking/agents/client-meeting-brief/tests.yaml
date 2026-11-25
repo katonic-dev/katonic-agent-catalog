@@ -80,7 +80,7 @@ tests:
     input: Prepare the brief for meeting MTG-1003.
     expected:
       - reads the meeting: Tobias Wrenfield, CUS-1011, 14:30, a yearly review of his accounts and his pension
-      - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all, with the working 6,569.48 + 29,676.74
+      - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all, the held total as the holdings give it (deposits plus investments), not added by the agent
       - says none recorded for loans, applications, complaints and contact, naming the systems looked in, and finds no press
       - invents nothing to fill the gaps
     checks:

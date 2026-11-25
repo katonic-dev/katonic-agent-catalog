@@ -20,7 +20,7 @@ LINE = "Sanctions and politically-exposed-person screening alerts and the watchl
 class SearchBody(BaseModel):
     name: str = Field(..., min_length=1, description="Full name to screen.")
     date_of_birth: str = Field("", description="Date of birth YYYY-MM-DD. Leave empty if unknown.")
-    country: str = Field("", description="Two-letter nationality code, for example XM. Leave empty if unknown.")
+    country: str = Field("", description="Nationality: the two-letter code, for example XM, or the country's name, for example Meridia. Either matches. Leave empty if unknown.")
 
 
 class FieldRow(BaseModel):
@@ -146,7 +146,8 @@ def build(ctx: Ctx):
         return e
 
     @reg(app, "post", "/search", "screen_name", "Screen a name against the watchlist",
-         "Screen a name, with an optional date of birth and nationality code, against the watchlist. Returns hits with entry_id, "
+         "Screen a name, with an optional date of birth and nationality (the two-letter code, for example XB, or the country's name, for "
+         "example Brevnia: either matches), against the watchlist. Returns hits with entry_id, "
          "name, score from 0 to 100 and, for each hit, which of date of birth and nationality agree. Only a read: nothing is stored.")
     def screen_name(body: SearchBody):
         hits = []
@@ -156,8 +157,9 @@ def build(ctx: Ctx):
                 continue
             dob = "unknown" if not body.date_of_birth or not e["date_of_birth"] else (
                 "match" if body.date_of_birth == e["date_of_birth"] else "differs")
-            nat = "unknown" if not body.country or not e["nationality"] else (
-                "match" if body.country.upper() == e["nationality"] else "differs")
+            given = body.country.strip().casefold()
+            nat = "unknown" if not given or not e["nationality"] else (
+                "match" if given in (e["nationality"].casefold(), (e.get("nationality_name") or "").casefold()) else "differs")
             hits.append({"entry_id": e["entry_id"], "name": e["name"], "category": e["category"], "score": best,
                          "date_of_birth": dob, "nationality": nat})
         hits.sort(key=lambda h: -h["score"])

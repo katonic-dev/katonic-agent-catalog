@@ -3,8 +3,8 @@
 # Start the bank with BANK_TODAY=2026-11-24.
 # Tests 2, 3 and 4 save a draft, and a second run would save version 2: put back the one system before each run of
 # them with POST /admin/reset/lending on the bank.
-# Test 6 is WAITING FOR A BANK CHANGE: the bank holds no loan on which the save is refused. It needs loan LN-9006,
-# whose funds were released, proposed in the change note of this folder. Do not run it before the bank has LN-9006.
+# Test 6 uses loan LN-9006, whose funds were released on 25 Oct 2026 (30 days before the bank date): the lending
+# system refuses to save differences on it with 409, so nothing is saved and no reset is needed.
 
 states:
   nothing_connected: The agent as built, with no lending tools attached.
@@ -12,9 +12,8 @@ states:
     The lending system of the invented bank connected and its tools attached.
     The bank at its starting data.
   bank_with_released_loan: >
-    As bank_connected, once the bank holds loan LN-9006, whose funds were released
+    As bank_connected. The bank holds loan LN-9006, whose funds were released
     on 25 Oct 2026 and on which the lending system refuses to save differences.
-    WAITING FOR A BANK CHANGE: the bank at its starting data does not hold LN-9006.
 
 tests:
   - name: Nothing connected, says so and compares nothing

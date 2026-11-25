@@ -58,6 +58,21 @@ def build(ctx: Ctx):
                          "value": value, "currency": "USD"})
         return rows, round(total, 2)
 
+    def row_total(r):
+        return round(r["employee_amount"] + r["employer_amount"], 2)
+
+    def batch_totals(b, rows):
+        """Counts and totals of a saved result, worked out from the batch's rows and the outcomes given."""
+        outcome = {r["row_no"]: r["outcome"] for r in rows}
+        amounts = {r["row_no"]: row_total(r) for r in b["rows"]}
+        passed = [n for n in amounts if outcome.get(n) == "passed"]
+        failed = [n for n in amounts if outcome.get(n) == "failed"]
+        all_rows = round(sum(amounts.values()), 2)
+        return {"rows_passed": len(passed), "rows_failed": len(failed),
+                "total_passed": round(sum(amounts[n] for n in passed), 2), "total_failed": round(sum(amounts[n] for n in failed), 2),
+                "total_all_rows": all_rows, "control_total": b["control_total"],
+                "control_total_difference": round(b["control_total"] - all_rows, 2)}
+
     def rule_failures(b):
         """Rows that break rules 1 to 4, worked out from the data. Used to guard posting."""
         bad, seen = {}, set()
@@ -124,10 +139,11 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/batches/{batch_id}", "get_contribution_batch", "Get one contribution batch",
          "Read one batch: the employer, the period, the control total and every row (member id, the name on the row, the pensionable salary, the employee "
-         "amount and the employer amount). Also any saved results and, if posted, who approved the posting and which rows were posted. "
-         "Check each row against the rules of get_processing_procedure.")
+         "amount, the employer amount and row_total, the employee amount plus the employer amount rounded to cents). Also any saved results and, if "
+         "posted, who approved the posting and which rows were posted. Check each row against the rules of get_processing_procedure.")
     def get_contribution_batch(batch_id: str = batch_p):
-        return batch_or_404(batch_id)
+        b = batch_or_404(batch_id)
+        return {**b, "rows": [{**r, "row_total": row_total(r)} for r in b["rows"]]}
 
     @reg(app, "get", "/forms/{form_id}", "get_transfer_form", "Get a transfer form",
          "Read a transfer form as text read by machine from a scan. Marks in square brackets are the reader's doubts, such as an unreadable digit. "
@@ -146,8 +162,11 @@ def build(ctx: Ctx):
 
     @reg(app, "post", "/batches/{batch_id}/result", "save_batch_result", "Save the result of checking a batch (draft)",
          "Save what you found for every row of a batch: passed, or failed with the rule number of each failure. Every row must be given once. This is a "
-         "draft: stored with who wrote it, a timestamp and a version number, earlier versions kept. Nothing is posted. Refused with 409 if the batch "
-         "was already posted and with 422 if a row is missing, repeated or unknown, or a failed row has no rule number.")
+         "draft: stored with who wrote it, a timestamp and a version number, earlier versions kept. Nothing is posted. The system works out the "
+         "totals from the batch's rows and the outcomes you give, stores them in the draft and returns them: rows_passed, rows_failed, total_passed "
+         "(the amount of the passed rows), total_failed (the amount of the failed rows), total_all_rows, control_total, and "
+         "control_total_difference (the control total minus the sum of all rows; 0.0 when they agree). Report these as returned. Refused with 409 if "
+         "the batch was already posted and with 422 if a row is missing, repeated or unknown, or a failed row has no rule number.")
     def save_batch_result(body: BatchResult, batch_id: str = batch_p):
         b = batch_or_404(batch_id)
         if b["status"] == "posted":
@@ -163,8 +182,10 @@ def build(ctx: Ctx):
                 raise HTTPException(422, f"Row {r.row_no} is passed and must not have rule numbers.")
             if any(n < 1 or n > 4 for n in r.failed_rules):
                 raise HTTPException(422, f"Row {r.row_no}: rule numbers for a contribution row are 1 to 4.")
-        v = st.add_draft(b, "results", {k: val for k, val in body.model_dump().items() if k != "drafted_by"}, body.drafted_by)
-        return {"applied": True, "kind": "draft", "batch_status": b["status"], "draft": v}
+        payload = {k: val for k, val in body.model_dump().items() if k != "drafted_by"}
+        totals = batch_totals(b, payload["rows"])
+        v = st.add_draft(b, "results", {**payload, "totals": totals}, body.drafted_by)
+        return {"applied": True, "kind": "draft", "batch_status": b["status"], **totals, "draft": v}
 
     @reg(app, "post", "/batches/{batch_id}/post", "post_contribution_batch", "Post a contribution batch (change)",
          "Post the rows of a batch that passed, and only those: units are bought in each member's contribution fund at the latest unit price. This is a "

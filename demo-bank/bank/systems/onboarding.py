@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import date, timedelta
 from typing import Literal
 
 from fastapi import HTTPException, Path, Query
@@ -113,8 +113,18 @@ def build(ctx: Ctx):
             raise not_found("review", i, "Use list_kyc_reviews to find ids.")
         return r
 
+    def bank_date():
+        return ctx.settings.bank_today.isoformat()
+
+    def with_age(doc):
+        """A document with its own date and its age in whole days at the bank's date (0 on the day it is dated)."""
+        dated = doc.get("document_date", "")
+        age = (ctx.settings.bank_today - date.fromisoformat(dated)).days if dated else None
+        return {**doc, "document_date": dated, "age_days_at_bank_date": age}
+
     def doc_summaries(coll, key):
-        return [{k: x[k] for k in ("document_id", "doc_type", "title", "received")} for x in d()[coll].get(key, {}).values()]
+        keys = ("document_id", "doc_type", "title", "received", "document_date", "age_days_at_bank_date")
+        return [{k: with_age(x)[k] for k in keys} for x in d()[coll].get(key, {}).values()]
 
     # ------------------------------------------------------------ account opening
 
@@ -130,38 +140,41 @@ def build(ctx: Ctx):
                  "product": a["product"], "received": a["received"], "documents_received": len(d()["onb_documents"].get(a["application_id"], {}))}
                 for a in d()["onb_applications"].values() if (not status or a["status"] == status) and (not kind or a["kind"] == kind)]
         rows.sort(key=lambda r: (r["received"], r["application_id"]), reverse=True)
-        return listing(rows)
+        return listing(rows, read_on=bank_date())
 
     @reg(app, "get", "/applications/{application_id}", "get_onboarding_application", "Get one application in full",
          "Read one application: the details exactly as typed on the form, the documents received (read each with "
          "get_onboarding_document), a checklist of the documents the bank requires for this kind of customer marked received or missing, "
-         "the checks the bank requires, any earlier saved files and the decision if one was made. Compare the form with every document yourself: "
-         "nothing here has done it for you.")
+         "the checks the bank requires, any earlier saved files and the decision if one was made. read_on is the bank's date today, the date of "
+         "this reading: count the age of a document to it, never to any other clock. Each document listed carries document_date (the date the "
+         "document itself carries: issued, dated or signed) and age_days_at_bank_date, its age in whole days at the bank's date. Compare the form "
+         "with every document yourself: nothing here has done it for you.")
     def get_onboarding_application(application_id: str = app_p):
         a = app_or_404(application_id)
         got = {x["doc_type"]: x["document_id"] for x in d()["onb_documents"].get(application_id, {}).values()}
         req = d()["onb_requirements"]["kinds"][a["kind"]]
         checklist = [{"type": r["type"], "label": r["label"], "received": r["type"] in got, "document_id": got.get(r["type"], "")}
                      for r in req["documents"]]
-        return {**a, "documents_received": doc_summaries("onb_documents", application_id), "required_documents": checklist,
+        return {**a, "read_on": bank_date(), "documents_received": doc_summaries("onb_documents", application_id), "required_documents": checklist,
                 "required_checks": req["checks"], "bank_rules": d()["onb_requirements"]["bank_rules"]}
 
     @reg(app, "get", "/applications/{application_id}/documents", "list_onboarding_documents", "List an application's documents",
-         "List the documents received for an application: document_id, type, title and received date. Read the text of one with "
-         "get_onboarding_document.")
+         "List the documents received for an application: document_id, type, title, received date, document_date (the date the document "
+         "carries) and age_days_at_bank_date (its age in whole days at the bank's date, read_on). Read the text of one with get_onboarding_document.")
     def list_onboarding_documents(application_id: str = app_p):
         app_or_404(application_id)
-        return listing(doc_summaries("onb_documents", application_id), application_id=application_id)
+        return listing(doc_summaries("onb_documents", application_id), application_id=application_id, read_on=bank_date())
 
     @reg(app, "get", "/applications/{application_id}/documents/{document_id}", "get_onboarding_document", "Read one application document",
          "Read one document as extracted text: an identity document, a proof of address, a company registry extract, constitutional documents or "
-         "an ownership declaration. The text is what the scanner read. It is not compared with the form.")
+         "an ownership declaration. The text is what the scanner read. It is not compared with the form. Also gives document_date (the date the "
+         "document carries), age_days_at_bank_date (its age in whole days at the bank's date) and read_on (the bank's date today).")
     def get_onboarding_document(application_id: str = app_p, document_id: str = doc_p):
         app_or_404(application_id)
         doc = d()["onb_documents"].get(application_id, {}).get(document_id)
         if not doc:
             raise not_found("document", document_id, "Use list_onboarding_documents to find ids.")
-        return doc
+        return {**with_age(doc), "read_on": bank_date()}
 
     @reg(app, "get", "/requirements", "get_onboarding_requirements", "Get the bank's account opening requirements",
          "Read what the bank requires: for an individual and for a business, the documents and the checks; the bank's rules (the age of a proof "
@@ -214,27 +227,29 @@ def build(ctx: Ctx):
                  "status": r["status"], "last_review_date": r["last_review_date"], "due_date": r["due_date"], "risk_rating": r["risk_rating"]}
                 for r in d()["kyc_reviews"].values() if not status or r["status"] == status]
         rows.sort(key=lambda r: (r["due_date"], r["review_id"]))
-        return listing(rows)
+        return listing(rows, read_on=bank_date())
 
     @reg(app, "get", "/reviews/{review_id}", "get_kyc_review", "Get one periodic review in full",
          "Read one review: the customer, the profile the bank holds today (what is on file), the fresh documents received for this review (read each "
          "with get_kyc_review_document), the date of the last review, the current risk rating, saved profile drafts and the completion if the "
-         "review is closed. Compare the held profile with every fresh document yourself.")
+         "review is closed. read_on is the bank's date today, the date of this reading; each fresh document carries document_date and "
+         "age_days_at_bank_date, its age in whole days at the bank's date. Compare the held profile with every fresh document yourself.")
     def get_kyc_review(review_id: str = rev_p):
         r = rev_or_404(review_id)
         c = d()["customers"][r["customer_id"]]
-        return {**r, "customer": {k: c[k] for k in ("customer_id", "type", "name", "segment", "status", "customer_since")},
+        return {**r, "read_on": bank_date(), "customer": {k: c[k] for k in ("customer_id", "type", "name", "segment", "status", "customer_since")},
                 "fresh_documents": doc_summaries("kyc_documents", review_id), "higher_risk_countries": ["Kharnovia (QP)"],
                 "bank_rules": d()["onb_requirements"]["bank_rules"]}
 
     @reg(app, "get", "/reviews/{review_id}/documents/{document_id}", "get_kyc_review_document", "Read one document of a review",
-         "Read one fresh document received for a periodic review, as extracted text.")
+         "Read one fresh document received for a periodic review, as extracted text, with document_date (the date the document carries), "
+         "age_days_at_bank_date (its age in whole days at the bank's date) and read_on (the bank's date today).")
     def get_kyc_review_document(review_id: str = rev_p, document_id: str = doc_p):
         rev_or_404(review_id)
         doc = d()["kyc_documents"].get(review_id, {}).get(document_id)
         if not doc:
             raise not_found("document", document_id, "Fresh documents are listed on the review.")
-        return doc
+        return {**with_age(doc), "read_on": bank_date()}
 
     @reg(app, "post", "/reviews/{review_id}/profile-draft", "save_refreshed_profile", "Save a refreshed profile (draft)",
          "Save your refreshed profile for a review: every changed field with the old value, the new value and the document it came from, the "

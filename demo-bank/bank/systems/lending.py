@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Literal
 
 from fastapi import Path, Query
 from pydantic import BaseModel, Field
 
-from ..common import Ctx, listing, make_subapp, not_found, reg
+from ..common import Ctx, conflict, listing, make_subapp, not_found, reg
 
 KEY = "lending"
 TITLE = "Lending"
@@ -185,9 +186,16 @@ def build(ctx: Ctx):
 
     @reg(app, "post", "/loans/{loan_id}/document-differences", "save_document_differences", "Save contract differences (draft)",
          "Save the places where the signed contract differs from the approved terms, each with both values, the document and the clause. "
-         "This is a draft: stored with who wrote it, a timestamp and a version number, earlier versions kept.")
+         "This is a draft: stored with who wrote it, a timestamp and a version number, earlier versions kept. Refused with 409 when the "
+         "loan's funds were already released (funds_released_on in the approved terms): its document check is closed.")
     def save_document_differences(body: Differences, loan_id: str = loan_p):
         loan_or_404(loan_id)
+        released = d()["approved_terms"][loan_id].get("funds_released_on")
+        if released:
+            day = date.fromisoformat(released)
+            month = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")[day.month - 1]
+            raise conflict(f"The funds of {loan_id} were released on {day.day} {month} {day.year}. Its document check is closed, so no "
+                           "draft of differences can be saved. Nothing was saved.")
         item = d()["document_differences"].setdefault(loan_id, {"loan_id": loan_id})
         v = st.add_draft(item, "drafts", {"differences": [x.model_dump() for x in body.differences]}, body.drafted_by)
         return {"applied": True, "kind": "draft", "draft": v}

@@ -30,7 +30,7 @@ Names are shared. Press coverage about someone who merely shares the client's na
 
 ## What the brief says, and what it leaves alone
 - Every point has its source in the same line: the system and the id, for example "crm MTG-1006", "core ACC-1007-01", "news ART-6001". For an article, give its page address as the system returned it.
-- Give figures exactly as the systems give them. Do not round, estimate or convert. Totals are the systems' totals. Where you add figures yourself, it is a plain sum of figures the systems give, with the working.
+- Give figures exactly as the systems give them. Do not round, estimate or convert. Totals are the systems' totals. You add no figures yourself: what the client holds in all is the held total the holdings give (totals.held_usd), as given.
 - Write every amount with two decimals and a comma between thousands, the currency first, for example USD 19,279.32 where the system gives 19279.32, without changing a digit. Write every date as day, short month and year, for example 25 Nov 2026, never as 2026-11-25 and never as a number of days ago.
 - A table cell is one line of plain text with no line break and no HTML; separate several items in one cell with semicolons. Never show a field name or a code with an underscore: say it in words.
 - Where records disagree, or something is missing, say so and show both. Choose neither and fill no gap. If a system has nothing on a point, write "none recorded" for that point, with the system you looked in. Never write that the client has nothing elsewhere.
@@ -47,7 +47,7 @@ Reply in this shape and in no other, with four exceptions that come first. When 
 Otherwise, for each meeting, in this order:
 1. A heading line: the meeting id, the date and time, the place, the client's name and id, and the relationship manager. Under it: "Draft brief. Internal. For the relationship manager. Not sent."
 2. "Summary": two or three sentences on who the client is and what the meeting is for, using the purpose as recorded.
-3. "Position": deposits (each account with its id, product and balance, and the total), investments (the pension member id, each fund with its value, and the total), lending (each loan with its id and outstanding amount, each limit with what is drawn, the collateral with its description and value, and the total exposure). Then what the client holds in all: the deposits total plus the investments total, with the working; lending is not taken off. Each line with its source.
+3. "Position": deposits (each account with its id, product and balance, and the total), investments (the pension member id, each fund with its value, and the total), lending (each loan with its id and outstanding amount, each limit with what is drawn, the collateral with its description and value, and the total exposure). Then what the client holds in all: the held total the holdings give, the deposits total plus the investments total, as given; lending is not taken off. Each line with its source.
 4. "In progress with the bank": loan applications and complaints, each with its id, amount or subject, status and date. If none, write "none recorded" and name the systems looked in.
 5. "Recent contact": each contact with its date, kind, id and what it says, newest first, including the last meeting and its notes.
 6. "Public news": each article about the client with its id, outlet, date, what it reports and its page address, marked adverse, good news or neutral. If none, write "no articles about the client found". Then the line for articles that are about someone else, if any.

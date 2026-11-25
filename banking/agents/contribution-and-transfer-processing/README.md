@@ -17,8 +17,8 @@ The four stages run in this order.
 
 1. Reads the procedure, then the contribution file or the transfer form. A form is text read by machine from a scan, and the reader marks its doubts in square brackets.
 2. Checks every row of a file against the four rules for a contribution row, and every field of a form against the rules for a transfer form.
-3. Works out the totals of a file and compares them with the control total: the sum of all rows, the total of the rows that passed and the total of the rows that failed.
-4. Reports how many passed, and lists every item that needs a person with the rule it failed and its exact value. For a file, it saves the result as a draft.
+3. For a file, saves the result as a draft first. The funds system works out the counts and totals from the rows and the outcomes saved, and returns them: rows passed and failed, the total of the rows that passed, the total of the rows that failed, the control total and the difference between the control total and the sum of all rows. The agent adds no amount itself; each row's total is the one the system gives.
+4. Reports the counts and totals the system returned, as returned, and lists every item that needs a person with the rule it failed and its exact value.
 
 A doubtful field on a form is never guessed. The account number is quoted exactly as the scan was read, and a person reads it from the scan.
 

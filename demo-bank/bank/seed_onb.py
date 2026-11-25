@@ -15,7 +15,7 @@ REQUIREMENTS = {
         "ownership_threshold": "Every person who owns 25 percent or more of a business must be identified, and every owner that is itself "
                                "a company must be traced through its own owners to the people behind it.",
         "higher_risk_countries": "Kharnovia (QP) is on the bank's higher-risk list. An owner, director or customer in a higher-risk "
-                                 "country needs enhanced checks and a higher risk rating.",
+                                 "country needs enhanced checks and the risk rating high.",
         "screening": "Every applicant, and for a business every director and every owner of 25 percent or more, is screened against the "
                      "Meridia Consolidated Demonstration List (invented) with screen_name. A strong match is never opened by the "
                      "branch: it is referred to Compliance."},
@@ -61,12 +61,16 @@ REQUIREMENTS = {
 
 # ------------------------------------------------------------------ document texts
 
+COUNTRY_CODE = {name: code for code, name in COUNTRIES.items()}
+
+
 def identity_text(name, dob, nationality, number, issued, expires, place, scanned):
+    code = COUNTRY_CODE[nationality]
     return (f"IDENTITY CARD EXTRACT (text read from the scanned card)\n"
-            f"Issuing authority: Registry of Persons, Meridia (invented)\nCard type: National identity card\n"
+            f"Issuing authority: Registry of Persons, {nationality} (invented)\nCard type: National identity card\n"
             f"Surname and given names: {name}\nDate of birth: {dob}\nPlace of birth: {place}\nNationality: {nationality}\n"
             f"Identity number: {number}\nDate of issue: {issued}\nDate of expiry: {expires}\n"
-            f"Machine-readable line: IDMXM<<{name.upper().replace(' ', '<')}<<{number.replace('-', '')}<<<<\n"
+            f"Machine-readable line: ID{code}<<{name.upper().replace(' ', '<')}<<{number.replace('-', '')}<<<<\n"
             f"Scan quality: both sides were captured, nothing is cropped, the photograph is clear and the hologram strip is visible.\n"
             f"Checks run by the branch scanner: the number format is valid, the expiry date is in the future, the photograph is present "
             f"and no sign of alteration was found.\n"
@@ -129,10 +133,12 @@ def ownership_text(company, signed_by, role, signed_on, rows, note):
             f"The percentages are shares of the issued ordinary shares. The signer was told that a false declaration breaks the account terms. The bank asks for a new declaration at each periodic review.")
 
 
-def _doc(app_id, n, doc_type, title, received, text, prefix="OND"):
+def _doc(app_id, n, doc_type, title, received, text, document_date, prefix="OND"):
+    """document_date is the date the document itself carries (issued, dated or signed). The onboarding system adds its age in days
+    at the bank's date when the document is read."""
     did = f"{prefix}-{app_id[4:]}-{n:02d}"
     return did, {"document_id": did, "application_id": app_id, "doc_type": doc_type, "title": title, "received": received,
-                 "format": "extracted text", "text": text}
+                 "document_date": document_date, "format": "extracted text", "text": text}
 
 
 # ------------------------------------------------------------------ applications
@@ -142,10 +148,10 @@ def _individual(today, app_id, ago, form, id_text_args, addr_args):
            "channel": "branch", "product": "Everyday Current Account", "applicant": form["full_name"], "form": form,
            "files": [], "decision": None}
     docs = {}
-    for n, (t, title, text) in enumerate([
-            ("identity_document", "National identity card (extract)", identity_text(*id_text_args)),
-            ("proof_of_address", "Proof of address (extract)", address_text(*addr_args))], start=1):
-        did, doc = _doc(app_id, n, t, title, d_ago(today, ago), text)
+    for n, (t, title, text, dated) in enumerate([
+            ("identity_document", "National identity card (extract)", identity_text(*id_text_args), id_text_args[4]),
+            ("proof_of_address", "Proof of address (extract)", address_text(*addr_args), addr_args[4])], start=1):
+        did, doc = _doc(app_id, n, t, title, d_ago(today, ago), text, dated)
         docs[did] = doc
     return app, docs
 
@@ -155,11 +161,11 @@ def _business(today, app_id, ago, form, reg_args, art_args, own_args):
            "channel": "branch", "product": "Business Current Account", "applicant": form["company_name"], "form": form,
            "files": [], "decision": None}
     docs = {}
-    for n, (t, title, text) in enumerate([
-            ("company_registry_extract", "Company registry extract", registry_text(*reg_args)),
-            ("constitutional_documents", "Articles of association (extract)", constitution_text(*art_args)),
-            ("ownership_declaration", "Ownership declaration", ownership_text(*own_args))], start=1):
-        did, doc = _doc(app_id, n, t, title, d_ago(today, ago), text)
+    for n, (t, title, text, dated) in enumerate([
+            ("company_registry_extract", "Company registry extract", registry_text(*reg_args), reg_args[7]),
+            ("constitutional_documents", "Articles of association (extract)", constitution_text(*art_args), art_args[2]),
+            ("ownership_declaration", "Ownership declaration", ownership_text(*own_args), own_args[3])], start=1):
+        did, doc = _doc(app_id, n, t, title, d_ago(today, ago), text, dated)
         docs[did] = doc
     return app, docs
 
@@ -255,15 +261,33 @@ def build_onboarding(today: date) -> tuple[dict, dict]:
 
 # ------------------------------------------------------------------ periodic reviews
 
-def occupation_text(name, employer, role, since, income, signed_on):
+def _days_between(earlier: str, later: str) -> int:
+    return (date.fromisoformat(later) - date.fromisoformat(earlier)).days
+
+
+def occupation_text(name, employer, role, since, income, signed_on, received):
     return (f"OCCUPATION LETTER (text extract)\nIssued by: {employer}\nAddressed to: Meridian Trust Bank, customer reviews\n"
             f"Subject: {name}\nThis letter confirms that {name} works for {employer} as {role}, since {since}.\n"
             f"Gross monthly pay: USD {income:,.2f}, paid into an account at Meridian Trust Bank.\n"
             f"The letter was signed on {signed_on} by the person responsible for payroll, whose name and telephone number are "
             f"printed under the signature. It is on the company's letterhead and carries the company stamp.\n"
             f"Scan quality: one page, complete. The text was read automatically. The reader does not check the claims in the letter "
-            f"against any other record. The writer gave a telephone number for payroll questions, and the letter is dated no more than a few "
-            f"weeks before the bank received it. It names no other employer and no other source of income.\nReceived by post as part of a periodic review of the customer.")
+            f"against any other record. The writer gave a telephone number for payroll questions. The letter is dated {signed_on}, "
+            f"{_days_between(signed_on, received)} days before the bank received it on {received}. It names no other employer and no other "
+            f"source of income.\nReceived by post as part of a periodic review of the customer.")
+
+
+def self_employment_text(name, registry, role, since, income, signed_on, received):
+    return (f"SELF-EMPLOYMENT REGISTRATION LETTER (text extract)\nIssued by: {registry}\nAddressed to: Meridian Trust Bank, customer reviews\n"
+            f"Subject: {name}\nThis letter confirms that {name} is registered with {registry} as {role}, trading on their own account "
+            f"since {since}. They have no employer.\n"
+            f"Declared gross monthly business income: USD {income:,.2f}, paid into an account at Meridian Trust Bank.\n"
+            f"The letter was signed on {signed_on} by a registration officer of the registry, whose name and telephone number are "
+            f"printed under the signature. It is on the registry's letterhead and carries the registry's stamp.\n"
+            f"Scan quality: one page, complete. The text was read automatically. The reader does not check the claims in the letter "
+            f"against any other record. The officer gave a telephone number for questions about the registration. The letter is dated "
+            f"{signed_on}, {_days_between(signed_on, received)} days before the bank received it on {received}. It names no employer and "
+            f"no other source of income.\nReceived by post as part of a periodic review of the customer.")
 
 
 def build_reviews(customers: dict, today: date) -> tuple[dict, dict]:
@@ -275,10 +299,10 @@ def build_reviews(customers: dict, today: date) -> tuple[dict, dict]:
                         "risk_rating": customers[cid]["risk_rating"], "held_profile": held, "profile_drafts": [],
                         "completion": None}
         docs[rid] = {}
-        for n, (t, title, text) in enumerate(doc_specs, start=1):
+        for n, (t, title, text, dated) in enumerate(doc_specs, start=1):
             did = f"KYD-{rid[4:]}-{n:02d}"
             docs[rid][did] = {"document_id": did, "review_id": rid, "doc_type": t, "title": title,
-                              "received": d_ago(today, 6), "format": "extracted text", "text": text}
+                              "received": d_ago(today, 6), "document_date": dated, "format": "extracted text", "text": text}
 
     # KYR-1001: nothing has changed
     c = customers["CUS-1013"]
@@ -288,10 +312,10 @@ def build_reviews(customers: dict, today: date) -> tuple[dict, dict]:
     review("KYR-1001", "CUS-1013", 372, 8, held, [
         ("identity_document", "National identity card (extract)",
          identity_text(c["name"], c["date_of_birth"], "Meridia", c["id_number"], d_ago(today, 1200), d_ago(today, -2400),
-                       "Port Ilvane", d_ago(today, 6))),
+                       "Port Ilvane", d_ago(today, 6)), d_ago(today, 1200)),
         ("proof_of_address", "Proof of address (extract)",
          address_text(c["name"], c["address"], "bank statement from another provider", "Harbourside Savings Union",
-                      d_ago(today, 33), f"{d_ago(today, 63)} to {d_ago(today, 33)}", 0))])
+                      d_ago(today, 33), f"{d_ago(today, 63)} to {d_ago(today, 33)}", 0), d_ago(today, 33))])
     # KYR-1002: new address and occupation, same rating
     c = customers["CUS-1015"]
     new_addr = "22 Barley Mill Lane, Tallowby, Meridia"
@@ -301,10 +325,10 @@ def build_reviews(customers: dict, today: date) -> tuple[dict, dict]:
     review("KYR-1002", "CUS-1015", 380, 15, held, [
         ("proof_of_address", "Proof of address (extract)",
          address_text(c["name"], new_addr, "electricity bill", "Tallowby Power Company", d_ago(today, 14),
-                      f"{d_ago(today, 44)} to {d_ago(today, 14)}", 88.20)),
+                      f"{d_ago(today, 44)} to {d_ago(today, 14)}", 88.20), d_ago(today, 14)),
         ("occupation_letter", "Self-employment registration letter (extract)",
-         occupation_text(c["name"], "Meridia Revenue Registry (invented)", "a self-employed building surveyor", d_ago(today, 160),
-                         4800.0, d_ago(today, 10)))])
+         self_employment_text(c["name"], "Meridia Revenue Registry (invented)", "a self-employed building surveyor", d_ago(today, 160),
+                              4800.0, d_ago(today, 10), d_ago(today, 6)), d_ago(today, 10))])
     # KYR-1003: a business with a new 30 percent owner in Kharnovia
     c = customers["CUS-1024"]
     held = {"name": c["name"], "registration_number": c["registration_number"], "address": c["address"],
@@ -317,10 +341,10 @@ def build_reviews(customers: dict, today: date) -> tuple[dict, dict]:
         ("company_registry_extract", "Company registry extract",
          registry_text(c["name"], c["registration_number"], c["address"], "2018-06-14", "Active",
                        [("Ottoline Brackenridge", "director", "2018-06-14"), ("Hamish Brackenridge", "director", "2018-06-14")],
-                       rows, d_ago(today, 9), "dental clinics")),
+                       rows, d_ago(today, 9), "dental clinics"), d_ago(today, 9)),
         ("ownership_declaration", "Ownership declaration",
          ownership_text(c["name"], "Ottoline Brackenridge", "director", d_ago(today, 7), rows,
-                        "Tavish Orrelby bought his shares from the other two holders, and lives in Gallowmere, Kharnovia."))])
+                        "Tavish Orrelby bought his shares from the other two holders, and lives in Gallowmere, Kharnovia."), d_ago(today, 7))])
     return reviews, docs
 
 
@@ -400,26 +424,29 @@ def sim_review(d: dict, today: date, kind: int, n: int) -> tuple[str, str]:
     fresh = []
     if kind == 0:
         fresh = [("proof_of_address", "Proof of address (extract)", address_text(c["name"], c["address"], "water bill", "Tallowby Water Board",
-                                                                                    d_ago(today, 20), f"{d_ago(today, 50)} to {d_ago(today, 20)}", 34.10))]
+                                                                                    d_ago(today, 20), f"{d_ago(today, 50)} to {d_ago(today, 20)}", 34.10),
+                  d_ago(today, 20))]
         text = "The documents received show the same address as the bank holds. Nothing has changed."
     elif kind == 1:
         fresh = [("proof_of_address", "Proof of address (extract)", address_text(c["name"], f"{40 + n} Plover Way, Port Ilvane, Meridia", "gas bill",
                                                                                     "Port Ilvane Gas Company", d_ago(today, 12),
-                                                                                    f"{d_ago(today, 42)} to {d_ago(today, 12)}", 58.00))]
+                                                                                    f"{d_ago(today, 42)} to {d_ago(today, 12)}", 58.00),
+                  d_ago(today, 12))]
         text = "A new proof of address shows a different address."
     elif kind == 2:
         rows = [("Rowan Pellingham", "person", "Meridia", 70), ("Idris Calloway", "person", "Kharnovia", 30)]
         fresh = [("ownership_declaration", "Ownership declaration",
                   ownership_text(c["name"], "Rowan Pellingham", "director", d_ago(today, 8), rows,
-                                 "Idris Calloway bought 30 percent of the shares and lives in Gallowmere, Kharnovia."))]
+                                 "Idris Calloway bought 30 percent of the shares and lives in Gallowmere, Kharnovia."), d_ago(today, 8))]
         text = "A new ownership declaration shows a new owner of 30 percent who lives in Kharnovia."
     else:
         fresh = [("occupation_letter", "Occupation letter (extract)",
-                  occupation_text(c["name"], "Quillon Software Ltd", "a support analyst", d_ago(today, 90), 3900.0, d_ago(today, 9)))]
+                  occupation_text(c["name"], "Quillon Software Ltd", "a support analyst", d_ago(today, 90), 3900.0, d_ago(today, 9),
+                                  today.isoformat()), d_ago(today, 9))]
         text = "An occupation letter shows a new employer."
-    for i, (t, title, body) in enumerate(fresh, start=1):
+    for i, (t, title, body, dated) in enumerate(fresh, start=1):
         docs[f"KYD-{rid[4:]}-{i:02d}"] = {"document_id": f"KYD-{rid[4:]}-{i:02d}", "review_id": rid, "doc_type": t, "title": title,
-                                           "received": today.isoformat(), "format": "extracted text", "text": body}
+                                           "received": today.isoformat(), "document_date": dated, "format": "extracted text", "text": body}
     d["kyc_reviews"][rid] = {"review_id": rid, "customer_id": cid, "status": "open", "review_reason": "periodic review",
                              "last_review_date": d_ago(today, 366), "due_date": today.isoformat(), "risk_rating": c["risk_rating"],
                              "held_profile": held, "profile_drafts": [], "completion": None}

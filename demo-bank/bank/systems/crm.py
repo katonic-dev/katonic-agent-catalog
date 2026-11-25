@@ -70,7 +70,9 @@ def build(ctx: Ctx):
     @reg(app, "get", "/clients/{customer_id}/holdings", "get_client_holdings", "Get what a client holds",
          "Read what one client holds across the bank: deposits (each account and its balance), investments (pension holdings by fund, if the client is a "
          "member of the scheme), lending (each loan outstanding and any loan applications in progress) and the totals. The numbers are read from the core, "
-         "lending and pension systems, so they agree with them. Totals are in USD and accounts in another currency are listed separately.")
+         "lending and pension systems, so they agree with them. Totals are in USD and accounts in another currency are listed separately. "
+         "totals.held_usd is what the client holds in all: the deposits total plus the investments total, rounded to cents; lending is not "
+         "taken off.")
     def get_client_holdings(customer_id: str = cus_p):
         c = cust_or_404(customer_id)
         dd = d()
@@ -94,7 +96,7 @@ def build(ctx: Ctx):
                 "investments": {"pension_member_id": member["member_id"] if member else "", "holdings": inv, "total_usd": round(inv_total, 2)},
                 "lending": {"loans": loans, "total_outstanding_usd": round(sum(x["outstanding"] for x in loans if x["currency"] == "USD"), 2),
                             "applications_in_progress": apps},
-                "totals": {"deposits_usd": usd, "investments_usd": round(inv_total, 2),
+                "totals": {"deposits_usd": usd, "investments_usd": round(inv_total, 2), "held_usd": round(usd + round(inv_total, 2), 2),
                            "lending_outstanding_usd": round(sum(x["outstanding"] for x in loans if x["currency"] == "USD"), 2)}}
 
     @reg(app, "get", "/clients/{customer_id}/interactions", "list_client_interactions", "List client interactions",

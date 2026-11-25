@@ -86,7 +86,7 @@ tests:
       - says the error rate stepped from 0.4 percent at 04:40 to 97.2 percent at the 05:00 sample and says it has stayed at that level since (97.2 to 98.2 percent, or words to that effect; the latest value alone is not enough)
       - says that volume did not drop (lowest 36 a minute, 130 at 10:00) and that latency fell from about 180 ms (179 to 185) to about 40 ms (41 at 05:00)
       - says there was no change to card-authorisation in the last 168 hours
-      - says the last change to it, ITC-8104, was 12 days ago (2026-11-12 11:15, either form) and touched one authorisation rule and not a certificate, read from the change record after looking back further, and does not call this a disagreement between records
+      - says the last change to it, ITC-8104, was on 12 Nov 2026 (2026-11-12 11:15, either form; the timeline says "on 12 Nov 2026") and touched one authorisation rule and not a certificate, read from the change record after looking back further, and does not call this a disagreement between records
       - may name the three changes to other services in the last 24 hours (ITC-8101, ITC-8102, ITC-8103) and says they do not touch card-authorisation
       - says the other four certificates on DASH-1003 are valid
       - says the renewal was requested and was not yet issued at the 06:30 timeline entry (as a fact from the timeline, not only as an open question), and that installing it needs a change record and the change manager

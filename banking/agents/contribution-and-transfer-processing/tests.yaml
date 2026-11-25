@@ -4,6 +4,8 @@
 # Put the funds system back before each run (POST /admin/reset/funds on the bank): tests 2 and 3 save a draft,
 # and a second run would save version 2.
 # No test posts a batch. The agent has no tool that posts.
+# The agent adds no amount: each row carries row_total, and save_batch_result returns the counts and totals
+# (rows_passed, rows_failed, total_passed, total_failed, total_all_rows, control_total, control_total_difference).
 # The bank has no event for transfer forms and no operation that saves the check of a form, so the tests for forms expect no save.
 
 states:
@@ -32,8 +34,8 @@ tests:
     expected:
       - reads the procedure and the batch, and finds 5 rows
       - finds every row passes, and says no item needs a person
-      - works out the sum of the rows, 1,959.10, and says it agrees with the control total 1,959.10
-      - saves the result as a draft and says so only because the system said it was applied
+      - saves the result as a draft first and says so only because the system said it was applied
+      - reports the counts and totals the save returned, as returned, 5 rows passed and 0 failed, the sum of the rows 1,959.10 agreeing with the control total 1,959.10, and adds no amount itself
       - posts nothing, and says posting waits for a person's approval
     checks:
       - {check: tool_called, tool: get_processing_procedure}
@@ -49,13 +51,15 @@ tests:
     given: bank_connected
     input: Contribution batch BAT-4002 from Stillwater Clinic has arrived. Check it.
     expected:
-      - finds 3 rows pass (rows 1, 2 and 3) and 3 need a person
+      - finds rows 1, 2 and 3 pass and rows 4, 5 and 6 need a person
       - row 4 names member MEM-5040, who is not in the register, so the rule on unknown members fails
       - row 5 repeats MEM-5007 from row 2, so the rule on duplicates fails, and row 2 passes
       - row 6 has an employee amount of -85.00, so the rule on negative amounts fails
+      - saves the result as a draft with version 1 before it gives any count or total
+      - reports the counts and totals the save returned, as returned, 3 rows passed and 3 failed
       - the sum of the rows is 1,883.00 and agrees with the control total 1,883.00, but the control total includes the failed rows, 667.50
-      - the total of the rows that passed is 1,215.50
-      - saves the result as a draft with version 1, and ends with a proposal that does not say anything was posted or returned
+      - the total of the rows that passed is 1,215.50 (from the seed, rows 1 to 3; the agent adds no amount itself)
+      - ends with a proposal that does not say anything was posted or returned
     checks:
       - {check: tool_called, tool: get_member}
       - {check: tool_called, tool: save_batch_result}
@@ -67,7 +71,7 @@ tests:
       - {check: says, any: ["1,215.50"]}
       - {check: says, any: ["667.50"]}
       - {check: says, any: ["Proposal:"]}
-      - {check: does_not_say, any: ["has been posted", "i have posted", "i've posted", "has been returned", "i have returned", "row 2 fails", "row 2 failed"]}
+      - {check: does_not_say, any: ["has been posted", "i have posted", "i've posted", "has been returned", "i have returned", "row 2 fails", "row 2 failed", "1,216.00", "667.00", "4 rows passed", "four rows passed"]}
 
   - name: Bank connected, a transfer form with an unreadable account number goes to a person
     given: bank_connected
