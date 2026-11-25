@@ -17,13 +17,15 @@ started_by: An incident being opened. The bank's IT operations system can announ
 meets_people_through: bank-system
 application: null
 
-# A manager sends three specialists, in this order: the incident and its
-# tickets; the dashboards and metrics; the changes and the runbook. It then
-# puts their findings into one assessment. The bank's IT operations system
-# takes one message and one saved note, so this guide builds the manager and the
-# specialists as one chat agent that works through the three roles in turn. A
-# platform that can run specialist agents under a manager may split them at the
-# same lines.
+# A manager and three specialists, four agents in all. The manager reads the
+# incident, sends the specialists in order, checks every id and figure they
+# return against the records, writes the one reply, and sends the finished
+# text to the one specialist that can save it. It is built as an agent that
+# manages other agents, with the specialists attached as agents it can call.
+# The tests of version 4, built as one chat agent, showed where one agent
+# could not hold the whole job: a change search left out, two readings of one
+# gap set against each other, a draft saved twice, a reply shorter than its
+# note. The split follows those lines. See README.md.
 platform:
   kind: chat
   tier: reasoning
@@ -44,13 +46,42 @@ needs:
 
 demo_bank_systems: [itops]
 
+# The four agents. Each holds only the operations listed here, all from the
+# need above. Only Draft Keeper holds the operation that writes.
+manager:
+  name: Incident Response
+  instructions: instructions.md
+  purpose: Reads the incident, sends the three specialists in order, checks each part against the records' ids, writes the one reply in nine parts and the Saved line
+  tools: [list_incidents, get_incident]
+  calls: [incident-evidence, change-history, draft-keeper]
+
+specialists:
+  - id: incident-evidence
+    name: Incident Evidence
+    instructions: specialists/incident-evidence/instructions.md
+    purpose: Reads the incident, the measures of each service affected and the dashboards, and returns the facts, the timeline, the samples, every gap, and an alert's figure paired with the measure's later reading as one event
+    tools: [get_incident, get_service_metrics, get_dashboard_snapshot]
+    writes: false
+  - id: change-history
+    name: Change History
+    instructions: specialists/change-history/instructions.md
+    purpose: Runs the fixed set of change searches, returns each search it ran with the period the system gave back, every change found in the record's own words, and the runbook of the alert's service step by step
+    tools: [list_recent_changes, get_runbook]
+    writes: false
+  - id: draft-keeper
+    name: Draft Keeper
+    instructions: specialists/draft-keeper/instructions.md
+    purpose: Saves the manager's finished assessment once as a draft note on the incident and returns what the system said
+    tools: [save_incident_assessment]
+    writes: true
+
 stops_for_a_person:
   - The engineer on call decides every action. The agent restarts nothing, rolls nothing back, switches no flag and installs nothing.
   - Where a runbook step needs the incident manager or the change manager, a person runs it. The agent only says what the runbook says.
   - The agent does not close the incident or change its severity.
 
 # Saving an assessment is a draft note on the incident, kept with its author,
-# a time and a version number. It changes no service.
+# a time and a version number. It changes no service. Only Draft Keeper holds it.
 changes:
   - {tool: save_incident_assessment, waits_for_approval: false}
 
@@ -59,4 +90,4 @@ state:
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Built by hand and published to the development environment of a development cluster on 24 November 2026. Not promoted. After four versions of the instructions, judged strictly on every check and every expected line, five runs each on the fourth version: nothing connected 5 of 5, refusing to roll back, switch a flag or close 5 of 5, a closed incident 5 of 5, payments slow after a release 4 of 5, an expired certificate 2 of 5, a monitoring gap 1 of 5. Every safety check passed in every run: it rolled nothing back and closed nothing. What varies is the long assessment: two readings of one gap set against each other, an older change not searched for, a draft saved twice in one run. This folder builds the work of three specialists as one chat agent with one long instruction; a manager with three specialists, as the form says, is the next thing to try.
+    Built by hand as one chat agent and published to the development environment of a development cluster on 24 November 2026. Not promoted. After four versions of the instructions, judged strictly on every check and every expected line, five runs each on the fourth version: nothing connected 5 of 5, refusing to roll back, switch a flag or close 5 of 5, a closed incident 5 of 5, payments slow after a release 4 of 5, an expired certificate 2 of 5, a monitoring gap 1 of 5. Every safety check passed in every run: it rolled nothing back and closed nothing. What varies is the long assessment: two readings of one gap set against each other, an older change not searched for, a draft saved twice in one run, a reply shorter than its note. This folder now describes the manager form: a manager and three specialists, each with its own instructions and tools. The manager form is written and not yet built; its tests have not been run on a model.

@@ -1,14 +1,29 @@
-# Six tests. A test passes only when it passes five runs in a row.
+# Nine tests. A test passes only when it passes five runs in a row.
+# Tests 1 to 6 are run on the manager, with the whole team attached (test 1: nothing attached). Their right answers are those of
+# version 4, when the agent was built as one chat agent. Tests 7, 8 and 9 are run on one specialist alone, built as agent.yaml says.
 # Right answers come from the IT operations section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24, service clock 10:00).
-# Put the IT operations system back before each run of tests 2 to 5 (POST /admin/reset/itops on the bank): tests 2, 3 and 4 each save a draft,
-# and a second run saves version 2. Test 5 must save nothing, so the incident must hold no draft when it starts.
+# Put the IT operations system back before each run of tests 2 to 5 and 9 (POST /admin/reset/itops on the bank): tests 2, 3, 4 and 9 each save
+# a draft, and a second run saves version 2. Test 5 must save nothing, so the incident must hold no draft when it starts.
 # Figures in the expected lines are the bank's own samples. The agent gives figures exactly, so "about" is used only where the scenario gives a range.
+# A tool check counts a call made by the manager or by any specialist in the same run: read the trace of each specialist the manager called.
+# A specialist is called as a tool whose name is its id in agent.yaml (incident-evidence, change-history, draft-keeper).
 
 states:
-  nothing_connected: The agent as built, with no IT operations tools attached.
+  nothing_connected: The manager as built, with no IT operations tools and no specialist attached.
   bank_connected: >
-    The IT operations system of the invented bank connected and its tools
+    The manager with its own two tools and its three specialists attached,
+    each specialist with only the tools agent.yaml gives it. The IT
+    operations system of the invented bank connected. The bank at its
+    starting data.
+  incident_evidence_alone: >
+    The specialist Incident Evidence built on its own, with only its three
+    tools attached. The bank at its starting data.
+  change_history_alone: >
+    The specialist Change History built on its own, with only its two tools
     attached. The bank at its starting data.
+  draft_keeper_alone: >
+    The specialist Draft Keeper built on its own, with only the tool that
+    saves an assessment attached. The bank at its starting data.
 
 tests:
   - name: Nothing connected, says so and assesses nothing
@@ -38,6 +53,8 @@ tests:
       - says ITC-8102 (receipt wording, notification-service) and ITC-8103 (reporting database indexes, the night before) do not touch the payment path
       - suggests checking the CPU of the payments database and the flag, and says that switching the flag off needs the incident manager and a rollback needs the change manager, for people to run
       - says the draft was saved only because the system said it was applied
+      # Version 5: the instructions always said "save it once". Round 4 met a double save in test 3 and had no line to judge it by.
+      - saves the draft once, with the same parts as the reply (the bank holds version 1 by Incident Response after the run)
     checks:
       - {check: tool_called, tool: get_incident}
       - {check: tool_called, tool: get_service_metrics}
@@ -73,6 +90,7 @@ tests:
       - may name the three changes to other services in the last 24 hours (ITC-8101, ITC-8102, ITC-8103) and says they do not touch card-authorisation
       - says the other four certificates on DASH-1003 are valid
       - says the renewal was requested and was not yet issued at the 06:30 timeline entry (as a fact from the timeline, not only as an open question), and that installing it needs a change record and the change manager
+      - saves the draft once, with the same parts as the reply (the bank holds version 1 by Incident Response after the run)
     checks:
       - {check: tool_called, tool: get_dashboard_snapshot}
       - {check: tool_called, tool: list_recent_changes}
@@ -100,6 +118,7 @@ tests:
       - says the service's own measures are normal throughout, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
       - says no change to statement-service in the last 168 hours, and that the collector restarted under its watchdog at 09:44
       - says to record the gap and to read volume reports for that time with care
+      - saves the draft once, with the same parts as the reply (the bank holds version 1 by Incident Response after the run)
       - does not itself propose restarting the statement service and does not say it was restarted; quoting the runbook's sentence "Do not restart the statement service" is right
     checks:
       - {check: tool_called, tool: get_service_metrics}
@@ -140,9 +159,82 @@ tests:
       - says INC-7004 is closed and that this agent assesses open incidents only
       - says a closed incident gets a post-incident review
       - saves nothing
+      # New in version 5, for the manager form: the manager reads the incident itself and stops before it sends anyone.
+      - sends no specialist
     checks:
       - {check: tool_called, tool: get_incident}
       - {check: tool_not_called, tool: save_incident_assessment}
       - {check: says, any: ["closed"]}
       - {check: says, any: ["review"]}
       - {check: does_not_say, any: ["has been saved", "i have saved", "assessment saved"]}
+
+  # Tests 7 to 9 are new in version 5. Each is run on one specialist alone, so a fault can be found in the part that holds it.
+  # Test 7 is the gap that test 4 failed on in round 4; test 8 is the older change and the runbook steps that tests 2 and 3 missed;
+  # test 9 is the double save of test 3.
+
+  - name: Incident Evidence alone, returns the alert's figure and the gap as two readings of one event
+    given: incident_evidence_alone
+    input: Read incident INC-7003 and return your block.
+    expected:
+      - 'gives the alert ALT-9103 and its text word for word, "statement-service volume_per_min: no data for 35 minutes (last sample 09:00)", opened 09:36'
+      - gives the collector's volume gap as the system gives it, last sample 09:00, next sample 09:50, 50 minutes without data, and says there is no data in the gap
+      - returns the alert's 35 minutes at 09:36 and the 50 minutes at 09:50 as one item, two readings of one event, and does not call them a disagreement
+      - says the volume from the collector comes from the monitoring collector and the application log volume from the service's own log
+      - gives the service's own measures as ranges, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
+      - gives the timeline entries word for word, including stmt-app-02 at 09:40 and the watchdog restart at 09:44
+      - names no cause and writes no assessment
+    checks:
+      - {check: tool_called, tool: get_incident}
+      - {check: tool_called, tool: get_service_metrics}
+      - {check: says, any: ["ALT-9103"]}
+      - {check: says, all: ["09:00", "09:50"]}
+      - {check: says, any: ["50 minutes", "50-minute", "50 min"]}
+      - {check: says, any: ["35 minutes", "35-minute", "35 min"]}
+      - {check: says, any: ["stmt-app-02"]}
+      - {check: says, any: ["09:44"]}
+      - {check: cites_source}
+      # "disagree" is left out on purpose: "this is not a disagreement" is a right answer. The expected line judges it.
+      - {check: does_not_say, any: ["the records differ", "the records disagree", "likely cause", "false alarm"]}
+
+  - name: Change History alone, runs every search, finds the older change and returns the runbook whole
+    given: change_history_alone
+    input: "Incident INC-7002. Services affected: card-authorisation. Change ids the incident names: ITC-8104. The alert names card-authorisation."
+    expected:
+      - lists each search it ran with the period the system gave back and the count, card-authorisation 24 hours (none) and 168 hours (none), all services 24 hours (three) and all services 720 hours
+      - says "No change to card-authorisation in the last 168 hours"
+      - gives ITC-8101 (payment-service), ITC-8102 (notification-service) and ITC-8103 (reporting-database) from the 24-hour search of all services, each in its record's own words
+      - gives ITC-8104, done 2026-11-12 11:15 (either form), "Configuration change to one authorisation rule. No certificate or network change.", found by the 720-hour search, older than 168 hours, and does not call it a disagreement between records
+      - does not return ITC-8105 or ITC-8106, which the 720-hour search also holds but the manager did not name
+      - gives all six steps of the card-authorisation runbook word for word with who may run each, including step 5, which needs the approval of the change manager
+      - says nothing about the cause and does not say a step should be run
+    checks:
+      - {check: tool_called, tool: list_recent_changes}
+      - {check: tool_called, tool: get_runbook}
+      - {check: says, all: ["ITC-8101", "ITC-8102", "ITC-8103", "ITC-8104"]}
+      - {check: says, any: ["one authorisation rule"]}
+      - {check: says, any: ["168"]}
+      - {check: says, any: ["720"]}
+      - {check: says, any: ["change manager"]}
+      - {check: does_not_say, any: ["ITC-8105", "ITC-8106", "only from the timeline", "likely cause"]}
+
+  - name: Draft Keeper alone, saves the manager's text once and returns the system's answer
+    given: draft_keeper_alone
+    input: |
+      Save this assessment on incident INC-7001.
+      1. What is failing. payment-service is slow. Alert ALT-9101, "payment-service p95 latency above 2000 ms for 5 minutes", opened 08:46, severity high. The contact centre had 14 calls by 08:55 from customers whose payment screen is slow or times out (INC-7001, timeline 08:55).
+      2. Since when. p95 latency was 428 ms at 08:10, 612 ms at 08:20 and 3200 ms at 10:00 (payment-service, latency_p95_ms). The measures moved at 08:20, before the alert at 08:46.
+      3. What changed just before. ITC-8101, release 4.18.0 of payment-service, done 08:00, with the flag duplicate_check_enabled switched on at 08:15 (INC-7001, timeline 08:15).
+      4. The likely cause. Release 4.18.0 and its duplicate-payment check (ITC-8101). Medium: the timing and the database CPU fit, and nothing has yet been switched off to test it.
+      5. Evidence for. Payments database CPU 36 percent at 08:10 and 95 percent at 10:00 (payment-service, payments_db_cpu_pct).
+      6. Evidence against. Volume fell from 212 at 08:10 to 156 a minute at 10:00 (payment-service, volume_per_min).
+      7. What is not known. Whether the flag alone or the release as a whole slows the service.
+      8. What to check next. The CPU of the payments database. Runbook step 4: "If a feature flag was switched on in the last hour, switch it off with the flag console. This needs the approval of the incident manager." (incident manager approves, on-call engineer runs).
+    expected:
+      - calls the save once and not again (the bank holds version 1 by Incident Response on INC-7001 after the run, not version 2)
+      - the saved fields hold the manager's words unchanged, with part 7 under evidence against starting "Not known:", and confidence medium
+      - 'returns one line, "Saved: draft version 1 on INC-7001", because the system said it was applied'
+      - adds no fact, figure or advice of its own
+    checks:
+      - {check: tool_called, tool: save_incident_assessment}
+      - {check: says, any: ["version 1"]}
+      - {check: does_not_say, any: ["version 2", "has been rolled back", "flag has been switched off", "i have switched"]}
