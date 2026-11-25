@@ -9,7 +9,7 @@ Explains the tables, keys, codes, stored procedures and batch programs of the ba
 | How people meet it | Chat |
 | Reads from | The bank's old core system, read only: tables, stored procedures and batch programs |
 | Changes | Nothing in the old system. It saves documentation as a draft |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
