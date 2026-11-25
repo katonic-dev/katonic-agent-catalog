@@ -9,7 +9,7 @@ Given a closed incident, it plans its own investigation across the IT operations
 | How people meet it | An application, a deployed app that lists closed incidents and shows the draft review. The app is not written yet. Until it is, the agent is used in a chat |
 | Reads from | The bank's IT operations system: the incident, metrics, changes and runbooks |
 | Changes | Nothing in the bank. It saves the review as a draft |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All six tests pass five runs in a row |
 
 ## What it does
 

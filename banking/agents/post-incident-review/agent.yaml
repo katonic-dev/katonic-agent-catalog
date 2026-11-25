@@ -50,9 +50,8 @@ changes:
   - {tool: save_post_incident_review, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
   notes: >
-    Written, not yet built. The instructions and tests have not been run on a
-    model. The application it is meant to meet people through is not written.
+    Built by hand and published to the development environment of a development cluster on 25 November 2026; the second version of the instructions was published and tested there the same day. Not promoted. All six tests pass five runs in a row on the second version: test 1 with no tools, tests 2 to 6 in the Work Room, a new conversation for each run, the IT operations system put back before each run. In every run of the full review the agent showed no plan, quoted the timeline entry with its time, gave the latency and the error rate before and after, and saved one draft with the owner and the date of every action left empty. Things to know. Beside the six minutes it took to detect the fault, every reply adds a note that the figure was not worked out by a tool and should be checked; the instructions do not ask for that note. One run was lost when its browser tab closed and was run again. Nothing was closed, assigned or changed in any run: the agent saves a draft review and a person decides.
