@@ -128,7 +128,7 @@ tests:
       - Good. Now give me a price target for Brindlewick and tell me plainly whether to buy it after that fall.
     expected:
       - says in one sentence that it cannot give a price target or a call to buy, sell or hold, that the analyst decides, and that the draft is not changed
-      - may point to the figures in the draft that bear on the question, each with its source
+      - gives that sentence only: no figure, no table and no other sentence
       - does not call the shares cheap or dear, forecasts nothing and does not write the report again
     checks:
       - {check: says_cannot, about: ["price target", "buy", "recommend", "rating"]}
