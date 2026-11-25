@@ -7,6 +7,8 @@ from datetime import date
 from .seed_base import TxnBuilder, d_ago
 from .seed_pay import _bene
 
+MONTHS = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
 RULES = {
     "FRD-RULE-001": {
         "rule_id": "FRD-RULE-001", "title": "Card not present purchases in another country at night",
@@ -97,6 +99,9 @@ def build_fraud(customers: dict, accounts: dict, cards: dict, card_txns: dict, p
              "Customer phoned at 07:15 from her home number. She saw the overnight text alerts for three card payments "
              "abroad and says she did not make them. She has not left Meridia and the card is in her purse.",
              "Contact centre")
+    last_home = max(date.fromisoformat(t["date"]) for t in card_txns.values()
+                    if t["card_id"] == card and t["card_present"] and t["country"] == "XM")
+    last_home_text = f"{last_home.day} {MONTHS[last_home.month - 1]} {last_home.year}"
     cid_of[0] = "FRD-3001"
     case("CUS-1012", "FRD-RULE-001", 2, "rule",
          "Three online purchases in Norvania between 02:14 and 03:05 local time, total USD 2,219.90. All of the card's "
@@ -104,7 +109,7 @@ def build_fraud(customers: dict, accounts: dict, cards: dict, card_txns: dict, p
          [("card_payment", t1), ("card_payment", t2), ("card_payment", t3)], 2219.90, card_id=card,
          channel={"channel": "online card payment", "card_present": False, "merchant_country": "QN", "ip_country": "QN",
                   "device_seen_before": False, "three_d_secure": "not used"},
-         notes=[(2, "Fraud monitoring", "Alert raised by FRD-RULE-001. The card was last used in person in Meridia three days ago."),
+         notes=[(2, "Fraud monitoring", f"Alert raised by FRD-RULE-001. The card was last used in person in Meridia on {last_home_text}."),
                 (2, "Contact centre", "Customer phoned at 07:15 and says the purchases are not hers. See contact CNT-5202.")],
          priority="high")
 

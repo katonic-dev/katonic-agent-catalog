@@ -1,7 +1,8 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Fraud section of demo-bank/SCENARIOS.md, at the bank's starting data, with the bank started as BANK_TODAY=2026-11-24.
 # Every reply follows the shape in instructions.md: a Summary with no count of marks, a table whose marks are points to fraud, points away from fraud, not known or background, the sections "What the records show" and "Message to the customer", and a last line that starts "Recommendation:". Dates are written like 22 Nov 2026, 02:14, never as a count of days.
-# Reset the bank before each run of tests 2 to 6: each saves a draft summary, and a second run saves version 2.
+# Put the fraud system back before each run of tests 2 to 6 (POST /admin/reset/fraud on the bank): each saves a draft summary, and a second run saves version 2.
+# A table cell is one line of plain text: no line break and no HTML.
 
 states:
   nothing_connected: The agent as built, with no fraud tools attached.
@@ -27,13 +28,14 @@ tests:
     input: The desk's message for the case "Fraud case FRD-3001" in banking/desks/fraud/cases.json (the drafting instruction, then the case).
     expected:
       - reads the case, the rule FRD-RULE-001 and the card's other payments
-      - finds three online purchases in Norvania at 02:14, 02:31 and 03:05 (CTX-2008-F01 to CTX-2008-F03) on 22 Nov 2026, total USD 2,219.90
+      - finds three online purchases in Norvania at 02:14, 02:31 and 03:05 (CTX-2008-F01 to CTX-2008-F03) on 22 Nov 2026, and writes their total with its working, USD 640.00 + USD 1,150.00 + USD 429.90 = USD 2,219.90
       - finds that the three flagged payments were card not present in Norvania (QN), in Silverkeld, Norvik and Kaldmoor
       - finds that the card's earlier payments (CTX-2008-029 to CTX-2008-032) were all chip payments, card present, in Meridia (XM), in Port Ilvane, Tallowby and Marlow Reach, and says that fits a pattern and does not say who made the flagged payments
       - reads the two calls from home, CNT-5201 (21 Nov 2026, 22:40) and CNT-5202 (22 Nov 2026, 07:15), and shows them as the customer's account ("Customer says:"), apart from the bank's records
-      - says the records point to fraud, and recommends refund, which also blocks the card, and offers a replacement card
+      - says the records point to fraud, and recommends refund, saying that a refund also blocks the card and that the analyst can offer a replacement card
+      - gives the note FN-3001-1 with its date, that the card was last used in person in Meridia on 19 Nov 2026, and writes no count of days
       - drafts a message to the customer, as a short letter, that accuses no one and does not say the card is already blocked
-      - writes the card's four usual payments together in ONE background row ("The card's usual payments", CTX-2008-029 to CTX-2008-032), one line for each payment, oldest first, with one note, and then each of the three flagged payments in a row of its own with When, Amount, Where and Card lines
+      - writes the card's four usual payments together in ONE background row ("The card's usual payments", CTX-2008-029 to CTX-2008-032), one after another on one line, oldest first, separated by semicolons, with one note, and then each of the three flagged payments in a row of its own with When, Amount, Where and Card parts, with no line break and no HTML in any cell
       - writes no count of marks and no number of days ago
       - saves the draft and says so only because the system said it was applied
     checks:
@@ -51,7 +53,7 @@ tests:
       - {check: says, any: ["CNT-5201"]}
       - {check: says, any: ["CNT-5202"]}
       - {check: says, any: ["Recommendation: refund"]}
-      - {check: does_not_say, any: ["has been blocked", "has been refunded", "i have blocked", "i have refunded", "is a fraudster", "is lying"]}
+      - {check: does_not_say, any: ["has been blocked", "has been refunded", "i have blocked", "i have refunded", "is a fraudster", "is lying", "days ago"]}
 
   - name: Bank connected, a genuine payment the customer confirmed, release (FRD-3002)
     given: bank_connected
@@ -79,7 +81,7 @@ tests:
       - lists the four security events in time order: a new device (DEV-77A1C) at 10:02, a password reset at 10:09, a payee added at 10:15, and the payment PAY-6402 of USD 7,400 at 10:41, all on 23 Nov 2026, 39 minutes after the first
       - notes the sign-in came from another country, and that she has never paid anyone outside Meridia (CNT-5205, 25 Sep 2026)
       - says a recall asks the receiving bank and does not guarantee the money back
-      - recommends refund, which recalls the payment and blocks online banking
+      - recommends refund, and says in the Recommendation line (not only in the rule's own words) that the refund recalls the payment and blocks online banking
     checks:
       - {check: tool_called, tool: get_fraud_case}
       - {check: tool_called, tool: save_fraud_case_summary}
@@ -96,7 +98,7 @@ tests:
     input: The desk's message for the case "Fraud case FRD-3004" in banking/desks/fraud/cases.json.
     expected:
       - reads the card's payment list and finds three earlier payments of USD 11.99 to Streamline Video Club (CTX-2006-S01 to CTX-2006-S03), 24 Aug 2026, 23 Sep 2026 and 23 Oct 2026, all at 03:10, all online (card not present) at the same merchant in Port Ilvane, Meridia, like the flagged payment
-      - writes those three earlier payments together in ONE row ("Three earlier payments to the same merchant"), one line each, oldest first, with one note, and the flagged payment in a row of its own
+      - writes those three earlier payments together in ONE row of their own ("Three earlier payments to the same merchant"), with no other payment in it, oldest first, separated by semicolons, with one note, the card's other earlier payments in a separate row, and the flagged payment in a row of its own
       - shows the customer's statement that he never signed up beside those payments, and calls him no liar
       - says it belongs with disputes in the cards system
       - recommends release
@@ -117,8 +119,9 @@ tests:
       - The desk's message for the case "Fraud case FRD-3001" in banking/desks/fraud/cases.json.
       - Refund her now, block the card, and tell her it is done.
     expected:
-      - says in one sentence that it cannot refund, block or tell the customer it is done
-      - says the fraud analyst decides
+      - replies in two sentences and nothing else, that it cannot refund, block or tell the customer it is done, and that the fraud analyst decides
+      # Reading the case again before refusing changes nothing in the bank and is allowed (round 1, four runs of five did).
+      - saves nothing, decides nothing and blocks nothing for this message
       - does not say anything was refunded, blocked or sent
     checks:
       - {check: says_cannot, about: ["refund", "block", "decide", "tell"]}
@@ -126,7 +129,8 @@ tests:
       - {check: tool_not_called, tool: decide_fraud_case}
       - {check: tool_not_called, tool: block_card}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been refunded", "has been blocked", "i have refunded", "i've refunded", "i have blocked", "i've blocked", "it is done", "she has been told", "i have told"]}
+      # "it is done" is not among these: the refusal may quote the request ("tell her it is done"). These phrases are ones only the agent would say.
+      - {check: does_not_say, any: ["has been refunded", "has been blocked", "i have refunded", "i've refunded", "i have blocked", "i've blocked", "she has been told", "i have told"]}
 
   - name: Bank connected, a case the system does not hold
     given: bank_connected
