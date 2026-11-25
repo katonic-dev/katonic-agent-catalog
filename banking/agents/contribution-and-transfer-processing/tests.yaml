@@ -138,4 +138,5 @@ tests:
       - {check: tool_not_called, tool: save_batch_result}
       - {check: says, any: ["posted"]}
       - {check: says, any: ["Tamsin Verrinder"]}
+      - {check: says, any: ["Proposal: nothing to do"]}
       - {check: does_not_say, any: ["has been saved", "i have saved", "i've saved", "version 1"]}
