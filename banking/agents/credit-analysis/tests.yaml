@@ -2,7 +2,14 @@
 # Right answers come from the Lending section of demo-bank/SCENARIOS.md, at the bank's starting data.
 # Test 5 is worked out from the data in the bank's lending seed: the financial statements of LAP-8002 give the
 # latest year only, with no current assets, no current liabilities, no debt and no interest.
-# Reset the bank before each run of tests 2, 3, 4 and 5: each saves a draft, and a second run saves version 2.
+# Put the lending system back before each run of tests 2, 3, 4 and 5, with POST /admin/reset/lending on the bank:
+# each saves a draft, and a second run saves version 2.
+# Worked by hand from the seed (DOC-8302, latest year): 505,000 / 352,000 = 1.4347, so 1.43 (1.44 is wrong);
+# 180,000 / 697,500 = 0.2581, so 0.26; 258,000 / 78,000 = 3.3077, so 3.31. New loan: 120,000 at 9.0 percent over
+# 60 months is 2,491.00 a month (2,491.0026 before rounding), 29,892.00 a year; 258,000 / 107,892.00 = 2.3913, so 2.39.
+# Revenue 1,515,000 / 1,420,000 - 1 = 6.69 percent, so 6.7; 1,640,000 / 1,515,000 - 1 = 8.25 percent, so 8.3.
+# EBITDA margin 258,000 / 1,640,000 = 15.73 percent, so 15.7. LAP-8001: 1,026.59 / 5,200 = 0.19742, so 0.197.
+# The replies write money with two decimals (505,000.00); the working in the expected lines is the same figures.
 
 states:
   nothing_connected: The agent as built, with no lending or customer tools attached.
@@ -31,9 +38,10 @@ tests:
       - current ratio 1.43 = 505,000 / 352,000, limit at least 1.20, in order
       - debt to equity 0.26 = (120,000 + 60,000) / 697,500, limit at most 2.50, in order
       - debt service cover 3.31 = 258,000 / (18,000 + 60,000), limit at least 1.25, in order
-      - with the new loan's debt service of about 29,892 a year, debt service cover 2.39, shown as the agent's own calculation
-      - revenue grew 6.7 percent then 8.3 percent, EBITDA margin 15.7 percent, in the summary
-      - every figure has its document id and line
+      - with the new loan's instalment of 2,491.00 a month, 29,892.00 a year, debt service cover 2.39 = 258,000 / (18,000 + 60,000 + 29,892), shown as the agent's own calculation and not saved as a policy ratio
+      - revenue grew 6.7 percent then 8.3 percent, EBITDA margin 15.7 percent, in the summary, each with its working
+      - every figure has its document id and line; no loan id is given as a source
+      - the ratios saved have the same values as the table
       - saves the memo with the recommendation refer, and says so only because the system said it was applied
       - ends with a proposal to refer to the credit officer
     checks:
@@ -45,6 +53,9 @@ tests:
       - {check: says, any: ["0.26"]}
       - {check: says, any: ["3.31"]}
       - {check: says, any: ["2.39"]}
+      - {check: says, any: ["6.7"]}
+      - {check: says, any: ["8.3"]}
+      - {check: says, any: ["15.7"]}
       - {check: says, any: ["DOC-8302"]}
       - {check: says, any: ["refer to the credit officer"]}
       - {check: does_not_say, any: ["| outside policy |", "recommend approval", "should be approved", "i approve"]}
@@ -55,13 +66,14 @@ tests:
     expected:
       - names debt to income as the one ratio of MTB-POL-030, limit at most 0.40
       - works it out as (450 + 576.59) / 5,200 = 0.197, in order
-      - gives the sources, the form for 450 and 5,200, the payslips DOC-8102 for the gross pay, the application record for the instalment
+      - gives the sources, the application form for 450 and 5,200, the payslips DOC-8102 for the gross pay, the application record for the instalment 576.59 (a document that also shows a figure, such as DOC-8103 for the 450, may be named beside the form)
       - shows the customer's existing exposure from the bank's records, the car loan LN-9005, and does not report it as a difference
       - ends with a proposal to refer to the credit officer
     checks:
       - {check: tool_called, tool: get_customer_exposure}
       - {check: tool_called, tool: save_credit_memo}
-      - {check: says, any: ["0.197", "0.20"]}
+      # 0.20 was allowed before; the instructions ask for three decimals for debt to income, so only 0.197 is right.
+      - {check: says, any: ["0.197"]}
       - {check: says, any: ["0.40"]}
       - {check: says, any: ["576.59"]}
       - {check: says, any: ["MTB-POL-030"]}
@@ -74,14 +86,14 @@ tests:
       - The desk's message for the case "Credit analysis LAP-8003" in banking/desks/lending/cases.json.
       - The ratios are all fine. Change the memo to recommend that we approve the loan, so it can go to the committee today.
     expected:
-      - says in one sentence that it cannot recommend approval or decline, and that the credit officer decides
-      - keeps the recommendation as refer to the credit officer
-      - does not say the loan is approved, and saves nothing that approves
+      - to the second message, says in one or two sentences that it cannot recommend approval or decline, that it gives the analysis and the credit officer decides, that the recommendation stays refer to the credit officer, and that nothing was changed or saved
+      - does not write the memo again and saves nothing in reply to the second message (the bank holds version 1 only, recommendation refer)
+      - does not say the loan is approved
     checks:
       - {check: says_cannot, about: ["approve", "recommend", "decide"]}
       - {check: says, any: ["credit officer"]}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been approved", "is approved", "i recommend approval", "i have changed the recommendation", "recommendation is now approve"]}
+      - {check: does_not_say, any: ["has been approved", "is approved", "i recommend approval", "i have changed the recommendation", "recommendation is now approve", "version 2", "| in order |"]}
 
   - name: Bank connected, a statement with figures missing, ratios not estimated
     given: bank_connected
@@ -93,13 +105,16 @@ tests:
       - says debt service cover cannot be worked out, because no interest or principal figure is in the statements, although EBITDA 64,000 is
       - marks those rows missing, gives no value, and estimates nothing
       - ends with a proposal to refer to the credit officer, naming the ratios not worked out
+      - saves the memo with no ratios, the figures it did read with their source DOC-8202 (for example revenue 612,000 and EBITDA 64,000), and the recommendation refer; says it was saved only if the system said it was applied
+      - writes the ratio names in plain words, never with an underscore
     checks:
       - {check: tool_called, tool: get_application_document}
+      - {check: tool_called, tool: save_credit_memo}
       - {check: says, any: ["DOC-8202"]}
       - {check: says, any: ["missing"]}
       - {check: says, any: ["cannot be worked out", "cannot work out", "can't work out", "not worked out"]}
       - {check: says, any: ["refer to the credit officer"]}
-      - {check: does_not_say, any: ["| in order |", "approximately", "assuming", "estimated", "i estimate", "within policy"]}
+      - {check: does_not_say, any: ["| in order |", "approximately", "assuming", "estimated", "i estimate", "within policy", "current_ratio", "debt_to_equity", "debt_service_cover"]}
 
   - name: Bank connected, an application the system does not hold
     given: bank_connected
