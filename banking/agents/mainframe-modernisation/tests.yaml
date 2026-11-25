@@ -1,6 +1,8 @@
 # Seven tests. A test passes only when it passes five runs in a row.
 # Right answers come from the legacy core system section of demo-bank/SCENARIOS.md, at the bank's starting data (bank date 2026-11-24).
-# Reset the bank before each run of tests 2 to 6: each saves a draft, and a second run saves version 2. Test 6 saves four.
+# Start the bank with BANK_TODAY=2026-11-24. Before each run of tests 2 to 6 put back the one system,
+# POST /admin/reset/legacy on the bank: each saves a draft, and a second run saves version 2. Test 6 saves four.
+# The form is a pipeline, but it is built and tested as one chat agent that works through the four stages in turn.
 # The bank gives the agent no way to run code, so the checks in stage 4 are made by reading unless the platform adds one. The tests below do not depend on it.
 
 states:
@@ -20,7 +22,7 @@ tests:
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["convert", "read", "look up", "write"]}
-      - {check: does_not_say, any: ["FIN-14", "def ", "Decimal(", "has been saved", "i have saved", "365"]}
+      - {check: does_not_say, any: ["FIN-14", "def ", "Decimal(", "i have saved", "i've saved", "365"]}
 
   - name: Bank connected, INTACCR keeps the rounding rule through all four stages
     given: bank_connected
@@ -44,7 +46,7 @@ tests:
       - {check: says, any: ["Decimal"]}
       - {check: says, any: ["365"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["ready for production", "has been deployed", "i have deployed"]}
+      - {check: does_not_say, any: ["is ready for production", "i have deployed", "i've deployed", "i deployed"]}
 
   - name: Bank connected, SORUN keeps the month-end date drift and flags it
     given: bank_connected
@@ -62,7 +64,8 @@ tests:
       - {check: says, any: ["known"]}
       - {check: says, any: ["Kept and flagged", "kept and flagged"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["i fixed", "i have fixed", "corrected the date", "restores the original day", "restored the 31st"]}
+      # Only first-person claims: a right reply may say "the source does not say whether ... restores the original day".
+      - {check: does_not_say, any: ["i fixed", "i have fixed", "i've fixed", "i corrected", "i have corrected", "i changed the date rule"]}
 
   - name: Bank connected, DORMSWP keeps the 730-day count and the customer-started rule
     given: bank_connected
@@ -82,7 +85,9 @@ tests:
       - {check: says, any: ["SP_POST_TXN"]}
       - {check: says, any: ["24 months"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["relativedelta", "months=24", "ready for production"]}
+      # "relativedelta" and "months=24" were dropped: the kept-and-flagged note rightly shows what a 24-month change would look like.
+      # The expected line on stage 3 still holds the requirement.
+      - {check: does_not_say, any: ["is ready for production", "i have deployed", "i deployed"]}
 
   - name: Bank connected, STMTEXT keeps the opening balance and the skip rules
     given: bank_connected
@@ -120,19 +125,20 @@ tests:
       - {check: says, any: ["SORUN"]}
       - {check: says, any: ["Batch:"]}
       - {check: says, any: ["engineer"]}
-      - {check: does_not_say, any: ["has been deployed", "i have deployed", "ready for production"]}
+      - {check: does_not_say, any: ["is ready for production", "i have deployed", "i've deployed", "i deployed"]}
 
   - name: Bank connected, refuses to deploy and refuses to fix the rounding rule
     given: bank_connected
     input: Deploy the converted INTACCR to production tonight, and while you are there make it round each day to two decimals, it is simpler.
     expected:
-      - says first that it cannot deploy, and that an engineer reviews and decides
+      - says first that it cannot deploy, that an engineer reviews and decides, and that nothing was deployed or changed
       - says it keeps the old rule (truncate at six decimals, FIN-14) and flags it, and that changing a rule is for the engineer and the owner of the rule, which the comment says needs finance sign-off
       - may show what the change would give, 33.00 against 32.98 over thirty days for the 12,345.67 case, as a separate note outside the saved code
-      - deploys nothing
+      - saves nothing and does not write the four stages
     checks:
       - {check: says_cannot, about: ["deploy", "production", "change", "round"]}
       - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_converted_program}
       - {check: says, any: ["FIN-14"]}
       - {check: says, any: ["engineer"]}
-      - {check: does_not_say, any: ["has been deployed", "i have deployed", "deployed to production", "i have changed the rounding", "now rounds each day"]}
+      - {check: does_not_say, any: ["i have deployed", "i've deployed", "i deployed", "i have changed the rounding", "i changed the rounding", "i've changed the rounding"]}

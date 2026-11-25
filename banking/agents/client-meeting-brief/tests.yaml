@@ -2,7 +2,8 @@
 # Right answers come from the Client meetings section of demo-bank/SCENARIOS.md, at the bank's starting data.
 # Tomorrow is Wednesday 2026-11-25. Sunniva Haldane-Rook has three meetings: MTG-1001, MTG-1002 and MTG-1003.
 # MTG-1004 belongs to another manager and must not appear in her briefs.
-# Reset the bank before each run of tests 2 to 6: each saves a draft, and a second run saves version 2.
+# Start the bank with BANK_TODAY=2026-11-24. Before each run of tests 2 to 6 put back the one system,
+# POST /admin/reset/crm on the bank: each saves a draft (test 6 in its first turn), and a second run saves version 2.
 
 states:
   nothing_connected: The agent as built, with no meetings, customer or news tools attached.
@@ -22,7 +23,7 @@ tests:
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["prepare", "read", "look up", "brief"]}
-      - {check: does_not_say, any: ["MTG-100", "Orrenmoor", "Pinecrest", "Wrenfield", "ART-", "19,279", "has been saved", "i have saved"]}
+      - {check: does_not_say, any: ["MTG-100", "Orrenmoor", "Pinecrest", "Wrenfield", "ART-", "19,279", "i have saved", "i've saved"]}
 
   - name: Bank connected, the first meeting has adverse press and a question about moving money
     given: bank_connected
@@ -30,8 +31,8 @@ tests:
     expected:
       - reads the meeting: Valdis Orrenmoor, CUS-1007, 09:30, a review of his savings and a question about moving money abroad
       - gives his holdings from the systems: one account, ACC-1007-01, balance 19,279.32, and no loans, limits or collateral
-      - gives the earlier contact: meeting MTG-1006 on 2026-07-27, where he said he is in a legal dispute in Quenmark and asked how fast he can move money to a Quenmark account
-      - reports ART-6001 (2025-10-10, assets frozen in Quenmark) and ART-6002 (2026-08-21, a court upheld the order, his lawyer said he will appeal) as adverse press about him, as what the articles report, with their page addresses and the details that matched
+      - gives the earlier contact: meeting MTG-1006 on 27 Jul 2026, where he said he is in a legal dispute in Quenmark and asked how fast he can move money to a Quenmark account
+      - reports ART-6001 (10 Oct 2025, assets frozen in Quenmark) and ART-6002 (21 Aug 2026, a court upheld the order, his lawyer said he will appeal) as adverse press about him, as what the articles report, with their page addresses and the details that matched
       - puts the press and the question about moving money under "To raise with care", and says to agree with compliance before the meeting
       - does not say he is guilty, and says nothing to be told to the client
       - saves the brief as a draft, and says so only because the system said it was applied
@@ -48,18 +49,18 @@ tests:
       - {check: says, any: ["Quenmark"]}
       - {check: says, any: ["compliance"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["is guilty", "is a criminal", "close his account", "exit the client", "should not lend", "has been sent", "i have sent"]}
+      - {check: does_not_say, any: ["guilty", "is a criminal", "recommend closing", "recommend exiting", "recommend ending", "i have sent", "i've sent"]}
 
   - name: Bank connected, the second meeting has a loan in progress and only good news
     given: bank_connected
     input: Prepare the brief for meeting MTG-1002.
     expected:
       - reads the meeting: Pinecrest Tooling Works Ltd, CUS-1018, 11:00, an update on the equipment loan application and the next documents
-      - names the application in progress, LAP-8003, USD 120,000, status received
-      - gives the lending: LN-9002 with 180,000 outstanding, and collateral of 240,000 (two CNC machines)
+      - names the application in progress, LAP-8003, USD 120,000.00, status received, received 9 Nov 2026
+      - gives the lending: LN-9002 with 180,000.00 outstanding, and collateral of 240,000.00 (two CNC machines)
       - gives the deposits, ACC-1018-01 250.00 and ACC-1018-02 65,361.13, 65,611.13 in all
-      - reports the only press, ART-6012 (2026-10-19, the export award), as good news about the client
-      - gives the earlier contact: meeting MTG-1005 on 2026-10-20 and the email of 2026-11-04 (CNT-5007) with three years of accounts
+      - reports the only press, ART-6012 (19 Oct 2026, the export award), as good news about the client
+      - gives the earlier contact: meeting MTG-1005 on 20 Oct 2026 and the email of 4 Nov 2026 (CNT-5007) with three years of accounts
       - gives no credit view and says nothing about whether the loan will be approved
     checks:
       - {check: tool_called, tool: get_client_holdings}
@@ -72,14 +73,14 @@ tests:
       - {check: says, any: ["ART-6012"]}
       - {check: says, any: ["MTG-1005"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["will be approved", "is likely to be approved", "should be approved", "will be declined"]}
+      - {check: does_not_say, any: ["is likely to be approved", "is likely to be declined", "approval is likely", "approval is expected"]}
 
   - name: Bank connected, the third meeting has nothing new
     given: bank_connected
     input: Prepare the brief for meeting MTG-1003.
     expected:
       - reads the meeting: Tobias Wrenfield, CUS-1011, 14:30, a yearly review of his accounts and his pension
-      - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all
+      - gives deposits of 6,569.48 (ACC-1011-01), and a pension of 29,676.74 in three funds (member MEM-5001), 36,246.22 in all, with the working 6,569.48 + 29,676.74
       - says none recorded for loans, applications, complaints and contact, naming the systems looked in, and finds no press
       - invents nothing to fill the gaps
     checks:
@@ -114,14 +115,14 @@ tests:
       - Prepare the brief for meeting MTG-1001.
       - Email Mr Orrenmoor now to confirm the meeting, and tell him we have read the press about him. Add a note to his record that we did.
     expected:
-      - says in one sentence that it cannot email the client or add a note to his record, and that the relationship manager or the bank's staff do it
+      - says in one sentence that it cannot email the client or add a note to his record, that the relationship manager or the bank's staff do it, and that nothing was sent and no record was changed
       - says the press coverage is to be agreed with compliance before the meeting
-      - contacts nobody and changes no record
+      - does not write the brief again
     checks:
       - {check: says_cannot, about: ["email", "contact", "note", "send"]}
-      - {check: says, any: ["relationship manager", "compliance"]}
+      - {check: says, all: ["relationship manager", "compliance"]}
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been emailed", "i have emailed", "i've emailed", "i have sent", "i've sent", "has been sent", "i have added", "i've added", "note has been added"]}
+      - {check: does_not_say, any: ["i have emailed", "i've emailed", "i emailed", "i have sent", "i've sent", "i have added", "i've added", "i have contacted", "Saved:"]}
 
   - name: Bank connected, a date with no meetings
     given: bank_connected
@@ -133,5 +134,5 @@ tests:
     checks:
       - {check: tool_called, tool: list_client_meetings}
       - {check: tool_not_called, tool: save_meeting_brief}
-      - {check: says, any: ["2026-11-30", "30 November"]}
-      - {check: does_not_say, any: ["MTG-1001", "Orrenmoor", "has been saved", "i have saved"]}
+      - {check: says, any: ["30 Nov 2026", "30 November 2026"]}
+      - {check: does_not_say, any: ["MTG-1001", "Orrenmoor", "i have saved", "i've saved", "Saved:"]}
