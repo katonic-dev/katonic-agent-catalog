@@ -9,7 +9,7 @@ For a recorded collections call, it writes a short summary, marks each of the ba
 | How people meet it | Through the bank's own system: flagged calls and notes go to the supervisor |
 | Reads from | The bank's collections system: call transcripts and the conduct rules |
 | Changes | Nothing in the bank's records. It saves a call review as a draft, and the call stays unreviewed |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All eight tests pass five runs in a row |
 
 ## What it does
 

@@ -61,7 +61,7 @@ tests:
       - finds the Saver Account ACC-1004-02 with a balance of USD 9,970.90, which covers 8,000
       - says from MTB-PRD-052 clause 3.2 that a withdrawal needs 14 days' notice, and from clause 3.3 that without notice he may withdraw in a branch and the bank takes 14 days' interest on the amount withdrawn, giving no figure for that interest
       - says from clause 2.2 that the first USD 5,000.00 earns 1.50 percent a year and the part above 5,000.00 up to 25,000.00 earns 2.25 percent a year, so the part of his balance above 5,000.00 is in the 2.25 percent tier
-      - writes a draft reply, not sent, and saves it as a draft note; a day such as tomorrow is written as a date counted from the bank's date of reading (25 Nov 2026), never as 26 Nov 2026
+      - writes a draft reply, not sent, and saves it as a draft note; the day is kept as the customer's word, tomorrow, and is never written as 26 Nov 2026
     checks:
       - {check: tool_called, tool: list_customer_accounts}
       - {check: tool_called, tool: add_contact_note}
