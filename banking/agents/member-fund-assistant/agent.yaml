@@ -47,7 +47,8 @@ sample_data:
   - ../../../demo-bank/SCENARIOS.md
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 25 November 2026. Not promoted. All seven tests pass five runs in a row on the second version of the instructions: test 1 with no tools (five runs on the first version, whose words for that state are unchanged, and one more on the second), tests 2 to 7 in the Work Room, a new conversation for each run started from the agent's own page. The agent only reads, so nothing was put back between runs. Three things to know. Tests 5, 6 and 7 pass on checks corrected after an earlier run: each had a phrase that caught a correct refusal (for example 'cannot say how much it has gone up'); tests 6 and 7 were then run again five times each, test 5 was not run again after its correction and its five passes are on the corrected check. Asked about another member, the agent read a member record before refusing in every run; the tool results kept by the platform show the asker's own record each time and no other member's, but the platform does not show a tool's arguments, so this rests on the results. Eighteen runs of an earlier round were replaced by the workspace guardrail during a platform fault that afternoon; a replaced run is no result. The first version failed the holdings test on the form of money (14086.2 for USD 14,086.20); what changed is in the instructions and tests of this folder.
