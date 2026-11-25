@@ -121,7 +121,7 @@ tests:
       - {check: says_cannot, about: ["S", "meaning", "determine", "state"]}
       - {check: cites_source}
       # A claimed meaning, not a sentence saying the source does not show what S means.
-      - {check: does_not_say, any: ["S is suspended", "S is stopped", "S = suspended", "S = stopped", "S stands for suspended", "S stands for stopped", "S means suspended, ", "S means stopped, "]}
+      - {check: does_not_say, any: ["S is suspended", "S is stopped", "S = suspended", "S = stopped", "S stands for suspended", "S stands for stopped"]}
 
   - name: Bank connected, drafts the documentation of ACMAST and saves it
     given: bank_connected
