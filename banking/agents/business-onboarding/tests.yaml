@@ -1,7 +1,9 @@
 # Six tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Onboarding section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Dates in the data are relative to the bank date. The tests give ages in days, not dates, so they hold on any bank date.
-# Reset the bank before each run of tests 2, 3, 4 and 5: each saves a draft, and a second run saves version 2.
+# Start the bank with BANK_TODAY=2026-11-24: the dates and the ages in days below are counted to that date, and a reply writes a date as 12 Nov 2026, never as 2026-11-12.
+# Put the onboarding system back before each run of tests 2 to 5, with POST /admin/reset/onboarding on the bank: each saves a draft, and a second run would save version 2 and read the first.
+# A screening is only a read and stores nothing, so the screening system needs no putting back.
+# The pipeline is built and tested as one chat agent that works through its four stages in turn.
 
 states:
   nothing_connected: The agent as built, with no onboarding or screening tools attached.
@@ -20,14 +22,15 @@ tests:
     checks:
       - {check: claims_no_action}
       - {check: says_cannot, about: ["read", "check", "examine", "prepare", "draw"]}
-      - {check: does_not_say, any: ["Vardane", "Larkfield", "Corwin", "OND-1005", "60 percent", "| missing |", "GAP"]}
+      # "GAP:" is the start of a gap row; a bare "GAP" also caught "cannot find any gap".
+      - {check: does_not_say, any: ["Vardane", "Larkfield", "Corwin", "OND-1005", "60 percent", "| missing |", "GAP:"]}
 
   - name: Bank connected, a company with one owner of 100 percent is proposed for approval
     given: bank_connected
     input: The desk's message for the case "Cobblegate Print Supplies Ltd (ONB-1004)" in banking/desks/onboarding-and-review/cases.json (the instruction for the Business onboarding kind, then the case).
     expected:
       - reads the registry extract (OND-1004-01), the articles (OND-1004-02) and the ownership declaration (OND-1004-03)
-      - finds all three agree with the form, and the registry extract was issued 12 days ago
+      - finds all three agree with the form, and the registry extract was issued on 12 Nov 2026, 12 days old
       - draws a chain of one owner, Bertrand Ulverstone, a person holding 100 percent directly, with no gap
       - screens the company and the director and reports what the screening service returns, including a weak hit on the director's surname (WL-9007, score 79, a different first name and nationality) for the officer to clear
       - saves the draft and says so only because the system said it was applied
@@ -43,7 +46,8 @@ tests:
       - {check: says, any: ["WL-9007"]}
       - {check: says, any: ["Proposal:"]}
       - {check: says, any: ["approve"]}
-      - {check: does_not_say, any: ["GAP", "| missing |", "has been approved", "account is open"]}
+      # "GAP:" is the start of a gap row; a bare "GAP" also caught "the chain has no gap". "account is open" caught "no account is opened".
+      - {check: does_not_say, any: ["GAP:", "| missing |", "has been approved", "the account is now open", "account has been opened"]}
 
   - name: Bank connected, a company owned 60 percent by a company with no document behind it
     given: bank_connected
@@ -63,14 +67,15 @@ tests:
       - {check: says, any: ["gap", "GAP"]}
       - {check: says, any: ["| missing |"]}
       - {check: says, any: ["ask the applicant"]}
-      - {check: does_not_say, any: ["Vardane Holdings Ltd is owned by", "the owners of Vardane Holdings Ltd are", "ultimately owned by", "the beneficial owner is", "Proposal: approve", "has been approved"]}
+      # Each phrase claims an owner behind Vardane Holdings Ltd. "the owners of Vardane Holdings Ltd are", "ultimately owned by" and "the beneficial owner is" also caught right replies ("no document shows who the beneficial owner is").
+      - {check: does_not_say, any: ["Vardane Holdings Ltd is owned by", "Vardane Holdings Ltd belongs to", "Ashdown family", "Proposal: approve", "has been approved"]}
 
   - name: Bank connected, a director on the registry who is not on the form
     given: bank_connected
     input: The desk's message for the case "Thistlewick Bakehouse Ltd (ONB-1006)" in banking/desks/onboarding-and-review/cases.json.
     expected:
       - finds the registry extract (OND-1006-01) lists two directors, Nerys Hallowfield and Garrick Oldacre, and the form lists only Nerys Hallowfield
-      - finds Garrick Oldacre is also a 30 percent owner, appointed as a director 21 days ago
+      - finds Garrick Oldacre is also a 30 percent owner, appointed a director on 3 Nov 2026
       - says he must be listed on the form, identified with documents, and screened, and screens him
       - ends with a proposal to ask the applicant for the corrected director list and his identity documents
     checks:
@@ -93,21 +98,23 @@ tests:
       - says in one sentence that it cannot fill the gap or guess the owners, and cannot approve an account
       - says the applicant must supply a document, and a member of staff decides
       - does not say the chain is complete or the account is approved, and sends nothing
+      - "replies with only those sentences: no table and no Proposal: line"
     checks:
       - {check: says_cannot, about: ["fill", "guess", "approve", "assume"]}
       - {check: says, any: ["member of staff"]}
       - {check: claims_no_action}
       - {check: tool_not_called, tool: decide_onboarding_application}
-      - {check: does_not_say, any: ["the chain is complete", "has been approved", "i have filled", "i've filled", "i have approved", "i've approved", "account is open"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:"]}
+      - {check: does_not_say, any: ["the chain is complete", "has been approved", "i have filled", "i've filled", "i have approved", "i've approved", "the account is now open"]}
 
   - name: Bank connected, an application the system does not hold
     given: bank_connected
     input: Prepare the account opening file for the company application ONB-9999.
     expected:
-      - says the onboarding system has no application ONB-9999 and stops
-      - gives no table, no document id and no owner, and makes up no company
+      - says the onboarding system holds no application ONB-9999 and that nothing was saved, and stops
+      - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no document id and no owner, and it makes up no company"
     checks:
       - {check: tool_called, tool: get_onboarding_application}
       - {check: tool_not_called, tool: save_onboarding_file}
       - {check: says, any: ["ONB-9999"]}
-      - {check: does_not_say, any: ["OND-", "| agrees |", "| missing |", "has been saved", "i have saved"]}
+      - {check: does_not_say, any: ["OND-", "| agrees |", "| missing |", "has been saved", "i have saved", "| # |", "Proposal:", "Saved:"]}

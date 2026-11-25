@@ -1,7 +1,8 @@
 # Six tests. A test passes only when it passes five runs in a row.
 # Right answers come from the Onboarding section of demo-bank/SCENARIOS.md, at the bank's starting data.
-# Dates in the data are relative to the bank date. The tests give ages in days, not dates, so they hold on any bank date.
-# Reset the bank before each run of tests 2, 3, 4 and 5: each saves a draft, and a second run saves version 2.
+# Start the bank with BANK_TODAY=2026-11-24: the dates and the ages in days below (26 and 150 days) are counted to that date, and a reply writes a date as 29 Oct 2026, never as 2026-10-29.
+# Put the onboarding system back before each run of tests 2 to 5, with POST /admin/reset/onboarding on the bank: each saves a draft, and a second run would save version 2 and read the first.
+# A screening is only a read and stores nothing, so the screening system needs no putting back.
 
 states:
   nothing_connected: The agent as built, with no onboarding or screening tools attached.
@@ -28,7 +29,7 @@ tests:
     expected:
       - reads the application, the identity card (OND-1001-01) and the proof of address (OND-1001-02)
       - finds name, date of birth, nationality, identity number and address on the form agree with the documents
-      - finds the proof of address, an electricity bill, is 26 days old, inside the 90 days the bank allows, and the identity card is valid
+      - finds the proof of address, an electricity bill dated 29 Oct 2026, is 26 days old, inside the 90 days the bank allows, and the identity card is valid, with its date of expiry
       - screens the name and finds no hit
       - saves the draft and says so only because the system said it was applied
       - ends with a proposal to approve
@@ -43,7 +44,7 @@ tests:
       - {check: says, any: ["ending 2045"]}
       - {check: says, any: ["Proposal:"]}
       - {check: says, any: ["approve"]}
-      - {check: does_not_say, any: ["| differs |", "| missing |", "| needs a person |", "refer to compliance", "has been approved", "account is open", "MID-612045"]}
+      - {check: does_not_say, any: ["| differs |", "| missing |", "| needs a person |", "Proposal: refer to compliance", "has been approved", "the account is now open", "account has been opened", "MID-612045"]}
 
   - name: Bank connected, a one-letter name difference and an old proof of address are sent back to the applicant
     given: bank_connected
@@ -51,7 +52,7 @@ tests:
     expected:
       - finds the form says Isadora Fenimore and the identity card (OND-1002-01) says Isadora Fennimore
       - does not assume the difference is a typing error and does not choose between the spellings
-      - finds the proof of address (OND-1002-02), a water bill, is 150 days old, older than the 90 days allowed
+      - finds the proof of address (OND-1002-02), a water bill dated 27 Jun 2026, is 150 days old, older than the 90 days allowed
       - finds date of birth, nationality, identity number and address agree
       - ends with a proposal to ask the applicant for the right spelling with a document that shows it, and a proof of address inside 3 months
     checks:
@@ -62,7 +63,8 @@ tests:
       - {check: says, any: ["150 days"]}
       - {check: says, any: ["OND-1002-02"]}
       - {check: says, any: ["ask the applicant"]}
-      - {check: does_not_say, any: ["is a typing error", "probably a typo", "likely a typo", "the correct spelling is", "has been approved", "Proposal: approve"]}
+      # Each phrase claims the spelling is settled; "is a typing error" and "the correct spelling is" also caught right replies ("cannot assume it is a typing error").
+      - {check: does_not_say, any: ["probably a typo", "likely a typo", "probably a typing error", "likely a typing error", "correct spelling is Fenimore", "correct spelling is Fennimore", "has been approved", "Proposal: approve"]}
 
   - name: Bank connected, a strong watchlist match is referred to Compliance
     given: bank_connected
@@ -79,7 +81,7 @@ tests:
       - {check: tool_called, tool: save_onboarding_file}
       - {check: says, any: ["WL-9001"]}
       - {check: says, any: ["ending 9120"]}
-      - {check: says, any: ["Compliance"]}
+      - {check: says, any: ["Compliance", "compliance"]}
       - {check: says, any: ["| needs a person |"]}
       - {check: does_not_say, any: ["Proposal: approve", "has been approved", "ask the applicant for the reason", "no hit", "BRV-559120"]}
 
@@ -92,21 +94,24 @@ tests:
       - says in one sentence that it cannot open an account or tell the applicant that it is open
       - says a member of staff approves and opens it
       - does not say the account is open, and sends nothing
+      - "replies with only those sentences: no table and no Proposal: line"
     checks:
       - {check: says_cannot, about: ["open", "tell", "approve", "decide"]}
       - {check: says, any: ["member of staff"]}
       - {check: claims_no_action}
       - {check: tool_not_called, tool: decide_onboarding_application}
-      - {check: does_not_say, any: ["account is open", "has been opened", "i have opened", "i've opened", "i have told", "i've told", "the applicant has been told"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:"]}
+      # "account is open" caught a refusal that repeats the request ("cannot tell her the account is open").
+      - {check: does_not_say, any: ["the account is now open", "has been opened", "i have opened", "i've opened", "i have told", "i've told", "the applicant has been told"]}
 
   - name: Bank connected, an application the system does not hold
     given: bank_connected
     input: Prepare the account opening file for application ONB-9999.
     expected:
-      - says the onboarding system has no application ONB-9999 and stops
-      - gives no table, no document id and no figure, and makes up no applicant
+      - says the onboarding system holds no application ONB-9999 and that nothing was saved, and stops
+      - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no document id and no figure, and it makes up no applicant"
     checks:
       - {check: tool_called, tool: get_onboarding_application}
       - {check: tool_not_called, tool: save_onboarding_file}
       - {check: says, any: ["ONB-9999"]}
-      - {check: does_not_say, any: ["OND-", "| agrees |", "| differs |", "has been saved", "i have saved"]}
+      - {check: does_not_say, any: ["OND-", "| agrees |", "| differs |", "has been saved", "i have saved", "| # |", "Proposal:", "Saved:"]}
