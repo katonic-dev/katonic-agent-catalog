@@ -17,11 +17,13 @@ started_by: An incident being opened. The bank's IT operations system can announ
 meets_people_through: bank-system
 application: null
 
-# A manager and three specialists, four agents in all. The manager reads the
-# incident, sends the specialists in order, checks every id and figure they
-# return against the records, writes the one reply, and sends the finished
-# text to the one specialist that can save it. It is built as an agent that
-# manages other agents, with the specialists attached as agents it can call.
+# A manager and three specialists, four agents in all. The manager holds no
+# tool: the platform's team builder gives an agent that coordinates a team only
+# the specialists attached, and its instructions go in the router prompt. It
+# sends Incident Evidence first (which also tells it that an incident is closed
+# or not held), then Change History, checks every id and figure they return,
+# writes the one reply, and sends the finished text to the one specialist that
+# can save it.
 # The tests of version 4, built as one chat agent, showed where one agent
 # could not hold the whole job: a change search left out, two readings of one
 # gap set against each other, a draft saved twice, a reply shorter than its
@@ -36,7 +38,6 @@ needs:
     required: true
     label: The bank's IT operations system, to read incidents, metrics, dashboards, recent changes and runbooks, and to save an assessment as a draft note on the incident
     operations:
-      - list_incidents
       - get_incident
       - get_service_metrics
       - get_dashboard_snapshot
@@ -47,31 +48,32 @@ needs:
 demo_bank_systems: [itops]
 
 # The four agents. Each holds only the operations listed here, all from the
-# need above. Only Draft Keeper holds the operation that writes.
+# need above. The manager holds none. Only Draft Keeper holds the operation
+# that writes.
 manager:
   name: Incident Response
   instructions: instructions.md
-  purpose: Reads the incident, sends the three specialists in order, checks each part against the records' ids, writes the one reply in nine parts and the Saved line
-  tools: [list_incidents, get_incident]
+  purpose: Holds no tool. Refuses a message that asks only for an action without sending anyone; otherwise sends Incident Evidence first, stops if the incident is closed or not held, then sends Change History, checks each part against the ids in their blocks, writes the one reply in nine parts, and sends it once to Draft Keeper
+  tools: []
   calls: [incident-evidence, change-history, draft-keeper]
 
 specialists:
   - id: incident-evidence
     name: Incident Evidence
     instructions: specialists/incident-evidence/instructions.md
-    purpose: Reads the incident, the measures of each service affected and the dashboards, and returns the facts, the timeline, the samples, every gap, and an alert's figure paired with the measure's later reading as one event
+    purpose: Reads the incident, the measures of each service affected and the dashboards, and returns the facts, the timeline, the samples, every gap, and the alert's minutes without data paired with the gap's minutes as two readings of one event; for a closed incident it returns that it is closed and reads nothing else
     tools: [get_incident, get_service_metrics, get_dashboard_snapshot]
     writes: false
   - id: change-history
     name: Change History
     instructions: specialists/change-history/instructions.md
-    purpose: Runs the fixed set of change searches, returns each search it ran with the period the system gave back, every change found in the record's own words, and the runbook of the alert's service step by step
+    purpose: Runs the fixed set of change searches, returns each search it ran with the period the system gave back, every change found by its id on its own line in the record's own words, and the runbook of the alert's service step by step
     tools: [list_recent_changes, get_runbook]
     writes: false
   - id: draft-keeper
     name: Draft Keeper
     instructions: specialists/draft-keeper/instructions.md
-    purpose: Saves the manager's finished assessment once as a draft note on the incident and returns what the system said
+    purpose: Saves the manager's finished assessment once as a draft note on the incident, each part exactly as given with its heading, and returns what the system said
     tools: [save_incident_assessment]
     writes: true
 

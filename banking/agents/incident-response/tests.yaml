@@ -5,13 +5,13 @@
 # Put the IT operations system back before each run of tests 2 to 5 and 9 (POST /admin/reset/itops on the bank): tests 2, 3, 4 and 9 each save
 # a draft, and a second run saves version 2. Test 5 must save nothing, so the incident must hold no draft when it starts.
 # Figures in the expected lines are the bank's own samples. The agent gives figures exactly, so "about" is used only where the scenario gives a range.
-# A tool check counts a call made by the manager or by any specialist in the same run: read the trace of each specialist the manager called.
-# A specialist is called as a tool whose name is its id in agent.yaml (incident-evidence, change-history, draft-keeper).
+# The manager holds no tool of its own: every tool check counts a call made by a specialist the manager called in the same run.
+# Read the trace of each specialist. The trace of the 25 November build names them incident_evidence, change_history and draft_keeper.
 
 states:
-  nothing_connected: The manager as built, with no IT operations tools and no specialist attached.
+  nothing_connected: The manager as built, with no specialist attached. The manager holds no tool in any state.
   bank_connected: >
-    The manager with its own two tools and its three specialists attached,
+    The manager, which holds no tool, with its three specialists attached,
     each specialist with only the tools agent.yaml gives it. The IT
     operations system of the invented bank connected. The bank at its
     starting data.
@@ -114,7 +114,9 @@ tests:
     expected:
       - says the service appears fine and the alert ALT-9103 comes from a gap in monitoring data
       - says the collector on host stmt-app-02 sent no volume samples between the last sample at 09:00 and the next at 09:50, 50 minutes without data (the missing samples are 09:10 to 09:40)
-      - gives the alert's "no data for 35 minutes" at 09:36 and the 50 minutes at 09:50 as two readings of one gap, in part 2, and does not call them a disagreement or put them under evidence against or what is not known
+      # Version 6: the bank's alert said "35 minutes" from 09:00 to 09:36; the seed now says 36. Every run of round 5 paired the alert's minutes
+      # with a sample's value (31 per minute at 09:50). The pair is two lengths of time: the alert's minutes and the gap's minutes.
+      - gives the alert's "no data for 36 minutes" (09:00 to 09:36) and the gap's 50 minutes (09:00 to 09:50) in one sentence as two readings of one gap, in part 2, pairs the alert's minutes with no sample value, and does not call them a disagreement or put them under evidence against or what is not known
       - says the service's own measures are normal throughout, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
       - says no change to statement-service in the last 168 hours, and that the collector restarted under its watchdog at 09:44
       - says to record the gap and to read volume reports for that time with care
@@ -159,10 +161,12 @@ tests:
       - says INC-7004 is closed and that this agent assesses open incidents only
       - says a closed incident gets a post-incident review
       - saves nothing
-      # New in version 5, for the manager form: the manager reads the incident itself and stops before it sends anyone.
-      - sends no specialist
+      # Version 6: the manager holds no tool, so Incident Evidence reads the incident; it returns that the incident is closed and reads nothing else.
+      - sends Incident Evidence only, and no other specialist
     checks:
       - {check: tool_called, tool: get_incident}
+      - {check: tool_not_called, tool: get_service_metrics}
+      - {check: tool_not_called, tool: list_recent_changes}
       - {check: tool_not_called, tool: save_incident_assessment}
       - {check: says, any: ["closed"]}
       - {check: says, any: ["review"]}
@@ -176,9 +180,9 @@ tests:
     given: incident_evidence_alone
     input: Read incident INC-7003 and return your block.
     expected:
-      - 'gives the alert ALT-9103 and its text word for word, "statement-service volume_per_min: no data for 35 minutes (last sample 09:00)", opened 09:36'
+      - 'gives the alert ALT-9103 and its text word for word, "statement-service volume_per_min: no data for 36 minutes (last sample 09:00)", opened 09:36'
       - gives the collector's volume gap as the system gives it, last sample 09:00, next sample 09:50, 50 minutes without data, and says there is no data in the gap
-      - returns the alert's 35 minutes at 09:36 and the 50 minutes at 09:50 as one item, two readings of one event, and does not call them a disagreement
+      - returns in one sentence the alert's 36 minutes (09:00 to 09:36) and the gap's 50 minutes (09:00 to 09:50) as two readings of one event, pairs the alert's minutes with no sample value, and does not call them a disagreement
       - says the volume from the collector comes from the monitoring collector and the application log volume from the service's own log
       - gives the service's own measures as ranges, application log volume 29 to 33 a minute, error rate 0.1 to 0.2 percent, p95 latency 255 to 270 ms
       - gives the timeline entries word for word, including stmt-app-02 at 09:40 and the watchdog restart at 09:44
@@ -189,7 +193,7 @@ tests:
       - {check: says, any: ["ALT-9103"]}
       - {check: says, all: ["09:00", "09:50"]}
       - {check: says, any: ["50 minutes", "50-minute", "50 min"]}
-      - {check: says, any: ["35 minutes", "35-minute", "35 min"]}
+      - {check: says, any: ["36 minutes", "36-minute", "36 min"]}
       - {check: says, any: ["stmt-app-02"]}
       - {check: says, any: ["09:44"]}
       - {check: cites_source}
@@ -231,7 +235,8 @@ tests:
       8. What to check next. The CPU of the payments database. Runbook step 4: "If a feature flag was switched on in the last hour, switch it off with the flag console. This needs the approval of the incident manager." (incident manager approves, on-call engineer runs).
     expected:
       - calls the save once and not again (the bank holds version 1 by Incident Response on INC-7001 after the run, not version 2)
-      - the saved fields hold the manager's words unchanged, with part 7 under evidence against starting "Not known:", and confidence medium
+      # Version 6: one run of round 5 saved the parts without their headings. Headings are part of the text.
+      - the saved fields hold the manager's text exactly as given, headings included (such as "1. What is failing." and "4. The likely cause."), with each line of part 7 under evidence against preceded by "Not known:", and confidence medium
       - 'returns one line, "Saved: draft version 1 on INC-7001", because the system said it was applied'
       - adds no fact, figure or advice of its own
     checks:

@@ -18,7 +18,7 @@ Run every one of these, in this order, before you return anything:
 In this order:
 1. The searches: one line for each search you ran, with the service or all services, the hours you asked for, the period the system gave back (from and to) and how many changes it found. List only searches you ran. If the system refused one, give its words.
 2. For each service affected where searches 1 and 2 found nothing, one sentence: "No change to" the service "in the last 168 hours."
-3. Each change found, once: its id, service, title, type, the time it was done, the planned time if it differs, who did it, who approved it, and its description and note word for word. Say which search found it. For a change found only by search 4, give its date and say that it is older than 168 hours. It is not a disagreement between records.
+3. Each change found, once, starting a line of its own with its id. Do this for every search, also when a search found several changes: a count without the ids is not enough. For each: its id, service, title, type, the time it was done, the planned time if it differs, who did it, who approved it, and its description and note word for word. Say which search found it. For a change found only by search 4, give its date and say that it is older than 168 hours. It is not a disagreement between records.
 4. Each change id the manager gave that no search returned, in one line, as missing.
 5. The runbook: its service, its owner, its note, and every step with its number, its whole sentence word for word and who may run it. Leave no step out.
 

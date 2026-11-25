@@ -251,8 +251,8 @@ def build_incidents(today: date) -> dict:
     inc["INC-7003"] = {
         "incident_id": "INC-7003", "title": "No volume data from the statement service", "status": "open", "severity": "medium",
         "opened_at": stamp(today, 0, "09:36"), "resolved_at": "", "closed_at": "",
-        "reported": "The monitoring alert ALT-9103 reported that no volume data had arrived for the statement service for 35 minutes, since 09:00.",
-        "alert_id": "ALT-9103", "alert_text": "statement-service volume_per_min: no data for 35 minutes (last sample 09:00)",
+        "reported": "The monitoring alert ALT-9103 reported that no volume data had arrived for the statement service for 36 minutes, since 09:00.",
+        "alert_id": "ALT-9103", "alert_text": "statement-service volume_per_min: no data for 36 minutes (last sample 09:00)",
         "services_affected": ["statement-service"], "linked_change_ids": [],
         "timeline": [tl(today, 0, "09:36", "monitoring", "Alert ALT-9103 fired. Incident opened."),
                      tl(today, 0, "09:40", ON_CALL["platform"], "Acknowledged. The alert names the collector on host stmt-app-02."),
