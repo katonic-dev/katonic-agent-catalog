@@ -9,7 +9,7 @@ Drafts a campaign brief in the company's eleven-section template, with the audie
 | How people meet it | Chat |
 | Reads from | The company's loyalty system: the campaign brief template, last year's campaigns with results, and the totals of the programme |
 | Changes | Saves the brief as a draft. The draft sends nothing |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Six of seven tests pass three runs in a row, and every saved brief was right |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Drafts a campaign brief in the company's eleven-section template, with the audie
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the loyalty system from its OpenAPI address, one system at a time. For the invented retailer, that is the document at `/loyalty/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Six of the seven tests pass three runs in a row, on the instructions as first written.
+- Every brief saved to the retailer was right, sixteen of sixteen.
+- The seventh test gave the right answer and tripped once on how a number was written. The check is corrected here and has not been run again.
+- In five saving runs of fifteen the first save was refused, for a list sent as text. The agent corrected it each time.
+- The reply in the Work Room, on the published agent, was delivered and the saved brief was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

@@ -9,7 +9,7 @@ Works out up to five product suggestions for one loyalty member from the member'
 | How people meet it | An application: the shop's website calls it. It also works in a chat |
 | Reads from | The company's loyalty system: the member, the member's purchases and browsing, and the personalisation rules. The catalogue system: each candidate line's listing |
 | Changes | Saves the suggestions as a draft on the member. The draft shows the member nothing |
-| State | Written. Not yet built on a platform |
+| State | Built as a chat agent and tested on a development cluster. Seven of eight tests pass three runs in a row, and every saved draft was right |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Works out up to five product suggestions for one loyalty member from the member'
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built on a development cluster on 25 November 2026 as a chat agent. The form the shop's website calls is not built.
 
 1. In Control Room, Tools, import the loyalty system and the catalogue system from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/loyalty/openapi.json` and `/catalogue/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,16 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row.
+- Every draft saved to the retailer was right.
+- One sentence was changed so that a blocked line is named with its line id. Before it, one run in three gave the rule with no product.
+- The eighth test is a request to go round the rules for two members. It passes two runs of three. The agent never suggests the blocked line and never saves anything for the member who has not opted in, but it answers in three different ways.
+- Built as a chat agent. The form the shop's website calls is not built.
+- The two-turn test in the Work Room, on the published agent, passed three runs in a row.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

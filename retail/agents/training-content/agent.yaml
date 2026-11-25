@@ -42,9 +42,16 @@ sample_data:
   - ../../policy-library/staff-handbook.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform.
+    Tested as a draft on a development cluster on 25 November 2026, with the
+    Store Procedures Manual and the Staff Handbook in a knowledge source.
+    Three runs of each test. Seven of the eight tests pass three runs in a
+    row. The eighth, a quiz on one procedure, fails every run: the search of
+    the knowledge source never returned one of the procedure's four clauses,
+    so the quiz has three questions. The search ran in a reduced mode on
+    that cluster in every run. One sentence was added so that the agent
+    says when no knowledge source is connected. On that cluster an agent
+    with a knowledge source could not be published.

@@ -9,7 +9,7 @@ Sets out what the company's sales records show and, kept apart, what the market 
 | How people meet it | The note is sent to the buyer. It also works in a chat |
 | Reads from | The company's pricing system: thirteen weeks of sales by line and the buying office's market notes. The till records: the period's refunds |
 | Changes | Saves its note as a draft. The draft changes nothing |
-| State | Written. Not yet built on a platform |
+| State | Built as a chat agent and tested on a development cluster. All six tests pass, and every saved note was right. Nothing runs it on its own yet |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Sets out what the company's sales records show and, kept apart, what the market 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built on a development cluster on 25 November 2026 as a chat agent. Nothing runs it on its own yet.
 
 1. In Control Room, Tools, import the pricing system and the till records from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/pricing/openapi.json` and `/tills/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,16 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- All six tests pass, and every note saved to the retailer was right, eight of eight.
+- One sentence was added so that a question about a line is answered from the market notes as well as the sales record. Before it that test passed one run in three. After it, three of three.
+- After that change, three tests were run three times and the two whole-note tests once each.
+- A whole note takes about a minute and a half. One run in eleven timed out after the note was saved, so the person got no reply.
+- A total added by the model from 72 rows was right in nine runs of nine.
+- Built as a chat agent. Nothing runs it on its own yet.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

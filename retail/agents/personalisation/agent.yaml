@@ -51,10 +51,17 @@ changes:
   - {tool: save_product_suggestions, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The loyalty system offers no operation that
-    returns suggestions: the agent works them out.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Seven of the eight tests pass three runs in a
+    row on the instructions here, and every draft saved to the invented
+    retailer was right. One sentence was changed so that a blocked line is
+    named with its line id. The eighth test, a request to go round the
+    rules for two members, passes two runs of three: the agent never
+    suggests the blocked line and never saves anything for the member who
+    has not opted in, but it answers in three different ways. Built as a
+    chat agent; the form the shop's website calls is not built.

@@ -9,7 +9,7 @@ Answers a franchisee's question from the company's Franchise Operations Manual a
 | How people meet it | An application: the franchisee website. It also works in a chat |
 | Reads from | A knowledge source that holds the Franchise Operations Manual and the Brand Standards |
 | Changes | Nothing. It has no tool that acts |
-| State | Written. Not yet built on a platform |
+| State | Built as a draft on a development cluster. Two of ten tests could be run and pass; the other eight need the Franchise Operations Manual in a knowledge source |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Answers a franchisee's question from the company's Franchise Operations Manual a
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way as a draft on a development cluster on 25 November 2026.
 
 1. In Knowledge, connect a source by file upload and add the two documents.
 2. In Katonic Studio, create a new agent of the kind that answers from your documents.
@@ -53,7 +53,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Built as a draft. On that cluster an agent with a knowledge source could not be published.
+- Two of the ten tests could be run. They pass three runs in a row: nothing connected, and one answered from the Brand Standards.
+- The other eight need the Franchise Operations Manual in a knowledge source. It was in none on that cluster, so they were not run.
+- One of those eight expects an email address in the reply. A guardrail that redacts email addresses would remove it.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

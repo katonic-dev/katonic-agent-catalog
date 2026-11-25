@@ -47,11 +47,17 @@ changes:
   - {tool: save_product_description, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The product data desk is planned and not yet
-    written. Tagging real images needs a model that reads images and is not
-    written here.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. All seven tests pass three runs in a row on the
+    instructions here, unchanged (five runs in a row is the bar for
+    tests_passed), and every description saved to the invented retailer was
+    right, twelve of twelve: the facts word for word, the length, the tags,
+    and none of the words the style guide rules out. On the test page the
+    first save was refused every time, for a list sent as text, and the
+    agent corrected it. Built as a chat agent a person talks to; the form
+    that an arriving product starts is not built.

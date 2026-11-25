@@ -9,7 +9,7 @@ Drafts a new product's description and image tags to the style guide, from the s
 | How people meet it | An application: the product data desk. It also works in a chat |
 | Reads from | The company's catalogue system: new products with their image descriptions as text, the supplier's specification, and the style guide |
 | Changes | Saves a description as a draft on the listing. The draft publishes nothing |
-| State | Written. Not yet built on a platform |
+| State | Built as a chat agent and tested on a development cluster. All seven tests pass three runs in a row, and every saved description was right |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Drafts a new product's description and image tags to the style guide, from the s
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built on a development cluster on 25 November 2026 as a chat agent a person talks to. The form that an arriving product starts is not built.
 
 1. In Control Room, Tools, import the catalogue system from its OpenAPI address, one system at a time. For the invented retailer, that is the document at `/catalogue/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -52,7 +52,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- All seven tests pass three runs in a row, on the instructions as first written.
+- Every description saved to the retailer was right, twelve of twelve: the facts word for word, the length, the tags, and none of the words the style guide rules out.
+- On the test page the first save was refused every time, for a list sent as text. The agent corrected it each time.
+- Built as a chat agent a person talks to. The form that an arriving product starts is not built.
+- The two-turn test in the Work Room, on the published agent, passed three runs in a row.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

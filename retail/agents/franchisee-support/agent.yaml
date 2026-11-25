@@ -47,11 +47,15 @@ sample_data:
   - ../../policy-library/brand-standards-v2.0.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The invented retailer's franchise system holds
-    seventeen questions franchisees have asked, for trying the agent. The
-    agent itself reads no system.
+    Built as a draft on a development cluster on 25 November 2026, with the
+    instructions here unchanged. Two of the ten tests could be run, and
+    they pass three runs in a row: nothing connected, and one answered from
+    the Brand Standards. The other eight need the Franchise Operations
+    Manual in a knowledge source, and it was in none on that cluster. One
+    of those eight expects an email address in the reply, which a guardrail
+    that redacts email addresses would remove. On that cluster an agent
+    with a knowledge source could not be published.

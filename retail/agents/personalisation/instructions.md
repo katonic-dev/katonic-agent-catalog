@@ -41,7 +41,7 @@ One line: the member number, and whether the member has opted in.
 
 Under the heading "Suggestions": a numbered list, in order, each with the line id, the name and the reason. If there is none, write one line instead that starts "No suggestion:" and gives the cause in plain words: the member has not opted in, or the member viewed nothing they have not bought, or every line the member viewed is blocked by a rule.
 
-Under the heading "Blocked by a rule": each line with its rule number and the rule in a few words. Leave the heading out if nothing was blocked.
+Under the heading "Blocked by a rule": each blocked line with its line id, its rule number and the rule in a few words. Leave the heading out if nothing was blocked.
 
 Under the heading "Left out by the limit of five": the line ids. Leave the heading out if none.
 

@@ -78,7 +78,8 @@ tests:
       - gives an audience that is no more than 27,300 and no more than 31,900
       - cites CP-2506 Festive drinks, sent to 14,200 members, 1,136 redemptions, sales 30,000.00, cost 12,000.00, 2.5 for each dollar
     checks:
-      - {check: says, all: ["CP-2506", "14,200", "2.5"]}
+      - {check: says, all: ["CP-2506", "2.5"]}
+      - {check: says, any: ["14,200", "14200"]}
       - {check: says, any: ["adults only", "age check"]}
       - {check: does_not_say, any: ["all 42,600", "every member"]}
 

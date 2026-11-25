@@ -9,7 +9,7 @@ Drafts a short training note or a quiz from one procedure of the company's Store
 | How people meet it | Chat |
 | Reads from | A knowledge source that holds the Store Procedures Manual and the Staff Handbook |
 | Changes | Nothing. It has no tool that acts |
-| State | Written. Not yet built on a platform |
+| State | Tested as a draft on a development cluster. Seven of eight tests pass three runs in a row. Not published |
 
 ## What it does
 
@@ -37,7 +37,7 @@ Drafts a short training note or a quiz from one procedure of the company's Store
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way as a draft on a development cluster on 25 November 2026.
 
 1. In Knowledge, connect a source by file upload and add the two documents.
 2. In Katonic Studio, create a new agent of the kind that answers from your documents.
@@ -50,7 +50,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Tested as a draft, with the Store Procedures Manual and the Staff Handbook in a knowledge source. On that cluster an agent with a knowledge source could not be published.
+- Seven of the eight tests pass three runs in a row.
+- The eighth, a quiz on one procedure, fails every run. The search of the knowledge source never returned one of the procedure's four clauses, so the quiz has three questions. The search ran in a reduced mode on that cluster in every run. Words in the instructions did not cure it.
+- One sentence was added so that the agent says when no knowledge source is connected.
+- Four of the tests were run on the first text only. The sentence added since is in a part they do not reach.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 
