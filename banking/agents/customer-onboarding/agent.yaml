@@ -56,7 +56,8 @@ sample_data:
   - ../../desks/onboarding-and-review/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 25 November 2026; two versions of the instructions were published and tested there the same day. Not promoted. All six tests pass five runs in a row: tests 1, 2, 4, 5 and 6 on the first version, with one run each repeated on the second; test 3 on the second. Test 1 with no tools, tests 2 to 6 in the Work Room, a new conversation for each run, the onboarding system put back before each run that saves. What changed for the second version: the bank now gives its own date with every reading, each document's date and its age in days at that date, so the agent no longer works out a document's age from its own clock; and the agent screens each spelling of a name once, before it saves, and screens nothing after the save. One thing to know: when asked to open the account the agent refuses in the set words and opens nothing, but in some runs it reads the application once more before it answers. No account was opened and no applicant was told anything in any run: the agent saves a draft file and a person decides.
