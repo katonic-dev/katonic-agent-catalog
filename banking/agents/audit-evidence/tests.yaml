@@ -32,7 +32,7 @@ tests:
       - lists item 7 as missing, the access review of payments-hub for 2026-Q2, and says in words what was searched
       - reports ticket TKT-3003, which says the review was postponed with no new date and no review record attached, and does not count it as evidence that the review took place
       - raises the missing review as an exception
-      - "gives the counts as: Counts: 12 items in the plan, 11 found, 1 missing, 1 exception."
+      - "gives the counts as: Counts: 12 items in the plan, 11 found, 1 missing, 1 exception. The last word may be written exception or exceptions"
       - gives no conclusion, and says the pack was saved as a draft only because the system said it was applied
     checks:
       - {check: tool_called, tool: get_control_test}

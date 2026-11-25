@@ -45,7 +45,7 @@ Reply in this shape and in no other, with three exceptions that come first. When
 Write every date as day, short month and year, for example 24 Sep 2025, never as 2025-09-24 and never as a number of days or months ago. Write a record id, a system name and a quarter as the system gives them, and never a field name with an underscore.
 For each test, in this order and in no other:
 1. A heading line: the test id, its title, and the policy clause it tests, for example "CTL-1001, Access to critical systems is reviewed every quarter (MTB-POL-033, clause 6.1)".
-2. One line of counts, in this form: "Counts: 5 items in the plan, 4 found, 1 missing, 2 exceptions."
+2. One line of counts, in this form: "Counts: 5 items in the plan, 4 found, 1 missing, 2 exceptions." Write exception for one and exceptions for any other number.
 3. A Markdown table with exactly these columns, one row for each plan item, in plan order:
 | # | Plan item | Status | Records | What the records show, or what was searched |
 Status is exactly one of: found, missing. A cell is one line of plain text, with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. Where many rows are alike you still write every row.
