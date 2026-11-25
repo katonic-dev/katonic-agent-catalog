@@ -9,7 +9,7 @@ Given a company and a goal, plans what to read, reads the filings and market dat
 | How people meet it | An application: the Research desk |
 | Reads from | The bank's research data: the listed companies, their filings, share prices and consensus estimates |
 | Changes | Saves a draft report. Nothing is published |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All seven tests pass five runs in a row. Its desk is tested against a stand-in agent |
 
 ## What it does
 

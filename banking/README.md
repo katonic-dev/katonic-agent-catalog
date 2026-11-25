@@ -49,7 +49,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 25 | [Member Fund Assistant](agents/member-fund-assistant/README.md) | Answers a member's questions about funds and their own holdings, with every figure taken from the fund fact sheets | Conversational, answering | Chat | Built on a development cluster. All seven tests pass five runs in a row |
 | 26 | [Contribution and Transfer Processing](agents/contribution-and-transfer-processing/README.md) | Checks contribution files and transfer forms against the written procedures and reports how many passed and how many need a person | Multi-agent, pipeline | Batch report, failed forms to a person | Built on a development cluster. All seven tests pass five runs in a row |
 | | **Capital markets** | | | | |
-| 30 | [Equity Research Report](agents/equity-research-report/README.md) | Reads filings and market data and drafts an equity research report for an analyst | Autonomous | Research desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
+| 30 | [Equity Research Report](agents/equity-research-report/README.md) | Reads filings and market data and drafts an equity research report for an analyst | Autonomous | Research desk | Built on a development cluster. All seven tests pass five runs in a row. Its desk is tested against a stand-in agent |
 
 ## The desks
 
