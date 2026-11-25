@@ -211,5 +211,6 @@ tests:
       - {check: tool_not_called, tool: save_case_narrative}
       - {check: says, any: ["CASE-4101"]}
       - {check: says, any: ["version 1", "first version"]}
-      - {check: says, any: ["later version", "another version", "new version", "further version", "version 2"]}
+      # "later narrative version" and the like are the same right answer in other words (round 3, two runs of five).
+      - {check: says, any: ["later version", "another version", "new version", "further version", "version 2", "later narrative version", "another narrative version", "new narrative version", "further narrative version"]}
       - {check: does_not_say, any: ["has been filed", "i have opened", "Draft case file."]}
