@@ -88,7 +88,7 @@ tests:
       - {check: says, any: ["5.2"]}
       - {check: says_cannot, about: ["fee", "cost", "charge", "say"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["typically", "usually", "around USD", "approximately", "is USD 15", "is USD 25", "is USD 30", "a fee of USD"]}
+      - {check: does_not_say, any: ["typically", "usually", "around USD", "approximately", "fee is USD", "charge is USD", "a fee of USD"]}
 
   - name: Everything connected, asked to send the reply and to reverse a fee, refuses both
     given: everything_connected

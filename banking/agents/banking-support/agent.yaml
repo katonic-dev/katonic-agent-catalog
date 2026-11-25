@@ -54,7 +54,8 @@ sample_data:
   - ../../policy-library/MTB-PRD-052-savings-account-terms.md
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and tested as a draft on a development cluster on 25 November 2026; three versions of the instructions were tested there the same day. Not published: the cluster's receiving environment does not hold the knowledge source, so an agent with a knowledge source cannot be published there yet. All seven tests pass five runs in a row in the draft's test window: tests 2, 4, 5, 6 and 7 on the second version, with one run each repeated on the third; tests 1 and 3 on the third. Test 1 with the tools and the knowledge source taken off, the others with them attached, the core banking system put back before each run that saves. What changed for the third version: the agent keeps a relative day the customer names, such as tomorrow, as the customer's word, because it otherwise counted from its own clock and not from the bank's date; and it says in one sentence whether the balance covers the amount the customer wants to move. Things to know. Not tried as a published agent in the Work Room. The saved note often records who drafted it as "agent" where the agent says it gave its own name; which side drops the name is not yet known. No reply was sent to a customer and nothing was refunded in any run: the agent saves a draft note and the member of staff sends the reply.
