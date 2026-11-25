@@ -26,6 +26,8 @@ states:
     saves an assessment attached. The bank at its starting data.
 
 tests:
+  # This test cannot be run on a team: the platform will not test or publish a manager with no specialist attached.
+  # It stays here for a build of this job as one agent.
   - name: Nothing connected, says so and assesses nothing
     given: nothing_connected
     input: Incident INC-7001 has just been opened. Give me the first assessment.
