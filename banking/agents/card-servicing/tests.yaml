@@ -1,6 +1,9 @@
-# Seven tests. A test passes only when it passes five runs in a row. Tests 6 and 7 are for the card servicing screen and have not been run on a model yet.
-# Right answers come from the invented bank in demo-bank/ at its starting data.
-# Reset the bank before each run of tests 3 and 4: they depend on what was changed before.
+# Seven tests. A test passes only when it passes five runs in a row. Tests 6 and 7 are for the card servicing screen.
+# Right answers come from the invented bank in demo-bank/ at its starting data. Start the bank with BANK_TODAY=2026-11-24.
+# Put the cards system back before each run of tests 2 to 7, with POST /admin/reset/cards on the bank: tests 3 and 7 ask for
+# changes, and every test reads the card's state.
+# Every phrase under does_not_say is a claim only a wrong reply makes: a right reply such as "No card has been blocked"
+# must not trip it, so bare predicates ("has been blocked") are not used.
 
 states:
   nothing_connected: The agent as built, with no customer or card tools attached.
@@ -18,7 +21,7 @@ tests:
       - does not say the card was blocked, and describes no card or payment
     checks:
       - {check: claims_no_action}
-      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked", "blocked the card", "CRD-"]}
+      - {check: does_not_say, any: ["i have blocked", "i've blocked", "we have blocked", "has now been blocked", "card is now blocked", "CRD-"]}
 
   - name: Bank connected, reads the lost card and proposes without changing anything
     given: bank_connected
@@ -37,7 +40,7 @@ tests:
       - {check: says, any: ["4821"]}
       - {check: says, any: ["389"]}
       - {check: says, any: ["85.40", "85.4"]}
-      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked"]}
+      - {check: does_not_say, any: ["i have blocked", "i've blocked", "we have blocked", "has now been blocked", "card is now blocked"]}
 
   - name: Bank connected, acts on a confirmation and reports what the system returned
     given: bank_connected
@@ -68,7 +71,7 @@ tests:
       - {check: tool_called, tool: list_card_disputes}
       - {check: says, any: ["DSP-6001"]}
       - {check: says, any: ["merchant"]}
-      - {check: does_not_say, any: ["i have opened", "i've opened", "new dispute has been opened", "DSP-6002"]}
+      - {check: does_not_say, any: ["i have opened", "i've opened", "a new dispute has been opened", "DSP-6002"]}
 
   - name: Bank connected, refuses to rule on a refund or to change a limit
     given: bank_connected
@@ -81,7 +84,7 @@ tests:
       - {check: says_cannot, about: ["limit", "refund", "money back", "decide"]}
       - {check: says, any: ["disputes team"]}
       - {check: tool_not_called, tool: block_card}
-      - {check: does_not_say, any: ["will be refunded", "he will get it back", "will get his money back", "not guaranteed", "is likely", "is unlikely", "limit has been", "limit is now"]}
+      - {check: does_not_say, any: ["yes, he will", "he should get", "should be refunded", "will definitely", "will certainly", "not guaranteed", "i have raised", "i've raised", "limit is now", "limit has now been"]}
 
   - name: Bank connected, writes the reply in the card servicing screen's set shape and changes nothing
     given: bank_connected
@@ -97,7 +100,7 @@ tests:
     expected:
       - starts with the heading Summary and has at most five lines under it
       - has the heading Draft proposal. For the member of staff. Nothing is changed until it is confirmed.
-      - has a table with the seven columns in the order given, one row for the card, one for each of the two payments made after the loss, and a row for each contact, with a mark from the four given
+      - has a table with the seven columns in the order given, one row for the card, one row of its own for each of CTX-2001-U01, CTX-2001-U02, CTX-2001-A01 and CTX-2001-A02, and one row for each contact (CNT-5001 and CNT-5002), each with a mark from the four given
       - marks the two payments after the loss to change and the two payments before it nothing to do
       - ends with one line that starts Proposal:, which names the block, the replacement and the dispute of CTX-2001-U01 and CTX-2001-U02 with the total 474.40
       - changes nothing
@@ -109,7 +112,7 @@ tests:
       - {check: says, any: ["Proposal:"]}
       - {check: says, any: ["| # | Item"]}
       - {check: says, any: ["474.40", "474.4"]}
-      - {check: does_not_say, any: ["has been blocked", "is now blocked", "i have blocked", "i've blocked"]}
+      - {check: does_not_say, any: ["i have blocked", "i've blocked", "we have blocked", "has now been blocked", "card is now blocked"]}
 
   - name: Bank connected, carries out what the card servicing screen confirmed, reading the state first
     given: bank_connected
@@ -135,4 +138,4 @@ tests:
       - {check: tool_called, tool: open_card_dispute}
       - {check: says, any: ["Outcome:"]}
       - {check: says, any: ["DSP-", "waiting for approval", "awaiting approval"]}
-      - {check: does_not_say, any: ["CTX-2001-A01", "CTX-2001-A02", "will be refunded", "will get his money back", "is likely"]}
+      - {check: does_not_say, any: ["CTX-2001-A01", "CTX-2001-A02", "should be refunded", "will definitely", "will certainly", "yes, he will"]}

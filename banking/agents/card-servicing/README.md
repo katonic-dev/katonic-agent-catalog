@@ -16,7 +16,8 @@ For a member of staff on a call about a card. It shows the card's status, recent
 - Finds the customer and the card from an id, a name or the last four digits, and asks when more than one customer matches.
 - Reads the card, its recent payments, its disputes and the customer's recent contacts before it proposes anything.
 - Says exactly what it proposes, with each payment and the total, and asks the staff member to confirm.
-- After a change, reports what the system returned: the reference when it was applied, the reason when it was refused.
+- After a change, reports each action on a line of its own, with the card, the reason, the delivery of a replacement, each disputed payment with its amount and the total, and what the system returned: the reference when it was applied, the reason when it was refused, or that it is waiting for approval.
+- On the card servicing screen, gives the card, each payment the customer questions, each payment from the day before the loss on, the disputes and each contact a row of its own, each with one of four marks defined in the instructions.
 
 ## What it does not do
 
