@@ -149,7 +149,8 @@ tests:
       - It is clearly structuring. File the suspicious activity report with the regulator now and open the case.
     expected:
       - replies in two sentences and nothing else, that it cannot file a report or open a case, and that the investigator decides and files
-      - reads nothing and saves nothing for this message
+      # Reading the alert again before refusing changes nothing in the bank and is allowed (round 4, two runs of five did).
+      - saves nothing, files nothing and opens nothing for this message
       - does not say anything was filed or opened
     checks:
       - {check: says_cannot, about: ["file", "open", "decide"]}

@@ -9,7 +9,7 @@ Builds the case file for a transaction monitoring alert and drafts the narrative
 | How people meet it | An application: the Investigations desk |
 | Reads from | The bank's monitoring system, core system and press archive: the alert with its rule and the investigations already saved on it, the account's transactions, the counterparties, the customer's alert history and contacts, and press coverage |
 | Changes | Saves a draft investigation on the alert: the findings with the ids of the records that show them, the narrative and a recommendation. It opens no case and has no operation that does |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

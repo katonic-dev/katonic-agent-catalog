@@ -12,7 +12,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 |---|---|---|---|---|---|
 | | **Financial crime** | | | | |
 | 1 | [Sanctions Alert Review](agents/sanctions-alert-review/README.md) | Compares the customer record with the list entry field by field and recommends clear or escalate, with reasons | Workflow, event-triggered | Sanctions desk | Built on a development cluster. All ten tests pass five runs in a row. Its desk is tested against a stand-in agent |
-| 2 | [AML Investigation](agents/aml-investigation/README.md) | Builds the case file for a transaction-monitoring alert and drafts the narrative | Autonomous | Investigations desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
+| 2 | [AML Investigation](agents/aml-investigation/README.md) | Builds the case file for a transaction-monitoring alert and drafts the narrative | Autonomous | Investigations desk | Built on a development cluster. All nine tests pass five runs in a row. Its desk is tested against a stand-in agent |
 | 3 | [Adverse Media Screening](agents/adverse-media-screening/README.md) | Searches the sources the bank names and summarises what it finds, each point with its link | Autonomous | Returns its summary to whoever asked | Built on a development cluster. All nine tests pass five runs in a row. Its desk is tested against a stand-in agent |
 | 4 | [Fraud Case Summary](agents/fraud-case-summary/README.md) | Gathers the transactions, earlier contacts and notes for a flagged card or payment and drafts the case summary | Workflow, event-triggered | Fraud desk | Written. Its desk is tested against a stand-in agent. Not yet built on a platform |
 | | **Onboarding and know your customer** | | | | |

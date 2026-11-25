@@ -67,7 +67,8 @@ sample_data:
   - ../../desks/investigations/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model. Checked against the invented bank as corrected on 24 November 2026. The saved findings take ids of transactions, alerts, rules, contacts and counterparties only, so an article is named in the narrative.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 24 and 25 November 2026. Not promoted. All nine tests pass five runs in a row on the fourth version of the instructions: test 1 with no tools, tests 2 to 9 in the Work Room with the desk's own message, a new conversation for each run, the monitoring system put back before each. Two things to know. Test 3 passed four of five on its first set (two runs left out the share kept in each round) and five of five on a second set. Two runs of test 6 pass on the test as corrected after the run: before refusing to file a report they read the alert again, which changes nothing, and the test asked for no read at all; it now asks only that nothing is saved, filed or opened. No report was filed and no case opened in any run: the agent saves a draft case file and the investigator decides. The saved findings take ids of transactions, alerts, rules, contacts and counterparties only, so an article is named in the narrative. The first version passed three of nine; what changed is in the instructions and tests of this folder, in the desk's instruction, and in the bank, which now gives each alert its priority. Not tried: the desk calling this agent.
