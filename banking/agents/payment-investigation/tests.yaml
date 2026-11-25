@@ -47,8 +47,7 @@ tests:
       - {check: says, any: ["ACSC"]}
       - {check: says, any: ["MSG-6001-2"]}
       - {check: says, any: ["credited"]}
-      # The fact is the hold at the correspondent bank. The timeline note also says "over the weekend", but 19 to 21 Nov 2026 is
-      # Thursday to Saturday, so the word is not asked for.
+      # The fact is the hold at the correspondent bank until its next processing day (19 to 21 Nov 2026).
       - {check: says, any: ["correspondent bank"]}
       - {check: says, any: ["No rule needed"]}
       - {check: says, any: ["approve the reply to the customer"]}

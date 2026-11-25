@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from datetime import date
+from datetime import date, timedelta
 
 from .ibanutil import make_iban
 from .seed_base import BANK_BY_CODE, TxnBuilder, d_ago
@@ -113,7 +113,8 @@ def build_payments(customers: dict, accounts: dict, tb: TxnBuilder, rng: random.
     investigations["INV-5001"] = {
         "investigation_id": "INV-5001", "payment_id": "PAY-6001", "customer_id": "CUS-1014", "status": "open",
         "type": "beneficiary_not_received", "raised": d_ago(today, 4), "raised_by": "Contact centre",
-        "claim": "The customer says her friend has not received the USD 1,850 sent 6 days ago and asks where it is.",
+        "claim": "The customer says her friend has not received the USD 1,850 sent on "
+                 + (today - timedelta(days=6)).strftime("%d %b %Y").lstrip("0") + " and asks where it is.",
         "rule_ids": [], "rule_note": NO_RULE_NOTE,
         "reply_drafts": []}
     # ---- INV-5002: arrived short, intermediary deducted charges (instructed OUR)
