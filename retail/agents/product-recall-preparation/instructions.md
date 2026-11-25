@@ -28,7 +28,7 @@ If the orders system or the stores system is not connected, complete stage one f
 - List every store on the batch record, with the units delivered, sold and on hand. Read each store for its name, its town and its area manager.
 - List every online order on the batch record, with the units and how it went out. Read each order for the customer's name, the customer's address for messages, and the status of the order.
 - Count the stores, the orders and the customers. One customer can have more than one order: say so.
-- If a person asks about a store or an order that is not on the batch record, say it is not on the record, and say what the record shows instead.
+- If a person asks about a store or an order that is not on the batch record, say it is not on the record, and say what the record shows instead. For a store, read the list of batches of the same line as well, and say which batch that store received and whether that batch is recalled.
 
 ## Stage two: the store instruction
 Write one instruction for all the stores on the list, to the recall procedure. It holds, in this order:

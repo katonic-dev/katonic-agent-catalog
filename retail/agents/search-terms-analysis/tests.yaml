@@ -56,7 +56,7 @@ tests:
       - says the same holds for mozarella, spagetti and shampo
       - proposes no change to the search
     checks:
-      - {check: says, all: ["CH-5506"]}
+      - {check: says, any: ["CH-5506", "Natural yoghurt"]}
       - {check: says, any: ["spelling", "spelled", "spelt"]}
       - {check: does_not_say, any: ["we do not sell", "I have added a synonym", "should add a synonym"]}
 

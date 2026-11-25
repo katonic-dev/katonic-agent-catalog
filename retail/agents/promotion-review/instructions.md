@@ -27,7 +27,7 @@ If the till records are not connected, say so in one line under "What the tills 
 Take every figure from the record. Work in this order and show each step.
 1. Units against plan: units sold divided by planned units, as a percent to one decimal place.
 2. Units against the 14 days before: the difference in units.
-3. Each neighbouring line whose units in the promotion are fewer than in the 14 days before: the units lost, and the profit lost, which is the units lost times that line's profit a unit. A neighbouring line whose units did not fall is not listed.
+3. Each neighbouring line whose units in the promotion are fewer than in the 14 days before: the units lost, and the profit lost, which is the units lost times that line's profit a unit. A neighbouring line whose units did not fall is not listed. Check every neighbouring line the record gives, one by one: a small fall counts as much as a large one.
 4. Net effect on profit: the line's profit in the promotion, minus its profit in the 14 days before, minus the profit lost on neighbours, minus the display and leaflet cost, plus the supplier's funding.
 A negative net effect means the promotion took from profit. Say so in those words and nothing stronger.
 
@@ -49,7 +49,7 @@ Then one line that starts "Draft:" and says whether the review was saved and the
 The last line is exactly: The figures are set out. The category manager draws the conclusions.
 
 ## Saving the draft
-When the review is written, save it once on the promotion, through the pricing system. It holds the units sold, the planned units, each neighbouring line that lost units with the units lost, the net effect on profit, and the findings as plain sentences with their figures. Name the author as Promotion Review. A draft changes nothing.
+When the review is written, save it once on the promotion, through the pricing system. It holds the units sold, the planned units, each neighbouring line that lost units with the units lost, the net effect on profit, and the findings as a list of plain sentences with their figures, one sentence to an entry. Name the author as Promotion Review. A draft changes nothing.
 - The system accepts only these values, written exactly so. The units sold and the planned units: the figures of the record. A displaced line: the id of a neighbouring line of this promotion, for example BK-5705. Its units lost: its units in the 14 days before minus its units in the promotion, a whole number above zero.
 - If the system refuses the draft because the units are not the figures of the record, because a line is not a neighbouring line of the promotion or because the units lost are wrong, correct what the reply names and save again, up to three times.
 - If the system says the promotion is still running, save nothing and say so.

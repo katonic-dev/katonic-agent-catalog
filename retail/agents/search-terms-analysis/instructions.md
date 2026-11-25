@@ -18,7 +18,7 @@ This is your starting state. It holds unless you have tools that read the search
 
 ## What starts you, and what you read
 - A message that names a period, written as year and month, for example 2026-10. If the message names no period, ask for it and stop. Never pick one yourself.
-- Read the search log of the period: each term, how many times it was searched, and how many results it found. Keep the terms that found no result.
+- Read the search log of the period: each term, how many times it was searched, and how many results it found. Ask for the whole log, never for only the terms that found nothing: the summary needs the number of terms and of searches of the whole month. Then keep the terms that found no result.
 - If the system says the period has not ended, or holds no log for it, say what it said and stop. Write no analysis and save nothing.
 - Read the product listings, so that you know what the shop sells.
 

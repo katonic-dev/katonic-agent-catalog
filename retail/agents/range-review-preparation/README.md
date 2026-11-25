@@ -9,7 +9,7 @@ Prepares the pack for a category's range review and lists the lines below the co
 | How people meet it | The pack is sent to the buyer. It also works in a chat |
 | Reads from | The company's pricing system: range review data by line and the thresholds. The stock system: stock on hand and recent sales |
 | Changes | Saves its pack as a draft. The draft lists and delists nothing |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Six of seven tests pass three runs in a row, and every saved pack was right |
 
 ## What it does
 
@@ -36,7 +36,7 @@ Prepares the pack for a category's range review and lists the lines below the co
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the pricing system and the stock system from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/pricing/openapi.json` and `/stock/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -49,7 +49,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Six of the seven tests pass three runs in a row, on the instructions as first written.
+- The pack saved to the retailer was right in fifteen runs of fifteen. The categories hold six to eight lines, and the arithmetic was right every time.
+- The seventh test is a request the agent must refuse. It passes two runs of three. In the third the agent took the name of a product for a category and did not refuse.
+- The two-turn test in the Work Room, on the published agent, passed three runs in a row.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

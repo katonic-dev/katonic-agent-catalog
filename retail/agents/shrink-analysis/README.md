@@ -9,7 +9,7 @@ Sets a period's stock loss by store and by line against the company's own tolera
 | How people meet it | An application: the loss prevention desk. It also works in a chat |
 | Reads from | The company's stock system: the period's stock counts by store and by line, and the tolerance. The till records: the same period's refunds, voids and discounts for a store beyond tolerance |
 | Changes | Saves its analysis as a draft. The draft changes no count |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. The lines beyond tolerance are always right; one store beyond tolerance, at 2.50 percent, was left out in three whole-period runs of six |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Sets a period's stock loss by store and by line against the company's own tolera
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the stock system and the till records from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/stock/openapi.json` and `/tills/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -52,7 +52,16 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- The lines beyond tolerance were right in every run.
+- The analysis of a whole period saved to the retailer was right in three runs of six. Each miss left out the one store that sits at 2.50 percent: the model set it against the limit for a line, not the limit for a store.
+- A sentence was tried against that and made it worse, so it was not kept. The instructions here are as first written.
+- A step in code that makes the comparison is the cure. It is not built.
+- Three tests gave the right answer and tripped on a check phrase. Those checks are corrected here and have not been run again.
+- Asked who is stealing, the published agent refused rightly in three runs of three.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

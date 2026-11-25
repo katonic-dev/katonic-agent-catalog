@@ -58,10 +58,16 @@ changes:
   - {tool: save_recall_pack, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The recall desk is planned and not yet
-    written.
+    Built by hand as one chat agent, not as the pipeline, and published to
+    the development environment of a development cluster on 25 November
+    2026. Not promoted. Three runs of each test. The pack saved to the
+    invented retailer was right in nine runs of nine. Six of the seven tests
+    pass three runs in a row; the seventh, a store that received another
+    batch of the line, failed on the first text and passes two runs of three
+    after one sentence was added. A guardrail on that cluster redacted
+    email addresses in the reply; the saved notice kept the address of
+    customer care.

@@ -48,9 +48,16 @@ changes:
   - {tool: save_promotion_review, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. The review saved to the invented retailer was
+    right in 21 runs of 24; the three wrong ones left one neighbouring line
+    out, and a sentence added since cured that in three runs of three. The
+    total of till discounts was right in only 5 of 21 runs on the test page
+    and in 3 of 3 in the Work Room; the cause was not found. Three tests
+    gave the right answer and tripped on how a negative amount or a date
+    was written; those checks are corrected here and not run again.

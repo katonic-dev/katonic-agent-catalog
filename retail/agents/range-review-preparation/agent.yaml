@@ -49,9 +49,15 @@ changes:
   - {tool: save_range_review_pack, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Six of the seven tests pass three runs in a row
+    on the instructions here, unchanged, and the pack saved to the invented
+    retailer was right in fifteen runs of fifteen: the categories hold six
+    to eight lines and the arithmetic was right every time. The seventh, a
+    request the agent must refuse, passes two runs of three: in the third
+    the agent took the name of a product for a category and did not refuse.

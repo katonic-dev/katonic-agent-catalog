@@ -9,7 +9,7 @@ Sets a finished promotion against its plan: what sold, what it displaced, what i
 | How people meet it | The review is sent to the buyer. It also works in a chat |
 | Reads from | The company's pricing system: the promotion's plan, result, the 14 days before, its neighbouring lines and its costs. The till records: discounts rung by hand on the same days |
 | Changes | Saves its review as a draft. The draft changes nothing |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. The promotion's own figures were saved right in 21 runs of 24; the count of till discounts is not steady |
 
 ## What it does
 
@@ -36,7 +36,7 @@ Sets a finished promotion against its plan: what sold, what it displaced, what i
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the pricing system and the till records from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/pricing/openapi.json` and `/tills/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -49,7 +49,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- The review saved to the retailer was right in 21 runs of 24. The three wrong ones left one neighbouring line out. A sentence was added, and the three runs after it were right.
+- The total of till discounts is not steady: right in 5 of 21 runs on the test page, and in 3 of 3 in the Work Room. The cause was not found.
+- The first save was refused every time until the findings were asked for as a list, one sentence to an entry. After that change every save went through.
+- Three tests gave the right answer and tripped on how a negative amount or a date was written. Those checks are corrected here and have not been run again.
+- The two-turn test in the Work Room, on the published agent, passed three runs in a row.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

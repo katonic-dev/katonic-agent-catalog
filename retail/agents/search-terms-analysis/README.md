@@ -9,7 +9,7 @@ Lists what shoppers searched for and did not find in a month, grouped by what th
 | How people meet it | The analysis is sent to the e-commerce team. It also works in a chat |
 | Reads from | The company's catalogue system: a month of the shop's search log, and the product listings |
 | Changes | Saves its analysis as a draft. The draft changes nothing in the shop |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. The counts are right every run; the five groups came out right in four runs of six, and one follow-up question is misread |
 
 ## What it does
 
@@ -36,7 +36,7 @@ Lists what shoppers searched for and did not find in a month, grouped by what th
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the catalogue system from its OpenAPI address, one system at a time. For the invented retailer, that is the document at `/catalogue/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -49,7 +49,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- The counts were right in every run, because the retailer's own service adds them.
+- The grouping saved to the retailer was right in four runs of six. In the other two, all the terms for things the shop does not sell were put in one group.
+- One follow-up question was misread in every run: a search for one word was taken for a product whose name holds it.
+- One sentence was changed so that the whole log is read. Before it the summary gave 20 terms where the log holds 60. After it the totals were right in three runs of three.
+- One test gave the right answer and tripped on a check that wanted the listing number. The check is corrected here and has not been run again.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

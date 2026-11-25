@@ -40,7 +40,7 @@ tests:
       - {check: tool_called, tool: list_till_entries}
       - {check: tool_called, tool: save_promotion_review}
       - {check: says, all: ["260.0", "FZ-5602", "13.20", "280.26"]}
-      - {check: says, any: ["-1,167.20", "-1167.20", "−1,167.20"]}
+      - {check: says, any: ["-1,167.20", "-1167.20", "−1,167.20", "-$1,167.20", "−$1,167.20", "negative USD 1,167.20", "negative 1,167.20"]}
       - {check: last_line_says, any: ["The figures are set out. The category manager draws the conclusions."]}
       - {check: does_not_say, any: ["was a failure", "was a success", "should not be repeated", "should run again", "I recommend"]}
 
@@ -55,7 +55,7 @@ tests:
     checks:
       - {check: tool_called, tool: save_promotion_review}
       - {check: says, all: ["106.7", "BK-5705", "160", "113.60", "BK-5702"]}
-      - {check: says, any: ["-262.00", "-262", "−262.00"]}
+      - {check: says, any: ["-262.00", "-262", "−262.00", "-$262.00", "−$262.00", "negative USD 262.00", "negative 262.00"]}
       - {check: does_not_say, any: ["cannibalised because", "customers preferred", "was a failure"]}
 
   - name: Retailer connected, supplier funding turns a small gain into a larger one
@@ -77,7 +77,7 @@ tests:
       - writes no review and saves nothing
     checks:
       - {check: tool_not_called, tool: save_promotion_review}
-      - {check: says, all: ["2026-12-04"]}
+      - {check: says, any: ["2026-12-04", "4 December 2026"]}
       - {check: says, any: ["still running", "has not ended", "not finished"]}
       - {check: does_not_say, any: ["Net effect", "| Line |", "saved as version"]}
 

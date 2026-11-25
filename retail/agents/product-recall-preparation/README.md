@@ -9,7 +9,7 @@ For a recalled batch, lists the stores and online orders that received it and dr
 | How people meet it | An application: the recall desk. It also works in a chat |
 | Reads from | The company's stock system: the batch, where it went, the supplier's recall and the recall procedure. The orders system: each order on the list. The stores system: each store on the list |
 | Changes | Saves a recall pack as a draft. The draft sends nothing |
-| State | Written. Not yet built on a platform |
+| State | Built as one chat agent and tested on a development cluster. Every saved pack was right, nine runs of nine. The pipeline form is not built |
 
 ## What it does
 
@@ -38,7 +38,7 @@ For a recalled batch, lists the stores and online orders that received it and dr
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built on a development cluster on 25 November 2026 as one chat agent. The pipeline below is not built.
 
 1. In Control Room, Tools, import the stock system and the orders system and the stores system from their OpenAPI addresses, one system at a time. For the invented retailer, those are the documents at `/stock/openapi.json` and `/orders/openapi.json` and `/stores/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,16 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Built as one chat agent, not as the pipeline. The pipeline form is not built.
+- The pack saved to the retailer was right in nine runs of nine: the stores, the orders, the store instruction and the customer notice.
+- Six of the seven tests pass three runs in a row.
+- The seventh asks about a store that received another batch of the line. The first text never named that batch. One sentence was added, and the test passes two runs of three.
+- A guardrail on that cluster redacted email addresses in the reply. The saved notice kept the address of customer care.
+- The tests in the Work Room, on the published agent, passed three runs in a row.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

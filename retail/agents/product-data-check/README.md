@@ -9,7 +9,7 @@ Sets each listing against the supplier's specification and lists each attribute 
 | How people meet it | An application: the product data desk. It also works in a chat |
 | Reads from | The company's catalogue system: the listings, and the supplier's specification of each line |
 | Changes | Saves its check as a draft. The draft changes no listing |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. One line or a small category checks right; the whole catalogue could not be checked there in one turn |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Sets each listing against the supplier's specification and lists each attribute 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the catalogue system from its OpenAPI address, one system at a time. For the invented retailer, that is the document at `/catalogue/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Katonic Studio, create a new agent of the kind that answers questions.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- A check of one line or of a small category was saved right in every run.
+- The check of every listing could not be made on that cluster. It needs sixty reads of the specifications, and the cluster stopped a tool after eight calls in one turn.
+- When the check was cut off, three replies of six listed findings that do not exist. None was saved.
+- A workflow that reads the specifications in a loop is the cure. It is not built.
+- One test gave the right answer and tripped once on a check phrase. The check is corrected here and has not been run again.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

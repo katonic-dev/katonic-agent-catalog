@@ -43,10 +43,16 @@ changes:
   - {tool: save_product_data_check, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The product data desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. A check of one line or of a small category was
+    saved right in every run. The check of every listing could not be made
+    on that cluster: it needs sixty reads of the specifications, and the
+    cluster stopped a tool after eight calls in one turn. When it was cut
+    off, three replies of six listed findings that do not exist; none was
+    saved. A workflow that reads the specifications in a loop is the cure;
+    it is not built. The instructions are as first written.

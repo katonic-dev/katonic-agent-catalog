@@ -49,10 +49,17 @@ changes:
   - {tool: save_shrink_analysis, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. The loss prevention desk is planned and not
-    yet written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. The lines beyond tolerance were right in every
+    run. The analysis of a whole period saved to the invented retailer was
+    right in three runs of six: each miss left out the one store that sits
+    at 2.50 percent, which the model set against the limit for a line and
+    not the limit for a store. A sentence tried against it made it worse and
+    was not kept. A step in code that makes the comparison is the cure; it
+    is not built. Three tests gave the right answer and tripped on a check
+    phrase; those checks are corrected here and not run again.
