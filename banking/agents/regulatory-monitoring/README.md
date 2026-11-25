@@ -9,7 +9,7 @@ Reads the publication feeds of two financial regulators on a clock, works out wh
 | How people meet it | An application: the Regulatory change desk |
 | Reads from | Two public regulator feeds. No sign-in, no connector |
 | Changes | Nothing. It has no step that acts |
-| State | Built, published to a development environment and run on 24 November 2026. Not promoted to production |
+| State | Built and run on a development cluster. Two of five tests pass five runs in a row; the other three cannot be run five times on live feeds |
 
 ## What it does
 
