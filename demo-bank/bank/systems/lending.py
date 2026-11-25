@@ -15,7 +15,8 @@ LINE = "Loan applications, their documents, the credit policy and approved loans
 
 
 SOURCE_HELP = ("Where the figure was read. Either a document id of this application, as listed by list_application_documents, for "
-               "example DOC-8203, or the word FORM when the figure is written on the application form itself.")
+               "example DOC-8203, or the word FORM when the figure is written on the application form itself, or the word RECORD "
+               "when it is on the application record (the amount, the term, the indicative rate or the indicative instalment).")
 
 
 class Figure(BaseModel):
@@ -149,7 +150,7 @@ def build(ctx: Ctx):
     @reg(app, "post", "/applications/{application_id}/credit-memo", "save_credit_memo", "Save a credit memo (draft)",
          "Save a credit memo with its ratios and the source of every figure. A ratio name is one the policy lists (debt_to_income, "
          "current_ratio, debt_to_equity or debt_service_cover). The source of a figure is a document id of this application (for "
-         "example DOC-8302) or FORM when the figure is on the application form itself. The recommendation is approve, decline or "
+         "example DOC-8302), FORM when the figure is on the application form itself, or RECORD when it is on the application record. The recommendation is approve, decline or "
          "refer. This is a draft: stored with who wrote it, a timestamp and a version number, earlier versions kept. It does not "
          "decide the application.")
     def save_credit_memo(body: CreditMemo, application_id: str = app_p):
