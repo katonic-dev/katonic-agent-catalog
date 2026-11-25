@@ -201,8 +201,8 @@ Rules CR-01 to CR-07 are in `get_conduct_rules`. Each rule is followed, breached
 |---|---|---|
 | CAL-1001 | Marguerite Oakhaven, LN-9005, 12 days overdue. | All rules followed (CR-05 and CR-06 not applicable). Identity confirmed before the debt, the promise (USD 450.00, a named day, by card in the app) is read back. No supervisor. |
 | CAL-1002 | Cassius Dunmore, LN-9003. | CR-02 breached: the caller states USD 1,860.00 and 38 days overdue before asking for the date of birth. The rest is followed, the promise is recorded exactly. Supervisor review. |
-| CAL-1003 | Dorian Quillfeather, LN-9101. | CR-05 breached: the customer says he lost his job six weeks ago and no hardship option is offered. Identity and the promise (USD 100.00, by card) are fine. Supervisor review. |
-| CAL-1004 | Emeric Lowenhall, LN-9102, 18:50. | CR-06 breached: his sister answers and the caller says the loan is behind by USD 275.00. CR-02 and CR-07 not applicable, the customer never came on the line. Supervisor review. |
+| CAL-1003 | Dorian Quillfeather, LN-9101. | CR-05 breached: the customer says he lost his job six weeks ago and no hardship option is offered. Identity and the promise (USD 100.00, by card) are fine. CR-03 followed: after he says he has nothing the caller asks about family or savings and then for a date, which the rule allows; it forbids a threat and demanding again after an answer, and the call has neither. Supervisor review. |
+| CAL-1004 | Emeric Lowenhall, LN-9102, 18:50. | CR-06 breached: his sister answers and the caller says the loan is behind by USD 275.00. CR-02 and CR-07 not applicable, the customer never came on the line. CR-03 followed: no threat is made, and what the caller tells the sister about the debt is the CR-06 breach. Supervisor review. |
 | CAL-1005 | Wynne Castellane, LN-9103, 19:35. | No breach. The call is firm: the caller states what the loan terms say (recovery team after 45 days, the account is at 33) and asks whether anything makes it hard to pay. That is calm and accurate, not a threat. 19:35 is inside the hours. The promise is read back. No supervisor. |
 
 ## Audit evidence (system: audit)
