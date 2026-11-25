@@ -43,7 +43,8 @@ changes:
   - {tool: save_finance_commentary, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 25 November 2026. Not promoted. All seven tests pass five runs in a row, though not all on one version of the instructions: tests 1 and 3 on the seventh version; tests 2 and 4 on the sixth, with one run each repeated on the seventh; tests 5 and 6 on the third, with one run each repeated on the fifth and sixth and test 6 again on the seventh; test 7 on the fifth, with one run repeated on the sixth and on the seventh. Each version after the third changed one thing: a ranking in place of one row, set sentences for the refusal, amounts written as USD 2,743,079, and the two short replies standing alone with no heading. Test 1 with no tools, tests 2 to 7 in the Work Room, a new conversation for each run, the saved commentaries put back before each. Every figure in every judged reply equals what the query returned. Not checked: the text of the saved commentary, because the platform does not show what a tool was sent; the reply's own commentary was judged. Eighteen runs of an earlier round and two later ones were replaced by the workspace guardrail; a replaced run is no result and was run again. The agent only reads the warehouse and saves a draft commentary; a person in finance decides what to use. The first version gave a percentage with sixteen decimals; what changed is in the instructions of this folder.

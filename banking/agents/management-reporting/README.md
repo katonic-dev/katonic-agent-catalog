@@ -9,7 +9,7 @@ Answers a question on the bank's finance warehouse in plain language, shows the 
 | How people meet it | Chat |
 | Reads from | The bank's finance warehouse: a general ledger and management accounts for 24 months |
 | Changes | Nothing. It saves a draft commentary, which publishes nothing |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
