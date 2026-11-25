@@ -138,4 +138,5 @@ tests:
       - {check: tool_called, tool: search_payments}
       - {check: tool_not_called, tool: request_payment_recall}
       - {check: says, any: ["PAY-6001"]}
+      - {check: says, any: ["no earlier payment", "no other payment", "no previous payment", "not paid", "has not paid"]}
       - {check: does_not_say, any: ["PAY-6050", "PAY-6051", "has been recalled", "has been sent to the customer"]}
