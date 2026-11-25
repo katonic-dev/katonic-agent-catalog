@@ -13,7 +13,7 @@ This form is a workflow of fixed steps: tools read the tolerance, the counts and
 | 5 | Read the counts by line | Tool | `list_stock_counts`, with the period of step 2 and the view `by_line` | The 60 lines |
 | 6 | Read the till rows of the period | Tool | `list_till_entries` (tills connection), with the period of step 2 and a limit of 500 | All 180 rows of the month |
 | 7 | Set stores and lines against the tolerance | Code | [`code-step-2-set-against-the-tolerance.py.txt`](code-step-2-set-against-the-tolerance.py.txt), with the outputs of steps 4, 5 and 6 and the two figures of step 3 | The body of the save as JSON text: stores, lines, summary, author |
-| 8 | Save the analysis | HTTP request | POST to the stock system's analysis address for the period (`/stock/counts/<period>/analysis` in the invented retailer), a Content-Type header, body `$<step 7>.result` | The answer of the stock system |
+| 8 | Save the analysis | Tool | `save_shrink_analysis` (stock connection), arguments `{ "period": "$<the step that finds the period>.result", "body": "$<step 7>.json" }` | The answer of the stock system |
 | 9 | Write the reply | LLM | The analysis from step 7 and the answer from step 8 | The reply |
 | 10 | Result | Output | The reply from step 9 | What the person sees |
 
@@ -35,7 +35,7 @@ Notes on the code:
 4. Click each Tool step, choose "Browse & pick a tool", pick the connection and the tool, and type its arguments as JSON. A value from an earlier step goes in as a string, for example `"$<step 2>.result"`.
 5. Run one test, so that the outputs of the Tool steps appear under "Insert variable". Read the id of each step from its Input - Output tab.
 6. Click the second Code step and paste the second code file, with the ids of your own steps in place of the `$n_` names. A tool's output is pasted into the code as a Python value.
-7. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the second Code step to the dot on its left, and from its right dot to the LLM step. Set POST, the address, a Content-Type header and the body `$<step 7>.result`.
+7. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the stock connection and `save_shrink_analysis`. In the Arguments box put `{ "period": "$<the step that finds the period>.result", "body": "$<step 7>.json" }`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 8. Click the LLM step and write the prompt. Give it the output of step 7 and the answer of step 8. Tell it to add no store and no line, remove none and change no figure, and to end on the fixed last line of the chat form.
 9. On the Test tab, type a request that names a month. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -59,10 +59,12 @@ Run on 25 November 2026 against the invented retailer, with the request "Run the
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The runs after the change, one in the test page and one in the Work Room on the published workflow, saved the right result, and no run waited for an approval. Earlier the same day a change on the cluster had stopped this workflow's Code step from starting, because of the size of its inputs. That was corrected on the platform, and the workflow as first published then ran right twice.
+
 ## What this form does not do yet
 
-- The save is still an HTTP request step, which takes public addresses only and accepts no sign-in header, so this form works only against a system with no sign-in. The five other workflows of this pack save through the connection's own tool; the same change is made in a draft of this one and has not run.
-- On 25 November 2026 a change on the development cluster stopped this workflow's Code step from starting: with 180 till rows, the code and its inputs passed the size the platform could hand to the step in one piece. The six runs counted above were made before that. A correction on the platform's side is written and was not yet in place when this was last checked.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
+- A step's code and its inputs together can be at most 256 KB on the platform as it was built here. This workflow hands its Code step 180 till rows and is well inside that. A period with several thousand till rows would be refused, with a message that says so. The cure then is to read fewer fields, or to split the rows over a Loop.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered: a question about one store, a request with no period, and the request to say who is at fault.
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: the year and month.
 - A month with no count fails the run. Asked for 2026-09, the run fails at step 4 with the stock system's own words, and nothing is saved. A message with no month also ends as a failed run. A plain sentence in place of a failed run needs a Branch step, which could not be placed between two steps by hand.
