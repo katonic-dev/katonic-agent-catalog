@@ -32,7 +32,7 @@ tests:
       - reads the registry extract (OND-1004-01), the articles (OND-1004-02) and the ownership declaration (OND-1004-03)
       - finds all three agree with the form, and the registry extract was issued on 12 Nov 2026, 12 days old
       - draws a chain of one owner, Bertrand Ulverstone, a person holding 100 percent directly, with no gap
-      - screens the company and the director and reports what the screening service returns, including a weak hit on the director's surname (WL-9007, score 79, a different first name and nationality) for the officer to clear
+      - screens the company and the director and reports what the screening service returns, including a weak hit on the director's surname (WL-9007, score 79: the first name differs, Bertrand on the documents and Brannoch on the entry; the entry's nationality is Kharnovia and the documents give no nationality, only the country Meridia) for the officer to clear
       - saves the draft and says so only because the system said it was applied
       - ends with a proposal to approve
     checks:
