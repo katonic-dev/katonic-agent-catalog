@@ -9,7 +9,7 @@ Spreads an application's financial figures, works out the ratios the bank's lend
 | How people meet it | An application: the Lending desk |
 | Reads from | The bank's lending system (the application, its documents and the lending policy) and the bank's customer records (the customer's existing exposure) |
 | Changes | Saves a draft credit memo. The draft does not decide the application |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster on 25 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
