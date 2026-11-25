@@ -11,7 +11,7 @@ This form is a workflow of fixed steps: a tool reads every listing, a Loop reads
 | 3 | For each line | Loop | Loop kind "Parallel", over `$<step 2>.items`, "Max iter" set to 60, parallel limit 4 | One list of 60 specifications, in order |
 | 3a | Read the specification | Tool, the body of the Loop | `get_supplier_specification`, arguments `{"sku": "$item.sku"}` | One specification back to the Loop |
 | 4 | Compare each listing with its specification | Code | [`code-step-1-compare.py.txt`](code-step-1-compare.py.txt), with the output of step 2 and the Loop step itself | The body of the save as JSON text: findings, summary, author |
-| 5 | Save the check | HTTP request | POST to the catalogue system's data check address (`/catalogue/data-checks` in the invented retailer), a Content-Type header, body `$<step 4>.result` | The answer of the catalogue system |
+| 5 | Save the check | Tool | `save_product_data_check` (catalogue connection), arguments `$<step 4>.json` | The answer of the catalogue system |
 | 6 | Write the reply | LLM | The findings from step 4 and the answer from step 5 | The reply |
 | 7 | Result | Output | The reply from step 6 | What the person sees |
 
@@ -42,7 +42,7 @@ Notes on the code:
 5. Drag a new Tool step from the palette for the body. Pick `get_supplier_specification` and type the arguments `{"sku": "$item.sku"}`. Draw the connections as the section above says.
 6. Run one test, so that the outputs appear under "Insert variable". Read the id of each step from its Input - Output tab.
 7. Click the Code step and paste the code from the file here, with the ids of your own steps in place of the `$n_` names. A tool's output is pasted into the code as a Python value.
-8. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the Code step to the dot on its left, and from its right dot to the LLM step. Set POST, the address, a Content-Type header and the body `$<step 4>.result`.
+8. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the catalogue connection and `save_product_data_check`. In the Arguments box put `$<step 4>.json`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 9. Click the LLM step and write the prompt. Give it the output of step 4 and the answer of step 5. Tell it to add no finding, remove none and change no value, and to end on the fixed last line of the chat form.
 10. On the Test tab, type a request. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -67,9 +67,11 @@ Run on 25 November 2026 against the invented retailer, with the request "Check t
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The run after the change saved the right result, and no run waited for an approval.
+
 ## What this form does not do yet
 
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered.
 - The person's message reaches a workflow as text. Nothing is taken from it here: no Code step reads the message, and the workflow always checks the whole catalogue.
 - A check of one category is not built. The code takes a category. The workflow would need a narrow Code step to take it from the message.

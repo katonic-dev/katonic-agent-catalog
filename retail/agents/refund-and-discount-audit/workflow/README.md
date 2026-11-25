@@ -11,7 +11,7 @@ This form is a workflow of fixed steps: tools read the till rules and every till
 | 3 | Read the till rules | Tool | `get_till_rules` (tills connection), no arguments | The rules in words |
 | 4 | Read every till row of the period | Tool | `list_till_entries`, with the period of step 2 and a limit of 500 | All 180 rows of the month, and the total the system holds |
 | 5 | Apply the rules to every row | Code | [`code-step-2-apply-the-rules.py.txt`](code-step-2-apply-the-rules.py.txt), with the output of step 4 | The body of the save as JSON text: rows with their rules, summary, author |
-| 6 | Save the audit | HTTP request | POST to the tills system's audit address for the period (`/tills/audits/<period>` in the invented retailer), a Content-Type header, body `$<step 5>.result` | The answer of the tills system |
+| 6 | Save the audit | Tool | `save_till_audit` (tills connection), arguments `{ "period": "$<the step that finds the period>.result", "body": "$<step 5>.json" }` | The answer of the tills system |
 | 7 | Write the reply | LLM | The audit from step 5 and the answer of the save from step 6. The prompt tells it to give the version number of the saved draft | The reply |
 | 8 | Result | Output | The reply from step 7 | What the person sees |
 
@@ -33,7 +33,7 @@ Notes on the code:
 4. Click each Tool step, choose "Browse & pick a tool", pick the tills connection and the tool, and type its arguments as JSON. A value from an earlier step goes in as a string, for example `"$<step 2>.result"`.
 5. Run one test, so that the outputs of the Tool steps appear under "Insert variable". Read the id of each step from its Input - Output tab.
 6. Click the second Code step and paste the second code file, with the id of your own step in place of the `$n_` name. A tool's output is pasted into the code as a Python value.
-7. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the second Code step to the dot on its left, and from its right dot to the LLM step. Set POST, the address, a Content-Type header and the body `$<step 5>.result`.
+7. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the tills connection and `save_till_audit`. In the Arguments box put `{ "period": "$<the step that finds the period>.result", "body": "$<step 5>.json" }`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 8. Click the LLM step and write the prompt. Give it the output of step 5 and the whole answer of step 6, so that the reply can give the version of the saved draft. Tell it to add no row, remove none and change no figure, and to end on the fixed last line of the chat form.
 9. On the Test tab, type a request that names a month. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -56,9 +56,11 @@ Run on 25 November 2026 against the invented retailer, with the request "Audit r
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The run after the change saved the right result, and no run waited for an approval.
+
 ## What this form does not do yet
 
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered, and neither is a request with no month.
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: the year and month.
 - An audit of one site is not built. The code can do it: for the invented retailer it gives 12 rows for `S-106` and none for `R-117`. The site would have to be taken from the message by a second narrow Code step, at about 4 seconds more a run.

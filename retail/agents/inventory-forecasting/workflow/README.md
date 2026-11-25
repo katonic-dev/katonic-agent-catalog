@@ -11,7 +11,7 @@ This form is a workflow of fixed steps: tools read the rules, the stock and the 
 | 3 | Read stock and sales | Tool | `list_stock_levels`, no arguments | All 60 lines with stock on hand and four weeks of sales |
 | 4 | Read supply terms and open orders | Tool | `list_supply_terms`, no arguments | All 60 lines with supplier, lead time, case size and open orders |
 | 5 | Work out the plan | Code | [`code-step-1-work-out-the-plan.py.txt`](code-step-1-work-out-the-plan.py.txt), with the outputs of steps 3 and 4 and the two figures of step 2 | The body of the save as JSON text: lines, overstocked lines, summary, author |
-| 6 | Save the plan | HTTP request | POST to the stock system's replenishment plan address (`/stock/replenishment-plan` in the invented retailer), a Content-Type header, body `$<step 5>.result` | The answer of the stock system |
+| 6 | Save the plan | Tool | `save_replenishment_plan` (stock connection), arguments `$<step 5>.json` | The answer of the stock system |
 | 7 | Write the reply | LLM | The plan from step 5 and the answer from step 6 | The reply |
 | 8 | Result | Output | The reply from step 7 | What the person sees |
 
@@ -30,7 +30,7 @@ Notes on the code:
 3. Switch to Visual. Click each Tool step, choose "Browse & pick a tool", pick the stock connection and the tool. These three tools take no arguments here.
 4. Run one test, so that the outputs of the Tool steps appear under "Insert variable". Read the id of each step from its Input - Output tab.
 5. Click the Code step and paste the code from the file here, with the ids of your own steps in place of the `$n_` names. A tool's output is pasted into the code as a Python value.
-6. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the Code step to the dot on its left, and from its right dot to the LLM step. Set POST, the address, a Content-Type header and the body `$<step 5>.result`.
+6. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the stock connection and `save_replenishment_plan`. In the Arguments box put `$<step 5>.json`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 7. Click the LLM step and write the prompt. Give it the output of step 5 and the answer of step 6. Tell it to add no line, remove none and change no figure, and to end on the fixed last line of the chat form.
 8. On the Test tab, type a request. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -52,9 +52,11 @@ Run on 25 November 2026 against the invented retailer, with the request "Prepare
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The run after the change saved the right result, and no run waited for an approval.
+
 ## What this form does not do yet
 
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered. A question about one line gets the whole plan, saved. Answering a question with no save needs a Branch step, which could not be placed between two steps by hand.
 - The person's message reaches a workflow as text. Nothing is taken from it here: no Code step reads the message, and the workflow always works out the whole plan.
 - The workflow has no step that approves a plan, and it cannot refuse a request, because it does not read the request.

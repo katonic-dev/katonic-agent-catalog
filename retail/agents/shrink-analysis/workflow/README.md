@@ -61,7 +61,8 @@ A test counts as passed here only after five runs in a row. That has not been do
 
 ## What this form does not do yet
 
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is still an HTTP request step, which takes public addresses only and accepts no sign-in header, so this form works only against a system with no sign-in. The five other workflows of this pack save through the connection's own tool; the same change is made in a draft of this one and has not run.
+- On 25 November 2026 a change on the development cluster stopped this workflow's Code step from starting: with 180 till rows, the code and its inputs passed the size the platform could hand to the step in one piece. The six runs counted above were made before that. A correction on the platform's side is written and was not yet in place when this was last checked.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered: a question about one store, a request with no period, and the request to say who is at fault.
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: the year and month.
 - A month with no count fails the run. Asked for 2026-09, the run fails at step 4 with the stock system's own words, and nothing is saved. A message with no month also ends as a failed run. A plain sentence in place of a failed run needs a Branch step, which could not be placed between two steps by hand.

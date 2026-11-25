@@ -20,7 +20,7 @@ This form is a workflow of fixed steps: a tool reads the comments of one month, 
 | 5 | For each batch | Loop | Loop kind "Parallel", over `$<step 4>.result`, parallel limit 4 | One list of 6 replies, in order |
 | 5a | Label one batch | LLM, the body of the Loop | The batch as `$item` in the prompt. Temperature 0 | One line for each line given: "key, bar, theme, bar, yes or no" |
 | 6 | Count and check the labels | Code | [`code-step-3-count-and-check.py.txt`](code-step-3-count-and-check.py.txt), with the output of step 3, the Loop step itself and the period of step 2 | The body of the save as JSON text: period, themes with counts and quotes, harm comments, summary, author |
-| 7 | Save the analysis | HTTP request | POST to the care system's analysis address (`/care/analysis` in the invented retailer), a Content-Type header, body `$<step 6>.result` | The answer of the care system |
+| 7 | Save the analysis | Tool | `save_feedback_analysis` (care connection), arguments `$<step 6>.json` | The answer of the care system |
 | 8 | Write the summary | LLM | The analysis from step 6 and the answer from step 7 | The reply |
 | 9 | Result | Output | The reply from step 8 | What the person sees |
 
@@ -64,7 +64,7 @@ Other notes:
 7. Click the Loop step. Set the loop kind to "Parallel" and "Iterate over" to `$<step 4>.result`.
 8. Drag an LLM step from the palette for the body. Draw Loop to the LLM step and the LLM step back to the Loop. A body step may connect only to the Loop step. Write the labelling prompt as described above, with `$item` in it, and set the temperature to 0.
 9. Click the third Code step and paste the second code file here, with the ids of your own steps in place of the `$n_` names.
-10. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the third Code step to the dot on its left, and from its right dot to the last LLM step. Set POST, the address, a Content-Type header and the body `$<step 6>.result`.
+10. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the care connection and `save_feedback_analysis`. In the Arguments box put `$<step 6>.json`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 11. Click the last LLM step and write the prompt. Give it the output of step 6 and the answer of step 7. Tell it to list the harm comments first, to change no count, and to add no comment and no theme.
 12. On the Test tab, type a request that names a month. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -91,11 +91,13 @@ Run on 25 November 2026 against the invented retailer, with the request "Group t
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The run after the change saved the right result, and no run waited for an approval.
+
 ## What this form does not do yet
 
 - It cannot make the labels identical every time. See the section at the top.
 - The harm list rests on the model. A harm comment that the model does not mark is not caught by code. A person should still read the comments.
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered: the three top restaurants as a question, one theme for one restaurant, one restaurant only, a request with no period, and the refusal.
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: the year and month.
 - The guests' comments and the model's replies also reach the Code steps as text the platform pastes into the code, as Python values. That worked in every run here. It is still a weakness, because a comment is text a stranger wrote.

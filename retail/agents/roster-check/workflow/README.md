@@ -12,7 +12,7 @@ This form is a workflow of fixed steps: tools read the rules and the roster, a P
 | 4 | Find the roster | Code | [`code-step-1-find-the-roster.py.txt`](code-step-1-find-the-roster.py.txt), with the message and the output of step 3 | One roster id as text, or `NONE` |
 | 5 | Read the roster | Tool | `get_draft_roster`, arguments `{"roster_id": "$<step 4>.result"}` | The roster with its colleagues and shifts |
 | 6 | Work out the breaches | Code | [`code-step-2-work-out-the-breaches.py.txt`](code-step-2-work-out-the-breaches.py.txt), with the output of step 5 and the list of rules from step 2 | The body of the save as JSON text: breaches, summary, author |
-| 7 | Save the check | HTTP request | POST to the people system's save address for that roster (`/people/rosters/<roster id>/check` in the invented retailer), a Content-Type header, body `$<step 6>.result` | The answer of the people system |
+| 7 | Save the check | Tool | `save_roster_check` (people connection), arguments `{ "roster_id": "$<the step that finds the roster>.roster_id", "body": "$<step 6>.json" }` | The answer of the people system |
 | 8 | Write the reply | LLM | The list from step 6 and the answer from step 7. The prompt tells it to add no breach, remove none and change no figure | The reply |
 | 9 | Result | Output | The reply from step 8 | What the person sees |
 
@@ -30,7 +30,7 @@ Notes on the code:
 3. Switch to Visual. Click each Tool step, choose "Browse & pick a tool", pick the people connection and the tool, and type its arguments as JSON.
 4. Run one test, so that the outputs of the Tool steps appear under "Insert variable". Read the id of each step from its Input - Output tab.
 5. Click each Code step and paste the code from the two files here, with the ids of your own steps in place of the `$n_` names. A tool's output is pasted into the code as a Python value. The message is pasted as bare text, so it must sit inside quotes, as the file shows. Paste only the list of rules, as the file shows: the whole output of the rules gave a syntax error.
-6. Drag "HTTP request" from the palette onto the canvas. Drag from the dot on the right of the second Code step to the dot on its left, and from its right dot to the LLM step. Set POST, the address, a Content-Type header and the body `$<step 6>.result`.
+6. Add a Tool step after the Code step that prints the save, and connect it on to the LLM step. Choose "Browse & pick a tool", the people connection and `save_roster_check`. In the Arguments box put `{ "roster_id": "$<the step that finds the roster>.roster_id", "body": "$<step 6>.json" }`: the Code step prints the body of the save as one JSON object, and `.json` hands it to the tool as that object. This tool writes, so before publishing either put an Approve step before it or have an admin add a tool approval policy that auto-approves it.
 7. Click the LLM step and write the prompt. Give it the output of step 6 and the answer of step 7. Tell it to add no breach, remove none and change no figure, and to end on the fixed last line of the chat form.
 8. On the Test tab, type a request, for example a roster id. Reset the retailer before each run, because a run saves a draft. Then publish.
 
@@ -55,9 +55,11 @@ Run on 25 November 2026 against the invented retailer. The people system was res
 
 A test counts as passed here only after five runs in a row. That has not been done yet.
 
+On 25 November 2026 the save was changed from an HTTP request step to the connection's own save tool. The run after the change saved the right result, and no run waited for an approval.
+
 ## What this form does not do yet
 
-- The save is an HTTP request step and not the connection's save tool, because a Tool step cannot take a list from a Code step. The HTTP request step takes public addresses only and accepts no sign-in header. So this form works only against a system with no sign-in.
+- The save is the connection's own tool, and that tool writes. A workflow whose Tool step writes can be published only with an Approve step before it, or with a tool approval policy that auto-approves that tool. On the development cluster the save tool was auto-approved, because it saves a draft only and a person decides afterwards. With an Approve step instead, every run waits for a person before the draft is saved.
 - The save address is typed into the workflow.
 - A workflow does one job on one message. The question, follow-up and refusal tests of the folder above are not covered. The test with nothing connected has no meaning here, because the tools are fixed steps.
 - The person's message reaches a Code step as source text. Only a narrow pattern is taken from it: a roster id or a site id. A message that holds three single quotes in a row breaks step 4. A real build should not paste free text into code.
