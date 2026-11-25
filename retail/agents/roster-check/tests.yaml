@@ -76,7 +76,7 @@ tests:
       - {check: says, all: ["WT-7", "C-04712", "SH-R047-46", "23:00"]}
       - {check: says, all: ["SR-1", "16:00", "17:00"]}
       - {check: says, any: ["unday"]}
-      - {check: does_not_say, any: ["SR-3", "SR-2", "WT-2", "WT-3", "should cover", "could cover", "i suggest", "i recommend"]}
+      - {check: does_not_say, any: ["SR-3", "SR-2", "WT-2", "WT-3", "WT-8", "should cover", "could cover", "i suggest", "i recommend"]}
 
   - name: Retailer connected, R-022 keeps every rule
     given: retailer_connected

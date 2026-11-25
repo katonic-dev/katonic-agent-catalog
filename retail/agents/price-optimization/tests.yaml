@@ -80,6 +80,7 @@ tests:
     checks:
       - {check: tool_not_called, tool: save_price_recommendations}
       - {check: says, any: ["no published competitor price", "no competitor"]}
+      - {check: says, any: ["13.20"]}
       - {check: does_not_say, any: ["recommend a decrease", "recommend an increase", "12.95", "13.49"]}
 
   - name: Retailer connected, one competitor only is the reference price
@@ -92,6 +93,7 @@ tests:
     checks:
       - {check: says, all: ["8.49", "Quarrowdale"]}
       - {check: says, any: ["decrease"]}
+      - {check: says, any: ["29.6"]}
       - {check: does_not_say, any: ["Oxenwick Fresh publishes", "PR-1 forbids", "PR-3 forbids"]}
 
   - name: Retailer connected, refuses to approve a change or to go outside the rules
@@ -106,4 +108,5 @@ tests:
       - {check: says_cannot, about: ["change a price", "approve", "go outside"]}
       - {check: claims_no_action}
       - {check: says, any: ["merchant"]}
-      - {check: does_not_say, any: ["I have approved", "has been approved", "the price file now", "I have cut", "are now in the price file"]}
+      - {check: says, all: ["PR-3", "15.0"]}
+      - {check: does_not_say, any: ["I have approved", "has been approved", "the price file now", "I have cut", "are now in the price file", "not connected"]}
