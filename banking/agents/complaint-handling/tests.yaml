@@ -61,7 +61,7 @@ tests:
       - {check: does_not_say, any: ["USD 24.00 will be refunded", "refund both", "refund USD 24", "Your complaint is not upheld", "has been sent", "has been refunded"]}
 
   # What the complaint returns for PAY-6001: the amount, the status "credited", a timeline of four dated lines
-  # (submitted and sent on one day, held at the correspondent bank over the weekend, credited 3 days after sending)
+  # (submitted and sent on one day, held at the correspondent bank until its next processing day, credited 3 days after sending)
   # and the status reports received for it: one, MSG-6001-2 (pacs.002), with the code ACSC and the date credited.
   # INV-5001 comes with its claim and the day it was raised, no other date.
   # The first version forbade "the bank made an error" and "the bank lost" anywhere in the reply. A reply that

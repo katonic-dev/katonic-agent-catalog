@@ -53,7 +53,7 @@ A case whose kind the desk does not know (`routing.other`) can only be referred 
 
 | Case | Kind | What the agent should find |
 |---|---|---|
-| INV-5001, payment PAY-6001, USD 1,850.00 | Investigation | The payment was credited on 21 Nov 2026. It was held at the correspondent bank over the weekend. The status report (pacs.002) says ACSC. The system lists no bank rule, so no rule applies. The reply tells the customer it arrived, with the date |
+| INV-5001, payment PAY-6001, USD 1,850.00 | Investigation | The payment was credited on 21 Nov 2026. It was held at the correspondent bank until its next processing day, 3 days after sending. The status report (pacs.002) says ACSC. The system lists no bank rule, so no rule applies. The reply tells the customer it arrived, with the date |
 | INV-5002, payment PAY-6002, USD 25,000.00 | Investigation | USD 37.50 was deducted by an intermediary bank, so 24,962.50 arrived. The charges were OUR, so the deduction is wrong under MTB-PAY-RULE-105, the one rule the system lists. The bank claims it back and tells the customer |
 | INV-5003, payment PAY-6003, USD 3,200.00 | Investigation | The beneficiary account is closed (return reason AC04). The money was credited back to ACC-1006-01 on 22 Nov 2026. A new payment needs corrected details (MTB-PAY-RULE-106, the one rule the system lists), and the records hold none |
 | REP-7001, payment PAY-6101 | Repair | Two digits of the IBAN are swapped. Replace XB82BRVN73201150000124 with XB82BRVN73201150000142, the IBAN on the earlier payment PAY-6050 to the same beneficiary (MTB-PAY-RULE-101). A search by that IBAN finds PAY-6050 only, and a search by the name finds PAY-6050 and the held PAY-6101 |

@@ -466,7 +466,7 @@ def test_cmp_2_late_payment_explained_by_the_investigation(client):
     pay = c["linked_records"]["payments"][0]
     assert inv["investigation_id"] == "INV-5001" and pay["payment_id"] == "PAY-6001" and pay["status"] == "credited"
     notes = " ".join(t["note"] for t in pay["timeline"])
-    assert "correspondent bank over the weekend" in notes
+    assert "correspondent bank until its next processing day" in notes
     credited = next(t for t in pay["timeline"] if t["status"] == "credited")
     sent = next(t for t in pay["timeline"] if t["status"] == "sent")
     assert (date.fromisoformat(credited["date"]) - date.fromisoformat(sent["date"])).days == 3

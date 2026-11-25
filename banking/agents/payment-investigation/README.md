@@ -51,7 +51,7 @@ The steps will be written here once they have been run on a cluster. Until then:
 
 Against the invented bank at its starting data, started with `BANK_TODAY=2026-11-24` so that the dates agree with the desk's demo cases:
 
-- `INV-5001`: a payment of USD 1,850.00 that the beneficiary says never arrived. It was credited on 21 Nov 2026, after a weekend hold at the correspondent bank. The status report says ACSC. The system lists no bank rule, so none applies. The reply tells the customer it arrived, with the date.
+- `INV-5001`: a payment of USD 1,850.00 that the beneficiary says never arrived. It was credited on 21 Nov 2026, after a hold at the correspondent bank until its next processing day, 3 days after sending. The status report says ACSC. The system lists no bank rule, so none applies. The reply tells the customer it arrived, with the date.
 - `INV-5002`: a payment of USD 25,000.00 that arrived short. An intermediary bank deducted USD 37.50, so 24,962.50 arrived. The charges were OUR, so the deduction is wrong under MTB-PAY-RULE-105, the one rule the system lists. The reply says the bank will claim it back.
 - `INV-5003`: a payment of USD 3,200.00 that came back. The beneficiary account is closed (reason AC04). The money was credited back to ACC-1006-01. A new payment needs corrected details (MTB-PAY-RULE-106, the one rule the system lists).
 

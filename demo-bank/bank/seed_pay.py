@@ -103,7 +103,7 @@ def build_payments(customers: dict, accounts: dict, tb: TxnBuilder, rng: random.
     b = _bene("Gideon Faircloth", "TESL", "61000220004417", "Willow Mews 4", "Ambrel, Tessaly", "XT")
     pay("PAY-6001", 1014, 1850.00, "USD", 6, b, "credited",
         tl((6, "submitted", "Customer submitted the payment."), (6, "sent", "Sent to the correspondent bank."),
-           (5, "in_transit", "Held at the correspondent bank over the weekend; next processing day is 3 days after sending."),
+           (5, "in_transit", "Held at the correspondent bank until its next processing day, 3 days after sending."),
            (3, "credited", "Beneficiary bank credited the account.")),
         [msg("PAY-6001", 1, "pacs.008", "outbound", 6, "Customer credit transfer sent.", amount="1850.00 USD",
              charges="SHA", end_to_end="E2E-6001"),

@@ -44,7 +44,7 @@ Investigations
 
 | Id | For | Right answer |
 |---|---|---|
-| INV-5001 | Beneficiary says it never arrived (PAY-6001, USD 1,850). | It was credited 3 days ago. It was held at the correspondent bank over the weekend. The pacs.002 status is ACSC. Tell the customer it arrived, with the date. No bank rule applies: `rule_ids` is empty. |
+| INV-5001 | Beneficiary says it never arrived (PAY-6001, USD 1,850). | It was credited 3 days ago. It was held at the correspondent bank until its next processing day, 3 days after sending. The pacs.002 status is ACSC. Tell the customer it arrived, with the date. No bank rule applies: `rule_ids` is empty. |
 | INV-5002 | Amount arrived short (PAY-6002, USD 25,000). | USD 37.50 was deducted by an intermediary bank (24,962.50 arrived). The payment was sent with charges OUR, so the deduction is wrong under MTB-PAY-RULE-105. The bank claims it back and tells the customer. `rule_ids`: MTB-PAY-RULE-105 (the rule on charges). |
 | INV-5003 | Payment returned (PAY-6003, USD 3,200). | The beneficiary account is closed (pacs.004 reason AC04). The money was credited back to ACC-1006-01 two days ago. A new payment needs corrected details (MTB-PAY-RULE-106). `rule_ids`: MTB-PAY-RULE-106 (the rule on returned payments). |
 
@@ -187,7 +187,7 @@ The procedure is in `get_complaints_procedure`: acknowledge within 2 working day
 | Complaint | For | Right answer |
 |---|---|---|
 | CMP-1001 | Anselm Drozdowich (CUS-1009). Monthly account fee of 12.00 taken twice on ACC-1009-01, 8 days ago. | Fees and charges, severity low (a small sum, and he can still use the account), upheld. Refund one fee (USD 12.00 to ACC-1009-01), apologise. An earlier complaint CMP-0901 was not upheld, a different matter. |
-| CMP-1002 | Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. | Payments, not upheld, no bank error. Explain with the dates in the timeline of PAY-6001 (investigation INV-5001 is open): sent 6 days ago, held at the correspondent bank over the weekend, credited 3 days ago. The status report MSG-6001-2 on the linked payment gives status ACSC and the date credited. No redress. |
+| CMP-1002 | Rosalind Heathcote-Brae (CUS-1014). Payment PAY-6001 arrived late. | Payments, not upheld, no bank error. Explain with the dates in the timeline of PAY-6001 (investigation INV-5001 is open): sent 6 days ago, held at the correspondent bank until its next processing day, credited 3 days ago. The status report MSG-6001-2 on the linked payment gives status ACSC and the date credited. No redress. |
 | CMP-1003 | Isolde Pennywhistle (CUS-1016). Loan LAP-8010 declined. | Lending decision, not upheld, not a service failure. Debt to income is 0.48 against the 0.40 limit of MTB-POL-030. Explain the reason and how to ask for a review: write to the Credit Review Desk within 30 days with new information. Promise nothing. |
 | CMP-1004 | Ilvane Marrowick (CUS-1001). Husband died 18 days ago, card CRD-2004 blocked 6 days ago by the deceased accounts process. | Possible vulnerability (recent bereavement): yes. Priority handling, one named person, a kind plain letter. Upheld: the block was applied to her own card by mistake. The linked card names its holder, CUS-1001, and the block note says the process is for cards held by the person who died. Replace the card, apologise. |
 | CMP-1005 | Sabine Tarrowgate (CUS-1003). Received 13 working days ago, never acknowledged. | Admit the late acknowledgement (11 working days late) and apologise. The final response is due in 2 working days: urgent. |
