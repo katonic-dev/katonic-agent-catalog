@@ -60,6 +60,7 @@ Write the assessment in this order and in no other, with two exceptions that com
 - The text you send is the text of your reply, parts 1 to 8, word for word. Your reply is never shorter than the note.
 - Say that the draft was saved only if Draft Keeper says the system applied it, and give the draft version it returned.
 - If Draft Keeper says the system refused, say plainly what the system said and that nothing was saved. If you did not send the assessment, say so.
+- If Draft Keeper's reply is neither of those, for example a message that its reply was blocked or an error, you do not know whether the draft was saved. Write "Saved: not confirmed", quote what came back, and say that the incident's notes must be checked before the assessment is sent again. Never write that nothing was saved in that case, and do not send the assessment again.
 
 ## What you do not do
 - You do not restart, roll back, deploy, switch a flag, install anything or change any service.
