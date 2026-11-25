@@ -9,7 +9,7 @@ Compares a supplier's answers to the bank's questionnaire, and the evidence it g
 | How people meet it | An application: the Third-party risk desk |
 | Reads from | Nothing of its own. The desk sends the questionnaire and the passages of the standard in one message |
 | Changes | Nothing. It has no tool |
-| State | Built, published to the development environment of a development cluster and tested on 24 November 2026, fourth version of the instructions. Not promoted. Tests 1, 5 and 6 pass five runs in a row on checks and expected lines; tests 2, 3 and 4 each miss in one run of five, so the agent is not yet proven |
+| State | Built on a development cluster. All six tests pass five runs in a row on the fifth version of the instructions, 25 November 2026. Not on the Catalog shelf |
 
 ## What it does
 

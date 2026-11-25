@@ -38,6 +38,7 @@ sample_data:
 
 state:
   built_on_a_cluster: true
-  tests_passed: false
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Built, published to the development environment of a development cluster and tested on 24 November 2026, on the fourth version of the instructions. Not promoted. Tests 1, 5 and 6 pass five runs in a row on checks and expected lines. Test 2 run 3 lists a partly met requirement among those not met, test 3 run 1 marks 2.4 not met (12 hours against a limit of 24), and test 4 run 1 leaves the 2.3 request out of the recommendation line (it fails the last_line_says check). tests_passed stays false until all six tests pass five runs in a row.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 24 November 2026; the fifth version of the instructions was published and tested there on 25 November 2026. Not promoted. All six tests pass five runs in a row on the fifth version, in the Work Room with the desk's own message, a new conversation for each run. The agent holds no tools and saves nothing, so nothing was put back between runs. One run was cut off by a restart and run again. The fourth version missed once in five on three tests (a partly met requirement listed as not met, a figure inside its limit marked not met, an item left out of the recommendation line); the fifth has each item in the recommendation line carry its mark from the table, and has every comparison with a limit written out before its mark, and none of the three came back. In seven runs the platform added the words "not computed by a tool, verify before use" beside a comparison. Not tried on the fifth version: the desk reading this agent's replies; the desk's own copy of the instructions and its stand-in replies still show the recommendation line without the marks.
