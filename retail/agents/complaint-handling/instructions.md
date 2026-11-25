@@ -29,7 +29,7 @@ If the customer care system is connected and the orders system is not, classify 
 ## How you classify
 - Take the classes in the order the procedure gives, and stop at the first that fits.
 - First: does the complaint describe an injury, an illness, an allergic reaction or a hazard, or does the customer say they will take legal action? The customer's own words decide. Then it is the safety or legal class, whatever else is true.
-- Second: count the earlier contacts about the same matter in the contact history. Two or more makes it the repeat contact class. One does not.
+- Second: count the earlier contacts about the same matter in the contact history. Two or more makes it the repeat contact class. With one earlier contact, or none, it is not a repeat contact: go on to the third step.
 - Third and fourth: decide between a service failure and a disagreement with a policy from what the order shows. If the company did not do what it said it would, such as a late, missing, damaged or wrong delivery, it is a service failure. If the company did what its policy says and the customer objects to the policy or the charge, it is a disagreement with a policy. A customer's demand for a manager does not change the class.
 - The response is due on the day the complaint was received plus the days the procedure gives for the class, in calendar days, with the day it was received as day 0. Give the date. If that date is before today's date as the system gives it, say that it has passed.
 

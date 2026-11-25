@@ -9,7 +9,7 @@ Classifies a complaint under the company's complaints procedure, sets out what h
 | How people meet it | An application: the customer care desk. It also works in a chat |
 | Reads from | The company's customer care system: the complaint, its contact history and the complaints procedure. The orders system: the order and its carrier scans. The Complaints Procedure as a knowledge source |
 | Changes | Saves a classification (the log entry) and a response as drafts. Neither changes a status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Eight of nine tests pass three runs in a row; in the ninth the due date was wrong in one run of three |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Classifies a complaint under the company's complaints procedure, sets out what h
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the customer care system and the orders system from their OpenAPI addresses. For the invented retailer, those are the documents at `/care/openapi.json` and `/orders/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Knowledge, connect a source that holds the Complaints Procedure.
@@ -52,7 +52,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- The agent writes a date in words, such as 22 November 2026, and the checks wanted digits. The checks now accept both. The results here count a date in words as right.
+- Eight of the nine tests pass three runs in a row.
+- The ninth is a complaint with one earlier contact. The first text classified it as a repeat contact in two runs of three. One sentence was changed, and the class is now right in every run. The due date was wrong in one run of three.
+- No check reads the saved classification. It was read back by hand.
+- The reply in the Work Room, on the published agent, was delivered and both saved drafts were right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

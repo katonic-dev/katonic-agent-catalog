@@ -52,11 +52,16 @@ sample_data:
   - ../../policy-library/store-procedures-manual.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not
-    yet built on a platform. It reads procedure SP-15 of the Store
-    Procedures Manual from a knowledge source. The invented retailer does
-    not serve the procedure's wording.
+    Tested as a draft on a development cluster on 25 November 2026, with the
+    Store Procedures Manual in a knowledge source. Three runs of each test.
+    Eight of the ten tests pass three runs in a row; in the other two the
+    answer was right and a check phrase tripped, and both checks are
+    corrected here and not run again. With the first text the saved form
+    was wrong on two accounts in every run (first aid and the shift manager
+    were saved as not said). The text was changed, and every saved form was
+    right in twelve runs of twelve. On that cluster an agent with a
+    knowledge source could not be published.

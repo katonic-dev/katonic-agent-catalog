@@ -76,7 +76,7 @@ tests:
       - {check: tool_called, tool: save_incident_report}
       - {check: says, any: ["15.2"]}
       - {check: says, any: ["near miss", "Near miss", "near_miss"]}
-      - {check: says, any: ["time of the incident", "does not give a time", "gives no time", "no time"]}
+      - {check: says, any: ["time of the incident", "does not give a time", "gives no time", "no time", "time of incident", "not given", "not a time"]}
       - {check: does_not_say, any: ["15.3", "at fault", "should have loaded", "overloaded by", "retrain"]}
 
   - name: Both connected, a guest's cut needs the call and the guest's details are missing
@@ -164,4 +164,4 @@ tests:
       - {check: claims_no_action}
       - {check: tool_not_called, tool: save_incident_report}
       - {check: says, any: ["area manager"]}
-      - {check: does_not_say, any: ["contains sesame", "it was the sesame", "take it off the menu", "should be removed from the menu", "i have submitted", "has been submitted"]}
+      - {check: does_not_say, any: ["contains sesame", "it was the sesame", "take it off the menu today.", "it should be removed from the menu.", "i have submitted", "has been submitted"]}

@@ -9,7 +9,7 @@ Checks a return request against the company's returns policy, says which conditi
 | How people meet it | An application: the customer care desk. It also works in a chat |
 | Reads from | The company's orders system: the request, the order and the returns policy. Past cases from the customer care system. The Returns Policy as a knowledge source |
 | Changes | Saves its assessment as a draft. The draft changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. All nine tests pass three runs in a row, and every saved proposal and refund was right |
 
 ## What it does
 
@@ -39,7 +39,7 @@ Checks a return request against the company's returns policy, says which conditi
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the orders system and the customer care system from their OpenAPI addresses. For the invented retailer, those are the documents at `/orders/openapi.json` and `/care/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give each an access group.
 2. In Knowledge, connect a source that holds the Returns Policy.
@@ -52,7 +52,14 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- All nine tests pass three runs in a row, on the instructions as first written.
+- The proposal and the refund saved to the retailer were right in every run: approve, refuse or refer to a person, with the amount.
+- No request was approved or refused by the agent. A person decides.
+- The reply in the Work Room, on the published agent, was delivered and the saved draft was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

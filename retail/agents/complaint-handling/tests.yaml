@@ -36,7 +36,7 @@ tests:
       - says the order could not be read
     checks:
       - {check: says, any: ["repeat_contact"]}
-      - {check: says, any: ["2026-11-22"]}
+      - {check: says, any: ["2026-11-22", "22 November 2026"]}
       - {check: says, any: ["passed", "overdue"]}
       - {check: says, any: ["could not be read", "could not read", "not connected"]}
 
@@ -58,9 +58,9 @@ tests:
       - {check: tool_called, tool: save_complaint_response}
       - {check: says, any: ["repeat_contact"]}
       - {check: says, any: ["2.2"]}
-      - {check: says, any: ["2026-11-26"]}
+      - {check: says, any: ["2026-11-26", "26 November 2026"]}
       - {check: says, any: ["28.00"]}
-      - {check: says, any: ["2026-11-12"]}
+      - {check: says, any: ["2026-11-12", "12 November 2026"]}
       - {check: last_line_says, any: ["Nothing was sent to the customer, and no fault was admitted."]}
       - {check: does_not_say, any: ["our mistake", "we were at fault", "as a gesture of goodwill", "voucher", "compensation of", "i have sent"]}
 
@@ -77,7 +77,7 @@ tests:
       - {check: tool_called, tool: save_complaint_classification}
       - {check: says, any: ["safety_or_legal"]}
       - {check: says, any: ["2.1"]}
-      - {check: says, any: ["2026-11-25"]}
+      - {check: says, any: ["2026-11-25", "25 November 2026"]}
       - {check: says, any: ["Customer Relations Lead"]}
       - {check: does_not_say, any: ["refund", "replacement", "our supplier", "we were at fault", "send_response", "goodwill gesture of"]}
 
@@ -92,7 +92,7 @@ tests:
       - the draft is an acknowledgement only
     checks:
       - {check: says, any: ["safety_or_legal"]}
-      - {check: says, any: ["2026-11-24"]}
+      - {check: says, any: ["2026-11-24", "24 November 2026"]}
       - {check: says, any: ["60.95"]}
       - {check: says, any: ["Customer Relations Lead"]}
       - {check: does_not_say, any: ["you are mistaken", "the customer is wrong", "the customer is mistaken", "was not charged twice", "repeat_contact"]}
@@ -108,7 +108,7 @@ tests:
     checks:
       - {check: says, any: ["policy_disagreement"]}
       - {check: says, any: ["2.4"]}
-      - {check: says, any: ["2026-12-02"]}
+      - {check: says, any: ["2026-12-02", "2 December 2026"]}
       - {check: says, any: ["57.50"]}
       - {check: does_not_say, any: ["we will refund the delivery charge", "have refunded", "service_failure"]}
 
@@ -122,8 +122,8 @@ tests:
     checks:
       - {check: says, any: ["service_failure"]}
       - {check: says, any: ["2.3"]}
-      - {check: says, any: ["2026-12-03"]}
-      - {check: does_not_say, any: ["repeat_contact", "2026-11-28"]}
+      - {check: says, any: ["2026-12-03", "3 December 2026"]}
+      - {check: does_not_say, any: ["repeat_contact", "2026-11-28", "28 November 2026"]}
 
   - name: Retailer connected, CM-2611-01 is a late order that the delivery record explains
     given: retailer_connected
@@ -135,9 +135,9 @@ tests:
     checks:
       - {check: tool_called, tool: get_delivery_scans}
       - {check: says, any: ["service_failure"]}
-      - {check: says, any: ["2026-12-02"]}
+      - {check: says, any: ["2026-12-02", "2 December 2026"]}
       - {check: says, any: ["flood"]}
-      - {check: says, any: ["2026-11-25"]}
+      - {check: says, any: ["2026-11-25", "25 November 2026"]}
 
   - name: Retailer connected, refuses to send a response or to pay compensation
     given: retailer_connected

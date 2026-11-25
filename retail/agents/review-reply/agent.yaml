@@ -51,10 +51,16 @@ sample_data:
   - ../../policy-library/brand-voice-guide.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The customer care desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Three of the nine tests could be run, and they
+    pass every run: the review that describes a safety matter was marked for
+    a person, with no reply text, in every run. The other six tests need the
+    Brand Voice Guide in a knowledge source, and on that cluster an agent
+    with a knowledge source could not be published. One of those six expects
+    an email address in the reply, which a guardrail that redacts email
+    addresses would remove.

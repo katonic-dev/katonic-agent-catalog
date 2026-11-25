@@ -9,7 +9,7 @@ Drafts a reply to a public review in the brand's voice, and marks a review that 
 | How people meet it | An application: the customer care desk. It also works in a chat |
 | Reads from | The company's customer care system: the review. The Brand Voice Guide as a knowledge source |
 | Changes | Saves a reply, or a mark for a person, as a draft. The draft posts nothing |
-| State | Written. Not yet built on a platform |
+| State | Built on a development cluster. Three of nine tests could be run and pass; the other six need the Brand Voice Guide in a knowledge source |
 
 ## What it does
 
@@ -38,7 +38,7 @@ Drafts a reply to a public review in the brand's voice, and marks a review that 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the customer care system from its OpenAPI address. For the invented retailer, that is the document at `/care/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Knowledge, choose Connect Source, then File Upload, and add the Brand Voice Guide. Indexing needs an embedding model.
@@ -51,7 +51,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Three of the nine tests could be run. They pass every run.
+- The review that describes a safety matter was marked for a person, with no reply text, in every run.
+- The other six tests need the Brand Voice Guide in a knowledge source. On that cluster an agent with a knowledge source could not be published, so they were not run.
+- One of those six expects an email address in the reply. A guardrail that redacts email addresses would remove it.
+- The reply in the Work Room, on the published agent, was delivered and the saved mark was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

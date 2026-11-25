@@ -62,10 +62,17 @@ sample_data:
   - ../../policy-library/complaints-procedure-v2.1.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The customer care desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. The agent writes a date in words (22 November
+    2026) and the checks wanted digits: the checks now accept both, and the
+    results here count a date in words as right. Eight of the nine tests
+    pass three runs in a row. The ninth, a complaint with one earlier
+    contact, was classified as a repeat contact by the first text; one
+    sentence was changed and the class is now right in every run, with the
+    due date wrong in one run of three. No check reads the saved
+    classification.

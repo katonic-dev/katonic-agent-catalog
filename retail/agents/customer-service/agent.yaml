@@ -53,10 +53,16 @@ sample_data:
   - ../../policy-library/help-articles.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The customer care desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. Seven of the eight tests pass three runs in a
+    row on the instructions here. In the eighth the answer was right in
+    every run and a check phrase tripped on the agent's own caution; the
+    check is corrected here and has not been run again. Every draft saved to
+    the invented retailer was right: the answer status, the article and the
+    next step. Two sentences were added after the first round, for a ticket
+    that does not exist and for a request the agent must refuse.

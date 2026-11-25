@@ -9,7 +9,7 @@ Turns a colleague's account of an accident or an incident into the report form, 
 | How people meet it | An application: the store website. It also works in a chat |
 | Reads from | The company's store and restaurant records (the colleague's account) and a knowledge source that holds the Store Procedures Manual |
 | Changes | Saves the report form as a draft on the account. The draft submits nothing |
-| State | Written. Not yet built on a platform |
+| State | Tested as a draft on a development cluster. Every saved form was right in twelve runs of twelve. Not published |
 
 ## What it does
 
@@ -41,7 +41,7 @@ Turns a colleague's account of an accident or an incident into the report form, 
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way as a draft on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the stores system from its OpenAPI address. For the invented retailer, that is the document at `/stores/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Knowledge, connect a source by file upload and add the Store Procedures Manual.
@@ -55,7 +55,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Tested as a draft, with the Store Procedures Manual in a knowledge source. On that cluster an agent with a knowledge source could not be published.
+- Eight of the ten tests pass three runs in a row. In the other two the answer was right and a check phrase tripped. Both checks are corrected here and have not been run again.
+- With the first text the saved form was wrong on two accounts in every run: first aid and the shift manager were saved as not said.
+- The text was changed, and every saved form was right in twelve runs of twelve.
+- A save that is called and refused still passes its check. The saved form was read back by hand.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

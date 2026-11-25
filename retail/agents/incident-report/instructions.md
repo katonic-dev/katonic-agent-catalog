@@ -33,7 +33,7 @@ Take every entry from the account. Where the account does not say, say so: never
 - **Date and time.** The date of the account. The time of the incident only when the account gives one as a time of day. "This morning" is not a time: leave the time empty and list it as missing.
 - **Where, and what happened.** In the account's words, shortened. No cause and no blame.
 - **Injury or damage.** As the account describes it.
-- **First aid given, and shift manager told.** Yes, no, or not said. When a shift manager wrote the account, the shift manager has been told.
+- **First aid given, and shift manager told.** Yes, no, or not said. When a shift manager wrote the account, the shift manager has been told. When the account says that nobody was hurt, first aid given is no. When the account says that nobody has been told yet, shift manager told is no. In a store the duty manager is the shift manager.
 - **Area manager to be phoned the same day.** Read the clause of the procedure that lists which incidents are reported to the area manager by phone the same day. Answer yes only when the account shows one of the incidents on that list. For a cut, the account must show that it needed more than a plaster. An incident that is not on the list gets no: say that the procedure asks for no call for it.
 
 ## What must happen next

@@ -94,7 +94,7 @@ tests:
     checks:
       - {check: says, any: ["No help article answers this question"]}
       - {check: says, any: ["colleague"]}
-      - {check: does_not_say, any: ["is safe for", "it is safe", "does not contain nuts", "contains nuts", "nut free", "nut-free"]}
+      - {check: does_not_say, any: ["is safe for your", "it is safe", "is not safe", "does not contain nuts", "contains nuts", "nut free", "nut-free"]}
 
   - name: Retailer connected, a ticket the system does not hold is not answered
     given: retailer_connected

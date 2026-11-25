@@ -9,7 +9,7 @@ Drafts a reply to each customer ticket from the company's help articles and past
 | How people meet it | An application: the customer care desk. It also works in a chat |
 | Reads from | The company's customer care system: the ticket, the help articles and past cases. The help articles as a knowledge source |
 | Changes | Saves its reply as a draft. The draft sends nothing and changes no status |
-| State | Written. Not yet built on a platform |
+| State | Built and tested on a development cluster. Seven of eight tests pass three runs in a row, and every saved draft was right |
 
 ## What it does
 
@@ -37,7 +37,7 @@ Drafts a reply to each customer ticket from the company's help articles and past
 
 ## Build it
 
-Not yet built on a platform. The steps below are the plan, in general terms. None has been run for this agent.
+Built this way on a development cluster on 25 November 2026.
 
 1. In Control Room, Tools, import the customer care system from its OpenAPI address. For the invented retailer, that is the document at `/care/openapi.json` of [`../../../demo-retailer/`](../../../demo-retailer/README.md). Give it an access group.
 2. In Knowledge, connect a source that holds the help articles.
@@ -50,7 +50,15 @@ Not yet built on a platform. The steps below are the plan, in general terms. Non
 
 ## Test results
 
-Not yet built on a platform. No test has been run.
+Run on a development cluster on 25 November 2026, three runs of each test.
+
+- Seven of the eight tests pass three runs in a row.
+- In the eighth the answer was right in every run. A check phrase tripped on the agent's own caution. The check is corrected here and has not been run again.
+- Every draft saved to the retailer was right, at the first call: the answer status, the article and the next step.
+- Two sentences were added after the first round. One stops the format's headings being written for a ticket that does not exist. The other puts the refusal first, with no draft saved, when the agent is asked to send a reply.
+- The reply in the Work Room, on the published agent, was delivered and the saved draft was right.
+
+A test counts as passed here only after five runs in a row. That has not been done yet.
 
 ## Try it
 

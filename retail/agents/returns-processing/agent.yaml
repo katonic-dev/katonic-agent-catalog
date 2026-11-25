@@ -59,10 +59,14 @@ sample_data:
   - ../../policy-library/returns-policy-v3.0.md
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
   notes: >
-    Written. The instructions and tests have not been run on a model. Not yet
-    built on a platform. The customer care desk is planned and not yet
-    written.
+    Built by hand as a chat agent and published to the development
+    environment of a development cluster on 25 November 2026. Not promoted.
+    Three runs of each test. All nine tests pass three runs in a row on the
+    instructions here, unchanged (five runs in a row is the bar for
+    tests_passed). The proposal and the refund saved to the invented
+    retailer were right in every run: approve, refuse or refer to a person,
+    with the amount. No request was approved or refused by the agent.
