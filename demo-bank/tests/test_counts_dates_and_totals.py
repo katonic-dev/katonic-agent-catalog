@@ -80,6 +80,19 @@ def test_onboarding_reads_give_the_bank_date_and_document_ages(client):
             assert x["document_date"] and x["age_days_at_bank_date"] == (date.fromisoformat(TODAY) - date.fromisoformat(x["document_date"])).days
 
 
+def test_core_reads_give_the_bank_date_and_keep_every_other_field(client):
+    paths = ("/core/customers?customer_id=CUS-1009", "/core/customers/CUS-1009/accounts",
+             "/core/accounts/ACC-1009-01/transactions", "/core/customers/CUS-1009/contacts")
+    for path in paths:
+        body = get(client, path)
+        assert body["read_on"] == TODAY, path
+        assert {"count", "items"} <= set(body), path
+    txns = get(client, "/core/accounts/ACC-1009-01/transactions")
+    assert txns["account_id"] == "ACC-1009-01" and txns["total_matches"] == txns["count"]
+    later = TestClient(create_app(make_env(BANK_TODAY="2027-03-02")))
+    assert later.get("/core/customers/CUS-1009/accounts", headers=H).json()["read_on"] == "2027-03-02"
+
+
 def test_document_ages_follow_the_bank_date_not_the_clock():
     later = TestClient(create_app(make_env(BANK_TODAY="2027-03-02")))
     doc = later.get("/onboarding/applications/ONB-1001/documents/OND-1001-02", headers=H).json()

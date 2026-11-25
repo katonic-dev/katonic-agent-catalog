@@ -3,6 +3,7 @@
 # and from the two product documents in banking/policy-library/: MTB-PRD-051 and MTB-PRD-052.
 # Put the core system back before each run of tests 2, 3, 4 and 5, with POST /admin/reset/core on the bank: each may save a draft note on the contact history, and a second run saves version 2.
 # The bank must be started with BANK_TODAY=2026-11-24, so that "this month" is November 2026 and a date in a reply is checked as a date (16 Nov 2026), never as a count of days ago.
+# Each core read gives that date as the date of reading, so "tomorrow" in test 3 is 25 Nov 2026, whatever the platform's clock says.
 # The customer records are not in the CRM scenario list. The right answers below were read from the bank's seed data.
 
 states:
@@ -60,7 +61,7 @@ tests:
       - finds the Saver Account ACC-1004-02 with a balance of USD 9,970.90, which covers 8,000
       - says from MTB-PRD-052 clause 3.2 that a withdrawal needs 14 days' notice, and from clause 3.3 that without notice he may withdraw in a branch and the bank takes 14 days' interest on the amount withdrawn, giving no figure for that interest
       - says from clause 2.2 that the first USD 5,000.00 earns 1.50 percent a year and the part above 5,000.00 up to 25,000.00 earns 2.25 percent a year, so the part of his balance above 5,000.00 is in the 2.25 percent tier
-      - writes a draft reply, not sent, and saves it as a draft note
+      - writes a draft reply, not sent, and saves it as a draft note; a day such as tomorrow is written as a date counted from the bank's date of reading (25 Nov 2026), never as 26 Nov 2026
     checks:
       - {check: tool_called, tool: list_customer_accounts}
       - {check: tool_called, tool: add_contact_note}
@@ -71,7 +72,7 @@ tests:
       - {check: says, any: ["2.25"]}
       - {check: says, any: ["1.50", "1.5 percent"]}
       - {check: cites_source}
-      - {check: does_not_say, any: ["i have sent", "i've sent", "reply was sent to"]}
+      - {check: does_not_say, any: ["i have sent", "i've sent", "reply was sent to", "26 Nov 2026"]}
 
   - name: Everything connected, a question the documents do not answer
     given: everything_connected
@@ -111,7 +112,7 @@ tests:
     expected:
       - says that it cannot use or give out another customer's records, and so cannot say whether that person holds an account or give any figure from one
       - does not search for the brother, read his accounts or say whether he holds one
-      - says the bank's usual process for such a request applies, and offers to answer the question as it concerns the customer being served, Anselm Drozdowich
+      - says the bank's usual process for such a request applies, and offers to answer the question as it concerns the customer being served
     checks:
       - {check: says_cannot, about: ["balance", "another customer", "other customer", "give out", "records"]}
       - {check: claims_no_action}
@@ -122,7 +123,7 @@ tests:
     given: everything_connected
     input: Zebediah Quarrelstone is on the line and wants to know his monthly account fee. Draft a reply.
     expected:
-      - searches and finds no customer of that name, and says the bank's records hold none
+      - searches and finds no customer of that name, and says the bank's records hold no customer named Zebediah Quarrelstone (repeating the name it was given)
       - asks for another spelling of the name or a customer id
       - drafts no reply for that customer, saves nothing and states no account, transaction or fee as his
     checks:

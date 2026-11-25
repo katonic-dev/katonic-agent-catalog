@@ -30,13 +30,16 @@ def build(ctx: Ctx):
     def d():
         return st.data
 
+    def bank_date():
+        return ctx.settings.bank_today.isoformat()
+
     cust_id = Path(..., description="Customer id, for example CUS-1001.")
     acc_id = Path(..., description="Account id, for example ACC-1001-01.")
 
     @reg(app, "get", "/customers", "search_customers", "Search customers by name or id",
          "Find customers. Give a part of the name, or a customer id, or both. Use this first when you only have a name. "
          "Returns a list (count, items) with customer_id, type (individual or business), name, segment, risk_rating and status. "
-         "With no filter it returns the first customers up to the limit.")
+         "With no filter it returns the first customers up to the limit. read_on is the bank's date today, the date of this reading.")
     def search_customers(name: str | None = Query(None, description="Part of the customer name. Not case sensitive."),
                          customer_id: str | None = Query(None, description="Exact customer id, for example CUS-1001."),
                          limit: int = Query(20, ge=1, le=200, description="Most rows to return.")):
@@ -47,7 +50,7 @@ def build(ctx: Ctx):
             if name and name.strip().lower() not in c["name"].lower():
                 continue
             rows.append({k: c[k] for k in ("customer_id", "type", "name", "segment", "risk_rating", "status")})
-        return listing(rows[:limit], total_matches=len(rows))
+        return listing(rows[:limit], total_matches=len(rows), read_on=bank_date())
 
     @reg(app, "get", "/customers/{customer_id}", "get_customer", "Get one customer record",
          "Read the full record of one customer: name, type, date of birth and place of birth (individuals) or registration details, nationality, address, "
@@ -61,12 +64,12 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/customers/{customer_id}/accounts", "list_customer_accounts", "List a customer's accounts",
          "List every account of one customer with account_id, IBAN, product, currency, status, opened date and current balance. "
-         "Use the account_id with get_account or list_account_transactions.")
+         "Use the account_id with get_account or list_account_transactions. read_on is the bank's date today, the date of this reading.")
     def list_customer_accounts(customer_id: str = cust_id):
         if customer_id not in d()["customers"]:
             raise not_found("customer", customer_id, "Use search_customers to find the id.")
         rows = [a for a in d()["accounts"].values() if a["customer_id"] == customer_id]
-        return listing(rows, customer_id=customer_id)
+        return listing(rows, customer_id=customer_id, read_on=bank_date())
 
     @reg(app, "get", "/accounts/{account_id}", "get_account", "Get one account",
          "Read one account: IBAN, product, currency, status, opened date, balance and the owning customer's id and name.")
@@ -80,7 +83,8 @@ def build(ctx: Ctx):
          "List transactions on an account",
          "List transactions of one account for the last 90 days, newest first. Each row has transaction_id, date, amount, "
          "direction (credit or debit), type (for example cash_deposit, transfer_in, transfer_out, payroll, card_purchase), "
-         "counterparty, counterparty_id, counterparty_country and narrative. Filter by date range, minimum amount or counterparty name.")
+         "counterparty, counterparty_id, counterparty_country and narrative. Filter by date range, minimum amount or counterparty name. "
+         "read_on is the bank's date today, the date of this reading.")
     def list_account_transactions(
             account_id: str = acc_id,
             date_from: str | None = Query(None, description="First date to include, YYYY-MM-DD."),
@@ -100,17 +104,17 @@ def build(ctx: Ctx):
         if counterparty:
             rows = [t for t in rows if counterparty.lower() in t["counterparty"].lower()]
         rows.sort(key=lambda t: (t["date"], t["transaction_id"]), reverse=True)
-        return listing(rows[:limit], total_matches=len(rows), account_id=account_id)
+        return listing(rows[:limit], total_matches=len(rows), account_id=account_id, read_on=bank_date())
 
     @reg(app, "get", "/customers/{customer_id}/contacts", "list_customer_contacts", "List contact history",
          "List calls, emails and branch notes recorded for one customer, newest first. Each row has contact_id, channel, date, "
-         "subject, summary and who recorded it. Read these for context before judging a case.")
+         "subject, summary and who recorded it. Read these for context before judging a case. read_on is the bank's date today, the date of this reading.")
     def list_customer_contacts(customer_id: str = cust_id):
         if customer_id not in d()["customers"]:
             raise not_found("customer", customer_id, "Use search_customers to find the id.")
         rows = [c for c in d()["contacts"].values() if c["customer_id"] == customer_id]
         rows.sort(key=lambda c: (c["date"], c["contact_id"]), reverse=True)
-        return listing(rows, customer_id=customer_id)
+        return listing(rows, customer_id=customer_id, read_on=bank_date())
 
     @reg(app, "get", "/customers/{customer_id}/exposure", "get_customer_exposure", "Get a customer's credit exposure",
          "Read the bank's credit exposure to one customer: loans with outstanding amount and monthly_instalment (the amount due "
