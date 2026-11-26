@@ -9,7 +9,7 @@ from typing import Literal
 from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
-from ..common import Ctx, conflict, listing, make_subapp, not_found, reg
+from ..common import Ctx, conflict, ForgivingModel, listing, make_subapp, not_found, reg
 from ..seed_health import (CODES, POLICY_FOR_CODE, age_on, apply_benefit, benefit_of, check_invoice, claim_figures,
                            compare_with_earlier, member_cover_on, usage_row, usd)
 from ..seed_policy import long_date
@@ -23,7 +23,7 @@ LINE = ("Group medical schemes with their tables of benefits, members, medical p
 DRAFTED_BY = Field("agent", description="Who wrote the draft. Free text.")
 
 
-class CriterionFinding(BaseModel):
+class CriterionFinding(ForgivingModel):
     criterion: str = Field(..., description="The number of the criterion in the medical policy, for example 2.")
     finding: Literal["met", "not_met", "not_stated"] = Field(
         ..., description="met when the file states a fact that meets the criterion; not_met when the file states a fact that plainly "
@@ -32,7 +32,7 @@ class CriterionFinding(BaseModel):
                                           "physiotherapy for 5 weeks (PA-8101-D2). For not_stated, say what the file lacks.")
 
 
-class PreAuthorisationAssessment(BaseModel):
+class PreAuthorisationAssessment(ForgivingModel):
     cover_in_force_on_planned_date: Literal["yes", "no", "not_checked"] = Field(
         ..., description="What the request's record says about the member's cover on the planned date.")
     plan_position: Literal["needs_pre_authorisation", "no_pre_authorisation_needed", "not_covered_by_the_plan", "plan_is_silent"] = Field(
@@ -51,7 +51,7 @@ class PreAuthorisationAssessment(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class PreAuthorisationDecision(BaseModel):
+class PreAuthorisationDecision(ForgivingModel):
     decision: Literal["approved", "declined"] = Field(..., description="The decision on the request.")
     decided_by: str = Field(..., min_length=1, description="The name of the person who decided.")
     role: Literal["authorised_assessor", "medical_reviewer"] = Field(
@@ -59,7 +59,7 @@ class PreAuthorisationDecision(BaseModel):
     reason: str = Field(..., min_length=1, description="The reason, in a sentence.")
 
 
-class ClaimDetermination(BaseModel):
+class ClaimDetermination(ForgivingModel):
     suggestion: Literal["pay_as_the_plan_allows", "do_not_pay", "ask_the_provider", "refer_to_the_medical_reviewer"] = Field(
         ..., description="pay_as_the_plan_allows when nothing stands against the claim: the plan's limit and the member's share are "
                          "applied by the system. do_not_pay for a duplicate of an earlier claim or when the member's cover was not in "
@@ -76,13 +76,13 @@ class ClaimDetermination(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class ClaimDecision(BaseModel):
+class ClaimDecision(ForgivingModel):
     decision: Literal["pay", "do_not_pay"] = Field(..., description="The assessor's decision. pay records the amount the system worked out.")
     decided_by: str = Field(..., min_length=1, description="The name of the assessor who decided.")
     reason: str = Field(..., min_length=1, description="The reason, in a sentence.")
 
 
-class InvoiceDifference(BaseModel):
+class InvoiceDifference(ForgivingModel):
     line_id: str = Field(..., description="The id of the invoice line, for example PI-9502-L2.")
     kind: Literal["over_the_tariff", "under_the_tariff", "not_on_the_tariff", "follow_up_inside_the_free_period",
                   "medicines_discount_not_applied", "other"] = Field(
@@ -94,7 +94,7 @@ class InvoiceDifference(BaseModel):
     note: str = Field("", description="The figures in a few words: charged, agreed and the difference, as the check gives them.")
 
 
-class InvoiceDifferences(BaseModel):
+class InvoiceDifferences(ForgivingModel):
     finding: Literal["agrees_with_the_contract", "differences_found"] = Field(
         ..., description="agrees_with_the_contract when the check shows no line with a difference; differences_found otherwise.")
     differences: list[InvoiceDifference] = Field(default_factory=list, description="One row for each line with a difference. Leave "
@@ -103,7 +103,7 @@ class InvoiceDifferences(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class InvoiceQuery(BaseModel):
+class InvoiceQuery(ForgivingModel):
     decision: Literal["query_the_lines", "accept_as_charged"] = Field(..., description="The claims officer's decision on the invoice.")
     line_ids: list[str] = Field(default_factory=list, description="The lines to query, by id. Needed for query_the_lines. Leave empty "
                                                                   "for accept_as_charged.")
@@ -111,7 +111,7 @@ class InvoiceQuery(BaseModel):
     reason: str = Field("", description="The reason, in a sentence.")
 
 
-class CallBackRequest(BaseModel):
+class CallBackRequest(ForgivingModel):
     question: str = Field(..., min_length=1, description="The member's question, in the member's words or close to them.")
     why_the_documents_do_not_settle_it: str = Field(
         ..., min_length=1, description="Why a person is needed, in a sentence: for example that neither the table of benefits nor the "

@@ -8,7 +8,7 @@ from typing import Literal
 from fastapi import Path, Query
 from pydantic import BaseModel, Field
 
-from ..common import Ctx, conflict, listing, make_subapp, not_found, reg
+from ..common import Ctx, conflict, ForgivingModel, listing, make_subapp, not_found, reg
 from ..seed_claims import CLAIM_TYPES
 from ..seed_policy import cover_on, long_date
 
@@ -27,7 +27,7 @@ def usd(amount: float) -> str:
     return f"USD {amount:,.2f}"
 
 
-class ClaimFileDraft(BaseModel):
+class ClaimFileDraft(ForgivingModel):
     policy_id: str | None = Field(None, description="The policy the report belongs to, as the policy system gives it, for example "
                                   "POL-2011. Leave empty when no policy was found.")
     claim_type: CLAIM_TYPE | None = Field(None, description="The claim type, when the report says enough to choose one. Leave empty when it does not.")
@@ -49,12 +49,12 @@ class ClaimFileDraft(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class RegisterClaim(BaseModel):
+class RegisterClaim(ForgivingModel):
     draft_version: int = Field(..., ge=1, description="The version number of the saved claim file draft to register, as the save returned it.")
     registered_by: str = Field("", description="The handler who approved the registration. Free text.")
 
 
-class Triage(BaseModel):
+class Triage(ForgivingModel):
     rule_id: Literal["HG-1", "HG-2", "HG-3", "HG-4"] = Field(..., description="The sorting rule of the handling guide that applies first.")
     track: Literal["person first", "complex", "fast track", "standard"] = Field(..., description="The track that rule gives.")
     team: str = Field(..., min_length=1, description="The team that rule gives, in the guide's words, for example theft team.")
@@ -63,7 +63,7 @@ class Triage(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class PackItem(BaseModel):
+class PackItem(ForgivingModel):
     doc_type: str = Field(..., description="The document type from the claim's checklist, for example plumber_report.")
     finding: Literal["received", "missing", "cannot_be_read", "does_not_show_what_it_must"] = Field(
         ..., description="received when the document is in the file and shows what the checklist says it must; missing when it is not "
@@ -73,7 +73,7 @@ class PackItem(BaseModel):
     note: str = Field("", description="What is wrong, in a few words, with both values when two records disagree.")
 
 
-class PackCheck(BaseModel):
+class PackCheck(ForgivingModel):
     items: list[PackItem] = Field(..., min_length=1, description="One item for every document type on the claim's checklist, in the checklist's order.")
     proposal: Literal["pack_complete", "ask_the_customer", "refer_to_a_handler"] = Field(
         ..., description="pack_complete when every item is received; ask_the_customer when a document is missing, unreadable or does not "
@@ -81,7 +81,7 @@ class PackCheck(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class Disagreement(BaseModel):
+class Disagreement(ForgivingModel):
     point: str = Field(..., description="What the two records disagree on, for example where the fire started.")
     first_source: str = Field(..., description="The id of the first document or record, for example DOC-4007-1.")
     first_says: str = Field(..., description="What the first one says.")
@@ -89,7 +89,7 @@ class Disagreement(BaseModel):
     second_says: str = Field(..., description="What the second one says.")
 
 
-class ClaimSummary(BaseModel):
+class ClaimSummary(ForgivingModel):
     summary_text: str = Field(..., min_length=1, description="The summary, in plain sentences.")
     open_points: list[str] = Field(default_factory=list, description="What is still open, one point each. Empty when nothing is open.")
     disagreements: list[Disagreement] = Field(default_factory=list, description="Each place where two records disagree. Empty when none do.")
@@ -97,7 +97,7 @@ class ClaimSummary(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class CoverageRow(BaseModel):
+class CoverageRow(ForgivingModel):
     reference: str = Field(..., description="The clause number of the wording, for example 1.3, or the endorsement id, for example "
                            "END-2008-1, or the words no clause for a row whose finding is wording_silent.")
     finding: Literal["applies", "does_not_apply", "excludes", "limits", "condition_met", "condition_not_met", "cannot_tell",
@@ -109,7 +109,7 @@ class CoverageRow(BaseModel):
     note: str = Field(..., min_length=1, description="The fact from the file that the finding rests on, with the document id.")
 
 
-class CoverageCheck(BaseModel):
+class CoverageCheck(ForgivingModel):
     rows: list[CoverageRow] = Field(..., min_length=1, description="One row for each clause and endorsement that bears on the loss.")
     position: Literal["within_the_wording", "outside_the_wording", "policy_not_in_force", "wording_is_silent", "cannot_tell_from_the_file"] = Field(
         ..., description="Where the loss stands against the wording. This is a reading for the adjuster, never a decision.")
@@ -118,13 +118,13 @@ class CoverageCheck(BaseModel):
     drafted_by: str = DRAFTED_BY
 
 
-class ExcludedLine(BaseModel):
+class ExcludedLine(ForgivingModel):
     line_id: str = Field(..., description="The id of the invoice or estimate line, for example DOC-4001-3-L4.")
     clause: str = Field(..., description="The clause of the wording that takes the line out of cover, for example 2.5.")
     reason: str = Field(..., min_length=1, description="Why the clause applies to this line, in a few words.")
 
 
-class SettlementRequest(BaseModel):
+class SettlementRequest(ForgivingModel):
     excluded_lines: list[ExcludedLine] = Field(default_factory=list, description="The lines the wording does not cover, each with its "
                                                "clause. Leave the list empty when every line is covered. Limits and the deductible are "
                                                "applied by the system: do not list a line here because a limit applies to it.")
@@ -135,26 +135,26 @@ class SettlementDraft(SettlementRequest):
     drafted_by: str = DRAFTED_BY
 
 
-class Letter(BaseModel):
+class Letter(ForgivingModel):
     template_id: Literal["TPL-ACK", "TPL-MISSING", "TPL-DECLINE"] = Field(..., description="The letter template used.")
     language: str = Field("English", description="The language the letter is written in.")
     letter_text: str = Field(..., min_length=1, description="The whole letter, as it would be sent.")
     drafted_by: str = DRAFTED_BY
 
 
-class Decision(BaseModel):
+class Decision(ForgivingModel):
     decision: Literal["cover_accepted", "declined"] = Field(..., description="The adjuster's decision.")
     decided_by: str = Field(..., min_length=1, description="The adjuster who decided.")
     reason: str = Field(..., min_length=1, description="The reason, in a sentence.")
     clause: str = Field(..., description="The clause the decision rests on.")
 
 
-class SendLetter(BaseModel):
+class SendLetter(ForgivingModel):
     draft_version: int = Field(..., ge=1, description="The version number of the saved letter to send.")
     sent_by: str = Field(..., min_length=1, description="The handler who read and sent the letter.")
 
 
-class Payment(BaseModel):
+class Payment(ForgivingModel):
     draft_version: int = Field(..., ge=1, description="The version number of the saved settlement calculation to pay.")
     approved_by: str = Field(..., min_length=1, description="The person with the authority for the amount who approved it.")
 

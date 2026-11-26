@@ -290,3 +290,28 @@ def test_saved_drafts_are_not_part_of_the_file_another_agent_reads(client):
     assert "claim_file_drafts" not in r and r["claim_file_drafts_on_file"] == 1
     assert get(client, "/claims/loss-reports/LR-3001/claim-file")["items"][0]["proposal"] == "register"
     assert all("claim_file_drafts" not in x for x in get(client, "/claims/loss-reports")["items"])
+
+
+def test_a_save_reads_plain_words_as_its_fixed_choices(client, store):
+    """An agent that writes "condition met" in its reply sends the same words in a save."""
+    cover = {"rows": [{"reference": "5.1", "finding": "Condition met", "note": "Told in 3 days, CLM-4001."},
+                      {"reference": "no clause", "finding": "wording silent", "note": "A key left in the vehicle, DOC-4004-1."},
+                      {"reference": "2.5", "finding": "EXCLUDES", "note": "The valet line."}],
+             "position": "within the wording", "recovery": "No recovery indicated"}
+    r = post(client, "/claims/claims/CLM-4001/coverage-check", cover)
+    saved = r["draft"]
+    assert [x["finding"] for x in saved["rows"]] == ["condition_met", "wording_silent", "excludes"]
+    assert (saved["position"], saved["recovery"]) == ("within_the_wording", "no_recovery_indicated")
+    pack = {"items": [{"doc_type": "claim_form", "finding": "received"}, {"doc_type": "plumber_report", "finding": "Missing"},
+                      {"doc_type": "repair_estimate", "finding": "received"}, {"doc_type": "photographs", "finding": "cannot be read"}],
+            "proposal": "ask the customer"}
+    assert post(client, "/claims/claims/CLM-4002/pack-check", pack)["draft"]["proposal"] == "ask_the_customer"
+    triage = {"rule_id": "hg-1", "track": "Person first", "team": "senior adjuster", "severity": "High", "reason": "A passenger was hurt."}
+    assert post(client, "/claims/claims/CLM-4005/triage", triage)["draft"]["track"] == "person first"
+
+
+def test_a_save_still_refuses_a_word_that_is_no_choice(client):
+    cover = {"rows": [{"reference": "5.1", "finding": "probably fine", "note": "x"}], "position": "within_the_wording",
+             "recovery": "no_recovery_indicated"}
+    r = post(client, "/claims/claims/CLM-4001/coverage-check", cover, 422)
+    assert r["applied"] is False and "finding" in r["detail"]

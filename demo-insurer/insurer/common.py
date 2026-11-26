@@ -13,6 +13,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader
+from pydantic import BaseModel, model_validator
 
 try:  # offline docs when the package is installed, otherwise no docs UI at all
     from fastapi_offline import FastAPIOffline
@@ -39,6 +40,49 @@ class DemoJSONResponse(JSONResponse):
         if isinstance(content, dict):
             content = {"demo_data": True, **content}
         return super().render(content)
+
+
+def _plain(text: str) -> str:
+    return "_".join(text.strip().lower().replace("-", " ").replace("_", " ").split())
+
+
+class ForgivingModel(BaseModel):
+    """A request body whose fixed choices may be sent as plain words.
+
+    An agent that writes "condition met" in its reply tends to send the same words in a save, where the
+    choice is spelt condition_met. A value that differs from a choice only in case, spaces, hyphens or
+    underscores is read as that choice. Anything else is refused as before.
+    """
+
+    @model_validator(mode="before")
+    @classmethod
+    def _read_plain_words_as_choices(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        out = dict(data)
+        for name, field in cls.model_fields.items():
+            value = out.get(name)
+            if not isinstance(value, str):
+                continue
+            choices = [x for x in _choices_of(field.annotation) if isinstance(x, str)]
+            if not choices or value in choices:
+                continue
+            hits = [x for x in choices if _plain(x) == _plain(value)]
+            if len(hits) == 1:
+                out[name] = hits[0]
+        return out
+
+
+def _choices_of(annotation: Any) -> list:
+    """The values of a Literal, also when it sits inside an optional."""
+    import typing
+
+    if typing.get_origin(annotation) is typing.Literal:
+        return list(typing.get_args(annotation))
+    found = []
+    for arg in typing.get_args(annotation):
+        found += _choices_of(arg)
+    return found
 
 
 def public_scheme(request: Request) -> str:
