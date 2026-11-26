@@ -1,0 +1,408 @@
+{
+  "$comment": "What makes the generic case desk the claims intake desk. Start it with DESK_CONFIG pointing at this file. Needs a case desk engine that reads the routing key and reads a table by its header (see README.md). The insurer (Thornmere Mutual Insurance), its customers, its policies, its claims and its documents are invented.",
+  "desk": {
+    "id": "claims-intake",
+    "name": "Claims intake desk",
+    "caseNoun": "claims case",
+    "caseNounPlural": "claims cases",
+    "draftNoun": "draft",
+    "deciderRole": "claims handler",
+    "tagline": "Loss reports, claims to sort, document packs and claim summaries in one queue, a draft for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add a claims case",
+    "arrivedVia": {
+      "feed": "the insurer's claims system",
+      "officer": "the claims team"
+    },
+    "issuedVerb": "Draft accepted by",
+    "documentLinkLabel": "Download the accepted draft"
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "customer"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "policy",
+      "amount"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the loss report or the claim from the claims system.",
+    "noTextNote": "No summary was supplied with this case. Work from the loss report or the claim the case names, read from the claims system.",
+    "askPlaceholder": "For example: which document names the other driver?",
+    "searchPlaceholder": "Search by name, id or kind",
+    "demoNote": "Demo data: the insurer, its customers, its policies, its claims and its documents are invented. Nothing here is a real claim or a decision on one.",
+    "listFields": [
+      "kind",
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "foldOnPhone": true,
+    "flags": [
+      {
+        "label": "Person injured",
+        "tone": "warn",
+        "reply": "Proposal: refer to a handler",
+        "matches": [
+          "injured"
+        ]
+      },
+      {
+        "label": "Vulnerable customer",
+        "tone": "warn",
+        "reply": "Proposal: refer to a handler",
+        "matches": [
+          "vulnerable"
+        ]
+      },
+      {
+        "label": "Person first",
+        "tone": "warn",
+        "reply": "Proposal: sort as person first"
+      }
+    ],
+    "replyHeading": "Reply received",
+    "replyLabel": "The reply (it is added to the case)",
+    "replyButton": "Add the reply and draft again",
+    "replyNote": "A reply has been added at the end of the case. Read the loss report or the claim from the claims system again, as new documents may have arrived, and go through every item again in the light of it.",
+    "replyEvent": "added the reply",
+    "jumpLabel": "The case"
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Loss report": {
+        "agentEnv": "LOSS_REPORT_AGENT_ID",
+        "instruction": "Prepare the claim file for the loss report named in the case below. Take from the report who reports, what happened, when and where. Find the policy, have the policy system say whether the policy was in force on the date of the loss, and list what is missing. A claims handler decides. You refuse no claim, accept no cover and contact nobody.\n\nRead the loss report and the policy from the insurer's systems before you write anything, and use only ids the systems return. The case below is the desk's short account: rely on what the systems hold. The date the report was received is not the date of the loss. Count no days yourself: what is said about cover is the policy system's answer, with its sentence of reason.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks: the report (its id, the reporter, the claim type, the date of the loss or that the report gives none); what the report says happened, in one or two sentences; the policy and what the policy system says about cover on the date of the loss, with both the number given and the policy found when they are not the same; what a person must supply or decide. The last line starts \"Saved:\" and says whether the draft was saved and its version, using only what the system's reply said, or what the system said if it refused. When registration was asked for, the same line then says what came back: that it is waiting for the claims handler's approval and not carried out yet, or the claim id the system returned.\n2. A blank line, then the heading \"Draft claim file. For the claims handler. Not issued.\"\n3. A Markdown table with exactly these six columns.\n| # | Item | What the report says | Source | Mark | Note |\nIt has eight rows, one each, in this order: policy; claim type; date of the loss; place; what happened; a person injured; another party involved; cover on the date of the loss. # is 1 to 8. What the report says is the value in a few words; in the policy row it is the number the reporter gave and the policy found, each by its id; in the cover row it is what the policy system said. Source is the id of the loss report, and in the policy and cover rows also the id of the policy read. Mark is exactly one of: found, missing, differs, not in force, needs a person, in lower case. Note says why, and what the handler should check. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of: \"register the claim\"; \"ask the reporter:\" followed by what is missing; \"refer to a handler:\" followed by why. Write nothing after it.\n\nMarks: found when the report gives it or the policy system confirms it; missing when the report does not give it, or cover could not be checked; differs when what the reporter gave is not what the insurer's records hold; not in force when the policy system says the policy was not in force on the date of the loss, on the cover row only; needs a person when a person was injured, or no policy or more than one fits.\nThe proposal is the first of these that fits. Refer to a handler: when the policy was not in force on the date of the loss, when a person was injured, when no policy or more than one fits, or when the holder of the policy is not the reporter. Ask the reporter: when none of those holds and something is missing. Register the claim: when a policy is picked, the claim type and the date of the loss are there, nothing is missing, nobody was injured and the policy was in force on the date of the loss.\nWrite plain statements. Do not write in the first person. Write every date as day, short month and year, for example 3 Feb 2026. Write money with the currency first, two decimals and a comma between thousands, for example USD 1,250.00. Never write a field name or a code with an underscore in it. A policy that was not in force is a fact for the handler: never write that a claim is refused, declined, rejected or will not be paid.",
+        "decisions": ["approve", "ask_for_more", "refer", "send_back"],
+        "marks": ["found", "missing", "differs", "not in force", "needs a person"],
+        "rowLabels": {
+          "source": "The report says"
+        }
+      },
+      "Sorting": {
+        "agentEnv": "SORTING_AGENT_ID",
+        "instruction": "Sort the claim named in the case below. Read its file and the sorting rules of the insurer's claims handling guide, find the first rule that applies, and say which track, team and severity it gives, with the reason. A claims handler decides. You assign no claim, and you accept and decline nothing.\n\nRead the claim and the claims handling guide from the claims system before you write anything, and use only ids the system returns. The case below is the desk's short account: rely on what the system holds. Test the rules in order, one at a time, and stop at the first that applies. What is said about cover on the date of the loss is the system's answer, with its sentence of reason. Count no days yourself. Whether the wording covers the loss is not a sorting matter: where the file raises such a point, one line of the summary names it and says it is for the coverage check and not for sorting.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks: the claim (its id, the claimant, the claim type, the date of the loss); what the file shows, in one or two sentences; the rule that applies first and the track, team and severity it gives; a point that is for the coverage check, when there is one; what a person must decide. The last line starts \"Saved:\" and says whether the draft was saved and its version, using only what the system's reply said, or what the system said if it refused.\n2. A blank line, then the heading \"Draft sorting. For the claims handler. Not issued.\"\n3. A Markdown table with exactly these six columns.\n| # | Rule | What the file shows | Source | Mark | Note |\nOne row for each sorting rule, from the first rule down to and including the first that applies. The rules after it get no row. # is 1, 2, 3 in order. Rule is the rule's id and nothing else. What the file shows is the fact for each part of the rule, in a few words. Source is the document id, the handler's note by its date and writer, or the claim record by the claim id. Mark is exactly one of: applies, does not apply, in lower case. Note says why, in the guide's terms. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of: \"sort as\" followed by the track, the team, the word severity with the severity, and the word under with the rule id, each separated by a comma, for example \"sort as green lane, marine team, severity low, under HG-9\"; or \"refer to a handler:\" followed by why, when the file does not settle whether a rule applies and no earlier rule applies. Write nothing after it.\n\nMarks: applies when every part the rule needs is shown by the file, on the last row only; does not apply when the file shows that the rule's words on when it applies are not met.\nWrite plain statements. Do not write in the first person. Write every date as day, short month and year, for example 3 Feb 2026. Write money with the currency first, two decimals and a comma between thousands, for example USD 1,250.00, and an amount in a rule the same way. Write a yes or no fact as words in a sentence, never as true or false. Never write a field name or a code with an underscore in it. A policy that was not in force is a fact a sorting rule uses: never write that a claim is declined, refused or not covered.",
+        "decisions": ["approve", "refer", "send_back"],
+        "marks": ["applies", "does not apply"]
+      },
+      "Pack check": {
+        "agentEnv": "PACK_CHECK_AGENT_ID",
+        "instruction": "Check the pack of the claim named in the case below. Compare the documents in the file with the checklist for the claim type, and list what is missing, what cannot be read and what does not show what it must. A claims handler decides what is asked of the customer. You write to nobody, and you accept and decline nothing.\n\nRead the claim from the claims system before you write anything, and use only ids the system returns. The case below is the desk's short account: rely on what the system holds. Use the checklist as it comes, in its own order: never add a document to it and never drop one. A document that is in the file and can be read must still be read against the checklist's words on what it must show. Count nothing and add up nothing.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks: the claim (its id, the claimant, the claim type, the date of the loss); what the pack shows, in one or two sentences that name each document that is missing, cannot be read or does not show what it must; any document that is in the file and is not a checklist item; a line that starts \"For the adjuster:\" wherever two documents disagree on a fact, with both document ids and what each says; what a person must supply or decide. The last line starts \"Saved:\" and says whether the draft was saved and its version, using only what the system's reply said, or what the system said if it refused.\n2. A blank line, then the heading \"Draft pack check. For the claims handler. Not issued.\"\n3. A Markdown table with exactly these six columns.\n| # | Document | Must show | In the file | Mark | Note |\nOne row for every document type on the checklist, in the checklist's order, and no other row. # is 1, 2, 3 in order. Document is the checklist's plain name. Must show is the checklist's words. In the file is the document's id and what its text shows of what it must, with the value itself where there is one: the date, the report number, the registration, the address; or \"not in the file\". Mark is exactly one of: received, missing, cannot be read, does not show what it must, in lower case. Note says what is wrong and what the handler should check; it may be empty for a document that is received. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of: \"the pack is complete\", when every row is received; \"ask the customer for:\" followed by each document that is missing, cannot be read or does not show what it must, by its plain name exactly as the checklist writes it, separated by semicolons; \"refer to a handler:\" followed by why. Write no full stop at the end of the line and nothing after it.\n\nMarks: received when the document is in the file, can be read, and its text shows what the checklist says it must; missing when it is not in the file; cannot be read when it is in the file and cannot be read; does not show what it must when it is in the file and can be read, and lacks or contradicts what the checklist asks of it. Two documents that disagree on a fact, while each shows what its own line asks, are both received: the disagreement is no fault of the pack and changes no mark.\nWrite plain statements. Do not write in the first person. Write every date as day, short month and year, for example 3 Feb 2026. Write money with the currency first, two decimals and a comma between thousands, for example USD 1,250.00. Never write a field name or a code with an underscore in it. Name a document that is in the file by its id.",
+        "decisions": ["approve", "ask_for_more", "refer", "send_back"],
+        "marks": ["received", "missing", "cannot be read", "does not show what it must"],
+        "rowLabels": {
+          "source": "Must show",
+          "policy": "In the file"
+        }
+      },
+      "Summary": {
+        "agentEnv": "SUMMARY_AGENT_ID",
+        "instruction": "Write the summary of the claim named in the case below for the adjuster. It is what the adjuster reads first: the loss, the policy and whether it was in force, the documents, the amounts, the people, recovery and the open points, each with its source. You prepare and a person decides. You do not say whether the loss is covered.\n\nRead the claim with its whole file, the policy and the claims handling guide from the insurer's systems before you write anything, and use only ids the systems return. The case below is the desk's short account: rely on what the systems hold, and if the two disagree, show both and choose neither. Add up nothing and count no days: the days from the loss to the report, and whether the policy was in force on the date of the loss, are what the system gives. Wherever two records disagree, show both with their ids and choose neither.\n\nReply in this shape and in no other.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks: the claim (its id, the claimant, the claim type and the date of the loss); what the file shows, in at most three lines; what a person must supply or decide, named in words, or that nothing is open. The last line starts \"Saved:\" and says whether the draft was saved and its version, using only what the system's reply said, or what the system said if it refused.\n2. A blank line, then the heading \"Draft claim summary. For the adjuster. Not issued.\"\n3. A Markdown table with exactly these six columns and exactly these seven rows, always in this order.\n| # | Point | What the file shows | Source | Mark | Note |\nThe rows are: The loss (what happened, where, the date of the loss, the date it was reported and the days between them as the system gives them); The policy (the policy id, the holder, the insured vehicle with its registration or the insured home, and whether the policy was in force on the date of the loss, with the reason the system gives); Documents (each checklist document, in the file with its id or not in the file; any that cannot be read; any that names another vehicle, home, policyholder or date; any extra document); Amounts (the estimate, then each line of a document that has lines, with its line id, what it is for and its amount; add nothing up); People (anyone injured, and each sign of a vulnerable customer that rule HG-1 lists, in the guide's words, followed by the fact that shows it and its source); Recovery (the exact words \"Recovery possible\" with the party and the document that names them, or \"No recovery indicated\", as rule HG-7 gives it); Open points (every open point, or \"No open points\"). # is 1 to 7. Point is the row's name. Source is the ids the row rests on. Where the file holds nothing on a row, write \"Not provided\". Mark is exactly one of these four, in lower case, the first that fits the row: records disagree, open, not provided, stated. Note says what the adjuster should look at, or holds only the character - when there is nothing to say. No Note speaks of cover. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these three, the first that fits: \"refer to a handler:\" followed by why, when a person was injured, when the file shows a sign of a vulnerable customer, or when two records disagree about the loss; \"open points first:\" followed by the open points, when there is any open point; \"ready for the adjuster\", when there is none. Write nothing after it.\n\nMarks: records disagree when two records give different accounts of the same point, or a document names another vehicle, home, policyholder or date of loss than the policy and the claim record; open when a person must supply or settle something before the claim can move on; not provided when the file holds nothing on the point; stated when the file holds it and no record contradicts it.\nWrite plain statements. Do not write in the first person. Write every date as day, short month and year, for example 4 Oct 2026. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 3,480.00. Never write a field name or a code with an underscore in it. Say nothing on whether the loss is covered.",
+        "decisions": ["approve", "ask_for_more", "refer", "send_back"],
+        "marks": ["stated", "open", "records disagree", "not provided"]
+      }
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the claims team (the form at the top of the list)",
+      "Sent by the insurer's claims system when a loss report or a document arrives (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The name, the loss in a few words and the work, for example: Venn, bollard in a car park: loss report"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Loss report",
+          "Sorting",
+          "Pack check",
+          "Summary"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Loss report or claim id",
+        "required": true,
+        "hint": "For example LR-3001 for a loss report or CLM-4001 for a claim"
+      },
+      {
+        "key": "customer",
+        "label": "Reporter or claimant",
+        "required": true
+      },
+      {
+        "key": "policy",
+        "label": "Policy",
+        "required": false,
+        "hint": "The policy number, as the claims system or the reporter gives it"
+      },
+      {
+        "key": "amount",
+        "label": "Estimate",
+        "required": false,
+        "hint": "With the currency, for example USD 2,350.00. Leave empty for a loss report"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "Start with a line that names the record, for example Loss report: LR-3001 or Claim: CLM-4001. Then who, what happened, and the documents on file with their ids"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A claims case has arrived whose kind of work is not one this desk knows. The kinds are Loss report, Sorting, Pack check and Summary. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the claims system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft"
+    ],
+    "marks": {
+      "found": "Found",
+      "missing": "Missing",
+      "differs": "Differs",
+      "not in force": "Not in force",
+      "needs a person": "Needs a person",
+      "applies": "Applies",
+      "does not apply": "Does not apply",
+      "received": "Received",
+      "cannot be read": "Cannot be read",
+      "does not show what it must": "Does not show what it must",
+      "stated": "Stated",
+      "open": "Open",
+      "records disagree": "Records disagree",
+      "not provided": "Not provided"
+    },
+    "markTones": {
+      "found": "ok",
+      "missing": "err",
+      "differs": "warn",
+      "not in force": "err",
+      "needs a person": "person",
+      "applies": "info",
+      "does not apply": "plain",
+      "received": "ok",
+      "cannot be read": "warn",
+      "does not show what it must": "err",
+      "stated": "plain",
+      "open": "person",
+      "records disagree": "warn",
+      "not provided": "none"
+    },
+    "markHints": {
+      "found": "The report gives it, or the policy system confirms it",
+      "missing": "The report or the file does not hold it, or cover could not be checked",
+      "differs": "What the reporter gave is not what the insurer's records hold. Both are shown",
+      "not in force": "The policy system says the policy was not in force on the date of the loss. A fact for the handler, not a decision on the claim",
+      "needs a person": "A person was injured, or no policy or more than one fits. A handler takes it",
+      "applies": "The file shows every part the rule needs. This rule gives the track, the team and the severity",
+      "does not apply": "The file shows that the rule's words on when it applies are not met",
+      "received": "In the file, can be read, and shows what the checklist says it must",
+      "cannot be read": "In the file, and it cannot be read",
+      "does not show what it must": "In the file and readable, and it lacks or contradicts what the checklist asks of it",
+      "stated": "The file holds it and no record contradicts it",
+      "open": "A person must supply or settle something before the claim can move on",
+      "records disagree": "Two records give different accounts of the same point. Both are shown and neither is chosen",
+      "not provided": "The file holds nothing on the point"
+    },
+    "tallyLabels": {
+      "applies": "applying",
+      "does not apply": "not applying",
+      "needs a person": "needing a person",
+      "does not show what it must": "not showing what it must",
+      "records disagree": "where records disagree"
+    },
+    "markIcons": {
+      "applies": "•",
+      "stated": "•"
+    },
+    "quietMarks": [
+      "does not apply",
+      "stated"
+    ],
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft",
+    "rowLabels": {
+      "source": "The file shows",
+      "policy": "Source",
+      "citation": "Source",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "summaryAboveRows": true
+  },
+  "decisions": [{
+      "id": "approve", "label": "Accept the draft", "outcome": "issued", "needsNote": false, "hint": "Records that you accept version {version}{edited} of the draft as the file note, in your name. It registers no claim, decides nothing on cover or payment, and changes nothing in the claims system.", "proposalPrefix": [
+        "register the claim", "sort as", "the pack is complete", "ready for the adjuster"]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Ask for more",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What to ask for, one item to a line",
+      "noteHint": "This text goes into the letter, one item to a line. A handler reads and sends the letter. The case waits here until the reply is added.",
+      "proposalPrefix": [
+        "ask the reporter",
+        "ask the customer for",
+        "open points first"
+      ]
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority: a senior adjuster, the liability team or the claims manager. Name them and give the reason.",
+      "proposalPrefix": [
+        "refer to a handler"
+      ]
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the draft",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For the handler",
+    "sent_back": "Being redone",
+    "issued": "Draft accepted",
+    "info_requested": "Waiting for a reply",
+    "referred": "Referred on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk registers no claim and decides nothing on cover, payment or a decline: the claims handler or the adjuster does that, in the claims system.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "customer",
+      "policy",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "letter_number",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "customer",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "letter_number",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind of work",
+      "reference": "Id",
+      "customer": "Name",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "letter_number": "Letter",
+      "draft_versions": "Versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other claims handler can. You can still ask the agent to redo the draft.",
+    "reasonToApproveUnmet": false,
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as accepted. Nothing further happens on this desk. Registering a claim, cover, payment, a decline and anything sent to a customer are decided elsewhere, by the claims handler or the adjuster, in the claims system.",
+    "info_requested": "When the reply comes, add it here. The agent reads the case again and the draft comes back for your decision.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs."
+  },
+  "letters": {
+    "info_requested": {
+      "title": "Your claim: more information needed",
+      "linkLabel": "Letter asking for information",
+      "prefix": "CL",
+      "days": 14,
+      "dateStyle": "long",
+      "toField": "customer",
+      "opening": "We cannot go further with the matter below until we have more information. This is not a decision on any claim.",
+      "fields": [
+        "customer",
+        "reference"
+      ],
+      "list": "note",
+      "listHeading": "What we need",
+      "dateLine": "Please send it by {until}.",
+      "body": [
+        "Quote {number} when you reply."
+      ],
+      "signature": "Claims, Thornmere Mutual Insurance (an invented insurer, for demonstration)"
+    }
+  },
+  "decisionLabels": {
+    "issued": "Accepted the draft",
+    "info_requested": "Asked for more information",
+    "referred": "Referred on",
+    "sent_back": "Asked the agent to redo the draft",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

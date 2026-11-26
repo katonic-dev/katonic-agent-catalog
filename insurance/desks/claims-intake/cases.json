@@ -1,0 +1,148 @@
+{
+  "$comment": "Fourteen invented cases for the demo, from the invented insurer Thornmere Mutual Insurance. The reporters, claimants, policies, claims and documents do not exist. Loss report: LR-3001 complete, LR-3002 a wrong policy number and no date of loss, LR-3003 a cancelled policy, LR-3004 a person injured. Sorting: CLM-4001 fast track, CLM-4003 complex, CLM-4005 person first, CLM-4008 standard. Pack check: CLM-4001 complete, CLM-4002 one document missing and one that cannot be read, CLM-4005 one missing and one that names another registration. Summary: CLM-4001 nothing open, CLM-4002 two open points, CLM-4007 two records that disagree and a vulnerable customer. Each case names only what the insurer's claims system holds. The list is written last case first, because the desk shows the last case entered at the top: the loss reports lead the queue.",
+  "cases": [
+    {
+      "title": "Pennicott, fire at home: summary",
+      "kind": "Summary",
+      "reference": "CLM-4007",
+      "customer": "Aldous Pennicott",
+      "policy": "POL-2007",
+      "amount": "USD 62,000.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4007\nClaimant: Aldous Pennicott\nType of claim: Home, fire\nDate of the loss: 23 Nov 2026\nReported: 23 Nov 2026\nEstimate: USD 62,000.00\nInsured: 9 Ferrymans Walk, Port Ilvane, Meridia\nDOCUMENTS ON FILE\nDOC-4007-1 Claim form\nDOC-4007-2 Fire service report\nDOC-4007-3 Repair estimate, Ilvane Restoration\nDOC-4007-4 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent writes the summary the adjuster reads first: the loss, the policy, the documents, the amounts, the people, recovery and the open points, each with its source. It does not say whether the loss is covered. The adjuster decides. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system.",
+      "arrived_via": "officer"
+    },
+    {
+      "title": "Marrowdene, water through the kitchen ceiling: summary",
+      "kind": "Summary",
+      "reference": "CLM-4002",
+      "customer": "Elspeth Marrowdene",
+      "policy": "POL-2002",
+      "amount": "USD 6,400.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4002\nClaimant: Elspeth Marrowdene\nType of claim: Home, escape of water\nDate of the loss: 14 Nov 2026\nReported: 16 Nov 2026\nEstimate: USD 6,400.00\nInsured: 3 Weavers Yard, Tallowby, Meridia\nDOCUMENTS ON FILE\nDOC-4002-1 Claim form\nDOC-4002-2 Repair estimate, Tallowby Building Services\nDOC-4002-3 Photographs of the damage\nTHE AGENT'S TASK\nThe agent writes the summary the adjuster reads first: the loss, the policy, the documents, the amounts, the people, recovery and the open points, each with its source. It does not say whether the loss is covered. The adjuster decides. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system.",
+      "arrived_via": "officer"
+    },
+    {
+      "title": "Ashgrove, gate post: summary",
+      "kind": "Summary",
+      "reference": "CLM-4001",
+      "customer": "Corwin Ashgrove",
+      "policy": "POL-2001",
+      "amount": "USD 2,350.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nType of claim: Motor, damage to the insured vehicle\nDate of the loss: 17 Nov 2026\nReported: 20 Nov 2026\nEstimate: USD 2,350.00\nInsured: Tarn Vale 1.6 saloon, 2022, registration MR-4417-K\nDOCUMENTS ON FILE\nDOC-4001-1 Claim form\nDOC-4001-2 Driving licence (extract)\nDOC-4001-3 Repair estimate, Gatewick Body Repairs\nDOC-4001-4 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent writes the summary the adjuster reads first: the loss, the policy, the documents, the amounts, the people, recovery and the open points, each with its source. It does not say whether the loss is covered. The adjuster decides. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system.",
+      "arrived_via": "officer"
+    },
+    {
+      "title": "Tollermoor, collision at a junction: pack check",
+      "kind": "Pack check",
+      "reference": "CLM-4005",
+      "customer": "Bram Tollermoor",
+      "policy": "POL-2005",
+      "amount": "USD 7,900.00",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: CLM-4005\nClaimant: Bram Tollermoor\nType of claim: Motor, accident involving another party\nDate of the loss: 21 Nov 2026\nReported: 22 Nov 2026\nEstimate: USD 7,900.00\nInsured: Vesper Lane 1.4 hatchback, 2021, registration MR-7720-B\nDOCUMENTS ON FILE\nDOC-4005-1 Claim form\nDOC-4005-2 Driving licence (extract)\nDOC-4005-3 Details of the other party\nDOC-4005-4 Repair estimate, Quarry Road Motors\nDOC-4005-5 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent compares the documents in the file with the checklist for the type of claim. It lists what is missing, what cannot be read and what does not show what it must. A claims handler decides what is asked of the customer. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Marrowdene, water through the kitchen ceiling: pack check",
+      "kind": "Pack check",
+      "reference": "CLM-4002",
+      "customer": "Elspeth Marrowdene",
+      "policy": "POL-2002",
+      "amount": "USD 6,400.00",
+      "received_on": "2026-11-16",
+      "text": "THE CLAIM\nClaim: CLM-4002\nClaimant: Elspeth Marrowdene\nType of claim: Home, escape of water\nDate of the loss: 14 Nov 2026\nReported: 16 Nov 2026\nEstimate: USD 6,400.00\nInsured: 3 Weavers Yard, Tallowby, Meridia\nDOCUMENTS ON FILE\nDOC-4002-1 Claim form\nDOC-4002-2 Repair estimate, Tallowby Building Services\nDOC-4002-3 Photographs of the damage\nTHE AGENT'S TASK\nThe agent compares the documents in the file with the checklist for the type of claim. It lists what is missing, what cannot be read and what does not show what it must. A claims handler decides what is asked of the customer. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Ashgrove, gate post: pack check",
+      "kind": "Pack check",
+      "reference": "CLM-4001",
+      "customer": "Corwin Ashgrove",
+      "policy": "POL-2001",
+      "amount": "USD 2,350.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nType of claim: Motor, damage to the insured vehicle\nDate of the loss: 17 Nov 2026\nReported: 20 Nov 2026\nEstimate: USD 2,350.00\nInsured: Tarn Vale 1.6 saloon, 2022, registration MR-4417-K\nDOCUMENTS ON FILE\nDOC-4001-1 Claim form\nDOC-4001-2 Driving licence (extract)\nDOC-4001-3 Repair estimate, Gatewick Body Repairs\nDOC-4001-4 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent compares the documents in the file with the checklist for the type of claim. It lists what is missing, what cannot be read and what does not show what it must. A claims handler decides what is asked of the customer. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Underhay, car left the road: sorting",
+      "kind": "Sorting",
+      "reference": "CLM-4008",
+      "customer": "Marisol Underhay",
+      "policy": "POL-2008",
+      "amount": "USD 3,100.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: CLM-4008\nClaimant: Marisol Underhay\nType of claim: Motor, damage to the insured vehicle\nDate of the loss: 18 Nov 2026\nReported: 20 Nov 2026\nEstimate: USD 3,100.00\nInsured: Tarn Vale 1.2 hatchback, 2020, registration MR-3358-D\nDOCUMENTS ON FILE\nDOC-4008-1 Claim form\nDOC-4008-2 Driving licence (extract)\nDOC-4008-3 Repair estimate, Gatewick Body Repairs\nDOC-4008-4 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent reads the claim file and the sorting rules of the claims handling guide, finds the first rule that applies, and says which track, team and severity it gives. A claims handler decides where the claim goes. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Tollermoor, collision at a junction: sorting",
+      "kind": "Sorting",
+      "reference": "CLM-4005",
+      "customer": "Bram Tollermoor",
+      "policy": "POL-2005",
+      "amount": "USD 7,900.00",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: CLM-4005\nClaimant: Bram Tollermoor\nType of claim: Motor, accident involving another party\nDate of the loss: 21 Nov 2026\nReported: 22 Nov 2026\nEstimate: USD 7,900.00\nInsured: Vesper Lane 1.4 hatchback, 2021, registration MR-7720-B\nDOCUMENTS ON FILE\nDOC-4005-1 Claim form\nDOC-4005-2 Driving licence (extract)\nDOC-4005-3 Details of the other party\nDOC-4005-4 Repair estimate, Quarry Road Motors\nDOC-4005-5 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent reads the claim file and the sorting rules of the claims handling guide, finds the first rule that applies, and says which track, team and severity it gives. A claims handler decides where the claim goes. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Kellhaven, vehicle taken overnight: sorting",
+      "kind": "Sorting",
+      "reference": "CLM-4003",
+      "customer": "Dariusz Kellhaven",
+      "policy": "POL-2003",
+      "amount": "USD 9,800.00",
+      "received_on": "2026-11-08",
+      "text": "THE CLAIM\nClaim: CLM-4003\nClaimant: Dariusz Kellhaven\nType of claim: Motor, theft of the insured vehicle\nDate of the loss: 7 Nov 2026\nReported: 8 Nov 2026\nEstimate: USD 9,800.00\nInsured: Orrin Bay 2.0 estate, 2019, registration PI-2086-T\nDOCUMENTS ON FILE\nDOC-4003-1 Claim form\nDOC-4003-2 Police report\nDOC-4003-3 Vehicle registration document (extract)\nDOC-4003-4 Declaration of the keys held\nTHE AGENT'S TASK\nThe agent reads the claim file and the sorting rules of the claims handling guide, finds the first rule that applies, and says which track, team and severity it gives. A claims handler decides where the claim goes. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Ashgrove, gate post: sorting",
+      "kind": "Sorting",
+      "reference": "CLM-4001",
+      "customer": "Corwin Ashgrove",
+      "policy": "POL-2001",
+      "amount": "USD 2,350.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nType of claim: Motor, damage to the insured vehicle\nDate of the loss: 17 Nov 2026\nReported: 20 Nov 2026\nEstimate: USD 2,350.00\nInsured: Tarn Vale 1.6 saloon, 2022, registration MR-4417-K\nDOCUMENTS ON FILE\nDOC-4001-1 Claim form\nDOC-4001-2 Driving licence (extract)\nDOC-4001-3 Repair estimate, Gatewick Body Repairs\nDOC-4001-4 Photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent reads the claim file and the sorting rules of the claims handling guide, finds the first rule that applies, and says which track, team and severity it gives. A claims handler decides where the claim goes. Everything here is as the claims system holds it. The agent reads the documents themselves from the claims system."
+    },
+    {
+      "title": "Whitlocke, hit from behind: loss report",
+      "kind": "Loss report",
+      "reference": "LR-3004",
+      "customer": "Ansel Whitlocke",
+      "policy": "POL-2014, as the reporter gave it",
+      "amount": "",
+      "received_on": "2026-11-26",
+      "text": "THE LOSS REPORT\nLoss report: LR-3004\nReporter: Ansel Whitlocke\nChannel: web form\nReceived: 26 Nov 2026\nPolicy given: POL-2014\nTHE REPORT, AS IT ARRIVED\nPolicy POL-2014. On 25 Nov 2026 at about 08:10 on the Beacon Hill roundabout in Marlow Reach, a van ran into the back of my Vesper Lane estate (registration MR-8842-P). My wife, Corisande Whitlocke, was in the passenger seat and was taken to hospital by ambulance with back pain. The van was a white Orrin Bay van, registration PI-4471-V, driven by a Mr Tobin Halewood. The rear of my car is badly damaged.\nTHE AGENT'S TASK\nThe agent takes from the report who reports, what happened, when and where. It finds the policy and has the policy system say whether the policy was in force on the date of the loss. It prepares the claim file and lists what is missing. Everything here is as the claims system holds it. The agent reads the report itself from the claims system."
+    },
+    {
+      "title": "Harrowell, car hit while parked: loss report",
+      "kind": "Loss report",
+      "reference": "LR-3003",
+      "customer": "Ludovic Harrowell",
+      "policy": "POL-2013, as the reporter gave it",
+      "amount": "",
+      "received_on": "2026-11-25",
+      "text": "THE LOSS REPORT\nLoss report: LR-3003\nReporter: Ludovic Harrowell\nChannel: telephone note\nReceived: 25 Nov 2026\nPolicy given: POL-2013\nTHE REPORT, AS IT ARRIVED\nCall taken by the first contact team. Mr Harrowell, policy POL-2013, reports that on 24 Nov 2026 his Orrin Bay (registration PI-5570-M) was hit while parked in Tanners Row, Port Ilvane. The driver's door and the front wing are dented. He did not see who did it. Nobody was hurt.\nTHE AGENT'S TASK\nThe agent takes from the report who reports, what happened, when and where. It finds the policy and has the policy system say whether the policy was in force on the date of the loss. It prepares the claim file and lists what is missing. Everything here is as the claims system holds it. The agent reads the report itself from the claims system."
+    },
+    {
+      "title": "Stannaway, leak at home: loss report",
+      "kind": "Loss report",
+      "reference": "LR-3002",
+      "customer": "Elric Stannaway",
+      "policy": "POL-2021, as the reporter gave it",
+      "amount": "",
+      "received_on": "2026-11-25",
+      "text": "THE LOSS REPORT\nLoss report: LR-3002\nReporter: Elric Stannaway\nChannel: email\nReceived: 25 Nov 2026\nPolicy given: POL-2021\nTHE REPORT, AS IT ARRIVED\nDear Thornmere, my policy number is POL-2021. We have had a leak at home, 7 Otterburn Gardens in Tallowby. Water has come through the ceiling of the dining room from the bathroom above and the ceiling has partly come down. Nobody was hurt. Please tell me what you need from me. Regards, Elric Stannaway\nTHE AGENT'S TASK\nThe agent takes from the report who reports, what happened, when and where. It finds the policy and has the policy system say whether the policy was in force on the date of the loss. It prepares the claim file and lists what is missing. Everything here is as the claims system holds it. The agent reads the report itself from the claims system."
+    },
+    {
+      "title": "Venn, bollard in a car park: loss report",
+      "kind": "Loss report",
+      "reference": "LR-3001",
+      "customer": "Isaura Venn",
+      "policy": "POL-2011, as the reporter gave it",
+      "amount": "",
+      "received_on": "2026-11-26",
+      "text": "THE LOSS REPORT\nLoss report: LR-3001\nReporter: Isaura Venn\nChannel: web form\nReceived: 26 Nov 2026\nPolicy given: POL-2011\nTHE REPORT, AS IT ARRIVED\nPolicy number POL-2011. On 25 Nov 2026 at about 18:30, in the car park of the Marlow Reach retail park, I reversed my Halden Crest (registration MR-6104-H) into a concrete bollard. The rear bumper is cracked and a rear light is broken. I was alone in the car, nobody was hurt and no other vehicle was involved. I can be reached on the number on my policy.\nTHE AGENT'S TASK\nThe agent takes from the report who reports, what happened, when and where. It finds the policy and has the policy system say whether the policy was in force on the date of the loss. It prepares the claim file and lists what is missing. Everything here is as the claims system holds it. The agent reads the report itself from the claims system."
+    }
+  ]
+}
