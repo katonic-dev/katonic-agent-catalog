@@ -10,6 +10,7 @@ Compares a supplier's answers to the bank's questionnaire, and the evidence it g
 | Reads from | Nothing of its own. The desk sends the questionnaire and the passages of the standard in one message |
 | Changes | Nothing. It has no tool |
 | State | Built on a development cluster. All six tests pass five runs in a row on the fifth version of the instructions, 25 November 2026. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-third-party-risk-assessment-agent](https://www.katonic.ai/use-cases/banking-third-party-risk-assessment-agent) |
 
 ## What it does
 

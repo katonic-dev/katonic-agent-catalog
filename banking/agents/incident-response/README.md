@@ -10,6 +10,7 @@ For an open incident, it gathers the dashboards and metrics, the recent changes 
 | Reads from | The bank's IT operations system: incidents, metrics, dashboards, changes and runbooks |
 | Changes | Nothing in the bank. One specialist saves the assessment as a draft note |
 | State | Built on a development cluster on 25 November 2026 as a manager with three specialists. The eight tests that can be run on a team pass five runs in a row; the nothing-connected test cannot be run on a team. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-incident-response-agent](https://www.katonic.ai/use-cases/banking-incident-response-agent) |
 
 ## The manager and its three specialists
 

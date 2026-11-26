@@ -10,6 +10,7 @@ Reads a payment held in the repair queue and the reason it stopped, and proposes
 | Reads from | The bank's payments system: the repair item, the rule that stopped it, the payment, earlier payments found by beneficiary name or account, the check of an IBAN and the bank directory |
 | Changes | Saves a draft repair proposal. The draft releases nothing: the payment stays held |
 | State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-payment-exception-repair-agent](https://www.katonic.ai/use-cases/banking-payment-exception-repair-agent) |
 
 ## What it does
 

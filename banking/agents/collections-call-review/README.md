@@ -10,6 +10,7 @@ For a recorded collections call, it writes a short summary, marks each of the ba
 | Reads from | The bank's collections system: call transcripts and the conduct rules |
 | Changes | Nothing in the bank's records. It saves a call review as a draft, and the call stays unreviewed |
 | State | Built on a development cluster. All eight tests pass five runs in a row |
+| Website page | [katonic.ai/use-cases/banking-collections-call-review-agent](https://www.katonic.ai/use-cases/banking-collections-call-review-agent) |
 
 ## What it does
 

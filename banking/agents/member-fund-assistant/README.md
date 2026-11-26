@@ -10,6 +10,7 @@ Answers a scheme member's questions about the scheme's funds and the member's ow
 | Reads from | The pension scheme's funds system: the funds, their fact sheets, a member and the member's holdings |
 | Changes | Nothing. It has no tool that acts, and it saves no draft |
 | State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/pension-member-fund-assistant](https://www.katonic.ai/use-cases/pension-member-fund-assistant) |
 
 ## What it does
 

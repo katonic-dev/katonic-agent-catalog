@@ -10,6 +10,7 @@ Checks an employer's contribution file row by row, or a member's transfer form f
 | Reads from | The pension scheme's funds system: the written procedure, contribution batches, transfer forms and the member register |
 | Changes | Saves a batch result as a draft. It posts nothing and puts nothing on any member's account |
 | State | Built on a development cluster. All seven tests pass five runs in a row, 25 November 2026. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/back-office-workflows-approval-gates](https://www.katonic.ai/use-cases/back-office-workflows-approval-gates) |
 
 ## What it does
 

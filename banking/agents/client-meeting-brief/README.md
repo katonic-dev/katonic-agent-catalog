@@ -10,6 +10,7 @@ For each of a relationship manager's meetings the next day, it writes one brief:
 | Reads from | The bank's client meetings system, its customer records (credit exposure) and its press archive |
 | Changes | Nothing in the bank's records. It saves a brief as a draft. Nothing is sent |
 | State | Built on a development cluster. All seven tests pass five runs in a row |
+| Website page | [katonic.ai/use-cases/banking-client-meeting-brief-agent](https://www.katonic.ai/use-cases/banking-client-meeting-brief-agent) |
 
 ## What it does
 

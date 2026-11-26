@@ -10,6 +10,7 @@ Given a company and a goal, plans what to read, reads the filings and market dat
 | Reads from | The bank's research data: the listed companies, their filings, share prices and consensus estimates |
 | Changes | Saves a draft report. Nothing is published |
 | State | Built on a development cluster. All seven tests pass five runs in a row. Its desk is tested against a stand-in agent |
+| Website page | [katonic.ai/use-cases/banking-equity-research-report-agent](https://www.katonic.ai/use-cases/banking-equity-research-report-agent) |
 
 ## What it does
 

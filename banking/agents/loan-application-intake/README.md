@@ -10,6 +10,7 @@ Checks a loan application pack against the documents the bank's lending policy r
 | Reads from | The bank's lending system: the application, its documents and the lending policy |
 | Changes | Saves a draft list of missing items and figures. The draft sends nothing and changes no status |
 | State | Built on a development cluster on 24 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-loan-origination-agent](https://www.katonic.ai/use-cases/banking-loan-origination-agent) |
 
 ## What it does
 

@@ -10,6 +10,7 @@ Answers staff questions from the bank's own policies and procedures, and cites t
 | Reads from | A knowledge source that holds the bank's policies and procedures |
 | Changes | Nothing. It has no tool that acts |
 | State | Built and tested as a draft on a development cluster. All five tests pass five runs in a row. Not yet published |
+| Website page | [katonic.ai/use-cases/banking-policy-and-procedures-assistant](https://www.katonic.ai/use-cases/banking-policy-and-procedures-assistant) |
 
 ## What it does
 

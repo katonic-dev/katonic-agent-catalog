@@ -10,6 +10,7 @@ For a member of staff with a customer's question. It drafts the reply from the b
 | Reads from | A knowledge source with the bank's product documents, and the bank's customer records |
 | Changes | Nothing in the bank's records. It saves a draft note on the customer's contact history. Nothing is sent |
 | State | Built and tested as a draft on a development cluster. All seven tests pass five runs in a row. Not yet published |
+| Website page | [katonic.ai/use-cases/banking-support-agent](https://www.katonic.ai/use-cases/banking-support-agent) |
 
 ## What it does
 
