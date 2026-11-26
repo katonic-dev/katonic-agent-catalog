@@ -75,6 +75,25 @@ The "Meridia Financial Conduct Authority (invented)" is not one of the bank's sy
 
 Publication ids look like `MFCA-2026-045`. They are written to be compared with the policy library in `banking/policy-library`; the right verdicts are in [SCENARIOS.md](SCENARIOS.md). `POST /admin/simulate/regulator-publication` adds one more.
 
+## Regulator test feeds
+
+Two invented RSS 2.0 feeds stand in for the FCA news feed and the ECB press feed, so that a scheduled monitoring workflow (`banking/agents/regulatory-monitoring`) can be tested on demand: a first run, nothing new, a feed that gained a publication, a feed that cannot be read. They are not one of the bank's systems and not a regulator. They need no key and have no MCP address and no OpenAPI document. Each channel title says it is a test copy, and every item is invented.
+
+The `fca` feed has one element per line, like the live FCA feed. The `ecb` feed has all its items on one long line, like the live ECB feed. Each starts with eight items dated up to the bank date, newest first.
+
+| Address | What it gives |
+|---|---|
+| `/feeds/<series>/fca.xml` and `/feeds/<series>/ecb.xml` | The two feeds of one series. A series is any token of 1 to 40 small letters, digits and hyphens. A new series starts at the starting items, so each tester or test round can have its own. |
+| `/feeds/fca.xml` and `/feeds/ecb.xml` | The series `default`. |
+
+These three admin calls need the key, like the other admin routes:
+
+- `POST /admin/feeds/<series>/<feed>/publish` adds one invented item at the top of that feed and answers with its title, date and link. Titles come from a fixed list, and each new item is dated one day after the one before, starting the day after the bank date.
+- `POST /admin/feeds/<series>/<feed>/unreadable?on=true` makes that feed answer 503 with a short plain-text body. `on=false` brings back the same document.
+- `GET /admin/feeds/<series>` gives, for each feed, the number of items, their titles, dates and links, and whether it is unreadable.
+
+`POST /admin/reset/feeds` puts every series back. So does `POST /admin/reset`.
+
 ## Quick start
 
 ```
@@ -110,7 +129,7 @@ Behind a gateway, absolute addresses (landing page, news `page_url`, the regulat
 
 ## Sign-in
 
-Data operations, the MCP addresses and the admin routes need the key, as the header `X-API-Key: <key>` or as `Authorization: Bearer <key>`. Open without a key: `/`, `/health`, `/healthz`, the docs pages, the OpenAPI documents, the news article pages (`/news/pages/<id>`) and the regulator's website (`/regulator/...`). Each OpenAPI document declares the header key as its security scheme.
+Data operations, the MCP addresses and the admin routes need the key, as the header `X-API-Key: <key>` or as `Authorization: Bearer <key>`. Open without a key: `/`, `/health`, `/healthz`, the docs pages, the OpenAPI documents, the news article pages (`/news/pages/<id>`) the regulator's website (`/regulator/...`) and the regulator test feeds (`/feeds/...`). Each OpenAPI document declares the header key as its security scheme.
 
 ## Environment variables
 

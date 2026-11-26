@@ -12,7 +12,7 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
-from . import events
+from . import events, feeds
 from .common import Ctx, public_scheme, DemoJSONResponse, FastAPIOffline, make_auth, not_found
 from .config import BANK_NAME, INVENTED_NOTICE, load_settings
 from .mcp_doors import install_mcp
@@ -102,7 +102,7 @@ def create_app(env: dict | None = None) -> FastAPI:
     app.add_middleware(DemoHeaderMiddleware)
 
     system_keys = {mod.KEY for mod in SYSTEMS}
-    can_be_put_back = sorted(system_keys | set(events.SYSTEM_OF.values()))
+    can_be_put_back = sorted(system_keys | set(events.SYSTEM_OF.values()) | {feeds.KEY})
 
     def owner_of(path: str) -> str:
         """The system a request's changes are put down to: the system in its path, or the system an arrival is for."""
@@ -113,6 +113,8 @@ def create_app(env: dict | None = None) -> FastAPI:
             if part == "admin":
                 if parts[i + 1:i + 2] == ["simulate"] and len(parts) > i + 2:
                     return events.SYSTEM_OF.get(parts[i + 2], "admin")
+                if parts[i + 1:i + 2] == [feeds.KEY]:
+                    return feeds.KEY
                 return "admin"
         return "admin"
 
@@ -201,6 +203,8 @@ def create_app(env: dict | None = None) -> FastAPI:
 
     app.include_router(admin)
     app.include_router(make_regulator_router(ctx))
+    for router in feeds.make_routers(ctx):
+        app.include_router(router)
 
     @app.exception_handler(HTTPException)
     async def _err(_: Request, exc: HTTPException):

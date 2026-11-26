@@ -160,6 +160,20 @@ Publications that arrive by `POST /admin/simulate/regulator-publication`, in thi
 | Notice: holiday opening hours of the regulator's counters | None. | No action. |
 | Guideline: recovery time of no more than four hours for each critical system, tested yearly | MTB-POL-033 clauses 2.1 and 2.2 (a recovery time objective and a yearly test, but no four-hour limit; MTB-STD-041 clause 4.2 sets four hours for suppliers only). | Partly covered. |
 
+## Regulator test feeds
+
+Two invented feeds, `/feeds/<series>/fca.xml` and `/feeds/<series>/ecb.xml`, for the five tests of the regulatory monitoring workflow. Point the workflow's two fetch steps at one series. A series nobody else uses keeps other testers' changes out of your runs. The admin calls (with the key) are `POST /admin/feeds/<series>/<feed>/publish`, `POST /admin/feeds/<series>/<feed>/unreadable?on=true|false` and `GET /admin/feeds/<series>`. `POST /admin/reset/feeds` puts every series back.
+
+| Test | Set up | Right digest |
+|---|---|---|
+| 1. First run | No copy saved by the workflow yet. The compare steps keep their copy under the keys `feed_a` and `feed_b`, not under the address, so a new series alone is not a first run: give the keys new names or use a newly published workflow. | A first copy saved for each feed, nothing new. |
+| 2. Nothing new | Run again with no admin call. | "Nothing new since the last run." for both. |
+| 3. A feed gained a publication | `publish` on one feed, then run. | Under that feed, only the item the call returned, with its title, date and link. "Nothing new since the last run." for the other. |
+| 4. A feed cannot be read | `unreadable?on=true` on one feed, then run. | That feed could not be read. The other as normal. Turn it off afterwards. |
+| 5. An extra request | Run with nothing changed and a request in the input. | The same as test 2. |
+
+After test 4 the workflow has saved the unreadable copy, so the next good run lists every item of that feed as new. Run once more after turning it off to get back to a clean copy.
+
 ## Onboarding (system: onboarding)
 
 Documents are text. Dates are relative to the bank date. Every application and review read gives `read_on`, the bank's date, and every document gives `document_date` and `age_days_at_bank_date`, its age in days at the bank's date, so an age never depends on the real clock. A proof of address must be dated within 3 months (90 days). A watchlist hit is checked with `screen_name`. The decision `refer_to_compliance` is only a recommendation in the file: the decision call takes approve, decline or ask_applicant.

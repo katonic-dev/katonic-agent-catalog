@@ -63,7 +63,7 @@ def build_all(today: date) -> dict:
         "recon_accounts": recon_accounts, "recon_rules": RECON_RULES, "recon_ledger": recon_ledger,
         "recon_statement": recon_statement, "recon_breaks": recon_breaks,
         "news_articles": build_news(today), "media_screenings": {},
-        "regulator_publications": build_publications(today),
+        "regulator_publications": build_publications(today), "feed_series": {},
         "onb_applications": onb_apps, "onb_documents": onb_docs, "onb_requirements": REQUIREMENTS,
         "kyc_reviews": kyc_reviews, "kyc_documents": kyc_docs,
         "complaints": complaints, "complaints_procedure": PROCEDURE,
