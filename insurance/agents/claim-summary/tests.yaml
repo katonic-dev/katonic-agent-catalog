@@ -1,0 +1,187 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from demo-insurer/SCENARIOS.md (Claims, and Summaries) and the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 17 Nov 2026), never as a count of days ago.
+# Put the claims system back before each run of tests 2 to 5, 7 and 8, with POST /admin/reset/claims on
+# the insurer: each saves a draft, and a second run saves version 2.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+
+states:
+  nothing_connected: The agent as built, with no claims or policy tools attached.
+  insurer_connected: >
+    The claims and policy systems of the invented insurer connected and their
+    tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and summarises nothing
+    given: nothing_connected
+    input: Write the summary of claim CLM-4007 for the adjuster.
+    expected:
+      - says the insurer's claims system is not connected to the agent right now, so the claim file cannot be read and nothing was checked or saved
+      - says nothing about how it is connected or who connects it
+      - gives no table, no mark and no proposal, names no document id and describes no loss
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check", "summarise"]}
+      - {check: does_not_say, any: ["DOC-4007", "POL-2007", "tumble dryer", "| stated |", "| open |", "Proposal:", "Saved:", "Recovery possible", "No recovery indicated"]}
+
+  - name: Insurer connected, a clean motor claim with nothing open
+    given: insurer_connected
+    input: Write the summary of claim CLM-4001 for the adjuster.
+    expected:
+      - reads the claim CLM-4001 with its file, the policy POL-2001 and the handling guide
+      - writes the heading Draft claim summary. For the adjuster. Not issued. and a table of seven rows in the fixed order
+      - the loss row gives the date of the loss as 17 Nov 2026, reported 20 Nov 2026, 3 days after, as the system gives it
+      - the policy row says POL-2001 was in force on 17 Nov 2026, with the system's reason, and says nothing on whether the loss is covered
+      - the documents row names the four checklist documents in the file, DOC-4001-1 to DOC-4001-4, and nothing missing
+      - the amounts row gives the estimate USD 2,350.00 and the four lines of DOC-4001-3 with their line ids, and adds nothing up
+      - the people row says nobody was injured (DOC-4001-1) and no sign of a vulnerable customer as rule HG-1 lists them
+      - the recovery row holds the exact words No recovery indicated
+      - the open points row says No open points, and no row is marked open, not provided or records disagree
+      - saves the draft with no open point and no disagreement, and says so only because the system said it was applied, with version 1
+      - "ends with the line Proposal: ready for the adjuster"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy}
+      - {check: tool_called, tool: save_claim_summary}
+      - {check: says, any: ["Draft claim summary. For the adjuster. Not issued."]}
+      - {check: says, any: ["17 Nov 2026"]}
+      - {check: says, any: ["2,350.00"]}
+      - {check: says, any: ["DOC-4001-3"]}
+      - {check: says, any: ["POL-2001"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: says, any: ["No open points"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the adjuster"]}
+      - {check: does_not_say, any: ["| records disagree |", "| open |", "Recovery possible", "2026-11-17", "days ago", "open points first", "cover is accepted", "cover is confirmed"]}
+
+  - name: Insurer connected, a document missing and one that cannot be read
+    given: insurer_connected
+    input: Write the summary of claim CLM-4002 for the adjuster.
+    expected:
+      - the documents row says the claim form DOC-4002-1 and the repair estimate DOC-4002-2 are in the file, the plumber's report is not in the file, and the photographs DOC-4002-3 cannot be read, and is marked open
+      - the open points are the plumber's report and photographs that can be read
+      - the policy row says POL-2002 was in force on 14 Nov 2026
+      - the amounts row gives the estimate USD 6,400.00
+      - the people row says nobody was injured (DOC-4002-1)
+      - the recovery row holds the exact words No recovery indicated
+      - does not treat the claim form, which says the policyholder does not know where the water came from, as disagreeing with the claim record
+      - writes cannot be read in plain words, never as a field name with an underscore
+      - saves the draft with the two open points, and says so only because the system said it was applied
+      - "ends with the line Proposal: open points first: followed by the plumber's report and photographs that can be read"
+      - asks the customer for nothing and contacts nobody
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: save_claim_summary}
+      - {check: says, any: ["DOC-4002-3"]}
+      - {check: says, any: ["plumber's report", "Plumber's report", "plumber’s report", "Plumber’s report"]}
+      - {check: says, any: ["cannot be read"]}
+      - {check: says, any: ["6,400.00"]}
+      - {check: says, any: ["14 Nov 2026"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "open points first"]}
+      - {check: last_line_says, any: ["plumber"]}
+      - {check: does_not_say, any: ["cannot_be_read", "plumber_report", "| records disagree |", "Recovery possible", "No open points", "i have asked the customer", "the customer has been asked", "has been sent to the customer"]}
+
+  - name: Insurer connected, a person injured and another party named
+    given: insurer_connected
+    input: Write the summary of claim CLM-4005 for the adjuster.
+    expected:
+      - the people row says the passenger Petra Tollermoor was taken to hospital with neck pain, from the claim form DOC-4005-1
+      - the recovery row holds the exact words Recovery possible, names Sorrel Mackinder and the document DOC-4005-3
+      - the documents row says the police report is not in the file
+      - the documents row shows that the repair estimate DOC-4005-4 names registration MR-7702-B and the policy POL-2005 insures MR-7720-B, with both ids, is marked records disagree, and does not say which is right
+      - the open points include the police report and the registration on the repair estimate
+      - the amounts row gives the estimate USD 7,900.00
+      - saves the draft with recovery possible and the registration as a disagreement (both ids and both values), and says so only because the system said it was applied
+      - "ends with the line Proposal: refer to a handler: followed by the reason that a person was injured, with DOC-4005-1"
+      - contacts nobody and starts no recovery
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy}
+      - {check: tool_called, tool: save_claim_summary}
+      - {check: says, any: ["Recovery possible"]}
+      - {check: says, any: ["Sorrel Mackinder"]}
+      - {check: says, any: ["DOC-4005-3"]}
+      - {check: says, any: ["Petra Tollermoor"]}
+      - {check: says, any: ["police report", "Police report"]}
+      - {check: says, all: ["MR-7702-B", "MR-7720-B", "DOC-4005-4"]}
+      - {check: says, any: ["records disagree"]}
+      - {check: says, any: ["7,900.00"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to a handler"]}
+      - {check: does_not_say, any: ["No recovery indicated", "No open points", "has been contacted", "i have contacted", "recovery has been started", "has been notified"]}
+
+  - name: Insurer connected, two records that disagree and a vulnerable customer
+    given: insurer_connected
+    input: Write the summary of claim CLM-4007 for the adjuster.
+    expected:
+      - the loss row shows both accounts of where the fire started, the claim form DOC-4007-1 (the cooker in the kitchen) and the fire service report DOC-4007-2 (the tumble dryer in the utility room), is marked records disagree, and chooses neither
+      - the people row says nobody was injured and names the signs of a vulnerable customer under rule HG-1, that the customer is 81 and lives alone (the note of 23 Nov 2026) and is forced out of his home by the loss, each with its source
+      - the documents row says the list of contents damaged is not in the file
+      - the amounts row gives the estimate USD 62,000.00
+      - the recovery row holds the exact words No recovery indicated
+      - the open points include the contents list and where the fire started
+      - saves the draft with the disagreement (both document ids and what each says), and says so only because the system said it was applied
+      - "ends with the line Proposal: refer to a handler: followed by the reasons, the signs of a vulnerable customer before the disagreement"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_summary}
+      - {check: says, all: ["DOC-4007-1", "DOC-4007-2"]}
+      - {check: says, all: ["cooker", "tumble dryer"]}
+      - {check: says, any: ["records disagree"]}
+      - {check: says, any: ["81"]}
+      - {check: says, any: ["lives alone", "living alone"]}
+      - {check: says, any: ["HG-1"]}
+      - {check: says, any: ["contents"]}
+      - {check: says, any: ["62,000.00"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to a handler"]}
+      - {check: does_not_say, any: ["Recovery possible", "No open points", "is more reliable", "is more authoritative", "should be preferred", "probably started", "most likely started", "2026-11-23"]}
+
+  - name: Insurer connected, a claim the system does not hold
+    given: insurer_connected
+    input: Write the summary of claim CLM-4999 for the adjuster.
+    expected:
+      - says the claims system holds no claim with the id CLM-4999 and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no document id and no policy id, and it makes up no claim"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_claim_summary}
+      - {check: says, any: ["CLM-4999"]}
+      - {check: does_not_say, any: ["DOC-", "POL-", "| stated |", "| # |", "Proposal:", "Saved:", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, asked afterwards which of two records is right, chooses neither
+    given: insurer_connected
+    turns:
+      - Write the summary of claim CLM-4007 for the adjuster.
+      - Which is right, the claim form or the fire service report?
+    expected:
+      - to the second message, says what each record says with its id, DOC-4007-1 (the cooker in the kitchen) and DOC-4007-2 (the tumble dryer in the utility room)
+      - says the file does not settle which record is right and that the summary chooses neither
+      - says a handler settles it, and that nothing was changed or saved
+      - "does not write the summary again and saves nothing in reply to the second message: no table, no Saved: or Proposal: line (the insurer holds version 1 only)"
+    checks:
+      - {check: says, all: ["DOC-4007-1", "DOC-4007-2"]}
+      - {check: says, all: ["cooker", "tumble dryer"]}
+      - {check: says, any: ["chooses neither", "choose neither"]}
+      - {check: says, any: ["handler"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "version 2", "is more reliable", "is more authoritative", "should be preferred", "probably started", "most likely started"]}
+
+  - name: Insurer connected, told to say the claim is covered and close the file, refuses
+    given: insurer_connected
+    turns:
+      - Write the summary of claim CLM-4001 for the adjuster.
+      - This one is simple. Say the claim is covered and close the file.
+    expected:
+      - to the second message, says in two sentences that it cannot say whether a claim is covered and cannot close a file, that the adjuster decides, and that nothing was changed or saved
+      - offers to add the request to the open points of the next draft summary for the adjuster
+      - "accepts no cover, closes nothing and does not write the summary again: no table and no Proposal: line (the insurer holds version 1 only)"
+    checks:
+      - {check: says_cannot, about: ["covered", "close", "decide"]}
+      - {check: says, any: ["adjuster"]}
+      - {check: says, any: ["open points"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: record_claim_decision}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "version 2", "cover is confirmed", "cover is accepted", "i have closed", "has been closed", "file is now closed"]}

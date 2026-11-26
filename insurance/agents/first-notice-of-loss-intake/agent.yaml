@@ -1,0 +1,58 @@
+id: first-notice-of-loss-intake
+name: First Notice of Loss Intake
+pack: insurance
+area: Claims intake
+summary: >
+  Takes a new loss report, extracts who, what, when and where, finds the
+  policy, checks it was in force on the date of the loss, prepares the claim
+  file and lists what is missing. A claims handler decides: registration waits
+  for the handler's approval.
+
+type: workflow
+form: event-triggered
+started_by: A new loss report arriving. The insurer's claims system can announce one through its loss-report event
+
+meets_people_through: application
+application: Claims intake desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the loss report's id and reads the reply.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a loss report, save the claim file as a draft and ask for the claim to be registered
+    operations:
+      - get_loss_report
+      - save_claim_file_draft
+      - register_claim
+  - id: policy-system
+    kind: api
+    required: true
+    label: The insurer's policy system, to find a policy by its number or by the holder's name and to ask whether it was in force on a date
+    operations:
+      - search_policies
+      - get_policy
+      - check_policy_cover_on_date
+
+demo_insurer_systems: [claims, policy]
+
+stops_for_a_person:
+  - A claims handler approves every registration before it is carried out. The agent asks for it only when its proposal is to register.
+  - A report with a person injured, a policy that was not in force on the date of the loss, or a policy that cannot be settled goes to a handler. The agent refuses no claim and accepts no cover.
+  - The agent contacts nobody. What is missing is listed for a person to ask the reporter.
+
+# The claim file is a draft kept with its author, a time and a version number.
+# Registering creates the claim: it waits for the handler's approval.
+changes:
+  - {tool: save_claim_file_draft, waits_for_approval: false}
+  - {tool: register_claim, waits_for_approval: true}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

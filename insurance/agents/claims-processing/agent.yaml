@@ -1,0 +1,49 @@
+id: claims-processing
+name: Claims Processing
+pack: insurance
+area: Claims intake
+summary: >
+  Sorts a new claim by the sorting rules of the insurer's claims handling
+  guide so that it reaches the right team, with the rule and the reason. A
+  claims handler decides: the agent assigns nothing.
+
+type: workflow
+form: event-triggered
+started_by: A claim being registered
+
+meets_people_through: application
+application: Claims intake desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply. The claim
+# comes with its whole file, so one read of the claim and one of the guide are enough.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its whole file, read the claims handling guide and save how the claim is sorted as a draft
+    operations:
+      - get_claim
+      - get_claims_handling_guide
+      - save_claim_triage
+
+demo_insurer_systems: [claims]
+
+stops_for_a_person:
+  - The claims handler reads the sorting and assigns the claim. The agent assigns it to nobody.
+  - Whether the wording covers the loss is for the coverage check and an adjuster. The agent accepts and declines nothing.
+  - Where the file does not settle which rule applies, the agent says so and refers the claim to a handler.
+
+# The sorting is a draft kept with its author, a time and a version number.
+# It assigns the claim to nobody and changes no status.
+changes:
+  - {tool: save_claim_triage, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

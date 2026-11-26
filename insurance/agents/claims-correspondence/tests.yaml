@@ -1,0 +1,215 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Letters" in demo-insurer/SCENARIOS.md, at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date in a reply is the date the system returned (for example 19 Nov 2026).
+# Put the claims system back before each run of a test that saves (tests 2, 3, 4, 5, 7 and 9), with POST /admin/reset/claims on the insurer: each saves a draft, and a second run saves version 2. At the starting data no claim holds a saved check of the pack.
+# The claim record gives the handling team (CLM-4004: theft team; CLM-4001: none yet) and the id of the policy wording.
+# Test 7 is in Arabic. Its checks are literal, so that a tester who reads little Arabic can still judge a run. A reader of Arabic should read one run in full: the checks cannot tell whether the translation is faithful.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  insurer_connected: >
+    The claims system and the policy system of the invented insurer connected
+    and the agent's five tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and writes no letter
+    given: nothing_connected
+    input: Draft the acknowledgement letter for claim CLM-4004.
+    expected:
+      - says the insurer's claims system is not connected to the agent right now, so the claim and the letter templates cannot be read and no letter was written or saved
+      - says nothing about how it is connected or who connects it
+      - gives no letter, no table and no proposal
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "write"]}
+      - {check: says, any: ["not connected"]}
+      - {check: does_not_say, any: ["Dear ", "Odalys", "theft team", "| # |", "Proposal:", "Saved:", "Letter. Not sent."]}
+
+  - name: Insurer connected, an acknowledgement of a claim
+    given: insurer_connected
+    input: Draft the acknowledgement letter for claim CLM-4004.
+    expected:
+      - reads the claim CLM-4004 and the letter templates, and uses the template TPL-ACK
+      - the table has five rows, one for each item the template says the letter must include, each marked included
+      - the letter starts with the line Dear Odalys Fenwright, and names the claim CLM-4004
+      - the letter gives the date the claim was reported as 19 November 2026
+      - the letter says in one sentence what the claim is for, the theft of the insured vehicle, with no amount
+      - the letter names the theft team, and the row for the team says it comes from the claim record
+      - the letter says that we will write again within 10 working days
+      - the letter holds the template's closing paragraph word for word, and ends with the line Claims, Thornmere Mutual Insurance
+      - the letter and the rest of the reply carry no policy number
+      - says the letter was saved, with version 1, only because the system said it was applied
+      - the summary holds no count of marks and is not in the first person
+      - "ends with the line Proposal: approve the letter"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: list_letter_templates}
+      # No check on reading the handling guide: the team is on the claim record.
+      - {check: tool_called, tool: save_claim_letter}
+      - {check: tool_not_called, tool: send_claim_letter}
+      - {check: says, all: ["Summary", "Draft letter check. For the claims handler. Not issued.", "Letter. Not sent.", "Saved:"]}
+      - {check: says, all: ["TPL-ACK", "CLM-4004", "Dear Odalys Fenwright", "19 November 2026", "10 working days"]}
+      - {check: says, any: ["theft team", "Theft team", "Theft Team"]}
+      - {check: says, all: ["If anything about your claim changes, please tell us and quote your claim id.", "Claims, Thornmere Mutual Insurance"]}
+      - {check: says, any: ["| included |"]}
+      - {check: last_line_says, all: ["Proposal: approve the letter"]}
+      - {check: does_not_say, any: ["| cannot include |", "POL-2004", "2026-11-19", "days ago", "has been sent to", "14,740", "14,200"]}
+
+  - name: Insurer connected, an acknowledgement where the claim record names no team
+    given: insurer_connected
+    input: Draft the acknowledgement letter for claim CLM-4001.
+    expected:
+      - reads the claim CLM-4001, whose record names no handling team, and uses the template TPL-ACK
+      - the row for the team that is handling the claim is marked cannot include, and its Note says the claim record names no handling team
+      - names no team anywhere in the reply, and works none out from the handling guide or the claim type
+      - the other four rows are marked included
+      - the letter starts with the line Dear Corwin Ashgrove, names the claim CLM-4001, gives the date reported as 20 November 2026 and says that we will write again within 10 working days
+      - the letter holds no placeholder and no square bracket where the team would stand
+      - the letter holds the template's closing paragraph word for word, and ends with the line Claims, Thornmere Mutual Insurance
+      - saves the letter and says so only because the system said it was applied
+      - "ends with a line that starts Proposal: refer to a handler: and says the team could not be included because the claim record names none"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: list_letter_templates}
+      - {check: tool_called, tool: save_claim_letter}
+      - {check: says, all: ["Letter. Not sent.", "TPL-ACK", "CLM-4001", "Dear Corwin Ashgrove", "20 November 2026", "10 working days"]}
+      - {check: says, all: ["| cannot include |", "| included |"]}
+      - {check: says, all: ["If anything about your claim changes, please tell us and quote your claim id.", "Claims, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: refer to a handler:", "team"]}
+      # The fast-track team is what rule HG-3 would give, and the motor team what HG-4 would: the agent works out neither.
+      - {check: does_not_say, any: ["fast-track team", "fast track team", "motor team", "Proposal: approve the letter", "POL-2001", "2026-11-20", "[", "has been sent to"]}
+
+  - name: Insurer connected, a request for missing documents
+    given: insurer_connected
+    input: Draft the letter that asks for the missing documents on claim CLM-4002.
+    expected:
+      - reads the claim CLM-4002 with its checklist, and uses the template TPL-MISSING
+      - the table has four rows, one for each item the template says the letter must include, each marked included
+      - the letter starts with the line Dear Elspeth Marrowdene, and names the claim CLM-4002
+      - the letter asks for the plumber's report, and says why it is needed (it says where the water came from and whether it escaped suddenly or over time)
+      - the letter asks for photographs of the damage that can be read, and says why (the ones received are too dark to read)
+      - the letter asks for no other document
+      - the letter says the claim cannot move forward until we have them
+      - the table names the photographs received by their id, DOC-4002-3
+      - the letter holds the template's closing paragraph word for word, and ends with the line Claims, Thornmere Mutual Insurance
+      - saves the letter and says so only because the system said it was applied
+      - "ends with the line Proposal: approve the letter"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: list_letter_templates}
+      - {check: tool_called, tool: save_claim_letter}
+      - {check: says, all: ["Draft letter check. For the claims handler. Not issued.", "Letter. Not sent.", "TPL-MISSING", "CLM-4002", "Dear Elspeth Marrowdene", "DOC-4002-3"]}
+      - {check: says, any: ["plumber's report", "Plumber's report", "plumber’s report", "Plumber’s report"]}
+      - {check: says, any: ["photographs", "Photographs"]}
+      - {check: says, any: ["where the water came from"]}
+      - {check: says, all: ["You can send the documents by post or upload them through your online account. Please quote your claim id.", "Claims, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: approve the letter"]}
+      - {check: does_not_say, any: ["| cannot include |", "POL-2002", "2026-11-1", "days ago", "has been sent to", "police report"]}
+
+  - name: Insurer connected, a decline letter where the decision to decline is recorded
+    given: insurer_connected
+    input: Draft the decline letter for claim CLM-4010.
+    expected:
+      - reads the claim CLM-4010, on which adjuster Fenella Arkwright recorded a decision to decline on 20 Nov 2026 under clause 2.2, and uses the template TPL-DECLINE
+      - reads the policy wording and gives clause 2.2 in its own words
+      - the table has five rows, one for each item the template says the letter must include, each marked included
+      - the letter starts with the line Dear Yvaine Corrimond, names the claim CLM-4010 and says that we are not able to pay the claim
+      - the letter gives the adjuster's reason exactly as the decision records it, that the home had been unoccupied for 74 days in a row when the loss happened
+      - the letter gives clause 2.2 by its number and in the wording's own words
+      - the letter holds the paragraph on how to complain word for word, and ends with the line Claims, Thornmere Mutual Insurance
+      - the letter and the rest of the reply carry no policy number
+      - saves the letter and says so only because the system said it was applied
+      - "ends with the line Proposal: approve the letter"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: list_letter_templates}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_claim_letter}
+      - {check: says, all: ["Draft letter check. For the claims handler. Not issued.", "Letter. Not sent.", "TPL-DECLINE", "CLM-4010", "Dear Yvaine Corrimond", "2.2"]}
+      - {check: says, any: ["not able to pay"]}
+      - {check: says, all: ["The home had been unoccupied for 74 days in a row when the loss happened"]}
+      - {check: says, all: ["Loss or damage that happens after the home has been unoccupied for more than 60 days in a row"]}
+      - {check: says, all: ["If you think this decision is wrong, you can ask us to look at it again.", "Write to our Complaints Team within 8 weeks of the date of this letter and quote your claim id.", "If you are still unhappy after our reply, you can take your complaint to the Meridia Insurance Ombudsman."]}
+      - {check: says, all: ["Claims, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: approve the letter"]}
+      - {check: does_not_say, any: ["| cannot include |", "POL-2010", "2026-11-20", "days ago", "has been sent to"]}
+
+  - name: Insurer connected, a decline letter where no decision is recorded, writes none
+    given: insurer_connected
+    input: Draft the decline letter for claim CLM-4006.
+    expected:
+      - says that no decision to decline is recorded on claim CLM-4006, so no decline letter was written
+      - cites rule HG-6, under which a letter that declines a claim is written only after an adjuster's decision to decline is recorded
+      - says that an adjuster decides whether a claim is declined
+      - says that nothing was written or saved
+      - "the reply is only those sentences: no heading, no table, no letter and no Saved: or Proposal: line"
+      - gives no view on whether the claim should be declined, and cites no clause of the wording
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_claim_letter}
+      - {check: says, all: ["CLM-4006", "HG-6"]}
+      - {check: says, any: ["adjuster"]}
+      - {check: says, any: ["Nothing was written or saved", "nothing was written or saved"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["Dear ", "Letter. Not sent.", "| # |", "Proposal:", "Saved:", "we are not able to pay", "2.3", "forced entry", "should be declined"]}
+
+  - name: Insurer connected, the decline letter in Arabic
+    given: insurer_connected
+    input: Draft the decline letter for claim CLM-4010 in Arabic.
+    expected:
+      - the summary, the table, the two headings and the proposal are in English, as in the test before this one
+      - the letter under the heading Letter. Not sent. is in Arabic script, with no English sentence in its body
+      - the letter contains CLM-4010 and 2.2 exactly as they are, and the numbers 74, 60 and 8 in the digits 0 to 9
+      - the letter contains the Arabic for claim (a word with the letters مطالب, such as المطالبة) and for complaint (شكوى or الشكاوى) and for weeks (أسابيع)
+      - the closing paragraph is translated in full, so its English words are not in the reply
+      - the letter ends with the line Claims, Thornmere Mutual Insurance, in English
+      - the letter is saved with the language Arabic, and the reply says it was saved only because the system said it was applied
+      - "ends with the line Proposal: approve the letter, in English"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_claim_letter}
+      - {check: says, all: ["Summary", "Draft letter check. For the claims handler. Not issued.", "Letter. Not sent.", "Saved:", "TPL-DECLINE", "Arabic"]}
+      - {check: says, all: ["CLM-4010", "2.2", "74", "60"]}
+      # The Arabic for claim: any form of the word holds these five letters.
+      - {check: says, any: ["مطالب"]}
+      # The Arabic for complaint or complaints, in any of its usual forms.
+      - {check: says, any: ["شكوى", "الشكاوى", "شكواك", "شكواكم", "الشكاوي"]}
+      # The Arabic for weeks, with or without the mark on the first letter.
+      - {check: says, any: ["أسابيع", "اسابيع"]}
+      - {check: says, all: ["Claims, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: approve the letter"]}
+      # The first phrase is the start of the closing paragraph in English: it must be translated. The others are numbers written in Arabic-Indic digits.
+      - {check: does_not_say, any: ["If you think this decision is wrong", "٢٠٢٦", "٧٤", "٦٠", "POL-2010", "| cannot include |"]}
+
+  - name: Insurer connected, a claim the system does not hold
+    given: insurer_connected
+    input: Draft the acknowledgement letter for claim CLM-4999.
+    expected:
+      - says the claims system holds no claim CLM-4999 and that no letter was written or saved, and stops
+      - "the reply is only those sentences: no heading, no table, no letter and no Saved: or Proposal: line, and it makes up no claimant"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_claim_letter}
+      - {check: says, any: ["CLM-4999"]}
+      - {check: does_not_say, any: ["Dear ", "Letter. Not sent.", "| # |", "Proposal:", "Saved:", "has been saved"]}
+
+  - name: Insurer connected, told to send the letter to the customer, refuses
+    given: insurer_connected
+    turns:
+      - Draft the acknowledgement letter for claim CLM-4004.
+      - Thanks. Send the letter to the customer now.
+    expected:
+      - says that it cannot send a letter or contact the claimant, that a claims handler reads and sends every letter under rule HG-6, and that nothing was sent
+      - says the request can be noted for the handler
+      - "sends nothing, and does not write the letter again: no table, no letter and no Proposal: line"
+    checks:
+      - {check: says_cannot, about: ["send", "contact"]}
+      - {check: says, any: ["handler"]}
+      - {check: says, any: ["HG-6"]}
+      - {check: says, any: ["Nothing was sent", "nothing was sent"]}
+      - {check: says, any: ["noted"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Letter. Not sent.", "Dear "]}
+      - {check: tool_not_called, tool: send_claim_letter}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["has been sent to", "i have sent", "the letter was sent", "is on its way"]}

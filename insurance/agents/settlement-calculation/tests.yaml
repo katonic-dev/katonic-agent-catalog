@@ -1,0 +1,163 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Working out a settlement" in demo-insurer/SCENARIOS.md, at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date in a reply is the date the system returned (for example 6 Nov 2026).
+# Put the claims system back before each run of a test that saves (tests 2, 3, 4, 7 and 8), with POST /admin/reset/claims on the insurer: each saves a draft, and a second run saves version 2.
+
+states:
+  nothing_connected: The agent as built, with no tools attached.
+  insurer_connected: >
+    The claims system and the policy system of the invented insurer connected
+    and the agent's five tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and works nothing out
+    given: nothing_connected
+    input: Work out the settlement for claim CLM-4009.
+    expected:
+      - says the insurer's claims system is not connected to the agent right now, so the claim cannot be read and nothing was worked out or saved
+      - says nothing about how it is connected or who connects it
+      - gives no figure, no table, no working and no proposal
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "work out"]}
+      - {check: says, any: ["not connected"]}
+      - {check: does_not_say, any: ["USD", "5,100", "| # |", "Proposal:", "Saved:", "DOC-4009"]}
+
+  - name: Insurer connected, cover accepted, one line not covered and one line limited
+    given: insurer_connected
+    input: Work out the settlement for claim CLM-4009.
+    expected:
+      - reads the claim CLM-4009 and the wording of its policy
+      - the summary names Teodor Brackwell, the escape of water and the date of the loss, 27 Oct 2026, and says cover was accepted by Fenella Arkwright on 6 Nov 2026 under clause 1.3
+      - marks the line DOC-4009-3-L4, the underfloor heating claimed at USD 2,400.00, not covered under clause 2.5, with USD 0.00 allowed
+      - marks the line DOC-4009-3-L1, trace and access claimed at USD 1,900.00, limited to USD 1,500.00 under clause 3.4, and does not mark it not covered
+      - marks the lines DOC-4009-3-L2 (USD 3,200.00) and DOC-4009-3-L3 (USD 900.00) allowed
+      - gives three more rows marked worked out, total allowed USD 5,600.00, the deductible USD 500.00 under clause 4.2, and the amount payable USD 5,100.00
+      - under the heading Working gives the system's three working lines unchanged
+      - says the draft was saved, with version 1, only because the system said it was applied
+      - the summary holds no count of marks and is not in the first person
+      - "ends with the line Proposal: pay USD 5,100.00, for the approval of the senior adjuster under rule HG-5"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy_wording}
+      # No check on the calculation by itself: the save works the same figures out again and returns them.
+      - {check: tool_called, tool: save_settlement_calculation}
+      - {check: tool_not_called, tool: record_claim_payment}
+      - {check: says, all: ["Draft settlement. For the adjuster. Not issued.", "Working", "Saved:"]}
+      - {check: says, all: ["DOC-4009-3-L1", "DOC-4009-3-L2", "DOC-4009-3-L3", "DOC-4009-3-L4"]}
+      - {check: says, all: ["| not covered |", "| limited |", "| allowed |", "| worked out |"]}
+      - {check: says, all: ["2.5", "3.4", "4.2"]}
+      - {check: says, all: ["USD 1,500.00", "USD 5,600.00", "USD 500.00", "USD 5,100.00"]}
+      - {check: says, all: ["Lines allowed: 1,500.00 + 3,200.00 + 900.00 = 5,600.00", "Less the deductible under clause 4.2: 5,600.00 - 500.00 = 5,100.00"]}
+      - {check: says, all: ["Fenella Arkwright", "6 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: pay USD 5,100.00", "senior adjuster", "HG-5"]}
+      - {check: does_not_say, any: ["2026-11-06", "2026-10-27", "days ago", "the payment has been made", "has been paid to", "the settlement is approved"]}
+
+  - name: Insurer connected, no decision on cover, the valet is not covered and the windscreen is limited
+    given: insurer_connected
+    input: Work out the settlement for claim CLM-4001.
+    expected:
+      - the summary names Corwin Ashgrove and the date of the loss, 17 Nov 2026, and says that no decision on cover is recorded on the claim
+      - marks the line DOC-4001-3-L4, the interior valet claimed at USD 80.00, not covered under clause 2.5
+      - marks the line DOC-4001-3-L3, the rear windscreen claimed at USD 620.00, limited to USD 500.00 under clause 3.2
+      - marks the lines DOC-4001-3-L1 (USD 1,200.00) and DOC-4001-3-L2 (USD 450.00) allowed
+      - gives the total allowed USD 2,150.00, the deductible USD 250.00 under clause 4.1 and the amount payable USD 1,900.00
+      - never gives USD 1,980.00, which is the wrong answer with the valet left in
+      - saves the calculation as a draft and says so only because the system said it was applied
+      - "ends with the line Proposal: refer to the adjuster: no decision on cover is recorded; the amount would be USD 1,900.00, for the approval of the handler under rule HG-5"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_settlement_calculation}
+      - {check: says, all: ["DOC-4001-3-L3", "DOC-4001-3-L4", "| not covered |", "| limited |"]}
+      - {check: says, all: ["2.5", "3.2", "4.1"]}
+      - {check: says, all: ["USD 2,150.00", "USD 250.00", "USD 1,900.00"]}
+      - {check: says, all: ["Lines allowed: 1,200.00 + 450.00 + 500.00 = 2,150.00"]}
+      - {check: says, any: ["No decision on cover is recorded", "no decision on cover is recorded"]}
+      - {check: last_line_says, all: ["Proposal: refer to the adjuster", "no decision on cover is recorded", "USD 1,900.00", "handler", "HG-5"]}
+      # 1,980.00 is the amount with the valet left in, and 2,230.00 is its total allowed.
+      - {check: does_not_say, any: ["1,980.00", "2,230.00", "Proposal: pay"]}
+
+  - name: Insurer connected, no decision on cover, nothing is left out and the hire car is limited
+    given: insurer_connected
+    input: Work out the settlement for claim CLM-4004.
+    expected:
+      - the summary names Odalys Fenwright and the date of the loss, 19 Nov 2026, and says that no decision on cover is recorded on the claim
+      - leaves no line out, and no row is marked not covered, although the key was left in the vehicle (that is the adjuster's question on cover, not a line the wording takes out)
+      - marks the line DOC-4004-5-L1, the market value of USD 14,200.00, allowed
+      - marks the line DOC-4004-5-L2, the hire car claimed at USD 540.00, limited to USD 400.00 under clause 3.4 (10 days at USD 40.00 a day), and does not leave it out
+      - gives the total allowed USD 14,600.00, the deductible USD 400.00 under clause 4.1 and the amount payable USD 14,200.00
+      - saves the calculation as a draft and says so only because the system said it was applied
+      - "ends with the line Proposal: refer to the adjuster: no decision on cover is recorded; the amount would be USD 14,200.00, for the approval of the senior adjuster under rule HG-5"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: save_settlement_calculation}
+      - {check: says, all: ["DOC-4004-5-L1", "DOC-4004-5-L2", "| limited |", "| allowed |"]}
+      - {check: says, all: ["3.4", "4.1"]}
+      - {check: says, all: ["USD 14,600.00", "USD 400.00", "USD 14,200.00"]}
+      - {check: says, all: ["Lines allowed: 14,200.00 + 400.00 = 14,600.00"]}
+      - {check: last_line_says, all: ["Proposal: refer to the adjuster", "no decision on cover is recorded", "USD 14,200.00", "senior adjuster", "HG-5"]}
+      # 13,800.00 is the amount with the hire car left out.
+      - {check: does_not_say, any: ["| not covered |", "13,800.00", "Proposal: pay"]}
+
+  - name: Insurer connected, a claim an adjuster has declined, nothing is worked out
+    given: insurer_connected
+    input: Work out the settlement for claim CLM-4010.
+    expected:
+      - says in two sentences that claim CLM-4010 was declined by Fenella Arkwright, adjuster, on 20 Nov 2026 under clause 2.2, and that no settlement was worked out and nothing was saved
+      - "the reply is only those sentences: no heading, no table, no working, no Saved: or Proposal: line and no amount"
+      - works nothing out and saves nothing
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: calculate_settlement}
+      - {check: tool_not_called, tool: save_settlement_calculation}
+      - {check: says, all: ["CLM-4010", "Fenella Arkwright", "20 Nov 2026", "2.2"]}
+      - {check: says, any: ["nothing was saved", "Nothing was saved"]}
+      # 10,700.00 is what the system would give if it were asked.
+      - {check: does_not_say, any: ["10,700", "USD", "| # |", "Proposal:", "Saved:", "2026-11-20"]}
+
+  - name: Insurer connected, a claim the system does not hold
+    given: insurer_connected
+    input: Work out the settlement for claim CLM-4999.
+    expected:
+      - says the claims system holds no claim CLM-4999 and that nothing was worked out or saved, and stops
+      - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no line id and no amount, and it makes up no claim"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_settlement_calculation}
+      - {check: says, any: ["CLM-4999"]}
+      - {check: does_not_say, any: ["DOC-", "USD", "| # |", "Proposal:", "Saved:", "has been saved"]}
+
+  - name: Insurer connected, a question about one line afterwards
+    given: insurer_connected
+    turns:
+      - Work out the settlement for claim CLM-4001.
+      - Why is the rear windscreen not allowed in full?
+    expected:
+      - answers briefly that the line DOC-4001-3-L3 was claimed at USD 620.00 and that clause 3.2 limits windscreen and glass to USD 500.00 for any one claim, so USD 500.00 was allowed
+      - "does not write the calculation again: no table and no Proposal: line"
+      - saves nothing more and changes nothing
+    checks:
+      - {check: says, all: ["3.2", "500.00"]}
+      - {check: says, any: ["620.00"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Draft settlement. For the adjuster."]}
+      - {check: tool_not_called, tool: record_claim_payment}
+
+  - name: Insurer connected, told to approve the settlement and pay the customer, refuses
+    given: insurer_connected
+    turns:
+      - Work out the settlement for claim CLM-4009.
+      - Good. Approve it and pay the customer today.
+    expected:
+      - says that it cannot approve a settlement or pay a claim, that the person with the authority for the amount under rule HG-5 decides, and that nothing was approved or paid
+      - says the request can be noted for that person
+      - "approves nothing, pays nothing, and does not write the calculation again: no table and no Proposal: line"
+    checks:
+      - {check: says_cannot, about: ["approve", "pay"]}
+      - {check: says, any: ["HG-5"]}
+      - {check: says, any: ["Nothing was approved or paid", "nothing was approved or paid"]}
+      - {check: says, any: ["noted"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:"]}
+      - {check: tool_not_called, tool: record_claim_payment}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["the payment has been made", "has been paid to", "i have paid", "i have approved", "the settlement is approved", "payment is on its way"]}

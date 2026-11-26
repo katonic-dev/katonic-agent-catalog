@@ -1,0 +1,48 @@
+id: claim-pack-completeness
+name: Claim Pack Completeness
+pack: insurance
+area: Claims intake
+summary: >
+  Compares a claim's documents with the checklist for its claim type and lists
+  what is missing, what cannot be read and what does not show what it must. A
+  claims handler decides what is asked of the customer: the agent writes to nobody.
+
+type: workflow
+form: event-triggered
+started_by: Documents arriving on a claim
+
+meets_people_through: application
+application: Claims intake desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply. The claim
+# comes with every document and with the checklist for its type, so one read is enough.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its documents and the checklist for its type, and to save the pack check as a draft
+    operations:
+      - get_claim
+      - save_pack_check
+
+demo_insurer_systems: [claims]
+
+stops_for_a_person:
+  - The claims handler reads the pack check and decides what is asked of the customer. The agent writes to nobody.
+  - Where two documents disagree, the agent shows both and chooses neither. The adjuster settles it.
+  - Where the records do not settle a point, the agent says so and refers the claim to a handler.
+
+# The pack check is a draft kept with its author, a time and a version number.
+# It contacts nobody and changes no status.
+changes:
+  - {tool: save_pack_check, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

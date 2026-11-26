@@ -1,0 +1,60 @@
+id: settlement-calculation
+name: Settlement Calculation
+pack: insurance
+area: Claims assessment
+summary: >
+  Works out the amount payable on a claim from the invoice and estimate lines,
+  the limits and the deductible, and shows the working line by line. It says
+  which lines the policy wording does not cover; the claims system does the
+  sums. It pays nothing and approves nothing.
+
+type: workflow
+form: api
+started_by: A call from the insurer's claims system once the invoices are in
+
+meets_people_through: application
+application: Claims assessment desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk or the claims system sends one message with the claim's id and
+# reads the reply. One read of the claim gives the whole file with every
+# invoice and estimate line. The policy gives the id of its wording.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its whole file, to have a settlement worked out from the lines the wording does not cover, and to save the calculation as a draft
+    operations:
+      - get_claim
+      - calculate_settlement
+      - save_settlement_calculation
+  - id: policy-system
+    kind: api
+    required: true
+    label: The insurer's policy system, to read the policy a claim names and the policy wording with its numbered clauses
+    operations:
+      - get_policy
+      - get_policy_wording
+
+demo_insurer_systems: [claims, policy]
+
+stops_for_a_person:
+  - The adjuster decides whether the loss is covered. Where no decision on cover is recorded, the agent still works the figure out and refers the claim to the adjuster with it. Where a decision to decline is recorded, it works nothing out.
+  - The person with the authority for the amount under rule HG-5 of the claims handling guide approves a settlement. The agent approves nothing and pays nothing.
+  - Where the file does not settle whether the wording covers a line, the agent says so and refers the claim to the adjuster. It fills no gap.
+
+# Saving a calculation is a draft kept with its author, a time and a version
+# number. It approves nothing, pays nothing and changes no status. Working a
+# settlement out is a search sent as a POST: it saves nothing, so it is not
+# listed here.
+changes:
+  - {tool: save_settlement_calculation, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

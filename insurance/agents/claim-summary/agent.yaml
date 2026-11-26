@@ -1,0 +1,58 @@
+id: claim-summary
+name: Claim Summary
+pack: insurance
+area: Claims intake
+summary: >
+  Writes the summary an adjuster reads first: the loss, the policy and whether
+  it was in force, the documents, the amounts, the people, recovery and the
+  open points, each with its source. Where two records disagree it shows both
+  and chooses neither. It does not say whether the loss is covered: the
+  adjuster decides.
+
+type: workflow
+form: api
+started_by: A call from the claims system when an adjuster opens a claim file
+
+meets_people_through: application
+application: Claims intake desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply.
+# The agent reads the whole claim file and the handling guide from the claims
+# system, and the policy from the policy system.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its whole file and the claims handling guide, and to save a draft summary
+    operations:
+      - get_claim
+      - get_claims_handling_guide
+      - save_claim_summary
+  - id: policy-system
+    kind: api
+    required: true
+    label: The insurer's policy system, to read the policy the claim is made under
+    operations: [get_policy]
+
+demo_insurer_systems: [claims, policy]
+
+stops_for_a_person:
+  - The adjuster reads the summary and decides what happens to the claim. The agent does not say whether the loss is covered, accepts nothing and declines nothing.
+  - Where two records disagree, the agent shows both with their ids and chooses neither. A handler settles which one stands.
+  - Where a person was injured or the file shows a sign of a vulnerable customer, the proposal is to refer the claim to a handler. The agent contacts nobody.
+  - Recovery from another party is for the recoveries team. The agent writes what rule HG-7 asks and contacts no other party.
+
+# Saving a summary is a draft kept with its author, a time and a version
+# number. It changes no status and sends nothing.
+changes:
+  - {tool: save_claim_summary, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

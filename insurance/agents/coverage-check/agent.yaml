@@ -1,0 +1,60 @@
+id: coverage-check
+name: Coverage Check
+pack: insurance
+area: Claims assessment
+summary: >
+  Sets a loss against the policy wording: the clause that covers, the
+  exclusions, the limits, the deductible, the conditions and the endorsements,
+  each with its clause number and in the clause's own words, and says where
+  the wording is silent. It gives a reading for the adjuster. It never accepts
+  or declines a claim.
+
+type: workflow
+form: api
+started_by: A call from the claims system when a claim reaches assessment
+
+meets_people_through: application
+application: Claims assessment desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply.
+# The agent reads the whole claim file and the handling guide from the claims
+# system, and the policy and its wording from the policy system.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its whole file and the claims handling guide, and to save a draft coverage check
+    operations:
+      - get_claim
+      - get_claims_handling_guide
+      - save_coverage_check
+  - id: policy-system
+    kind: api
+    required: true
+    label: The insurer's policy system, to read the policy with its schedule and endorsements, and the policy wording with its numbered clauses
+    operations:
+      - get_policy
+      - get_policy_wording
+
+demo_insurer_systems: [claims, policy]
+
+stops_for_a_person:
+  - The adjuster reads the coverage check and decides. The agent accepts no cover and declines no claim, whichever way the reading falls.
+  - Where the policy was not in force on the date of the loss, the reading stops and goes to the adjuster.
+  - Where the wording is silent on a fact that matters, or the file does not hold a fact a clause turns on, the agent says so, infers nothing and refers the point to the adjuster.
+  - Recovery from another party is for the recoveries team. The agent writes what rule HG-7 asks and contacts no other party.
+
+# Saving a coverage check is a draft kept with its author, a time and a version
+# number. It decides nothing about the claim and sends nothing.
+changes:
+  - {tool: save_coverage_check, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

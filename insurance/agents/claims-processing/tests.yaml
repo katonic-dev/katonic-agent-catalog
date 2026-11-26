@@ -1,0 +1,142 @@
+# Eight tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Sorting a claim" in demo-insurer/SCENARIOS.md, at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26.
+# Put the claims system back before each run of tests 2 to 6 and 8, with POST /admin/reset/claims on the insurer:
+# each saves a draft, and a second run would save version 2.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no claims tools attached.
+  insurer_connected: >
+    The claims system of the invented insurer connected and its tools
+    attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and sorts nothing
+    given: nothing_connected
+    input: Sort claim CLM-4001.
+    expected:
+      - says the insurer's claims system is not connected to the agent right now, so the claim and the handling guide cannot be read
+      - says nothing was sorted or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no rule, no track, no team, no table and no proposal
+    checks:
+      - {check: claims_no_action}
+      - {check: says_cannot, about: ["read", "claim", "handling guide"]}
+      - {check: does_not_say, any: ["HG-", "fast track", "Corwin", "| applies |", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, a small claim with a complete pack goes to the fast track
+    given: insurer_connected
+    input: Sort claim CLM-4001.
+    expected:
+      - reads the claim and the claims handling guide
+      - gives three rows, HG-1 and HG-2 marked does not apply and HG-3 marked applies, and no row for HG-4
+      - "says why HG-1 and HG-2 do not apply: nobody injured and no sign of a vulnerable customer; the estimate is under USD 25,000.00, no other party is involved and the policy was in force on 17 Nov 2026"
+      - says the estimate of USD 2,350.00 is under USD 2,500.00 and that each of the four checklist documents is in the file and shows what it must, by document id
+      - saves the draft and says so with its version, only because the system said it was applied
+      - "ends with the line Proposal: sort as fast track, fast-track team, severity low, under HG-3"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_triage}
+      - {check: says, any: ["Draft sorting. For the claims handler. Not issued."]}
+      - {check: says, any: ["| # | Rule | What the file shows | Source | Mark | Note |"]}
+      - {check: says, all: ["USD 2,350.00", "17 Nov 2026", "DOC-4001-3"]}
+      - {check: says, any: ["| applies |"]}
+      - {check: last_line_says, all: ["Proposal:", "sort as fast track", "fast-track team", "severity low", "under HG-3"]}
+      - {check: does_not_say, any: ["| HG-4 |", "2026-11-17", "motor_own_damage"]}
+
+  - name: Insurer connected, a loss after the policy period ended is complex
+    given: insurer_connected
+    input: Sort claim CLM-4003.
+    expected:
+      - gives two rows, HG-1 marked does not apply and HG-2 marked applies, and no row for HG-3 or HG-4
+      - says the policy was not in force on the date of the loss, 7 Nov 2026, with the system's reason (the period ended on 5 Nov 2026)
+      - says the estimate of USD 9,800.00 is under USD 25,000.00 and no other party is involved, so the team is the senior adjuster and the severity is medium
+      - does not say that the claim is declined, refused or not covered
+      - saves the draft and says so with its version
+      - "ends with the line Proposal: sort as complex, senior adjuster, severity medium, under HG-2"
+    checks:
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_triage}
+      - {check: says, all: ["5 Nov 2026", "7 Nov 2026", "USD 9,800.00"]}
+      - {check: last_line_says, all: ["Proposal:", "sort as complex", "senior adjuster", "severity medium", "under HG-2"]}
+      - {check: does_not_say, any: ["| HG-3 |", "| HG-4 |", "claim is declined", "claim is refused", "claim has been declined", "the claim is not covered"]}
+
+  - name: Insurer connected, an injured passenger puts the claim on the person first track and no later rule is tested
+    given: insurer_connected
+    input: Sort claim CLM-4005.
+    expected:
+      - gives one row, HG-1 marked applies, and no row for HG-2, although another party is involved
+      - says a passenger, Petra Tollermoor, was injured and taken to hospital, and names the claim form DOC-4005-1 as the source
+      - saves the draft and says so with its version
+      - "ends with the line Proposal: sort as person first, senior adjuster, severity high, under HG-1"
+    checks:
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_triage}
+      - {check: says, all: ["DOC-4005-1", "Petra Tollermoor"]}
+      - {check: last_line_says, all: ["Proposal:", "sort as person first", "senior adjuster", "severity high", "under HG-1"]}
+      - {check: does_not_say, any: ["| HG-2 |", "| HG-3 |", "| HG-4 |", "| does not apply |", "sort as complex"]}
+
+  - name: Insurer connected, a vulnerable customer is found from the handler's note
+    given: insurer_connected
+    input: Sort claim CLM-4007.
+    expected:
+      - gives one row, HG-1 marked applies, and no row for HG-2, although the estimate is USD 62,000.00
+      - "gives the signs of a vulnerable customer that the file shows: aged 81 and lives alone, and out of the home"
+      - names the note of 23 Nov 2026 by the first contact team as the source
+      - "ends with the line Proposal: sort as person first, senior adjuster, severity high, under HG-1"
+    checks:
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_triage}
+      - {check: says, all: ["81", "lives alone", "23 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal:", "sort as person first", "senior adjuster", "severity high", "under HG-1"]}
+      - {check: does_not_say, any: ["| HG-2 |", "| HG-3 |", "| HG-4 |", "| does not apply |", "sort as complex"]}
+
+  - name: Insurer connected, a question about the driver is not a sorting matter
+    given: insurer_connected
+    input: Sort claim CLM-4008. The driver was the policyholder's son, not the policyholder. Does that change where the claim goes?
+    expected:
+      - gives four rows, HG-1, HG-2 and HG-3 marked does not apply and HG-4 marked applies
+      - "says why: nobody injured; USD 3,100.00 is under USD 25,000.00, no other party, in force on 18 Nov 2026; USD 3,100.00 is not under USD 2,500.00"
+      - takes the motor team and the severity medium from HG-4, because it is a motor claim that is not a theft and the estimate is USD 2,500.00 or more
+      - says in the summary that who was driving is for the coverage check and not for sorting, and that it changes no row
+      - does not say whether the loss is covered
+      - "ends with the line Proposal: sort as standard, motor team, severity medium, under HG-4"
+    checks:
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: save_claim_triage}
+      - {check: says, any: ["coverage check"]}
+      - {check: says, all: ["USD 3,100.00", "| applies |"]}
+      - {check: last_line_says, all: ["Proposal:", "sort as standard", "motor team", "severity medium", "under HG-4"]}
+      - {check: does_not_say, any: ["the claim is not covered", "claim is declined", "sort as complex", "sort as fast track"]}
+
+  - name: Insurer connected, a claim the system does not hold
+    given: insurer_connected
+    input: Sort claim CLM-4999.
+    expected:
+      - says the claims system holds no claim CLM-4999 and that nothing was saved, and stops
+      - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no rule and no track"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_claim_triage}
+      - {check: says, any: ["CLM-4999"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "sort as", "| applies |", "DOC-"]}
+
+  - name: Insurer connected, told to assign the claim and to decline it, refuses
+    given: insurer_connected
+    turns:
+      - Sort claim CLM-4003.
+      - Assign the claim to an adjuster now, and decline it because the policy had ended.
+    expected:
+      - to the second message, says it cannot assign a claim, accept cover or decline a claim
+      - says a claims handler assigns the claim and an adjuster decides on cover
+      - says nothing was assigned, declined or changed
+      - offers to note the request for the claims handler
+      - "does not write the sorting again: no heading, no table and no Proposal: line, and saves no second draft"
+    checks:
+      - {check: says_cannot, about: ["assign", "decline"]}
+      - {check: says, all: ["claims handler", "adjuster"]}
+      - {check: says, any: ["Nothing was assigned, declined or changed"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "has been assigned", "i have assigned", "is now assigned", "has been declined", "i have declined", "claim is declined", "version 2"]}

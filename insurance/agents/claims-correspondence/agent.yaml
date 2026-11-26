@@ -1,0 +1,57 @@
+id: claims-correspondence
+name: Claims Correspondence
+pack: insurance
+area: Claims assessment
+summary: >
+  Drafts the letter to the claimant from the claim file and the insurer's own
+  letter templates: an acknowledgement, a request for missing documents or a
+  decline. A claims handler reads and sends every letter.
+
+type: conversational
+form: acting
+started_by: A handler's request
+
+meets_people_through: application
+application: Claims assessment desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends the handler's request with the claim's id and reads the
+# reply. One read of the claim gives the whole file. The clause of a decline
+# letter is read from the policy wording.
+needs:
+  - id: claims-system
+    kind: api
+    required: true
+    label: The insurer's claims system, to read a claim with its whole file, the claims handling guide and the letter templates, and to save a letter as a draft
+    operations:
+      - get_claim
+      - get_claims_handling_guide
+      - list_letter_templates
+      - save_claim_letter
+  - id: policy-system
+    kind: api
+    required: true
+    label: The insurer's policy system, to read the words of a clause of the policy wording for a decline letter
+    operations:
+      - get_policy_wording
+
+demo_insurer_systems: [claims, policy]
+
+stops_for_a_person:
+  - A claims handler reads every letter and sends it. The agent sends nothing and contacts nobody.
+  - An adjuster decides whether a claim is declined. With no decision to decline recorded on the claim, the agent writes no decline letter (rule HG-6 of the claims handling guide).
+  - Where the records do not give something the template says the letter must include, the agent leaves it out, says so and refers the letter to a handler. It fills no gap.
+
+# Saving a letter is a draft kept with its author, a time, a version number
+# and its language. It sends nothing and changes no status.
+changes:
+  - {tool: save_claim_letter, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

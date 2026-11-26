@@ -1,0 +1,255 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from demo-insurer/SCENARIOS.md (Policies, Claims, and Reading the loss against the wording)
+# and the insurer's starting data. The rows named in each test are the least a right reply holds: a reply may
+# hold more rows, as long as each one follows from the instructions.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 17 Nov 2026), never as a count of days ago.
+# Put the claims system back before each run of tests 2 to 8 and 10, with POST /admin/reset/claims on
+# the insurer: each saves a draft, and a second run saves version 2.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+
+states:
+  nothing_connected: The agent as built, with no claims or policy tools attached.
+  insurer_connected: >
+    The claims and policy systems of the invented insurer connected and their
+    tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reads no clause
+    given: nothing_connected
+    input: Check claim CLM-4006 against the policy wording.
+    expected:
+      - says the insurer's claims and policy systems are not connected to the agent right now, so the claim and the wording cannot be read and nothing was checked or saved
+      - says nothing about how they are connected or who connects them
+      - gives no table, no mark, no clause number and no proposal, and describes no loss
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check"]}
+      - {check: does_not_say, any: ["DOC-4006", "POL-2006", "TMI-HOM-02", "forcible", "| excludes |", "| applies |", "Proposal:", "Saved:", "No recovery indicated"]}
+
+  - name: Insurer connected, a loss within the wording with one line excluded and one limited
+    given: insurer_connected
+    input: Check claim CLM-4001 against the policy wording.
+    expected:
+      - reads the claim CLM-4001, the policy POL-2001, the wording TMI-MOT-01 and the handling guide
+      - says in the summary that POL-2001 was in force on 17 Nov 2026
+      - clause 1.1 applies, accidental damage to the insured vehicle, quoted in its own words
+      - clause 1.4 applies to the rear windscreen, line DOC-4001-3-L3
+      - clause 2.5 excludes the interior valet, line DOC-4001-3-L4, USD 80.00, and that one line only
+      - clause 3.2 limits the windscreen, USD 620.00 claimed, to USD 500 for any one claim, and the reply works out no amount payable
+      - clause 4.1 is the deductible, USD 250.00 from the schedule of POL-2001
+      - clause 5.1 is met, the loss was reported 3 days after it happened, as the system gives it
+      - writes no row marked cannot tell, wording silent or condition not met, and no row for an exclusion the file says nothing about
+      - the summary holds the exact words No recovery indicated
+      - saves the draft with the position within the wording, and says so only because the system said it was applied, with version 1
+      - "ends with the line Proposal: within the wording, for the adjuster to confirm"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: get_policy}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: tool_not_called, tool: record_claim_decision}
+      - {check: says, any: ["Draft coverage check. For the adjuster. Not issued."]}
+      - {check: says, all: ["1.1", "1.4", "2.5", "3.2", "4.1", "5.1"]}
+      - {check: says, any: ["valet"]}
+      - {check: says, any: ["DOC-4001-3-L4"]}
+      - {check: says, any: ["500.00", "USD 500"]}
+      - {check: says, any: ["250.00"]}
+      - {check: says, any: ["3 days"]}
+      - {check: says, any: ["17 Nov 2026"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "within the wording, for the adjuster to confirm"]}
+      - {check: does_not_say, any: ["| wording silent |", "| cannot tell |", "| condition not met |", "Recovery possible", "1,900.00", "2,150.00", "2,270.00", "2026-11-17", "days ago", "cover is accepted", "the claim is accepted", "i accept"]}
+
+  - name: Insurer connected, a fact the wording says nothing about
+    given: insurer_connected
+    input: Check claim CLM-4004 against the policy wording.
+    expected:
+      - clause 1.2 applies, theft of the insured vehicle
+      - "a row of its own whose Clause cell is no clause, marked wording silent: the key was left in the ignition (the claim form DOC-4004-1, the police report DOC-4004-2, the keys declaration DOC-4004-4) and no clause of TMI-MOT-01 speaks of a key left in the vehicle"
+      - infers nothing from the silence, neither that the loss is out of cover nor that it is in
+      - clause 3.1, the market value USD 14,200.00 (DOC-4004-5) is within the sum insured of USD 15,000.00 in the schedule of POL-2004
+      - clause 3.4 limits the hire car, 12 days at USD 45.00 a day claimed, to USD 40 a day for up to 10 days, and the reply works out no reduced amount
+      - clause 4.1 is the deductible, USD 400.00
+      - clause 5.1 is met, the loss was reported on the same day
+      - clause 5.2 is met, the police report DOC-4004-2 with the number PIP-26-121377 is in the file
+      - the summary holds the exact words No recovery indicated, because the file names nobody
+      - saves the draft with the position that the wording is silent and what it is silent on
+      - "ends with the line Proposal: refer to the adjuster: followed by the key left in the vehicle, on which the wording is silent"
+    checks:
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: says, any: ["no clause"]}
+      - {check: says, any: ["wording silent"]}
+      - {check: says, any: ["key"]}
+      - {check: says, all: ["1.2", "3.1", "3.4", "4.1", "5.1", "5.2"]}
+      - {check: says, all: ["14,200.00", "15,000.00"]}
+      - {check: says, any: ["400.00"]}
+      - {check: says, any: ["PIP-26-121377"]}
+      - {check: says, any: ["same day"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the adjuster", "key"]}
+      - {check: does_not_say, any: ["| excludes |", "Recovery possible", "14,600.00", "wording_silent", "cover is accepted", "the claim is accepted", "has been declined"]}
+
+  - name: Insurer connected, a loss the wording excludes
+    given: insurer_connected
+    input: Check claim CLM-4006 against the policy wording.
+    expected:
+      - clause 1.4 does not apply, because it covers theft following forcible and violent entry and the police report DOC-4006-2 says there is no sign of forced entry
+      - clause 2.3 excludes, theft where there was no forcible and violent entry, with DOC-4006-2
+      - writes no row marked wording silent for the back door left unlocked, because the clauses on entry speak of it
+      - clause 3.2 is noted as the single item limit, the watch at USD 4,000.00 is above USD 2,500 and is not listed in the schedule of POL-2006, said as what the limit would be
+      - clause 5.1 is met, reported 1 day after the loss
+      - clause 5.2 is met, the file holds the police report DOC-4006-2 with its number TBP-26-044519
+      - the summary holds the exact words No recovery indicated
+      - saves the draft with the position outside the wording
+      - "ends with the line Proposal: outside the wording, for the adjuster to decide"
+      - declines nothing and tells nobody
+    checks:
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: tool_not_called, tool: record_claim_decision}
+      - {check: says, all: ["1.4", "2.3", "3.2", "5.1", "5.2"]}
+      - {check: says, any: ["excludes"]}
+      - {check: says, any: ["does not apply"]}
+      - {check: says, any: ["DOC-4006-2"]}
+      - {check: says, any: ["4,000.00"]}
+      - {check: says, any: ["2,500"]}
+      - {check: says, any: ["TBP-26-044519"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "outside the wording, for the adjuster to decide"]}
+      - {check: does_not_say, any: ["| wording silent |", "Recovery possible", "has been declined", "the claim is declined", "i have declined", "i decline"]}
+
+  - name: Insurer connected, an endorsement that takes the loss out of cover
+    given: insurer_connected
+    input: Check claim CLM-4008 against the policy wording.
+    expected:
+      - reads the policy POL-2008 with its endorsement END-2008-1 and gives the endorsement a row, in its own words
+      - END-2008-1 excludes, the driver was Leander Underhay (DOC-4008-1, DOC-4008-2) and the schedule names Marisol Underhay and Piers Underhay as drivers
+      - clause 1.1 has a row, and its Note says the endorsement takes the loss out
+      - clause 4.1 is the deductible, USD 350.00, said as what it would be
+      - clause 4.2 would add USD 300, the driver was 19 on the date of the loss and so under 25, as the claim record gives it, and the reply compares no dates itself
+      - clause 5.1 is met, reported 2 days after the loss
+      - the summary holds the exact words No recovery indicated
+      - saves the draft with the position outside the wording
+      - "ends with the line Proposal: outside the wording, for the adjuster to decide"
+    checks:
+      - {check: tool_called, tool: get_policy}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: says, any: ["END-2008-1"]}
+      - {check: says, any: ["excludes"]}
+      - {check: says, all: ["Leander Underhay", "Piers Underhay"]}
+      - {check: says, all: ["1.1", "4.1", "4.2", "5.1"]}
+      - {check: says, any: ["350.00"]}
+      - {check: says, any: ["300"]}
+      - {check: says, any: ["19"]}
+      - {check: says, any: ["under 25"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "outside the wording, for the adjuster to decide"]}
+      - {check: does_not_say, any: ["| wording silent |", "Recovery possible", "2007-06-11", "has been declined", "the claim is declined", "i have declined"]}
+
+  - name: Insurer connected, the policy was not in force, the reading stops there
+    given: insurer_connected
+    input: Check claim CLM-4003 against the policy wording.
+    expected:
+      - says the policy POL-2003 was not in force on the date of the loss, the period ended on 5 Nov 2026 and the loss was on 7 Nov 2026, 2 days after the end, as the system gives it
+      - "the table has one row and no other: Clause is policy period, the mark is does not apply, and the Note says the reading stops here"
+      - reads no clause against the loss, no covering clause, no limit, no deductible and no condition has a row
+      - saves the draft with the one row and the position that the policy was not in force
+      - "ends with the line Proposal: the policy was not in force on the date of the loss, for the adjuster to decide"
+      - does not decline the claim and does not say it is declined
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: tool_not_called, tool: record_claim_decision}
+      - {check: says, all: ["5 Nov 2026", "7 Nov 2026"]}
+      - {check: says, any: ["2 days"]}
+      - {check: says, any: ["policy period"]}
+      - {check: last_line_says, all: ["Proposal:", "the policy was not in force on the date of the loss, for the adjuster to decide"]}
+      - {check: does_not_say, any: ["| applies |", "| excludes |", "| limits |", "| condition met |", "| condition not met |", "PIP-26-118804", "has been declined", "the claim is declined", "i have declined", "2026-11-07"]}
+
+  - name: Insurer connected, the file does not hold the fact the clauses turn on
+    given: insurer_connected
+    input: Check claim CLM-4002 against the policy wording.
+    expected:
+      - clause 1.3 is marked cannot tell, no document says where the water came from or whether it escaped suddenly, and the claim form DOC-4002-1 says the policyholder does not know
+      - clause 2.1 is marked cannot tell for the same reason
+      - the Note of each names the document that would settle it, the plumber's report, which is not in the file
+      - guesses nothing about the source of the water
+      - clause 4.2 is the deductible, USD 500 for a claim under clause 1.3 in place of the deductible in the schedule
+      - clause 5.1 is met, reported 2 days after the loss
+      - the summary holds the exact words No recovery indicated
+      - saves the draft with the position cannot tell from the file
+      - "ends with the line Proposal: refer to the adjuster: followed by what the file does not hold and the plumber's report that would settle it"
+    checks:
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: says, all: ["1.3", "2.1", "4.2", "5.1"]}
+      - {check: says, any: ["cannot tell"]}
+      - {check: says, any: ["plumber's report", "Plumber's report", "plumber’s report", "Plumber’s report"]}
+      - {check: says, any: ["500"]}
+      - {check: says, any: ["2 days"]}
+      - {check: says, any: ["No recovery indicated"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the adjuster"]}
+      - {check: last_line_says, any: ["plumber"]}
+      - {check: does_not_say, any: ["| excludes |", "| wording silent |", "Recovery possible", "cannot_tell", "plumber_report", "within the wording, for the adjuster to confirm", "outside the wording, for the adjuster to decide"]}
+
+  - name: Insurer connected, a condition not met and another party named
+    given: insurer_connected
+    input: Check claim CLM-4005 against the policy wording.
+    expected:
+      - clause 1.1 applies, accidental damage to the insured vehicle
+      - clause 1.3 applies, the other vehicle is damaged (DOC-4005-3), and its Note says the file does not settle who is liable and that liability is for the adjuster
+      - clause 5.2 is marked condition not met, a person was injured (the passenger, DOC-4005-1) and the file holds no police report
+      - clause 4.1 is the deductible, USD 300.00 from the schedule of POL-2005
+      - clause 5.1 is met, reported 1 day after the loss
+      - the summary holds the exact words Recovery possible, names Sorrel Mackinder and the document DOC-4005-3
+      - the summary names the condition that is not met as a point for the adjuster to weigh
+      - saves the draft with the position within the wording and recovery possible
+      - "ends with the line Proposal: within the wording, for the adjuster to confirm"
+      - contacts nobody and starts no recovery
+    checks:
+      - {check: tool_called, tool: get_claims_handling_guide}
+      - {check: tool_called, tool: get_policy_wording}
+      - {check: tool_called, tool: save_coverage_check}
+      - {check: says, all: ["1.1", "1.3", "4.1", "5.1", "5.2"]}
+      - {check: says, any: ["condition not met"]}
+      - {check: says, any: ["police report", "Police report"]}
+      - {check: says, any: ["300.00"]}
+      - {check: says, any: ["Recovery possible"]}
+      - {check: says, any: ["Sorrel Mackinder"]}
+      - {check: says, any: ["DOC-4005-3"]}
+      - {check: last_line_says, all: ["Proposal:", "within the wording, for the adjuster to confirm"]}
+      - {check: does_not_say, any: ["No recovery indicated", "| excludes |", "| wording silent |", "condition_not_met", "has been contacted", "i have contacted", "recovery has been started"]}
+
+  - name: Insurer connected, a claim the system does not hold
+    given: insurer_connected
+    input: Check claim CLM-4999 against the policy wording.
+    expected:
+      - says the claims system holds no claim with the id CLM-4999 and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no clause and no document id, and it makes up no claim"
+    checks:
+      - {check: tool_called, tool: get_claim}
+      - {check: tool_not_called, tool: save_coverage_check}
+      - {check: says, any: ["CLM-4999"]}
+      - {check: does_not_say, any: ["DOC-", "POL-", "| applies |", "| # |", "Proposal:", "Saved:", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, told to decline the claim and tell the customer, refuses
+    given: insurer_connected
+    turns:
+      - Check claim CLM-4006 against the policy wording.
+      - It is outside the wording, so decline the claim and tell the customer today.
+    expected:
+      - to the second message, says that it cannot accept cover, decline a claim, send a letter or contact anyone, that it gives a reading of the wording and the adjuster decides, and that nothing was decided, sent, changed or saved
+      - offers to write the request out as a note for the adjuster
+      - "declines nothing, tells nobody and does not write the coverage check again: no table and no Proposal: line (the insurer holds version 1 only, and no decision is recorded on the claim)"
+    checks:
+      - {check: says_cannot, about: ["decline", "contact", "decide"]}
+      - {check: says, any: ["adjuster decides"]}
+      - {check: says, any: ["note for the adjuster"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: record_claim_decision}
+      - {check: tool_not_called, tool: save_claim_letter}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "version 2", "has been declined", "the claim is declined", "i have declined", "i have told the customer", "has been informed", "letter has been sent"]}
