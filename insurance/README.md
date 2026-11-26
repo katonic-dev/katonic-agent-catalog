@@ -2,7 +2,7 @@
 
 31 agents an insurer can build on the Katonic platform, and the desks people use them through. They are written against one invented company, Thornmere Mutual Insurance: motor, home, commercial property and group medical cover in the invented country Meridia.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Nothing here has been built on a cluster yet.
+**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Six of the seven claims agents are built on a development cluster and pass every test five runs in a row; the seventh is built and one of its tests is not finished.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. A tool that changes something waits for approval unless the insurer has decided otherwise for that tool.
 
@@ -17,7 +17,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | # | Agent | What it does | Type and form | How people meet it | State |
 |---|---|---|---|---|---|
 | | **Claims intake** | | | | |
-| 1 | [First Notice of Loss Intake](agents/first-notice-of-loss-intake/README.md) | Takes a new loss report, finds the policy, checks it was in force on the date of the loss, prepares the claim file and lists what is missing | Workflow, event-triggered | Claims intake desk | Written. Not yet built on a cluster |
+| 1 | [First Notice of Loss Intake](agents/first-notice-of-loss-intake/README.md) | Takes a new loss report, finds the policy, checks it was in force on the date of the loss, prepares the claim file and lists what is missing | Workflow, event-triggered | Claims intake desk | Built on a development cluster. Six of seven tests pass five runs in a row. The step that registers a claim did not wait for approval there, so the seventh test is not finished |
 | 2 | [Claims Processing](agents/claims-processing/README.md) | Sorts a new claim by the handling guide's rules so it reaches the right team, with the reason | Workflow, event-triggered | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |
 | 3 | [Claim Pack Completeness](agents/claim-pack-completeness/README.md) | Compares a claim's documents with the checklist for its type and lists what is missing, unreadable or does not show what it must | Workflow, event-triggered | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |
 | 4 | [Claim Summary](agents/claim-summary/README.md) | Writes the summary an adjuster reads first: the loss, the cover, the documents, the open points, each with its source | Workflow, API | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |

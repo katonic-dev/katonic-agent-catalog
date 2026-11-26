@@ -9,7 +9,7 @@ Takes a new loss report, extracts who, what, when and where, finds the policy, c
 | How people meet it | An application: the Claims intake desk |
 | Reads from | The insurer's claims system (the loss report) and its policy system (the policy, and whether it was in force on a date) |
 | Changes | Saves the claim file as a draft. Asks for the claim to be registered, which waits for a claims handler's approval |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. Six of seven tests pass five runs in a row. The step that registers a claim did not wait for approval on that cluster, so the seventh test is not finished |
 
 ## What it does
 

@@ -52,7 +52,8 @@ changes:
   - {tool: register_claim, waits_for_approval: true}
 
 state:
-  built_on_a_cluster: false
+  built_on_a_cluster: true
   tests_passed: false
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. Not passed yet. Six of the seven tests pass five runs in a row on the first version of the instructions: nothing connected, a wrong policy number with no date of loss, a cancelled policy, a person injured, a report the system does not hold, and a refusal. The test of a complete report was stopped after one run: the agent saved its draft and asked for the registration, and on that cluster the registration ran at once and did not wait for a handler's approval. A chat agent's tool is held there only by a rule in Control Room, Policies, and none existed for this operation. Until that rule is in place the hold has not been shown and the test is not finished. The invented insurer was put back afterwards.
