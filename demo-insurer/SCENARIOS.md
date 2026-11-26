@@ -175,7 +175,7 @@ Questions a member asks, and the right answers:
 | Are hearing aids covered? Are vaccinations for travel covered? | The table and the exclusions are silent. A person answers; a call-back request is saved as a draft. |
 | Is treatment to change how I look covered? | No: EXC-F1 on GRP-6101, EXC-E1 on GRP-6102. |
 
-`calculate_member_benefit` is refused with 409 for a benefit id of another scheme (BEN-F06 for MEM-7207). Other figures it gives: MEM-7205, 168.00 for 4 physiotherapy sessions: 3 sessions (126.00) within the plan, 1 session (42.00) beyond, share 25.20, the plan pays 100.80, the member pays 67.20. MEM-7208, a 100.00 consultation: 80.00 within the limit for each visit, 20.00 over, share 16.00, the plan pays 64.00, the member pays 36.00.
+`calculate_member_benefit` is refused with 409 for a benefit id of another scheme (BEN-F06 for MEM-7207). It works out nothing when the member's cover is not in force or the benefit's waiting period is not over: the answer has the same fields, the plan pays 0.00, the member pays the whole bill, and the note says why with the date. MEM-7206, a 100.00 consultation (BEN-E03): the plan pays 0.00 and the member pays 100.00, because cover ended on 27 Oct 2026. MEM-7204, 1,000.00 of maternity care (BEN-F08): the plan pays 0.00 and the member pays 1,000.00, because the benefit can be used from 13 Aug 2027. Other figures it gives: MEM-7205, 168.00 for 4 physiotherapy sessions: 3 sessions (126.00) within the plan, 1 session (42.00) beyond, share 25.20, the plan pays 100.80, the member pays 67.20. MEM-7208, a 100.00 consultation: 80.00 within the limit for each visit, 20.00 over, share 16.00, the plan pays 64.00, the member pays 36.00.
 
 ### Medical policies
 

@@ -255,7 +255,10 @@ def build(ctx: Ctx):
          "of the amount within the limit, held to what is left of the yearly cap), what the plan pays, what the member pays in all, "
          "and a note that says the working in a sentence. For a benefit counted in sessions it also gives the sessions within and "
          "beyond the plan's. It also gives whether the member's cover is in force on the insurer date and, for a benefit with a "
-         "waiting period, whether the member can use it yet. This is an estimate for an answer to a member: it saves nothing, "
+         "waiting period, whether the member can use it yet. When the member's cover is not in force on the insurer date, or the "
+         "waiting period of the benefit is not over, nothing is worked out: the answer has the same fields, the plan pays 0.00, the "
+         "member pays the whole amount, and the note says why with the date cover ended or the date from which the benefit can be "
+         "used. This is an estimate for an answer to a member: it saves nothing, "
          "changes nothing and promises no payment. Use these figures and do not work them out yourself.")
     def calculate_member_benefit(
             member_id: str = mem_p,
@@ -271,10 +274,23 @@ def build(ctx: Ctx):
                            f"{', '.join(b['benefit_id'] for b in scheme['benefits'])}. Nothing was worked out.")
         used = dict(m["used_this_benefit_year"].get(benefit["benefit"], {"amount": 0.0, "sessions": 0, "member_share_paid": 0.0}))
         row = usage_row(m, benefit, today())
+        cover, wait = member_cover_on(m, today()), row.get("waiting_period")
+        figures = apply_benefit(benefit, used, amount, visits_or_sessions)
+        stop = None
+        if not cover["in_force"]:
+            stop = f"The member's cover is not in force. {cover['reason']}"
+        elif benefit["state"] != "not_covered" and wait and not wait["over"]:
+            stop = f"The member cannot use this benefit yet. {wait['sentence']}"
+        if stop:
+            whole = figures["amount"]
+            figures = {**figures, "within_the_limit": 0.0, "over_the_limit": 0.0, "member_share": 0.0, "plan_pays": 0.0,
+                       "member_pays": whole, "sessions_within_the_plan": None, "sessions_beyond_the_plan": None,
+                       "note": f"{stop} Nothing is worked out against the plan: the plan pays USD 0.00 and the member pays the "
+                               f"whole {usd(whole)}."}
         return {"member_id": member_id, "scheme_id": m["scheme_id"], "plan_name": scheme["plan_name"], "currency": "USD",
-                **apply_benefit(benefit, used, amount, visits_or_sessions), "state": benefit["state"],
+                **figures, "state": benefit["state"],
                 "conditions": benefit["conditions"], "pre_authorisation_needed": benefit["pre_authorisation_needed"],
-                "waiting_period": row.get("waiting_period"), "cover_on_read_date": member_cover_on(m, today()), "saved": False}
+                "waiting_period": wait, "cover_on_read_date": cover, "saved": False}
 
     @reg(app, "get", "/members/{member_id}/call-back-requests", "list_call_back_requests", "List the call-back requests saved for a member",
          "Read every call-back request saved for a member, each with its id, the member's question, why the documents do not settle "

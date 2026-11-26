@@ -226,8 +226,29 @@ def test_other_estimates_sessions_a_limit_for_each_visit_and_a_benefit_not_cover
     capped = get(client, "/members/MEM-7201/benefits/BEN-F06/estimate?amount=1500")
     assert (capped["member_share"], capped["plan_pays"]) == (132.0, 1368.0)
     assert "= USD 150.00, held to USD 132.00 by the share cap of USD 150.00 a benefit year." in capped["note"]
-    assert get(client, "/members/MEM-7204/benefits/BEN-F08/estimate?amount=1000")["waiting_period"]["over"] is False
-    assert get(client, "/members/MEM-7206/benefits/BEN-E06/estimate?amount=50")["cover_on_read_date"]["in_force"] is False
+
+
+def test_an_estimate_works_out_nothing_when_cover_is_not_in_force(client):
+    e = get(client, "/members/MEM-7206/benefits/BEN-E03/estimate?amount=100")
+    assert (e["within_the_limit"], e["over_the_limit"], e["member_share"], e["plan_pays"], e["member_pays"]) == (0.0, 0.0, 0.0, 0.0, 100.0)
+    assert e["cover_on_read_date"]["in_force"] is False and e["saved"] is False and e["benefit_id"] == "BEN-E03"
+    assert e["note"] == ("The member's cover is not in force. The member's cover ended on 27 Oct 2026: The member left the employer. "
+                         "26 Nov 2026 is 30 days after the end. Nothing is worked out against the plan: the plan pays USD 0.00 and "
+                         "the member pays the whole USD 100.00.")
+    m = get(client, "/members/MEM-7206/benefits/BEN-E06/estimate?amount=50")
+    assert (m["plan_pays"], m["member_pays"]) == (0.0, 50.0)
+    assert set(e) == set(get(client, "/members/MEM-7207/benefits/BEN-E06/estimate?amount=100"))  # the same fields
+
+
+def test_an_estimate_works_out_nothing_while_a_waiting_period_runs(client):
+    e = get(client, "/members/MEM-7204/benefits/BEN-F08/estimate?amount=1000")
+    assert (e["within_the_limit"], e["over_the_limit"], e["member_share"], e["plan_pays"], e["member_pays"]) == (0.0, 0.0, 0.0, 0.0, 1000.0)
+    assert e["waiting_period"]["over"] is False and e["cover_on_read_date"]["in_force"] is True
+    assert e["note"] == ("The member cannot use this benefit yet. The member's cover started on 17 Oct 2026. This benefit can be used "
+                         "from 13 Aug 2027, after 300 days of cover. 26 Nov 2026 is before that date. Nothing is worked out against "
+                         "the plan: the plan pays USD 0.00 and the member pays the whole USD 1,000.00.")
+    # the same member's other benefits are worked out as before
+    assert get(client, "/members/MEM-7204/benefits/BEN-F06/estimate?amount=100")["plan_pays"] == 90.0
 
 
 def test_an_estimate_refuses_another_schemes_benefit_and_an_amount_that_is_missing(client):
