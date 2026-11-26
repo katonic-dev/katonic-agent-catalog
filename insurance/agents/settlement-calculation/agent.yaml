@@ -54,7 +54,8 @@ changes:
   - {tool: save_settlement_calculation, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. All eight tests pass five runs in a row on the first version of the instructions. The second version added one sentence (every table row carries its number and all seven cells), after one run of one test left three rows unnumbered; tests 2, 3 and 4 were run five times again on it and the other five once. Test 1 with no tools, the others in the Work Room, a new conversation for each run. Every figure in every reply was the system's: USD 5,100.00, USD 1,900.00 and USD 14,200.00 on the three claims, with the approver the handling guide gives. Nothing was paid or approved and no claim changed status in any run: the agent saves a draft calculation and a person with the authority approves it. On this cluster the calculation and the draft save run without waiting for approval, by a setting made for the invented insurer.

@@ -9,7 +9,7 @@ Works out the amount payable on a claim from the invoice and estimate lines, the
 | How people meet it | An application: the Claims assessment desk. It also answers in a chat |
 | Reads from | The insurer's claims system (the claim with its whole file) and its policy system (the policy and its wording) |
 | Changes | Saves the calculation as a draft. The draft approves nothing, pays nothing and changes no status |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All eight tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
