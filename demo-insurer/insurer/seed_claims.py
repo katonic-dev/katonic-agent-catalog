@@ -199,7 +199,7 @@ def build_claims(today: date) -> dict:
           "What happened: I came downstairs and found water coming through the kitchen ceiling. I turned the water off at the main. "
           f"I do not know where it came from.\nAnyone injured: No\nSigned: E. Marrowdene\nDated: {L(10)}"),
          ("repair_estimate", "Repair estimate, Tallowby Building Services",
-          "TALLOWBY BUILDING SERVICES, estimate TBS-0907\nProperty: 3 Weavers Yard, Tallowby\n"
+          "TALLOWBY BUILDING SERVICES, estimate TBS-0907\nProperty: 3 Weavers Yard, Tallowby, Meridia\n"
           "1. Take down and replace kitchen ceiling      2,900.00\n2. Replaster and redecorate one wall           1,700.00\n"
           "3. Lift and relay kitchen floor                1,800.00\nTotal 6,400.00 USD",
           {"lines": [_line("Take down and replace kitchen ceiling", "repair", 2900), _line("Replaster and redecorate one wall", "repair", 1700),
@@ -293,7 +293,7 @@ def build_claims(today: date) -> dict:
           "Origin of the fire: the tumble dryer in the utility room. The fire spread to the kitchen through the connecting door. "
           "No person injured. The ground floor is not fit to live in until made safe."),
          ("repair_estimate", "Repair estimate, Ilvane Restoration",
-          "ILVANE RESTORATION, estimate IR-3306\nProperty: 9 Ferrymans Walk, Port Ilvane\n"
+          "ILVANE RESTORATION, estimate IR-3306\nProperty: 9 Ferrymans Walk, Port Ilvane, Meridia\n"
           "1. Strip out and rebuild kitchen and utility room   41,500.00\n2. Electrical rewiring, ground floor                 9,800.00\n"
           "3. Smoke cleaning and redecoration, ground floor    10,700.00\nTotal 62,000.00 USD",
           {"lines": [_line("Strip out and rebuild kitchen and utility room", "repair", 41500),
@@ -334,7 +334,7 @@ def build_claims(today: date) -> dict:
           "MILLPOND PLUMBING, invoice MP-1191\n1. Lifting the hall floor to find the leak, and making good     1,900.00\n"
           "2. Repair of the pipe and relaying the hall floor                3,200.00\n\nTALLOWBY FLOORING, invoice TF-2204\n"
           "3. Replacement hall carpet                                         900.00\n4. Underfloor heating, supplied and fitted (new)                2,400.00\n"
-          "Total of both invoices 8,400.00 USD\nProperty: 12 Millpond Court, Tallowby",
+          "Total of both invoices 8,400.00 USD\nProperty: 12 Millpond Court, Tallowby, Meridia",
           {"lines": [_line("Lifting the hall floor to find the leak, and making good", "trace_and_access", 1900),
                      _line("Repair of the pipe and relaying the hall floor", "repair", 3200),
                      _line("Replacement hall carpet", "contents_item", 900),
@@ -356,7 +356,7 @@ def build_claims(today: date) -> dict:
          ("plumber_report", "Plumber's report",
           f"HERON PLUMBING, report HP-0672, {L(14)}\nA 22 mm pipe in the loft had split along its length. The split is fresh. The heating was off."),
          ("repair_estimate", "Repair estimate, Ilvane Restoration",
-          "ILVANE RESTORATION, estimate IR-3291\nProperty: 2 Heron Wharf, Port Ilvane\n1. Two bedroom ceilings and walls     7,400.00\n"
+          "ILVANE RESTORATION, estimate IR-3291\nProperty: 2 Heron Wharf, Port Ilvane, Meridia\n1. Two bedroom ceilings and walls     7,400.00\n"
           "2. Stair carpet and decoration        3,800.00\nTotal 11,200.00 USD",
           {"lines": [_line("Two bedroom ceilings and walls", "repair", 7400), _line("Stair carpet and decoration", "repair", 3800)]}),
          ("photographs", "Photographs of the damage (description)", "Four photographs. They show water-stained ceilings in two bedrooms and a soaked stair carpet.")])

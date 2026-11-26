@@ -30,7 +30,7 @@ tests:
     input: Check the pack of claim CLM-4001. Is a police report missing?
     expected:
       - gives four rows in the checklist's order, claim form DOC-4001-1, driving licence DOC-4001-2, repair estimate DOC-4001-3 and photographs DOC-4001-4, every row marked received
-      - "says what each shows of what it must: signed and dated; valid until 2 Mar 2031, after the loss on 17 Nov 2026; names MR-4417-K, the registration of the insured vehicle; readable"
+      - "says what each shows of what it must: signed and dated; valid until 2 Mar 2031, set beside the date of the loss, 17 Nov 2026; names MR-4417-K, the registration of the insured vehicle; readable"
       - says in the summary that the checklist for this claim type does not ask for a police report, so none is missing
       - gives no row to a police report
       - saves the draft and says so with its version, only because the system said it was applied
@@ -42,7 +42,7 @@ tests:
       - {check: says, any: ["| # | Document | Must show | In the file | Mark | Note |"]}
       - {check: says, all: ["DOC-4001-1", "DOC-4001-2", "DOC-4001-3", "DOC-4001-4", "MR-4417-K"]}
       - {check: last_line_says, all: ["Proposal:", "the pack is complete"]}
-      - {check: does_not_say, any: ["| missing |", "| cannot be read |", "| does not show what it must |", "| 5 |", "ask the customer for", "2026-11-17", "repair_estimate"]}
+      - {check: does_not_say, any: ["| missing |", "| cannot be read |", "| does not show what it must |", "| 5 |", "Proposal: ask the customer", "Proposal: refer", "2026-11-17", "repair_estimate"]}
 
   - name: Insurer connected, a document missing and one that cannot be read
     given: insurer_connected
@@ -53,14 +53,13 @@ tests:
       - marks the plumber's report missing, not in the file
       - marks the photographs DOC-4002-3 cannot be read, with the note that the scan is too dark to read
       - saves the draft with four items and says so with its version
-      - "ends with the line Proposal: ask the customer for: followed by the plumber's report and photographs of the damage that can be read"
+      - "ends with the line Proposal: ask the customer for: followed by Plumber's report; Photographs of the damage, by their plain names and nothing more, and no third document"
     checks:
       - {check: tool_called, tool: get_claim}
       - {check: tool_called, tool: save_pack_check}
       - {check: says, all: ["DOC-4002-1", "DOC-4002-2", "DOC-4002-3", "| missing |", "| cannot be read |", "| received |"]}
-      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "report", "that can be read"]}
-      - {check: says, any: ["Plumber's report", "plumber's report"]}
-      - {check: does_not_say, any: ["| does not show what it must |", "cannot_be_read", "plumber_report", "the pack is complete", "| 5 |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "Plumber's report", "Photographs of the damage"]}
+      - {check: does_not_say, any: ["| does not show what it must |", "cannot_be_read", "plumber_report", "Proposal: the pack is complete", "| 5 |"]}
 
   - name: Insurer connected, a document missing and an estimate that names another registration
     given: insurer_connected
@@ -71,14 +70,13 @@ tests:
       - marks the repair estimate DOC-4005-4 does not show what it must, because it names MR-7702-B and the insured vehicle is MR-7720-B, with both registrations in the note
       - marks the claim form DOC-4005-1, the driving licence DOC-4005-2, the details of the other party DOC-4005-3 and the photographs DOC-4005-5 received
       - saves the draft with six items and says so with its version
-      - "ends with the line Proposal: ask the customer for: followed by the police report and a repair estimate that names the registration of the insured vehicle"
+      - "ends with the line Proposal: ask the customer for: followed by Police report; Repair estimate, by their plain names and nothing more"
     checks:
       - {check: tool_called, tool: get_claim}
       - {check: tool_called, tool: save_pack_check}
       - {check: says, all: ["DOC-4005-4", "MR-7702-B", "MR-7720-B", "| missing |", "| does not show what it must |"]}
-      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "registration of the insured vehicle"]}
-      - {check: says, any: ["Police report", "police report"]}
-      - {check: does_not_say, any: ["| cannot be read |", "the pack is complete", "does_not_show", "| 7 |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "Police report", "Repair estimate"]}
+      - {check: does_not_say, any: ["| cannot be read |", "Proposal: the pack is complete", "does_not_show", "| 7 |"]}
 
   - name: Insurer connected, a document missing, and two documents that disagree are no fault of the pack
     given: insurer_connected
@@ -89,13 +87,13 @@ tests:
       - marks the claim form DOC-4007-1, the fire service report DOC-4007-2, the repair estimate DOC-4007-3 and the photographs DOC-4007-4 received
       - "has one line in the summary that starts For the adjuster: and says the two documents disagree on where the fire started: DOC-4007-1 says the cooker in the kitchen, DOC-4007-2 says the tumble dryer in the utility room"
       - chooses neither, and marks neither document down for the disagreement
-      - "ends with the line Proposal: ask the customer for: followed by the list of contents damaged"
+      - "ends with the line Proposal: ask the customer for: followed by List of contents damaged and no other document"
     checks:
       - {check: tool_called, tool: get_claim}
       - {check: tool_called, tool: save_pack_check}
       - {check: says, all: ["For the adjuster:", "DOC-4007-1", "DOC-4007-2", "cooker", "tumble dryer", "| missing |"]}
-      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "contents"]}
-      - {check: does_not_say, any: ["| does not show what it must |", "| cannot be read |", "the pack is complete", "| 6 |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the customer for", "List of contents damaged"]}
+      - {check: does_not_say, any: ["| does not show what it must |", "| cannot be read |", "Proposal: the pack is complete", "| 6 |"]}
 
   - name: Insurer connected, a complete pack with a document that is not a checklist item
     given: insurer_connected
@@ -111,13 +109,13 @@ tests:
       - {check: tool_called, tool: save_pack_check}
       - {check: says, all: ["DOC-4004-1", "DOC-4004-2", "DOC-4004-3", "DOC-4004-4", "DOC-4004-5", "PIP-26-121377"]}
       - {check: last_line_says, all: ["Proposal:", "the pack is complete"]}
-      - {check: does_not_say, any: ["| missing |", "| cannot be read |", "| does not show what it must |", "| 5 |", "ask the customer for"]}
+      - {check: does_not_say, any: ["| missing |", "| cannot be read |", "| does not show what it must |", "| 5 |", "Proposal: ask the customer", "Proposal: refer"]}
 
   - name: Insurer connected, a claim the system does not hold
     given: insurer_connected
     input: Check the pack of claim CLM-4999.
     expected:
-      - says the claims system holds no claim CLM-4999 and that nothing was saved, and stops
+      - says the claims system holds no claim with the id CLM-4999, written out, and that nothing was saved, and stops
       - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, and it names no document"
     checks:
       - {check: tool_called, tool: get_claim}
