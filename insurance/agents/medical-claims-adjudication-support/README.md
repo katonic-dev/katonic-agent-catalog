@@ -9,7 +9,7 @@ For a medical claim the claims engine holds for review: says why it was held, se
 | How people meet it | An application: the Health claims desk |
 | Reads from | The insurer's health claims system: the held claim with its lines and documents, the member's cover on the date of service, the earlier claims it is compared with, what the plan's terms give, and the medical policy for a medical necessity hold |
 | Changes | Saves a suggested determination as a draft. The draft decides nothing, pays nothing and contacts nobody |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All ten tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

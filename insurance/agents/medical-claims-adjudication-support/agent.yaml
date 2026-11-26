@@ -47,7 +47,8 @@ changes:
   - {tool: save_medical_claim_determination, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. All ten tests pass five runs in a row on the first version of the instructions. Test 1 with no tools, the others in the Work Room, a new conversation for each run. Every figure in every reply was the system's: the invented insurer gives cover on the date of service, the earlier claims a claim is compared with and the days between them, the amount within a limit and over it, the member's share and what the plan's terms give. The agent says why the claim was held, tests the hold against the file and suggests a determination with its reasons. Oddities seen, none failing a test: in some runs an empty value was sent for the earlier claim where none applied, which the insurer accepts; one reply held the clumsy words "whether to do not pay"; the source given for the cover row was sometimes the claim id and sometimes the member id. Nothing was paid or declined and no claim changed status in any run: the agent saves a draft determination and the assessor decides. On this cluster the draft save runs without waiting for approval, by a setting made for the invented insurer.
