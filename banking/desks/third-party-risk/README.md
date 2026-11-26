@@ -9,7 +9,7 @@ Meridian Trust Bank (an invented bank in the invented country Meridia), its stan
 - **A list of supplier assessments**, each with its tier and the date the questionnaire arrived.
 - **The questionnaire beside the review.** The supplier's answers and short extracts of its evidence are on one side. The agent's review is on the other.
 - **One row per requirement of the standard that applies to the tier**, marked met, partly met, not met or not answered. Each row shows the clause, what the supplier says, the evidence the agent relied on, and the reason for the mark.
-- **The agent's recommendation**, one line.
+- **The agent's recommendation**, one line. After its opening words comes a numbered list with one item for every row marked not met, partly met or not answered, in table order, each starting with the clause and the mark as the table gives it, for example "2. 2.3 (partly met):". Then the line says who approves the supplier and, where a requirement is not met, that it can be accepted only as a recorded exception.
 - **The register** afterwards: who decided what, when, on which version of the assessment, and with which agent run.
 
 ## What the officer decides
@@ -28,10 +28,10 @@ The desk has no decision called approve. A tier 1 supplier is approved by the Ri
 
 | Supplier | What the answers show | What the agent should recommend |
 |---|---|---|
-| Larkspur Cloud Archive Ltd | Weak. Nine requirements not met, one partly met (2.3, administrators only) | Do not recommend approval |
-| Tessaly Payment Gateway Services | Strong. Everything met with evidence except 4.3, which the supplier left blank | Ask the supplier for the 4.3 answer and its evidence |
-| Pennyfarthing Print and Mail Ltd | 2.3 is answered "all staff" but the attached policy says remote access only. 3.3 has no evidence | Ask the supplier for a corrected access policy and the deletion evidence |
-| Harrowfield Records Storage Ltd | Everything met with evidence except two shortfalls the supplier states itself: 4.3 backups tested once a year and 5.4 insurance of USD 4 million, both not met | Recommend approval with conditions: test backups twice a year, raise the insurance to USD 5 million |
+| Larkspur Cloud Archive Ltd | Weak. Nine requirements not met, one partly met (2.3, administrators only) | Do not recommend approval, with ten items: the nine not met, and 2.3 given as partly met |
+| Tessaly Payment Gateway Services | Strong. Everything met with evidence except 4.3, which the supplier left blank | Ask the supplier for the 4.3 answer and its evidence, one item, 4.3 (not answered) |
+| Pennyfarthing Print and Mail Ltd | 2.3 is answered "all staff" but the attached policy says remote access only. 3.3 has no evidence | Ask the supplier for a corrected access policy and the deletion evidence, two items, 2.3 and 3.3, each not met |
+| Harrowfield Records Storage Ltd | Everything met with evidence except two shortfalls the supplier states itself: 4.3 backups tested once a year and 5.4 insurance of USD 4 million, both not met | Recommend approval with conditions, two items, 4.3 and 5.4, each not met: test backups twice a year, raise the insurance to USD 5,000,000.00 |
 
 Each case states its case date and the planned start of the service, on the two lines at the top of the questionnaire ("Case date" and "Planned start"). Every date in the questionnaire is read against the case date, and requirement 5.2 (an exit plan before the service starts) is read against the planned start.
 
@@ -51,6 +51,8 @@ Each case states its case date and the planned start of the service, on the two 
 | Not met | No evidence is attached, the evidence says something else, a limit is missed (a period, a frequency, an amount or the age of a document: backups tested once a year where twice a year is required are not met), or a condition the requirement sets is not shown in the evidence, such as an agreement in writing or a signature |
 | Not answered | The supplier left the answer blank |
 
+The marks are told apart in this order: a blank answer is not answered; otherwise a missed limit, a condition not shown, no evidence or evidence that says something else is not met; otherwise coverage of only some people or systems is partly met; otherwise met. For every requirement that sets a limit, the Reason cell starts with the comparison written out, for example "Supplier: 72 hours. Limit: at most 24 hours. 72 is more than 24, so the limit is missed.", and the mark follows from it. A blank answer is written "Left blank", with "None attached" as the evidence.
+
 The agent's Summary carries no count of marks. The desk counts them from the table and shows the count above the rows.
 
 ## Which engine it needs
@@ -59,7 +61,7 @@ The last line of each row is labelled "Reason" (`draft.rowLabels.check`), becaus
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), at a version that takes a settings folder kept outside its own repository: it reads `DESK_CONFIG`, `DESK_LIBRARY_DIR`, `DESK_ENV_FILE` and `DESK_AGENT_ID`, a `demo-replies.json` beside the settings, and the `case.queryFields`, `decisions[].proposalPrefix`, `draft.rowLabels` and `draft.proposalNames` settings.
 
-**The proposal is checked against the table** (`draft.proposalNames`). About one reply in ten from a real model had a right table and a recommendation that left out one of the rows it rests on. The desk checks that the recommendation names the clause number at the end of the Standard cell of every row marked not met, partly met or not answered (for example 2.3). If one is missing, a quiet line sits above the decision buttons: "The proposal does not mention 2.3, which is marked partly met." It blocks nothing, and the case's story records it. The four demo cases name every such row, so none shows the line.
+**The proposal is checked against the table** (`draft.proposalNames`). About one reply in ten from a real model had a right table and a recommendation that left out one of the rows it rests on. The desk checks that the recommendation names the clause number at the end of the Standard cell of every row marked not met, partly met or not answered (for example 2.3). If one is missing, a quiet line sits above the decision buttons: "The proposal does not mention 2.3, which is marked partly met." It blocks nothing, and the case's story records it. The agent puts each such row in the recommendation as its own item, with its clause and its mark. The four demo cases name every such row, so none shows the line.
 
 **That version is in `main` of katonic-case-desk** since 24 November 2026 ([pull request 2](https://github.com/katonic-dev/katonic-case-desk/pull/2)). A copy of the engine cloned before that date will not run this folder.
 
@@ -103,7 +105,9 @@ On 24 November 2026 the desk was run against the stand-in through twelve scenari
 
 After the rules for marks changed (a second version of the agent's instructions), the cases, canned replies and checks were brought into line and the twelve scenarios were run again. They pass. The desk's own reader was also run over eleven replies written by a real agent under the first version of the instructions: it read all 17 rows of each reply and every mark.
 
-Not yet done: a run against a real agent on the second version of the instructions.
+On 26 November 2026 the desk's instruction (`draft.instruction`), `agent-instructions.md` and the four canned replies were brought into line with the fifth version of the agent's instructions: every comparison with a limit written out before its mark, and each item in the recommendation line carrying its clause and its mark. The reader's settings did not change. The twelve scenarios have not been run again since.
+
+Not yet done: a run against a real agent on the fifth version of the instructions.
 
 ## Files
 
@@ -112,4 +116,4 @@ Not yet done: a run against a real agent on the second version of the instructio
 | `desk.config.json` | Every wording, field, mark, decision, status and register label |
 | `cases.json` | The four demo cases |
 | `demo-replies.json` | The canned replies for the stand-in platform |
-| `agent-instructions.md` | The agent's instructions (second version, the same text as the agent folder's `instructions.md`) |
+| `agent-instructions.md` | The agent's instructions (fifth version, the same text as the agent folder's `instructions.md`) |
