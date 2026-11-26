@@ -102,7 +102,7 @@ A sorting asks nobody for anything, so it has no "Ask for more". The tag "Agent'
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk), with the `routing` setting and the per-kind decisions, marks and row labels.
 
-**The desk needs the engine change in pull request 4 of the case desk repository, which is open and not yet merged.** The four agents write a table of six columns (number, item, what the file shows, source, mark, note). With that change the engine reads a table by its header: the two cells before the mark are the lines of the row, the Mark cell is the mark, and the cell after it is the note. Without it the engine reads the note as the mark, and no row gets a mark.
+**The desk needs the engine change of pull request 4 of the case desk repository, which was merged into `main` on 26 November 2026.** An engine older than that cannot read this desk's tables. The four agents write a table of six columns (number, item, what the file shows, source, mark, note). With that change the engine reads a table by its header: the two cells before the mark are the lines of the row, the Mark cell is the mark, and the cell after it is the note. Without it the engine reads the note as the mark, and no row gets a mark.
 
 The first line of a row is labelled by `draft.rowLabels.source` and the second by `draft.rowLabels.policy`. A kind that names them differently gives its own `rowLabels`: "The report says" for a loss report, "Must show" and "In the file" for a pack check.
 

@@ -97,7 +97,7 @@ Every proposal the three agents can make is in the queue, except the settlement'
 
 It needs the settings-driven case desk engine, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk). The settings here use `routing` with decisions, marks and row labels for each kind, `draft.sections` for the two cards, `draft.markIcons`, `draft.quietMarks`, `draft.summaryAboveRows`, `case.foldOnPhone` and `desk.documentLinkLabel`.
 
-**The desk needs the engine change in pull request 4 of the case desk repository, which is open and not yet merged.** That change reads a table by its own header row. The coverage check's table has six columns with the mark in the fifth, and the letter check's has five with the mark in the fourth. The engine in `main` reads only a table of seven columns with the mark in the sixth, which fits the settlement's table and no other: on it a coverage check's rows carry no mark and a letter check's table is shown as text.
+**The desk needs the engine change of pull request 4 of the case desk repository, which was merged into `main` on 26 November 2026.** An engine older than that cannot read this desk's tables. That change reads a table by its own header row. The coverage check's table has six columns with the mark in the fifth, and the letter check's has five with the mark in the fourth. The engine in `main` reads only a table of seven columns with the mark in the sixth, which fits the settlement's table and no other: on it a coverage check's rows carry no mark and a letter check's table is shown as text.
 
 ## Run it
 
