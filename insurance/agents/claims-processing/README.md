@@ -9,7 +9,7 @@ Sorts a new claim by the sorting rules of the insurer's claims handling guide so
 | How people meet it | An application: the Claims intake desk |
 | Reads from | The insurer's claims system: the claim with its whole file, and the claims handling guide |
 | Changes | Saves how the claim is sorted as a draft. The draft assigns the claim to nobody and changes no status |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All eight tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

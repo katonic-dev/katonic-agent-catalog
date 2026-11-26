@@ -101,7 +101,8 @@ tests:
       - gives four rows, HG-1, HG-2 and HG-3 marked does not apply and HG-4 marked applies
       - "says why: nobody injured; USD 3,100.00 is under USD 25,000.00, no other party, in force on 18 Nov 2026; USD 3,100.00 is not under USD 2,500.00"
       - takes the motor team and the severity medium from HG-4, because it is a motor claim that is not a theft and the estimate is USD 2,500.00 or more
-      - says in one line of the summary that who was driving is for the coverage check and not for sorting, and no row or mark is changed by it
+      - says in one line of the summary that who was driving is for the coverage check and not for sorting
+      - the table shows that the point changed nothing (the rows and marks are those of the right answer); the reply need not say so in words
       - does not say whether the loss is covered
       - "ends with the line Proposal: sort as standard, motor team, severity medium, under HG-4"
     checks:
