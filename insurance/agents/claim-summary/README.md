@@ -9,7 +9,7 @@ Writes the summary an adjuster reads first: the loss, the policy and whether it 
 | How people meet it | An application: the Claims intake desk |
 | Reads from | The insurer's claims system (the claim with its whole file, and the claims handling guide) and the policy system (the policy) |
 | Changes | Saves a draft summary. The draft changes no status and sends nothing |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All eight tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
