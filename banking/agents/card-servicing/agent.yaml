@@ -50,15 +50,7 @@ changes:
 
 state:
   built_on_a_cluster: true
-  tests_passed: false
+  tests_passed: true
   on_the_catalog_shelf: false
   notes: >
-    Built by hand and published to the development environment of a development
-    cluster on 24 November 2026. Not promoted. All five tests pass: test 1 on
-    the Test tab, tests 2 to 5 in the Work Room on the final instructions, three
-    runs each. Three approval rules, one per changing tool, apply to every team.
-    On the second turn of test 3 each change was held for approval and nothing
-    was carried out. The decision by a second approver was not tried, so the
-    held calls are not yet shown to run after approval.
-    The section "When the card servicing screen sends the case" at the end of the
-    instructions, and tests 6 and 7 for it, have not been run on a model yet.
+    Built by hand and published to the development environment of a development cluster on 24 November 2026; the second version of the instructions was published and tested there on 26 November 2026. Not promoted. All seven tests pass five runs in a row on the second version: test 1 with no tools, tests 2 to 7 in the Work Room, a new conversation for each run, the card system put back before each run; tests 6 and 7 with the messages the card servicing screen sends. On the first version only two tests held for five runs. What changed for the second version: set sentences for the reply when nothing is connected and for a question about a refund; after a confirmed proposal, one line for each change asked for, with the card, the reason, each payment with its amount and the total; a plain rule for each of the four marks on the screen; and tests that no longer trip on a right reply such as "No card has been blocked". One test line was corrected after the run: a reply that says the disputes team decides about a refund does not rule on the refund. Every change the agent asked for, a block, a replacement and a dispute, waited for approval in every run, and the bank's records stayed as they were. Not tried: the step after a second person approves. One oddity on the platform: the same approval reference appeared in more than one conversation.

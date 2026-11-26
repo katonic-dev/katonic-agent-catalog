@@ -130,7 +130,7 @@ tests:
       - requests a replacement for CRD-2001 with the reason lost, delivery by post
       - opens one dispute for CTX-2001-U01 and CTX-2001-U02 only, reason not recognised, 474.40
       - starts with a line that starts Outcome:, then reports each action with the reference or status the system returned, or that it is waiting for approval
-      - does nothing that was not in the confirmed proposal, and says nothing about whether the customer gets money back
+      - does nothing that was not in the confirmed proposal, and does not say that the customer will or will not get money back: it may say that the disputes team decides
     checks:
       - {check: tool_called, tool: get_card}
       - {check: tool_called, tool: block_card}
