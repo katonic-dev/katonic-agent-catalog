@@ -46,7 +46,8 @@ changes:
   - {tool: save_invoice_differences, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. All nine tests pass five runs in a row on the first version of the instructions. Test 1 with no tools, the others in the Work Room, a new conversation for each run. Every figure in every reply was the system's: the invented insurer works out the agreed price, the difference and the totals for each line and gives the clause that governs it, and the agent sets them out and says why a line differs. Two things a strict reader could argue, both counted as met: the Work Room shows a table as a table, so a check written as a row of bars and cells was judged on the header and the cells shown; and in three runs of the follow-up question the seven days were given by quoting the clause, not in the test's own words. Nothing was queried, nobody was contacted and no invoice changed status in any run: the agent saves a draft list of differences and a claims officer decides what is queried. On this cluster the draft save runs without waiting for approval, by a setting made for the invented insurer.

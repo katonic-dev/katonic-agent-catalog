@@ -42,7 +42,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | | **Health claims** | | | | |
 | 19 | [Pre-authorisation Preparation](agents/pre-authorisation-preparation/README.md) | Sets a request against the member's benefits and the medical policy: met, not met, missing | Workflow, event-triggered | Health claims desk | Written. Not yet built on a cluster |
 | 20 | [Medical Claims Adjudication Support](agents/medical-claims-adjudication-support/README.md) | For a held claim: why it was held, what the assessor needs, a suggested determination with reasons | Workflow, event-triggered | Health claims desk | Written. Not yet built on a cluster |
-| 21 | [Provider Invoice Check](agents/provider-invoice-check/README.md) | Checks a provider's invoice line by line against the tariff and the contract | Workflow, API | Health claims desk | Written. Not yet built on a cluster |
+| 21 | [Provider Invoice Check](agents/provider-invoice-check/README.md) | Checks a provider's invoice line by line against the tariff and the contract | Workflow, API | Health claims desk | Built on a development cluster. All nine tests pass five runs in a row |
 | | **Compliance and conduct** | | | | |
 | 22 | Compliance Audit | Checks policy, claims and sales files against the insurer's own rules and records what it checked | Workflow, scheduled | Sent to compliance | Planned |
 | 23 | Regulatory Monitoring | Reads the regulators the insurer names and maps each change to the obligations register | Workflow, scheduled | Regulatory change desk | Planned |

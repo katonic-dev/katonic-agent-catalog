@@ -9,7 +9,7 @@ Checks a provider's invoice line by line against the agreed tariff and the contr
 | How people meet it | An application: the Health claims desk |
 | Reads from | The insurer's health system: one provider invoice with its lines, the provider's contract as numbered clauses, and the system's check of every line with the totals and the working |
 | Changes | Saves the differences as a draft. The draft queries nothing, pays nothing and contacts nobody |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
