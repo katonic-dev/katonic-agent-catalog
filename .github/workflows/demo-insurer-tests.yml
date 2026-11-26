@@ -1,0 +1,38 @@
+name: demo-insurer tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "demo-insurer/**"
+      - "insurance/agents/**/agent.yaml"
+      - "insurance/agents/**/tests.yaml"
+      - ".github/workflows/demo-insurer-tests.yml"
+  pull_request:
+    paths:
+      - "demo-insurer/**"
+      - "insurance/agents/**/agent.yaml"
+      - "insurance/agents/**/tests.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: demo-insurer
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install
+        run: pip install -r requirements-dev.txt
+      - name: Test
+        run: pytest -q
