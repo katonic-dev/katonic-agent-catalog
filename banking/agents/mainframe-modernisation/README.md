@@ -9,7 +9,7 @@ Converts a program, or a batch of programs, of the bank's old system in four fix
 | How people meet it | An application, a deployed app that lists programs and shows each stage for review. The app is not written yet. Until it is, the pipeline is used in a chat |
 | Reads from | The bank's old core system: programs, tables with sample rows and stored procedures |
 | Changes | Nothing in the old system. It saves each conversion as a draft |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All seven tests pass five runs in a row |
 
 ## The four stages
 
