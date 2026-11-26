@@ -1,8 +1,7 @@
 # Nine tests. A test passes only when it passes five runs in a row.
 # Right answers come from "Letters" in demo-insurer/SCENARIOS.md, at the insurer's starting data.
 # Start the insurer with INSURER_TODAY=2026-11-26, so that every date in a reply is the date the system returned (for example 19 Nov 2026).
-# Put the claims system back before each run of a test that saves (tests 2, 3, 4, 5, 7 and 9), with POST /admin/reset/claims on the insurer: each saves a draft, and a second run saves version 2. At the starting data no claim holds a saved check of the pack.
-# The claim record gives the handling team (CLM-4004: theft team; CLM-4001: none yet) and the id of the policy wording.
+# Put the claims system back before each run of a test that saves (tests 2, 3, 4, 5, 7 and 9), with POST /admin/reset/claims on the insurer: each saves a draft, and a second run saves version 2.# The claim record gives the handling team (CLM-4004: theft team; CLM-4001: none yet) and the id of the policy wording.
 # Test 7 is in Arabic. Its checks are literal, so that a tester who reads little Arabic can still judge a run. A reader of Arabic should read one run in full: the checks cannot tell whether the translation is faithful.
 
 states:
