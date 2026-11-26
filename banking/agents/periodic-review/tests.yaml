@@ -55,7 +55,7 @@ tests:
       # The held profile keeps occupation and employer apart (Ferrow Brothers Builders); the letter KYD-1002-02 shows self-employment, so the employer may be marked changed with the occupation.
       - marks the address and the occupation as changed, each with the old value, the new value and the document id
       - the address, from 8 Kestrel Hill, Marlow Reach, Meridia to 22 Barley Mill Lane, Tallowby, Meridia, source KYD-1002-01
-      - the occupation, from quantity surveyor, an employee, to a self-employed building surveyor, source KYD-1002-02
+      - the occupation, from quantity surveyor in employment (the reply may say an employee or name the employer the bank holds) to a self-employed building surveyor, source KYD-1002-02
       - keeps the rating at standard
       - ends with a proposal to approve for sign-off
     checks:
