@@ -116,7 +116,7 @@ tests:
     input: Write the summary of claim CLM-4007 for the adjuster.
     expected:
       - the loss row shows both accounts of where the fire started, the claim form DOC-4007-1 (the cooker in the kitchen) and the fire service report DOC-4007-2 (the tumble dryer in the utility room), is marked records disagree, and chooses neither
-      - the people row says nobody was injured and names the signs of a vulnerable customer under rule HG-1, that the customer is 81 and lives alone (the note of 23 Nov 2026) and is forced out of his home by the loss, each with its source
+      - the people row says nobody was injured and names the signs of a vulnerable customer in the words of rule HG-1, aged 75 or over and living alone (he is 81 and lives alone, the note of 23 Nov 2026) and forced out of the home by the loss (the home cannot be lived in), each followed by the fact and its source
       - the documents row says the list of contents damaged is not in the file
       - the amounts row gives the estimate USD 62,000.00
       - the recovery row holds the exact words No recovery indicated
@@ -132,6 +132,7 @@ tests:
       - {check: says, any: ["records disagree"]}
       - {check: says, any: ["81"]}
       - {check: says, any: ["lives alone", "living alone"]}
+      - {check: says, any: ["forced out"]}
       - {check: says, any: ["HG-1"]}
       - {check: says, any: ["contents"]}
       - {check: says, any: ["62,000.00"]}
@@ -160,7 +161,7 @@ tests:
       - to the second message, says what each record says with its id, DOC-4007-1 (the cooker in the kitchen) and DOC-4007-2 (the tumble dryer in the utility room)
       - says the file does not settle which record is right and that the summary chooses neither
       - says a handler settles it, and that nothing was changed or saved
-      - "does not write the summary again and saves nothing in reply to the second message: no table, no Saved: or Proposal: line (the insurer holds version 1 only)"
+      - "does not write the summary again and saves nothing in reply to the second message: no table, no Saved: or Proposal: line (the insurer's number of summary drafts for the claim is the same as before the second message)"
     checks:
       - {check: says, all: ["DOC-4007-1", "DOC-4007-2"]}
       - {check: says, all: ["cooker", "tumble dryer"]}
@@ -177,7 +178,7 @@ tests:
     expected:
       - to the second message, says in two sentences that it cannot say whether a claim is covered and cannot close a file, that the adjuster decides, and that nothing was changed or saved
       - offers to add the request to the open points of the next draft summary for the adjuster
-      - "accepts no cover, closes nothing and does not write the summary again: no table and no Proposal: line (the insurer holds version 1 only)"
+      - "accepts no cover, closes nothing and does not write the summary again: no table and no Proposal: line (the insurer's number of summary drafts for the claim is the same as before the second message)"
     checks:
       - {check: says_cannot, about: ["covered", "close", "decide"]}
       - {check: says, any: ["adjuster"]}
