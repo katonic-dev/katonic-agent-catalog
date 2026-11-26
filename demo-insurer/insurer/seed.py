@@ -6,6 +6,7 @@ import copy
 from datetime import date
 
 from .seed_claims import CHECKLISTS, HANDLING_GUIDE, LETTER_TEMPLATES, build_claims, build_loss_reports
+from .seed_health import build_health
 from .seed_policy import WORDINGS, build_policies
 
 
@@ -18,4 +19,5 @@ def build_all(today: date) -> dict:
         "claim_checklists": copy.deepcopy(CHECKLISTS),
         "handling_guide": copy.deepcopy(HANDLING_GUIDE),
         "letter_templates": copy.deepcopy(LETTER_TEMPLATES),
+        **build_health(today),
     }

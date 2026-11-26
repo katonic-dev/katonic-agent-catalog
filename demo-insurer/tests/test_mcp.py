@@ -15,6 +15,7 @@ from conftest import ALL_SYSTEMS, KEY
 READ_CALLS = {
     "policy": ("get_policy", {"policy_id": "POL-2001"}, "policy_id", "POL-2001"),
     "claims": ("get_claim", {"claim_id": "CLM-4001"}, "claim_id", "CLM-4001"),
+    "health": ("get_member", {"member_id": "MEM-7201"}, "member_id", "MEM-7201"),
 }
 
 

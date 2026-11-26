@@ -78,9 +78,9 @@ def test_no_field_of_a_record_is_a_bare_iso_date_inside_a_document_text():
             assert not re.search(r"\b20\d\d-\d\d-\d\d\b", doc["text"]), doc["document_id"]
 
 
-def test_the_landing_page_lists_both_systems_and_shows_no_key(client):
+def test_the_landing_page_lists_every_system_and_shows_no_key(client):
     page = client.get("/").text
-    assert "policy/openapi.json" in page and "claims/openapi.json" in page and H["X-API-Key"] not in page
+    assert all(f"{system}/openapi.json" in page for system in ALL_SYSTEMS) and H["X-API-Key"] not in page
 
 
 def test_reset_puts_everything_back(client, store):

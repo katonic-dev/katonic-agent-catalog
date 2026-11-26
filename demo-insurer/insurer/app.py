@@ -17,10 +17,10 @@ from .common import Ctx, public_scheme, DemoJSONResponse, FastAPIOffline, make_a
 from .config import INSURER_NAME, INVENTED_NOTICE, load_settings
 from .mcp_doors import install_mcp
 from .store import Store
-from .systems import claims, policy
+from .systems import claims, health, policy
 
 log = logging.getLogger("demo-insurer")
-SYSTEMS = [policy, claims]
+SYSTEMS = [policy, claims, health]
 
 
 class DemoHeaderMiddleware:
@@ -71,7 +71,7 @@ class WriteNotes:
 
 
 class SubscriptionBody(BaseModel):
-    event_kind: Literal["*", "loss-report"] = Field(
+    event_kind: Literal["*", "loss-report", "pre-authorisation-request"] = Field(
         "*", description="Which events to send. * means all.")
     url: str = Field(..., description="Where to POST the event.")
     header_name: str = Field("", description="Name of the header that carries the secret.")

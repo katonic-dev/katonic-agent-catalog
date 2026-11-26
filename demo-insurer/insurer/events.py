@@ -8,11 +8,12 @@ import urllib.error
 import urllib.request
 
 
-from .seed_policy import d_ago, long_date
+from .seed_health import pre_authorisation
+from .seed_policy import d_ago, d_ahead, long_date
 from .store import Store, now_iso
 
-KINDS = ["loss-report"]
-SYSTEM_OF = {"loss-report": "claims"}
+KINDS = ["loss-report", "pre-authorisation-request"]
+SYSTEM_OF = {"loss-report": "claims", "pre-authorisation-request": "health"}
 TIMEOUT = 10
 
 # ----------------------------------------------------------------- sending
@@ -85,7 +86,31 @@ def _loss_report(store: Store, n: int) -> tuple[str, str]:
                  f"Read it with get_loss_report in the claims system.")
 
 
-MAKERS = {"loss-report": _loss_report}
+def _pre_authorisation(store: Store, n: int) -> tuple[str, str]:
+    d, today = store.data, store.settings.insurer_today
+    templates = [
+        ("MEM-7208", "PRV-5102", "TMI-T-3010",
+         "Lower back pain for 12 weeks.\nTreatment tried: physiotherapy for 6 weeks and prescribed pain relief, without enough "
+         "improvement.\nExamination: numbness of the right shin. Right knee reflex reduced.\nPlan: MRI scan of the lumbar spine."),
+        ("MEM-7202", "PRV-5101", "TMI-T-3010",
+         "Lower back pain for 6 weeks.\nTreatment tried: prescribed pain relief for 4 weeks.\nExamination: weakness of the left "
+         "foot.\nPlan: MRI scan of the lumbar spine."),
+        ("MEM-7205", "PRV-5102", "TMI-T-5030",
+         "Pain and locking of the left knee for 6 months.\nTreatment tried: physiotherapy for 10 weeks without enough improvement.\n"
+         "Plan: day-case arthroscopy of the left knee."),
+        ("MEM-7207", "PRV-5102", "TMI-T-6040",
+         "Upper left wisdom tooth decayed and painful.\nPlan: surgical removal of the tooth."),
+    ]
+    member_id, provider_id, code, notes = templates[n % 4]
+    pa_id = store.next_free("sim_pa", 8201, d["pre_authorisations"], lambda k: f"PA-{k}")
+    member = d["health_members"][member_id]
+    d["pre_authorisations"][pa_id] = pre_authorisation(pa_id, member, d["health_providers"][provider_id], code, today.isoformat(),
+                                                       d_ahead(today, 10), notes)
+    return pa_id, (f"A new pre-authorisation request {pa_id} has arrived in the health system for {member['name']}. It is received and "
+                   f"needs an assessment. Read it with get_pre_authorisation_request in the health system.")
+
+
+MAKERS = {"loss-report": _loss_report, "pre-authorisation-request": _pre_authorisation}
 
 
 def simulate(store: Store, kind: str, wait: bool = False) -> dict:

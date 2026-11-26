@@ -215,4 +215,8 @@ class Store:
             "new_claims": sum(1 for c in d["claims"].values() if c["status"] == "new"),
             "claims_in_assessment": sum(1 for c in d["claims"].values() if c["status"] == "in_assessment"),
             "claims_decided": sum(1 for c in d["claims"].values() if c["status"] == "decided"),
+            "health_members": len(d["health_members"]),
+            "pre_authorisation_requests_received": sum(1 for r in d["pre_authorisations"].values() if r["status"] == "received"),
+            "medical_claims_held": sum(1 for c in d["medical_claims"].values() if c["status"] == "held"),
+            "provider_invoices_received": sum(1 for i in d["provider_invoices"].values() if i["status"] == "received"),
         }

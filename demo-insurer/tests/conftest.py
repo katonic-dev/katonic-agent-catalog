@@ -14,7 +14,7 @@ from insurer.app import create_app  # noqa: E402
 
 KEY = "test-key-123"
 TODAY = "2026-11-26"
-SYSTEMS = ["policy", "claims"]
+SYSTEMS = ["policy", "claims", "health"]
 ALL_SYSTEMS = list(SYSTEMS)
 H = {"X-API-Key": KEY}
 
