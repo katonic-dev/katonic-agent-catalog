@@ -9,7 +9,7 @@ Sets a loss against the policy wording: the clause that covers, the exclusions, 
 | How people meet it | An application: the Claims assessment desk |
 | Reads from | The insurer's claims system (the claim with its whole file, and the claims handling guide) and the policy system (the policy with its schedule and endorsements, and the policy wording with its numbered clauses) |
 | Changes | Saves a draft coverage check. The draft decides nothing about the claim |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All ten tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
