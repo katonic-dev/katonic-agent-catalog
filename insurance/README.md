@@ -2,7 +2,7 @@
 
 31 agents an insurer can build on the Katonic platform, and the desks people use them through. They are written against one invented company, Thornmere Mutual Insurance: motor, home, commercial property and group medical cover in the invented country Meridia.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Six of the seven claims agents are built on a development cluster and pass every test five runs in a row; the seventh is built and one of its tests is not finished.
+**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Nine agents are built on a development cluster and pass every test five runs in a row: six of the seven claims agents and the three health claims agents. The seventh claims agent is built and one of its tests is not finished.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. A tool that changes something waits for approval unless the insurer has decided otherwise for that tool.
 
@@ -40,7 +40,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 17 | Broker Query | Answers a broker's question on a policy or a claim, with the source | Conversational, acting | Chat | Planned |
 | 18 | Member Policy Q&A | Answers a member's question on their own cover: covered, covered with conditions, not covered, needs a person | Conversational, answering | Chat | Planned |
 | | **Health claims** | | | | |
-| 19 | [Pre-authorisation Preparation](agents/pre-authorisation-preparation/README.md) | Sets a request against the member's benefits and the medical policy: met, not met, missing | Workflow, event-triggered | Health claims desk | Written. Not yet built on a cluster |
+| 19 | [Pre-authorisation Preparation](agents/pre-authorisation-preparation/README.md) | Sets a request against the member's benefits and the medical policy: met, not met, missing | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |
 | 20 | [Medical Claims Adjudication Support](agents/medical-claims-adjudication-support/README.md) | For a held claim: why it was held, what the assessor needs, a suggested determination with reasons | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |
 | 21 | [Provider Invoice Check](agents/provider-invoice-check/README.md) | Checks a provider's invoice line by line against the tariff and the contract | Workflow, API | Health claims desk | Built on a development cluster. All nine tests pass five runs in a row |
 | | **Compliance and conduct** | | | | |

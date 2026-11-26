@@ -9,7 +9,7 @@ Sets a provider's request for approval against the member's own plan and the ins
 | How people meet it | An application: the Health claims desk |
 | Reads from | The insurer's health system: one pre-authorisation request with the member's cover on the planned date, the row of the member's own plan, the plan's position, the medical policy with its criteria, and the provider's two documents |
 | Changes | Saves the assessment as a draft. The draft approves nothing, declines nothing and contacts nobody |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All ten tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

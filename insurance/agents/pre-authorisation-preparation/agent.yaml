@@ -46,7 +46,8 @@ changes:
   - {tool: save_pre_authorisation_assessment, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. All ten tests pass five runs in a row on the first version of the instructions. Test 1 with no tools, the others in the Work Room, a new conversation for each run. The agent reads one request with everything the system gives for it (the member's cover on the planned date, the row of the member's own plan, whether the plan needs pre-authorisation, the medical policy and the provider's two documents) and judges each criterion from the provider's notes: met, not met, or not stated. A criterion the notes say nothing about was asked of the provider and never guessed, in every run. Two things judged on what the Work Room shows and not on the raw text: the lines of the summary appear as separate paragraphs, and a check written as a row of bars and cells was judged on the cells shown. No request was approved or refused and none changed status in any run: the agent saves a draft file and a clinician or an authorised assessor decides. On this cluster the draft save runs without waiting for approval, by a setting made for the invented insurer.
