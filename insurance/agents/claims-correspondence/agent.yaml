@@ -51,7 +51,8 @@ changes:
   - {tool: save_claim_letter, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 26 November 2026. Not promoted. All nine tests pass five runs in a row: tests 1 to 3 and 5 to 9 on the first version of the instructions, test 4 on the second, with one run of every other test repeated on the second version. The second version changed one rule: the documents a letter asks for come from the claim's checklist and the documents themselves, and from no saved draft. Test 1 with no tools, the others in the Work Room, a new conversation for each run. The letter in Arabic passes every literal check (the claim id, the clause number, the digits, the Arabic words the test names, the English heading and last line); nobody who reads Arabic has read it for sense. No letter was sent and no claim changed status in any run: the agent saves a draft letter and a handler sends it. On this cluster the draft save runs without waiting for approval, by a setting made for the invented insurer.

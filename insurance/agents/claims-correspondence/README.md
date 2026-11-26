@@ -9,7 +9,7 @@ Drafts the letter to the claimant from the claim file and the insurer's own lett
 | How people meet it | An application: the Claims assessment desk. It also works in a chat |
 | Reads from | The insurer's claims system (the claim with its whole file, the claims handling guide, the letter templates) and its policy system (the words of a clause) |
 | Changes | Saves the letter as a draft, with its language. The draft sends nothing and changes no status |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 

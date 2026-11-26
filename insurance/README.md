@@ -24,7 +24,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | | **Claims assessment** | | | | |
 | 5 | [Coverage Check](agents/coverage-check/README.md) | Sets the loss against the policy wording, clause by clause, and says where the wording is silent | Workflow, API | Claims assessment desk | Written. Not yet built on a cluster |
 | 6 | [Settlement Calculation](agents/settlement-calculation/README.md) | Says which invoice lines the wording does not cover and shows the amount payable, line by line | Workflow, API | Claims assessment desk | Written. Not yet built on a cluster |
-| 7 | [Claims Correspondence](agents/claims-correspondence/README.md) | Drafts the letter to the claimant from the claim file and the insurer's templates | Conversational, acting | Claims assessment desk | Written. Not yet built on a cluster |
+| 7 | [Claims Correspondence](agents/claims-correspondence/README.md) | Drafts the letter to the claimant from the claim file and the insurer's templates | Conversational, acting | Claims assessment desk | Built on a development cluster. All nine tests pass five runs in a row; the Arabic letter is not yet read by a reader of Arabic |
 | 8 | Claims Leakage Review | Reviews closed claims against the handling standards and lists those paid outside them | Workflow, scheduled | Sent to the claims quality team | Planned |
 | | **Fraud** | | | | |
 | 9 | Fraud Detection | Checks a claim against the insurer's own indicators and the claimant's history and flags it with reasons, before payment | Workflow, event-triggered | Investigations desk | Planned |
