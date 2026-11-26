@@ -38,7 +38,7 @@ stops_for_a_person:
   - The claims officer reads the invoice check and decides which lines are queried with the provider, or accepts the invoice as charged. The agent queries nothing.
   - The provider relations team writes to the provider. The agent contacts no provider.
   - The agent corrects no line, proposes no new price and pays nothing. Every figure is the system's.
-  - Where the system's check gives a line a kind the agent has no mark for, or a decision is already recorded on the invoice, the agent says so and refers the invoice to a claims officer.
+  - Where the only differences are lines charged under the agreed price, or a decision is already recorded on the invoice, the agent says so and refers the invoice to a claims officer.
 
 # Saving the differences is a draft kept with its author, a time and a version
 # number. It queries nothing, pays nothing and contacts nobody.

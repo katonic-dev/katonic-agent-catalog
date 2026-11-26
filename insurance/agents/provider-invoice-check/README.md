@@ -15,7 +15,7 @@ Checks a provider's invoice line by line against the agreed tariff and the contr
 
 - Reads the invoice once. That one read gives the lines, the provider's contract and the system's check of every line.
 - Writes one row for every line of the invoice, in the invoice's order: what was charged, what the system says is agreed, the difference, the clause that governs the line in the clause's own words, a mark and a note.
-- Gives each line one mark, from the kind the system gives it: agrees, over the tariff, not on the tariff, not chargeable, or discount not applied.
+- Gives each line one mark, from the kind the system gives it: agrees, over the tariff, under the tariff, not on the tariff, not chargeable, or discount not applied. The clause is the one the system gives for the line.
 - Says plainly why a line differs: charged over the agreed price; a service that is not on the tariff, with no agreement in writing on file; a follow-up consultation inside the contract's free period, with the days the system gives; a medicine charged without the contract's discount.
 - Says when a line that looks wrong is right: a follow-up consultation outside the free period is charged.
 - Gives the three totals as the system gives them, in rows marked worked out, and the system's working lines unchanged.
