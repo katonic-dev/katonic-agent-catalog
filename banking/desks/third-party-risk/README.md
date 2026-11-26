@@ -105,7 +105,7 @@ On 24 November 2026 the desk was run against the stand-in through twelve scenari
 
 After the rules for marks changed (a second version of the agent's instructions), the cases, canned replies and checks were brought into line and the twelve scenarios were run again. They pass. The desk's own reader was also run over eleven replies written by a real agent under the first version of the instructions: it read all 17 rows of each reply and every mark.
 
-On 26 November 2026 the desk's instruction (`draft.instruction`), `agent-instructions.md` and the four canned replies were brought into line with the fifth version of the agent's instructions: every comparison with a limit written out before its mark, and each item in the recommendation line carrying its clause and its mark. The reader's settings did not change. The twelve scenarios have not been run again since.
+On 26 November 2026 the desk's instruction (`draft.instruction`), `agent-instructions.md` and the four canned replies were brought into line with the fifth version of the agent's instructions: every comparison with a limit written out before its mark, and each item in the recommendation line carrying its clause and its mark. The reader's settings did not change. The twelve scenarios were run again that day against the stand-in (engine tests 142 of 142): all twelve passed, with every recommendation item, mark, approval sentence and written comparison checked on all four cases and no warning line shown, and the four cases read without clipping or sideways scroll at 1440, 390 and 360 wide.
 
 Not yet done: a run against a real agent on the fifth version of the instructions.
 
