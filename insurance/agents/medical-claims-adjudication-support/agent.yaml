@@ -1,0 +1,53 @@
+id: medical-claims-adjudication-support
+name: Medical Claims Adjudication Support
+pack: insurance
+area: Health claims
+summary: >
+  For a medical claim the claims engine holds for review: says why it was
+  held, sets out what the assessor needs from the file, and suggests a
+  determination with its reasons. The assessor decides every held claim. The
+  agent pays nothing and declines nothing.
+
+type: workflow
+form: event-triggered
+started_by: A medical claim being held for review by the claims engine
+
+meets_people_through: application
+application: Health claims desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply. The claim
+# comes whole in one read: the lines, the documents, the member's cover on the
+# date of service, the earlier claims it is compared with, what the plan's terms
+# give line by line and in total, and the medical policy for a medical
+# necessity hold. So the agent holds one read and one draft save.
+needs:
+  - id: health-claims-system
+    kind: api
+    required: true
+    label: The insurer's health claims system, to read a held medical claim with everything an assessor needs, and to save a suggested determination as a draft
+    operations:
+      - get_medical_claim
+      - save_medical_claim_determination
+
+demo_insurer_systems: [health]
+
+stops_for_a_person:
+  - The assessor reads the draft determination and decides every held claim. The agent pays nothing and declines nothing, whichever way the file falls.
+  - Where a criterion of the medical policy is not met, the claim goes to the medical reviewer. The agent does not decide that a medical policy is failed.
+  - Where the file says nothing about a criterion, the agent marks it not stated and proposes that the provider is asked. A person asks the provider. The agent contacts nobody.
+  - What the plan's terms give is the system's working, not a decision to pay. The assessor decides.
+
+# Saving a suggested determination is a draft kept with its author, a time and
+# a version number. It decides nothing, pays nothing and contacts nobody.
+changes:
+  - {tool: save_medical_claim_determination, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

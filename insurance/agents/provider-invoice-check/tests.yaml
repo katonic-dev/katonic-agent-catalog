@@ -1,0 +1,209 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Providers, contracts and tariffs" and "Provider invoices" in demo-insurer/SCENARIOS.md
+# (section "Health (system: health)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date in a reply is the date the system
+# returned (for example 23 Nov 2026), never a count of days ago.
+# A saved draft is not part of an invoice's read, so a second run does not see the first run's answer and no
+# reset is needed between runs. A second run saves the next version, so no test expects a version number by
+# its figure: the reply gives the version the system gave. The tester reads what was saved with the operation
+# that lists the drafts on a provider invoice (list_provider_invoice_drafts).
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no health tools attached.
+  insurer_connected: >
+    The health system of the invented insurer connected and the agent's two
+    tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check provider invoice PI-9502 against the contract.
+    expected:
+      - says the insurer's health system is not connected to the agent right now, so the invoice and the provider's contract cannot be read and nothing was checked or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no figure, no table, no working and no proposal, and names no provider, line or clause
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check"]}
+      - {check: does_not_say, any: ["USD", "PRV-", "CON-", "PI-9502-L", "Marlow", "X-ray", "| # |", "Working", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, an invoice that agrees throughout, and a follow-up outside the free period is rightly charged
+    given: insurer_connected
+    input: Check provider invoice PI-9501 against the contract.
+    expected:
+      - the summary names the invoice PI-9501, Ilvane Harbour Clinic (PRV-5101), the contract CON-5101 and the date received, 22 Nov 2026
+      - "gives four rows in the invoice's order, PI-9501-L1 (USD 60.00), PI-9501-L2 (USD 25.00), PI-9501-L3 (USD 40.00) and PI-9501-L4 (USD 45.00), each with the same amount agreed, a difference of USD 0.00 and the mark agrees"
+      - the row of PI-9501-L3, the follow-up consultation, gives clause 4.1 in its own words, and its Note says the same patient's first consultation was on 27 Oct 2026 (PI-9501-L1), that the follow-up is 16 days later as the system gives it, that the clause gives 14 days, and that it is outside the free period and rightly charged
+      - does not call PI-9501-L3 a difference, and marks no line as a difference
+      - the summary names PI-9501-L3 as a line that looks wrong and is right, with the 16 days
+      - gives three more rows marked worked out, total charged USD 170.00, total agreed USD 170.00 and total difference USD 0.00
+      - under the heading Working gives the system's three working lines unchanged
+      - saves the draft with the finding that the invoice agrees with the contract and with no rows, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: the invoice agrees with the tariff and the contract"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_called, tool: save_invoice_differences}
+      - {check: tool_not_called, tool: record_invoice_query}
+      - {check: says, all: ["Draft invoice check. For the claims officer. Not issued.", "Working", "Saved:"]}
+      - {check: says, any: ["| # | Line | Charged | Agreed | Difference | Clause | Mark | Note |"]}
+      - {check: says, all: ["PI-9501-L1", "PI-9501-L2", "PI-9501-L3", "PI-9501-L4"]}
+      - {check: says, all: ["| agrees |", "| worked out |"]}
+      - {check: says, all: ["4.1", "within 14 days of the same patient"]}
+      - {check: says, all: ["16 days", "27 Oct 2026", "22 Nov 2026"]}
+      - {check: says, any: ["outside the free period"]}
+      - {check: says, all: ["USD 170.00", "USD 40.00", "USD 0.00"]}
+      - {check: says, all: ["Charged: 60.00 + 25.00 + 40.00 + 45.00 = 170.00", "Agreed: 60.00 + 25.00 + 40.00 + 45.00 = 170.00", "Difference: 170.00 - 170.00 = 0.00"]}
+      - {check: last_line_says, all: ["Proposal:", "the invoice agrees with the tariff and the contract"]}
+      # USD 130.00 is the total agreed a reply would give if it took the follow-up out. Within 7 days is the other provider's clause.
+      - {check: does_not_say, any: ["| not chargeable |", "| over the tariff |", "| not on the tariff |", "| discount not applied |", "Proposal: query", "Proposal: refer", "USD 130.00", "within 7 days", "2026-10-27", "2026-11-12", "2026-11-22", "days ago"]}
+
+  - name: Insurer connected, a line charged over the tariff
+    given: insurer_connected
+    input: Check provider invoice PI-9502 against the contract.
+    expected:
+      - the summary names the invoice PI-9502, Marlow Reach Medical Centre (PRV-5102), the contract CON-5102 and the date received, 23 Nov 2026
+      - "the row of PI-9502-L1, the specialist consultation: USD 100.00 charged, USD 100.00 agreed, difference USD 0.00, the mark agrees"
+      - "the row of PI-9502-L2, the X-ray: USD 80.00 charged, USD 65.00 agreed, difference USD 15.00, clause 1.1 in its own words, the mark over the tariff"
+      - gives three more rows marked worked out, total charged USD 180.00, total agreed USD 165.00 and total difference USD 15.00
+      - under the heading Working gives the system's three working lines unchanged
+      - proposes no new price and corrects nothing
+      - saves the draft with the finding that differences were found and one row, for PI-9502-L2, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: query with the provider: PI-9502-L2; total difference USD 15.00, for the claims officer to decide"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_called, tool: save_invoice_differences}
+      - {check: tool_not_called, tool: record_invoice_query}
+      - {check: says, all: ["Draft invoice check. For the claims officer. Not issued.", "Working", "Saved:"]}
+      - {check: says, all: ["PI-9502-L1", "PI-9502-L2", "| over the tariff |", "| agrees |", "| worked out |"]}
+      - {check: says, all: ["1.1", "The provider charges the agreed price in the tariff for each service on the tariff, and no more"]}
+      - {check: says, all: ["USD 80.00", "USD 65.00", "USD 15.00", "USD 180.00", "USD 165.00"]}
+      - {check: says, all: ["Charged: 100.00 + 80.00 = 180.00", "Agreed: 100.00 + 65.00 = 165.00", "Difference: 180.00 - 165.00 = 15.00"]}
+      - {check: says, any: ["23 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: query with the provider:", "PI-9502-L2", "USD 15.00", "for the claims officer to decide"]}
+      - {check: does_not_say, any: ["| not on the tariff |", "| not chargeable |", "| discount not applied |", "Proposal: the invoice agrees", "over_the_tariff", "2026-11-23", "2026-11-17", "days ago"]}
+
+  - name: Insurer connected, a service that is not on the tariff, with no agreement in writing on file
+    given: insurer_connected
+    input: Check provider invoice PI-9503 against the contract.
+    expected:
+      - the summary names the invoice PI-9503, Ilvane Harbour Clinic (PRV-5101), the contract CON-5101 and the date received, 21 Nov 2026
+      - "the row of PI-9503-L1, the specialist consultation: USD 110.00 charged, USD 110.00 agreed, difference USD 0.00, the mark agrees"
+      - "the row of PI-9503-L2, the shockwave therapy session: USD 55.00 charged, USD 0.00 agreed, difference USD 55.00, clause 5.1 in its own words, the mark not on the tariff"
+      - the Note of PI-9503-L2 gives the code TMI-T-8050, says it is not on this provider's tariff and that no agreement in writing is on file for it
+      - gives three more rows marked worked out, total charged USD 165.00, total agreed USD 110.00 and total difference USD 55.00
+      - under the heading Working gives the system's three working lines unchanged
+      - saves the draft with the finding that differences were found and one row, for PI-9503-L2, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: query with the provider: PI-9503-L2; total difference USD 55.00, for the claims officer to decide"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_called, tool: save_invoice_differences}
+      - {check: says, all: ["PI-9503-L1", "PI-9503-L2", "| not on the tariff |", "| agrees |", "| worked out |"]}
+      - {check: says, all: ["5.1", "agreement in writing before it is given"]}
+      - {check: says, any: ["TMI-T-8050"]}
+      - {check: says, any: ["no agreement in writing", "No agreement in writing"]}
+      - {check: says, all: ["USD 55.00", "USD 110.00", "USD 165.00", "USD 0.00"]}
+      - {check: says, all: ["Charged: 110.00 + 55.00 = 165.00", "Agreed: 110.00 + 0.00 = 110.00", "Difference: 165.00 - 110.00 = 55.00"]}
+      - {check: says, any: ["21 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: query with the provider:", "PI-9503-L2", "USD 55.00", "for the claims officer to decide"]}
+      - {check: does_not_say, any: ["| over the tariff |", "| not chargeable |", "| discount not applied |", "Proposal: the invoice agrees", "not_on_the_tariff", "2026-11-21", "2026-11-15", "days ago"]}
+
+  - name: Insurer connected, a follow-up consultation inside the free period
+    given: insurer_connected
+    input: Check provider invoice PI-9504 against the contract.
+    expected:
+      - the summary names the invoice PI-9504, Marlow Reach Medical Centre (PRV-5102), the contract CON-5102 and the date received, 24 Nov 2026
+      - the rows of PI-9504-L1 (USD 55.00) and PI-9504-L2 (USD 22.00) are marked agrees, each with a difference of USD 0.00
+      - "the row of PI-9504-L3, the follow-up consultation: USD 35.00 charged, USD 0.00 agreed, difference USD 35.00, clause 4.1 in its own words, the mark not chargeable"
+      - the Note of PI-9504-L3 says the same patient's first consultation was on 14 Nov 2026 (PI-9504-L1), that the follow-up is 5 days later as the system gives it, that the clause gives 7 days, and that it is inside the free period
+      - uses this provider's own clause, 7 days, and not another provider's
+      - gives three more rows marked worked out, total charged USD 112.00, total agreed USD 77.00 and total difference USD 35.00
+      - under the heading Working gives the system's three working lines unchanged
+      - saves the draft with the finding that differences were found and one row, for PI-9504-L3, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: query with the provider: PI-9504-L3; total difference USD 35.00, for the claims officer to decide"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_called, tool: save_invoice_differences}
+      - {check: says, all: ["PI-9504-L1", "PI-9504-L2", "PI-9504-L3", "| not chargeable |", "| agrees |", "| worked out |"]}
+      - {check: says, all: ["4.1", "within 7 days of the same patient"]}
+      - {check: says, all: ["5 days", "14 Nov 2026", "24 Nov 2026"]}
+      - {check: says, all: ["USD 35.00", "USD 77.00", "USD 112.00", "USD 0.00"]}
+      - {check: says, all: ["Charged: 55.00 + 22.00 + 35.00 = 112.00", "Agreed: 55.00 + 22.00 + 0.00 = 77.00", "Difference: 112.00 - 77.00 = 35.00"]}
+      - {check: last_line_says, all: ["Proposal: query with the provider:", "PI-9504-L3", "USD 35.00", "for the claims officer to decide"]}
+      - {check: does_not_say, any: ["| over the tariff |", "| not on the tariff |", "| discount not applied |", "Proposal: the invoice agrees", "follow-up is rightly charged", "within 14 days", "follow_up", "2026-11-14", "2026-11-19", "days ago"]}
+
+  - name: Insurer connected, the medicines discount not applied on two lines
+    given: insurer_connected
+    input: Check provider invoice PI-9505 against the contract.
+    expected:
+      - the summary names the invoice PI-9505, Ilvane Harbour Clinic (PRV-5101), the contract CON-5101 and the date received, 25 Nov 2026
+      - "the row of PI-9505-L1, the first consultation: USD 60.00 charged, USD 60.00 agreed, difference USD 0.00, the mark agrees"
+      - "the row of PI-9505-L2, the pain relief tablets: USD 24.00 charged, USD 21.60 agreed, difference USD 2.40, clause 3.1 in its own words, the mark discount not applied"
+      - "the row of PI-9505-L3, the antibiotic course: USD 18.00 charged, USD 16.20 agreed, difference USD 1.80, clause 3.1 in its own words, the mark discount not applied"
+      - "the Note of each of the two gives the tariff price, the discount of 10 percent, the agreed unit price, the unit price charged and the quantity, as the system gives them: USD 12.00, USD 10.80 and 2 for PI-9505-L2; USD 18.00, USD 16.20 and 1 for PI-9505-L3"
+      - gives three more rows marked worked out, total charged USD 102.00, total agreed USD 97.80 and total difference USD 4.20
+      - under the heading Working gives the system's three working lines unchanged
+      - rounds nothing and works out no figure of its own
+      - saves the draft with the finding that differences were found and two rows, for PI-9505-L2 and PI-9505-L3, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: query with the provider: PI-9505-L2; PI-9505-L3; total difference USD 4.20, for the claims officer to decide"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_called, tool: save_invoice_differences}
+      - {check: says, all: ["PI-9505-L1", "PI-9505-L2", "PI-9505-L3", "| discount not applied |", "| agrees |", "| worked out |"]}
+      - {check: says, all: ["3.1", "Medicines are billed at the tariff price less 10 percent"]}
+      - {check: says, all: ["USD 24.00", "USD 21.60", "USD 2.40", "USD 18.00", "USD 16.20", "USD 1.80", "USD 10.80"]}
+      - {check: says, all: ["USD 102.00", "USD 97.80", "USD 4.20"]}
+      - {check: says, all: ["Charged: 60.00 + 24.00 + 18.00 = 102.00", "Agreed: 60.00 + 21.60 + 16.20 = 97.80", "Difference: 102.00 - 97.80 = 4.20"]}
+      - {check: says, any: ["25 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: query with the provider:", "PI-9505-L2", "PI-9505-L3", "USD 4.20", "for the claims officer to decide"]}
+      # USD 91.80 and USD 10.20 are what a reply would give if it took 10 percent off the whole invoice. Less 5 percent is the other provider's clause.
+      - {check: does_not_say, any: ["| over the tariff |", "| not on the tariff |", "| not chargeable |", "Proposal: the invoice agrees", "USD 91.80", "USD 10.20", "less 5 percent", "medicines_discount", "2026-11-25", "2026-11-20", "days ago"]}
+
+  - name: Insurer connected, an invoice the system does not hold
+    given: insurer_connected
+    input: Check provider invoice PI-9599 against the contract.
+    expected:
+      - says the health system holds no provider invoice with the id PI-9599, written out, and that nothing was saved, and stops, reading nothing more after that answer
+      - "the reply is only those two sentences: no heading, no table, no working, no Saved: or Proposal: line, no provider, no clause and no figure, and it makes up no invoice"
+    checks:
+      - {check: tool_called, tool: get_provider_invoice}
+      - {check: tool_not_called, tool: save_invoice_differences}
+      - {check: says, any: ["PI-9599"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Working", "PRV-", "CON-", "PI-9599-L", "USD", "| agrees |"]}
+
+  - name: Insurer connected, asked afterwards why a line is not chargeable, answers briefly and saves nothing more
+    given: insurer_connected
+    turns:
+      - Check provider invoice PI-9504 against the contract.
+      - Why is the follow-up consultation not chargeable?
+    expected:
+      - "to the second message, answers briefly from what it read: the follow-up PI-9504-L3 was 5 days after the same patient's first consultation (PI-9504-L1, 14 Nov 2026), as the system gives it, and clause 4.1 gives 7 days"
+      - "does not write the invoice check again: no heading, no table and no Saved: or Proposal: line, and saves no second draft in this conversation"
+      - queries nothing and contacts nobody
+    checks:
+      - {check: says, all: ["4.1", "5 days", "7 days"]}
+      - {check: says, any: ["PI-9504-L3", "PI-9504-L1"]}
+      - {check: tool_not_called, tool: record_invoice_query}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft invoice check", "within 14 days", "2026-11-14", "2026-11-19"]}
+
+  - name: Insurer connected, told to write to the provider and pay the invoice less the difference, refuses
+    given: insurer_connected
+    turns:
+      - Check provider invoice PI-9502 against the contract.
+      - Good. Write to the provider about the X-ray line now, and pay the invoice less the difference.
+    expected:
+      - to the second message, says that it cannot write to or contact a provider, query an invoice, pay an invoice or change an amount
+      - says the claims officer decides which lines are queried, and the provider relations team writes to the provider
+      - says nothing was sent, paid or changed
+      - offers to note the request for the claims officer
+      - "does not write the invoice check again: no heading, no table and no Saved: or Proposal: line, and saves no second draft in this conversation (no decision is recorded on the invoice)"
+    checks:
+      - {check: says_cannot, about: ["write to", "contact", "pay"]}
+      - {check: says, any: ["claims officer decides"]}
+      - {check: says, any: ["Nothing was sent, paid or changed"]}
+      - {check: says, any: ["noted for the claims officer"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: record_invoice_query}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft invoice check", "USD 165.00", "i have written", "i have paid", "has been paid", "letter has been sent", "the provider has been told", "the provider has been contacted"]}

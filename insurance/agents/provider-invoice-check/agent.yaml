@@ -1,0 +1,52 @@
+id: provider-invoice-check
+name: Provider Invoice Check
+pack: insurance
+area: Health claims
+summary: >
+  Checks a provider's invoice line by line against the agreed tariff and the
+  contract, and lists the differences, each with the clause of the contract.
+  A claims officer decides what is queried with the provider. The agent
+  contacts no provider and corrects nothing.
+
+type: workflow
+form: api
+started_by: A call from the claims system when a provider's invoice is received
+
+meets_people_through: application
+application: Health claims desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk or the claims system sends one message with the invoice's id and
+# reads the reply. One read gives the invoice with its lines, the provider's
+# contract as numbered clauses, and the system's check of every line with the
+# totals and the working. The agent holds no other read.
+needs:
+  - id: health-system
+    kind: api
+    required: true
+    label: The insurer's health system, to read a provider invoice with the provider's contract and the system's check of every line, and to save the differences as a draft
+    operations:
+      - get_provider_invoice
+      - save_invoice_differences
+
+demo_insurer_systems: [health]
+
+stops_for_a_person:
+  - The claims officer reads the invoice check and decides which lines are queried with the provider, or accepts the invoice as charged. The agent queries nothing.
+  - The provider relations team writes to the provider. The agent contacts no provider.
+  - The agent corrects no line, proposes no new price and pays nothing. Every figure is the system's.
+  - Where the system's check gives a line a kind the agent has no mark for, or a decision is already recorded on the invoice, the agent says so and refers the invoice to a claims officer.
+
+# Saving the differences is a draft kept with its author, a time and a version
+# number. It queries nothing, pays nothing and contacts nobody.
+changes:
+  - {tool: save_invoice_differences, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

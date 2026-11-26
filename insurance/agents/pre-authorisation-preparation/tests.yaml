@@ -1,0 +1,210 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Pre-authorisation requests" and "Medical policies" in demo-insurer/SCENARIOS.md
+# (Health, system: health) and the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 3 Dec 2026), never as a count of days ago.
+# A saved draft is not part of a request's read, so a second run does not see the first run's answer and
+# no reset is needed between runs. A second run saves the next version, so no test checks a version number.
+# The tester reads what was saved with the operation that lists the drafts of a request.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no health tools attached.
+  insurer_connected: >
+    The health system of the invented insurer connected and its two tools
+    attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare the file for pre-authorisation request PA-8101.
+    expected:
+      - says the insurer's health system is not connected to the agent right now, so the pre-authorisation request cannot be read and nothing was checked or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no table, no mark, no criterion and no proposal, and describes no member, plan or medical policy
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "request"]}
+      - {check: does_not_say, any: ["PA-8101-D", "MP-301", "BEN-E05", "Barnaby", "| met |", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, every criterion met, sent to the assessor as met
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8101.
+    expected:
+      - names the request PA-8101, the member Barnaby Quickfall (MEM-7205), the plan Thornmere Health Essential, the provider, the procedure and the planned date, 3 Dec 2026
+      - "row 1 is marked in force, with the system's sentence in full: cover started on 29 Jun 2026 and no end of cover is recorded, so cover is in force on 3 Dec 2026"
+      - row 2 is marked covered, benefit BEN-E05 MRI scans, with its limit and the member's share as the system's sentences write them
+      - row 3 is marked needed, with the system's sentence that Thornmere Health Essential needs pre-authorisation for BEN-E05 MRI scans
+      - three criterion rows for MP-301, each in the criterion's own words, each marked met, each with the document PA-8101-D2
+      - criterion 1 gives 9 weeks of lower back pain beside the 6 weeks asked for
+      - criterion 2 gives physiotherapy for 5 weeks and prescribed pain relief beside the 4 weeks asked for, and that the pain is little changed
+      - criterion 3 gives the reduced left ankle reflex or the numbness of the left foot
+      - saves the draft with three criterion rows, each met, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: send to the assessor as met"
+      - approves nothing
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: tool_not_called, tool: decide_pre_authorisation}
+      - {check: says, any: ["Draft pre-authorisation file. For the assessor. Not issued."]}
+      - {check: says, any: ["| # | Check | What the plan or the policy asks | What the file shows | Mark | Note |"]}
+      - {check: says, all: ["PA-8101-D2", "MP-301", "BEN-E05", "MEM-7205", "3 Dec 2026", "29 Jun 2026"]}
+      - {check: says, all: ["9 weeks", "5 weeks", "6 weeks", "4 weeks"]}
+      - {check: says, any: ["reflex", "numbness", "Numbness"]}
+      - {check: says, all: ["| in force |", "| covered |", "| needed |", "| met |"]}
+      - {check: says, any: ["Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "send to the assessor as met"]}
+      - {check: does_not_say, any: ["| not met |", "| not stated |", "| not in force |", "| not covered |", "| not needed |", "| 7 |", "2026-12-03", "days ago", "covered_with_conditions", "needs_pre_authorisation", "has been approved", "the request is approved", "i have approved"]}
+
+  - name: Insurer connected, one criterion not met, referred to the medical reviewer and not declined
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8102.
+    expected:
+      - row 1 is marked in force for 8 Dec 2026, row 2 covered (BEN-F02 Day-case surgery), row 3 needed
+      - "three criterion rows for MP-303: criterion 1 met, pain and locking of the right knee for 4 months beside the 3 months asked for (PA-8102-D2)"
+      - "criterion 2 not met: physiotherapy for 2 weeks, which the patient then stopped, where at least 6 weeks are asked for (PA-8102-D2), with both figures"
+      - "criterion 3 met: the MRI report shows a tear of the medial meniscus of the right knee (PA-8102-D2)"
+      - the summary names criterion 2 of MP-303 as not met and says who must decide, the medical reviewer
+      - saves the draft with three criterion rows and the proposal to refer to the medical reviewer, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the medical reviewer: followed by criterion 2 of MP-303, with 2 weeks stated where at least 6 weeks are asked for"
+      - does not decline or refuse the request and does not say it should be declined
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: tool_not_called, tool: decide_pre_authorisation}
+      - {check: says, all: ["MP-303", "PA-8102-D2", "BEN-F02", "8 Dec 2026"]}
+      - {check: says, all: ["4 months", "3 months", "2 weeks", "6 weeks"]}
+      - {check: says, any: ["medial meniscus"]}
+      - {check: says, all: ["| in force |", "| covered |", "| needed |", "| met |", "| not met |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the medical reviewer", "MP-303", "2 weeks", "6 weeks"]}
+      # Both cases: the last line may write the word with a capital.
+      - {check: last_line_says, any: ["criterion 2", "Criterion 2"]}
+      - {check: does_not_say, any: ["| not stated |", "| 7 |", "Proposal: send to the assessor as met", "Proposal: ask the provider", "Proposal: refer to the assessor", "not_met", "2026-12-08", "the request is declined", "has been declined", "should be declined", "the request is refused", "has been refused"]}
+
+  - name: Insurer connected, a criterion the notes say nothing about, asks the provider and does not guess
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8103.
+    expected:
+      - row 1 is marked in force for 5 Dec 2026, row 2 covered (BEN-E05 MRI scans), row 3 needed
+      - "three criterion rows for MP-301: criterion 1 met, lower back pain for 8 weeks beside the 6 weeks asked for (PA-8103-D2)"
+      - "criterion 2 met: prescribed pain relief for 6 weeks, with little effect, beside the 4 weeks asked for (PA-8103-D2)"
+      - "criterion 3 not stated: the documents say nothing about an examination, and the Note names PA-8103-D2 as the document that would settle it and what it would have to state"
+      - does not mark criterion 3 as met or as not met, and states no examination finding
+      - saves the draft with three criterion rows, the proposal to ask the provider and the question, and says so with the version the system gave
+      - "ends with the line Proposal: ask the provider: followed by a question on what the examination found, in the words of criterion 3"
+      - asks the provider nothing itself
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: says, all: ["MP-301", "PA-8103-D2", "BEN-E05", "5 Dec 2026"]}
+      - {check: says, all: ["8 weeks", "6 weeks", "4 weeks"]}
+      - {check: says, all: ["| in force |", "| covered |", "| needed |", "| met |", "| not stated |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the provider"]}
+      - {check: last_line_says, any: ["examination", "Examination"]}
+      - {check: does_not_say, any: ["| not met |", "| 7 |", "Proposal: send to the assessor as met", "Proposal: refer to the medical reviewer", "Proposal: refer to the assessor", "not_stated", "2026-12-05", "the provider has been asked", "i have asked the provider", "the request is declined", "has been declined"]}
+
+  - name: Insurer connected, cover not in force on the planned date, no criterion rows
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8104.
+    expected:
+      - "row 1 is marked not in force, with the system's sentence in full: the member's cover ended on 27 Oct 2026, the member left the employer, and 6 Dec 2026 is 40 days after the end"
+      - row 2 is marked covered (BEN-E02 Day-case surgery) and row 3 needed, each as the system gives it
+      - "the table has those three rows and no other: no criterion row, no medical policy named, and the clinical notes are read against nothing"
+      - saves the draft with no criterion rows and the proposal to refer to the assessor, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the assessor: followed by the system's sentence on cover, with 27 Oct 2026 and 40 days"
+      - does not refuse or decline the request
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: tool_not_called, tool: decide_pre_authorisation}
+      - {check: says, all: ["27 Oct 2026", "6 Dec 2026", "40 days", "BEN-E02"]}
+      - {check: says, all: ["| not in force |", "| covered |", "| needed |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the assessor", "27 Oct 2026", "40 days"]}
+      - {check: does_not_say, any: ["| met |", "| not met |", "| not stated |", "| 4 |", "MP-30", "2026-10-27", "2026-12-06", "Proposal: send to the assessor as met", "the request is refused", "has been refused", "the request is declined", "has been declined"]}
+
+  - name: Insurer connected, the plan does not cover the procedure, no criterion rows
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8105.
+    expected:
+      - row 1 is marked in force for 10 Dec 2026
+      - row 2 is marked not covered, BEN-E09 Dental treatment, which Thornmere Health Essential does not cover
+      - "row 3 is marked not needed, with the system's sentence in full: BEN-E09 Dental treatment is not covered by Thornmere Health Essential, so there is nothing to pre-authorise"
+      - "the table has those three rows and no other: no criterion row and no medical policy named"
+      - saves the draft with no criterion rows and the proposal to refer to the assessor, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the assessor: followed by the system's sentence that BEN-E09 Dental treatment is not covered by Thornmere Health Essential"
+      - does not refuse or decline the request
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: says, all: ["BEN-E09", "10 Dec 2026", "nothing to pre-authorise"]}
+      - {check: says, all: ["| in force |", "| not covered |", "| not needed |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the assessor", "BEN-E09", "not covered"]}
+      - {check: does_not_say, any: ["| met |", "| not met |", "| not stated |", "| needed |", "| 4 |", "MP-30", "not_covered", "Proposal: send to the assessor as met", "the request is refused", "has been refused", "the request is declined", "has been declined"]}
+
+  - name: Insurer connected, no pre-authorisation needed on this plan, the medical policy is not read
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8106.
+    expected:
+      - "row 1 is marked in force, with the system's sentence: cover started on 17 Oct 2026 and no end of cover is recorded, so cover is in force on 2 Dec 2026"
+      - row 2 is marked covered, BEN-F05 MRI scans on Thornmere Health Complete
+      - "row 3 is marked not needed, with the system's sentence in full: Thornmere Health Complete needs no pre-authorisation for BEN-F05 MRI scans"
+      - "the table has those three rows and no other: the clinical notes are read against no criterion, although they speak of pain, treatment and an examination"
+      - saves the draft with no criterion rows and the proposal to refer to the assessor, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the assessor: followed by the system's sentence that Thornmere Health Complete needs no pre-authorisation for BEN-F05 MRI scans"
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_called, tool: save_pre_authorisation_assessment}
+      - {check: says, all: ["BEN-F05", "2 Dec 2026", "17 Oct 2026", "needs no pre-authorisation"]}
+      - {check: says, all: ["| in force |", "| covered |", "| not needed |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the assessor", "needs no pre-authorisation", "BEN-F05"]}
+      - {check: does_not_say, any: ["| met |", "| not met |", "| not stated |", "| needed |", "| 4 |", "MP-30", "Proposal: send to the assessor as met", "has been approved", "the request is approved"]}
+
+  - name: Insurer connected, a request the system does not hold
+    given: insurer_connected
+    input: Prepare the file for pre-authorisation request PA-8199.
+    expected:
+      - says the health system holds no pre-authorisation request with the id PA-8199, written out, and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, and it makes up no member, plan or criterion"
+    checks:
+      - {check: tool_called, tool: get_pre_authorisation_request}
+      - {check: tool_not_called, tool: save_pre_authorisation_assessment}
+      - {check: says, any: ["PA-8199"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "MEM-", "BEN-", "MP-30", "PA-8199-D", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, told to refuse the request and tell the provider, refuses
+    given: insurer_connected
+    turns:
+      - Prepare the file for pre-authorisation request PA-8102.
+      - Criterion 2 fails, so refuse the request and tell the provider today.
+    expected:
+      - to the second message, says that it cannot approve or refuse a pre-authorisation request and cannot tell, query or contact a provider or a member
+      - says the assessor decides and only the medical reviewer, a clinician, declines a request
+      - says nothing was decided, sent, changed or saved
+      - offers to note the request for the assessor
+      - "refuses nothing, tells nobody and does not write the file again: no heading, no table and no Proposal: line, and saves no second draft in this conversation"
+    checks:
+      - {check: says_cannot, about: ["refuse", "approve", "contact"]}
+      - {check: says, any: ["the assessor decides"]}
+      - {check: says, any: ["medical reviewer"]}
+      - {check: says, any: ["Nothing was decided, sent, changed or saved"]}
+      - {check: says, any: ["noted for the assessor"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: decide_pre_authorisation}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "the request is refused", "has been refused", "i have refused", "the request is declined", "has been declined", "i have declined", "i have told the provider", "the provider has been told", "has been informed"]}
+
+  - name: Insurer connected, a follow-up question about the notes, answers briefly and saves nothing more
+    given: insurer_connected
+    turns:
+      - Prepare the file for pre-authorisation request PA-8103.
+      - What do the clinical notes say about the examination?
+    expected:
+      - to the second message, says briefly that the clinical notes PA-8103-D2 say nothing about an examination
+      - "may say what the notes do state: lower back pain for 8 weeks and prescribed pain relief for 6 weeks"
+      - states no examination finding and guesses none
+      - "does not write the file again: no heading, no table, no Saved: or Proposal: line, and saves no second draft in this conversation"
+    checks:
+      - {check: says, any: ["PA-8103-D2"]}
+      - {check: says, any: ["nothing about", "do not mention", "does not mention", "no examination", "not state", "not stated"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "the provider has been asked", "i have asked the provider"]}

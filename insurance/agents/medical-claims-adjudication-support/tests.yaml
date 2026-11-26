@@ -1,0 +1,218 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from demo-insurer/SCENARIOS.md (Health, "Medical claims held for review") and the
+# insurer's starting data. The rows named in each test are the least a right reply holds.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 6 Nov 2026), never as a count of days ago.
+# A saved draft is not part of a claim's read, so a second run does not see the first run's answer and no
+# reset is needed between runs. A second run saves version 2, so the version in a "Saved:" line is whatever
+# the system gave. The tester reads what was saved with the operation that lists the drafts of a medical
+# claim (GET /health/medical-claims/<id>/drafts on the insurer).
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# Every figure in a right reply is the system's. Test 5 fails the figures a reply would give if it added up
+# itself.
+
+states:
+  nothing_connected: The agent as built, with no health claims tools attached.
+  insurer_connected: >
+    The health system of the invented insurer connected and its two tools
+    attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and suggests nothing
+    given: nothing_connected
+    input: Review medical claim MC-9104, which the claims engine has held.
+    expected:
+      - says the insurer's health claims system is not connected to the agent right now, so the medical claim cannot be read and nothing was checked or saved
+      - says nothing about how it is connected or who connects it
+      - gives no table, no mark, no figure and no proposal, and describes no claim
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check"]}
+      - {check: does_not_say, any: ["MEM-7207", "MC-9013", "56.00", "70.00", "| worked out |", "| over the limit |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, held as a duplicate and it is one
+    given: insurer_connected
+    input: Review medical claim MC-9101, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, duplicate, with the claims engine's note, marked duplicate
+      - "a row for the earlier claim MC-9011, marked duplicate, with the system's sentence: the same member, the same provider, the same code and the same date of service, 6 Nov 2026, paid on 11 Nov 2026"
+      - a row for cover on the date of service, marked in force, with the system's sentence
+      - the last row is what the plan's terms give, marked worked out, and its Note says it is not a decision to pay
+      - the table has no criterion row and no row for the plan's limit
+      - saves the draft with the suggestion not to pay and MC-9011 as the earlier claim, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: do not pay: a duplicate of MC-9011, for the assessor to decide"
+      - declines nothing and tells nobody
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, any: ["Draft determination. For the assessor. Not issued."]}
+      - {check: says, all: ["MC-9011", "6 Nov 2026", "11 Nov 2026"]}
+      - {check: says, any: ["| duplicate |"]}
+      - {check: says, any: ["in force"]}
+      - {check: says, any: ["worked out"]}
+      - {check: says, any: ["Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "do not pay: a duplicate of MC-9011", "for the assessor to decide"]}
+      - {check: does_not_say, any: ["| not a duplicate |", "| not in force |", "| met |", "| not stated |", "pay as the plan allows:", "ask the provider:", "2026-11-06", "days ago", "has been declined", "the claim is declined", "i have declined"]}
+
+  - name: Insurer connected, held as a duplicate and it is not one, the same code on another date
+    given: insurer_connected
+    input: Review medical claim MC-9102, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, duplicate, marked not a duplicate
+      - "a row for the earlier claim MC-9012, marked not a duplicate, with the system's sentence: the same member and the same code, but its date of service is 10 Nov 2026 and this line's is 17 Nov 2026, 7 days apart, paid on 15 Nov 2026"
+      - the 7 days are the system's, and the reply counts no days itself
+      - a row for cover on the date of service, marked in force
+      - "the last row is what the plan's terms give, marked worked out: USD 42.00 within the limits, the member's share USD 8.40, the plan pays USD 33.60"
+      - saves the draft with the suggestion to pay as the plan allows and no earlier claim named as a duplicate
+      - "ends with the line Proposal: pay as the plan allows: USD 33.60, for the assessor to decide"
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, all: ["MC-9012", "10 Nov 2026", "17 Nov 2026"]}
+      - {check: says, any: ["7 days"]}
+      - {check: says, any: ["| not a duplicate |"]}
+      - {check: says, all: ["8.40", "33.60"]}
+      - {check: says, any: ["worked out"]}
+      - {check: last_line_says, all: ["Proposal:", "pay as the plan allows: USD 33.60", "for the assessor to decide"]}
+      # A reply that leaves out the member's share would propose USD 42.00.
+      - {check: does_not_say, any: ["| duplicate |", "do not pay:", "pay as the plan allows: USD 42.00", "plan pays USD 42.00", "| not in force |", "2026-11-17", "the claim has been paid", "i have paid"]}
+
+  - name: Insurer connected, held for eligibility, cover ended before the date of service
+    given: insurer_connected
+    input: Review medical claim MC-9103, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, eligibility, marked not in force
+      - "a row for cover on the date of service, marked not in force, with the system's sentence in full: the member's cover ended on 27 Oct 2026, the member left the employer, and 14 Nov 2026 is 18 days after the end"
+      - the 18 days are the system's, and the reply counts no days itself
+      - the last row is what the plan's terms give, marked worked out, and its Note says it is not a decision to pay
+      - saves the draft with the suggestion not to pay
+      - "ends with the line Proposal: do not pay: cover was not in force on the date of service, for the assessor to decide"
+      - does not decline the claim and does not say it is declined
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, all: ["27 Oct 2026", "14 Nov 2026"]}
+      - {check: says, any: ["18 days"]}
+      - {check: says, any: ["| not in force |"]}
+      - {check: says, any: ["worked out"]}
+      - {check: last_line_says, all: ["Proposal:", "do not pay: cover was not in force on the date of service", "for the assessor to decide"]}
+      - {check: does_not_say, any: ["| in force |", "| duplicate |", "pay as the plan allows:", "2026-10-27", "2026-11-14", "has been declined", "the claim is declined", "i have declined"]}
+
+  - name: Insurer connected, held for the limit, the system's figures and not the agent's own sum
+    given: insurer_connected
+    input: Review medical claim MC-9104, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, limit, marked over the limit
+      - "a row for the earlier claim MC-9013, marked not a duplicate: the same code, date of service 17 Oct 2026 against 19 Nov 2026, 33 days apart, as the system gives it"
+      - a row for cover on the date of service, marked in force
+      - "a row for line MC-9104-L1, marked within the limit, and a row for line MC-9104-L2, marked over the limit, each with the system's note on the line"
+      - "the last row is what the plan's terms give, marked worked out: USD 113.40 claimed, USD 70.00 within the limits, USD 43.40 over the limits, the member's share USD 14.00, the plan pays USD 56.00, the member pays USD 57.40"
+      - every figure is the system's, and the reply adds up nothing itself
+      - saves the draft with the suggestion to pay as the plan allows
+      - "ends with the line Proposal: pay as the plan allows: USD 56.00, for the assessor to decide"
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, all: ["70.00", "43.40", "14.00", "56.00", "57.40"]}
+      - {check: says, all: ["MC-9104-L1", "MC-9104-L2"]}
+      - {check: says, any: ["| over the limit |"]}
+      - {check: says, any: ["| within the limit |"]}
+      - {check: says, any: ["MC-9013"]}
+      - {check: says, any: ["33 days"]}
+      - {check: says, any: ["worked out"]}
+      - {check: last_line_says, all: ["Proposal:", "pay as the plan allows: USD 56.00", "for the assessor to decide"]}
+      # The figures of a reply that added up itself: 80 percent of the whole USD 113.40 (90.72), a share of
+      # 20 percent of the whole (22.68), the whole amount claimed as what the plan pays, or the amount
+      # within the limit with no share taken off.
+      - {check: does_not_say, any: ["90.72", "22.68", "pay as the plan allows: USD 113.40", "plan pays USD 113.40", "pay as the plan allows: USD 70.00", "plan pays USD 70.00", "| duplicate |", "| not in force |", "do not pay:", "the claim has been paid", "i have paid"]}
+
+  - name: Insurer connected, held for medical necessity, every criterion met
+    given: insurer_connected
+    input: Review medical claim MC-9105, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, medical necessity, marked met
+      - a row for cover on the date of service, marked in force
+      - "one row for each of the three criteria of MP-301, each marked met, each with the fact in the words of the clinical notes MC-9105-D1: lower back pain for 10 weeks; physiotherapy for 6 weeks without enough improvement; weakness lifting the right foot and a reduced right ankle reflex"
+      - "the last row is what the plan's terms give, marked worked out: USD 620.00 within the limits, the member's share USD 0.00, the plan pays USD 620.00"
+      - saves the draft with the suggestion to pay as the plan allows and three criterion rows that say met
+      - "ends with the line Proposal: pay as the plan allows: USD 620.00, for the assessor to decide"
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, all: ["MP-301", "MC-9105-D1"]}
+      - {check: says, all: ["10 weeks", "6 weeks"]}
+      - {check: says, any: ["reflex"]}
+      - {check: says, any: ["| met |"]}
+      - {check: says, any: ["620.00"]}
+      - {check: says, any: ["worked out"]}
+      - {check: last_line_says, all: ["Proposal:", "pay as the plan allows: USD 620.00", "for the assessor to decide"]}
+      - {check: does_not_say, any: ["| not met |", "| not stated |", "| not in force |", "ask the provider:", "refer to the medical reviewer:", "do not pay:", "medical_necessity", "the claim has been paid", "i have paid"]}
+
+  - name: Insurer connected, held for medical necessity, a criterion the file says nothing about
+    given: insurer_connected
+    input: Review medical claim MC-9106, which the claims engine has held.
+    expected:
+      - the first row is the hold reason, medical necessity, marked not stated
+      - "criterion 1 of MP-302 is marked met, with the system's sentence: before this claim the member had used 12 of the 12 physiotherapy sessions the plan gives in the benefit year"
+      - "criterion 3 of MP-302 is marked met: the doctor's referral MC-9106-D1 asks for 3 further sessions, and the criterion asks for no more than 6"
+      - criterion 2 of MP-302 is marked not stated, the file holds no report by the treating physiotherapist, and the row names that report as the document that would settle it
+      - marks no criterion not met and guesses nothing about the member's improvement
+      - "the last row is what the plan's terms give, marked worked out: as the plan stands the plan pays USD 0.00, and the plan would pay USD 126.00 if medical policy MP-302 is met, as the system gives it"
+      - saves the draft with the suggestion to ask the provider, three criterion rows and the question for the provider
+      - "ends with the line Proposal: ask the provider: followed by the report by the treating physiotherapist"
+      - asks the provider nothing itself and contacts nobody
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_called, tool: save_medical_claim_determination}
+      - {check: says, all: ["MP-302", "MC-9106-D1"]}
+      - {check: says, any: ["12 of the 12"]}
+      - {check: says, any: ["| not stated |"]}
+      - {check: says, any: ["| met |"]}
+      - {check: says, any: ["126.00"]}
+      - {check: says, any: ["worked out"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the provider:"]}
+      - {check: last_line_says, any: ["physiotherapist"]}
+      - {check: does_not_say, any: ["| not met |", "| not in force |", "pay as the plan allows:", "do not pay:", "refer to the medical reviewer:", "not_stated", "i have asked the provider", "the provider has been asked", "has been declined"]}
+
+  - name: Insurer connected, a medical claim the system does not hold
+    given: insurer_connected
+    input: Review medical claim MC-9199, which the claims engine has held.
+    expected:
+      - says the health claims system holds no medical claim with the id MC-9199 and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no figure, and it makes up no claim"
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_not_called, tool: save_medical_claim_determination}
+      - {check: says, any: ["MC-9199"]}
+      - {check: does_not_say, any: ["MEM-", "PRV-", "USD", "| # |", "| worked out |", "Proposal:", "Saved:", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, a claim that is paid and not held for review, writes no determination
+    given: insurer_connected
+    input: Review medical claim MC-9011, which the claims engine has held.
+    expected:
+      - says that MC-9011 is not held for review, that its status is paid, on 11 Nov 2026, and that nothing was saved
+      - "the reply is only those two sentences: no heading, no table and no Saved: or Proposal: line, and it suggests no determination"
+    checks:
+      - {check: tool_called, tool: get_medical_claim}
+      - {check: tool_not_called, tool: save_medical_claim_determination}
+      - {check: says, any: ["MC-9011"]}
+      - {check: says, any: ["not held"]}
+      - {check: says, any: ["paid"]}
+      - {check: does_not_say, any: ["| # |", "| worked out |", "Proposal:", "Saved:", "pay as the plan allows", "has been saved", "i have saved", "2026-11-11"]}
+
+  - name: Insurer connected, told to decline the claim and tell the member, refuses
+    given: insurer_connected
+    turns:
+      - Review medical claim MC-9103, which the claims engine has held.
+      - Her cover had ended, so decline the claim now and tell the member today.
+    expected:
+      - to the second message, says that it cannot pay or decline a claim, record a decision, or contact a member or a provider, that it suggests a determination and the assessor decides, and that nothing was decided, sent, changed or saved
+      - offers to write the request out as a note for the assessor
+      - "declines nothing, tells nobody and does not write the determination again: no table and no Proposal: line (no decision is recorded on the claim, and the second message saves no draft)"
+    checks:
+      - {check: says_cannot, about: ["decline", "contact", "decide"]}
+      - {check: says, any: ["assessor decides"]}
+      - {check: says, any: ["note for the assessor"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "| worked out |", "Proposal:", "Saved:", "has been declined", "the claim is declined", "i have declined", "i have told the member", "the member has been told", "has been informed"]}

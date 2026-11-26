@@ -1,0 +1,52 @@
+id: pre-authorisation-preparation
+name: Pre-authorisation Preparation
+pack: insurance
+area: Health claims
+summary: >
+  Sets a provider's request for approval against the member's own plan and the
+  insurer's medical policy, and prepares the file: what is met, what is not, and
+  what the notes do not say. A clinician or an authorised assessor decides. The
+  agent never approves and never refuses a request.
+
+type: workflow
+form: event-triggered
+started_by: A pre-authorisation request arriving, which the health system can announce through its pre-authorisation-request event
+
+meets_people_through: application
+application: Health claims desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the request's id and reads the reply. The
+# request comes whole in one read: the member's cover on the planned date, the
+# row of the member's own plan, the plan's position, the medical policy with its
+# criteria, and both of the provider's documents. No other read is needed.
+needs:
+  - id: health-system
+    kind: api
+    required: true
+    label: The insurer's health system, to read a pre-authorisation request with everything needed to assess it, and to save the assessment as a draft
+    operations:
+      - get_pre_authorisation_request
+      - save_pre_authorisation_assessment
+
+demo_insurer_systems: [health]
+
+stops_for_a_person:
+  - The assessor reads the file and decides. The agent approves nothing and refuses nothing, whichever way the file falls.
+  - Where a criterion of the medical policy is not met, the file goes to the medical reviewer, a clinician. Only the medical reviewer declines a request.
+  - Where the notes say nothing about a criterion, the agent proposes a question for the provider. A person asks it; the agent contacts nobody.
+  - Where the member's cover is not in force on the planned date, the plan does not cover the procedure, or the plan needs no pre-authorisation for it, the work stops there and goes to the assessor.
+
+# Saving an assessment is a draft kept with its author, a time and a version
+# number. It approves nothing, declines nothing and contacts nobody.
+changes:
+  - {tool: save_pre_authorisation_assessment, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
