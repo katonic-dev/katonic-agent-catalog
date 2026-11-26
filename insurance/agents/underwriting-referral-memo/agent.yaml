@@ -1,0 +1,54 @@
+id: underwriting-referral-memo
+name: Underwriting Referral Memo
+pack: insurance
+area: Underwriting
+summary: >
+  Drafts the referral memo for a risk an underwriter has raised: the risk, the
+  terms proposed, the rule that forces the referral and the grade it goes to,
+  and the earlier referred risks with how each one is alike or differs. Says so
+  when no referral is needed. It recommends no decision: an underwriter with
+  the authority decides.
+
+type: workflow
+form: api
+started_by: A call from the underwriting system when an underwriter raises a referral
+
+meets_people_through: application
+application: Underwriting desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the referral's id and reads the reply.
+# The referral comes in one read with the system's authority check: which
+# referral rule applies, the grade it goes to and the discount as a percentage.
+# Earlier referred risks are found by a search on the rules that apply.
+needs:
+  - id: underwriting-system
+    kind: api
+    required: true
+    label: The insurer's underwriting system, to read a referral with the system's authority check, to search earlier referred risks and the decisions taken, and to save the memo as a draft
+    operations:
+      - get_underwriting_referral
+      - search_referral_precedents
+      - save_referral_memo
+
+demo_insurer_systems: [underwriting]
+
+stops_for_a_person:
+  - The underwriter the referral goes to reads the memo and decides. The agent approves nothing, declines nothing and recommends no decision.
+  - Where no referral rule applies, the memo says so and the underwriter who asked decides. The agent names no grade to refer to.
+  - A precedent is a past decision on another risk. Where it differs on the fact its decision rested on, the memo says so and does not count it as support.
+  - A person sends the memo. The agent sends nothing and contacts no broker and no underwriter.
+
+# Saving a memo is a draft kept with its author, a time and a version number.
+# It refers nothing, decides nothing and contacts nobody.
+changes:
+  - {tool: save_referral_memo, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster."

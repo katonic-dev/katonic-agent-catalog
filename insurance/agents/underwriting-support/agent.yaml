@@ -1,0 +1,54 @@
+id: underwriting-support
+name: Underwriting Support
+pack: insurance
+area: Underwriting
+summary: >
+  Reads a broker's submission and prepares the underwriting file: each
+  guideline of the class as within, outside, missing or cannot tell, what the
+  submission lacks, and where a note contradicts a field of the form. The
+  underwriter decides. The agent never accepts, declines, quotes or binds a
+  risk and never contacts a broker.
+
+type: workflow
+form: event-triggered
+started_by: A broker's submission arriving in the underwriting system
+
+meets_people_through: application
+application: Underwriting desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the submission's id and reads the reply.
+# The submission comes whole in one read: the broker's form, every document as
+# text, the guidelines of the class, and the system's measure of the form
+# against each guideline with figures. No other read is needed.
+needs:
+  - id: underwriting-system
+    kind: api
+    required: true
+    label: The insurer's underwriting system, to read a submission with its documents, the guidelines of its class and the system's measure, and to save the underwriting file as a draft
+    operations:
+      - get_submission
+      - save_underwriting_file
+
+demo_insurer_systems: [underwriting]
+
+stops_for_a_person:
+  - The underwriter reads the file and decides. The agent accepts nothing, declines nothing, quotes nothing and binds nothing, whichever way the file falls.
+  - A risk outside a guideline is still made ready for the underwriter. The agent does not decline it.
+  - Where the submission lacks something a guideline needs, the agent lists it as missing, assumes nothing and proposes a question for the broker. A person asks it; the agent contacts nobody.
+  - Where the form and a document say different things, the agent shows both, chooses neither and proposes a question for the broker.
+
+# Saving the underwriting file is a draft kept with its author, a time and a
+# version number. It accepts nothing, declines nothing, quotes nothing and
+# contacts nobody.
+changes:
+  - {tool: save_underwriting_file, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster."

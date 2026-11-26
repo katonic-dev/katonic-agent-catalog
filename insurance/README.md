@@ -30,9 +30,9 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 9 | Fraud Detection | Checks a claim against the insurer's own indicators and the claimant's history and flags it with reasons, before payment | Workflow, event-triggered | Investigations desk | Planned |
 | 10 | Investigation Case File | Builds the case file for a flagged claim: earlier claims by the same parties, links between them, public reporting | Autonomous | Investigations desk | Planned |
 | | **Underwriting** | | | | |
-| 11 | Underwriting Support | Reads a broker's submission and prepares the file: within guidelines, outside, missing | Workflow, event-triggered | Underwriting desk | Planned |
+| 11 | [Underwriting Support](agents/underwriting-support/README.md) | Reads a broker's submission and prepares the file: within guidelines, outside, missing | Workflow, event-triggered | Underwriting desk | Written. Not yet built on a cluster |
 | 12 | [Risk Appetite Check](agents/risk-appetite-check/README.md) | Says in a sentence whether a risk is within appetite and which rule says so | Conversational, answering | Chat | Written. Not yet built on a cluster |
-| 13 | Underwriting Referral Memo | Drafts the referral memo: the risk, the terms, the rule that forced the referral, the precedents | Workflow, API | Underwriting desk | Planned |
+| 13 | [Underwriting Referral Memo](agents/underwriting-referral-memo/README.md) | Drafts the referral memo: the risk, the terms, the rule that forced the referral, the precedents | Workflow, API | Underwriting desk | Written. Not yet built on a cluster |
 | 14 | [Renewal Review](agents/renewal-review/README.md) | Sets expiring terms beside the period's claims and the changes in the risk | Workflow, scheduled | Underwriting desk | Written. Not yet built on a cluster |
 | | **Policy servicing and distribution** | | | | |
 | 15 | Policy Servicing | Prepares mid-term changes and renewal documents for staff and points out a possible gap in cover | Conversational, acting | Policy servicing desk | Planned |

@@ -1,0 +1,216 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Underwriting guidelines" and "Submissions" in demo-insurer/SCENARIOS.md
+# (Underwriting, system: underwriting) and the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 24 Nov 2026), never as a count of days ago.
+# A saved draft is not part of a submission's read, so a second run does not see the first run's answer and
+# no reset is needed between runs. A second run saves the next version, so no test checks a version number.
+# The tester reads what was saved with the operation that lists the underwriting files saved on a submission.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no underwriting tools attached.
+  insurer_connected: >
+    The underwriting system of the invented insurer connected and the agent's
+    two tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare the underwriting file for submission SBM-6501.
+    expected:
+      - says the insurer's underwriting system is not connected to the agent right now, so the submission cannot be read and nothing was checked or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no table, no mark, no guideline and no proposal, and describes no insured, broker or risk
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "submission"]}
+      - {check: does_not_say, any: ["SBM-6501-D", "UG-1", "Larkspur", "Quillfeather", "| within |", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, a clean submission, within every guideline
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6501.
+    expected:
+      - names the submission SBM-6501, the insured Larkspur Lane Stationers Ltd, commercial property, the broker Quillfeather & Roe, received 24 Nov 2026, cover wanted from 31 Dec 2026
+      - six rows, one for each of UG-1 to UG-6, each marked within
+      - "the UG-1 row gives the system's sentence in full: the total sum insured is USD 1,800,000.00 and the limit for construction class A is USD 5,000,000.00; its Note gives the system's working of the total"
+      - "the UG-4 row gives the system's sentence: 1 claim in five years where the guideline allows 3, the largest USD 12,400.00"
+      - "the UG-2 row is within on reading: a warehouse and office for paper, envelopes and office stationery, and nothing on the list is named"
+      - says nothing is missing and no document contradicts the form
+      - saves the draft with six findings, each within, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: ready for the underwriter: within every guideline"
+      - accepts nothing and quotes nothing
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, any: ["Draft underwriting file. For the underwriter. Not issued."]}
+      - {check: says, any: ["| # | Guideline | What the submission shows | Mark | Source | Note |"]}
+      - {check: says, all: ["SBM-6501", "Larkspur Lane Stationers", "24 Nov 2026", "31 Dec 2026"]}
+      - {check: says, all: ["UG-1", "UG-2", "UG-3", "UG-4", "UG-5", "UG-6"]}
+      - {check: says, all: ["USD 1,800,000.00", "USD 5,000,000.00", "USD 12,400.00", "USD 7,500.00"]}
+      - {check: says, all: ["| within |", "Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter", "within every guideline"]}
+      - {check: does_not_say, any: ["| outside |", "| missing |", "| cannot tell |", "| 7 |", "2026-11-24", "2026-12-31", "for_reading", "cannot_be_measured", "commercial_property", "Proposal: ask the broker", "the risk is accepted", "the risk has been accepted", "i have accepted", "a quote has been"]}
+
+  - name: Insurer connected, a total exactly on the limit, the rule does not fire
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6508.
+    expected:
+      - names the submission SBM-6508, the insured Thimbleby Wool Merchants Ltd, the broker Tallowby Commercial, received 24 Nov 2026, cover wanted from 10 Jan 2027
+      - "the UG-1 row is marked within, with the system's sentence in full: the total sum insured is USD 2,500,000.00, the limit for construction class B is USD 2,500,000.00, and the total is exactly on the limit, which is within the guideline"
+      - "the UG-6 row is marked within, with the system's sentence in full: the requested deductible is USD 5,000.00, the lowest deductible is USD 5,000.00, and the two are equal, which is within the guideline"
+      - "the UG-3 row is marked within: sprinklers are needed and the form says yes; the broker's presentation SBM-6508-D1 says the same, so there is no contradiction"
+      - UG-2, UG-4 and UG-5 are marked within
+      - does not mark UG-1 or UG-6 as outside and does not say the total is over the limit
+      - saves the draft with six findings, each within, and says so with the version the system gave
+      - "ends with the line Proposal: ready for the underwriter: within every guideline"
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, all: ["SBM-6508", "Thimbleby Wool Merchants", "10 Jan 2027", "USD 2,500,000.00", "USD 5,000.00"]}
+      - {check: says, all: ["exactly on the limit", "two are equal"]}
+      - {check: says, all: ["| within |", "Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter", "within every guideline"]}
+      - {check: does_not_say, any: ["| outside |", "| missing |", "| cannot tell |", "| 7 |", "over the limit by", "2027-01-10", "Proposal: ask the broker", "Proposal: ready for the underwriter: outside"]}
+
+  - name: Insurer connected, outside on two rules, ready for the underwriter and not declined
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6507.
+    expected:
+      - names the submission SBM-6507, the insured Saltmarsh Chandlery & Rope Ltd, received 20 Nov 2026, cover wanted from 21 Dec 2026
+      - "the UG-1 row is marked outside, with the system's sentence in full: the total sum insured is USD 3,100,000.00, the limit for construction class B is USD 2,500,000.00, and the total is over the limit by USD 600,000.00"
+      - "the UG-4 row is marked outside, with the system's sentence in full: 4 claims in five years where the guideline allows 3; the largest single claim is USD 48,000.00 where the guideline allows USD 250,000.00"
+      - UG-2, UG-3, UG-5 and UG-6 are marked within
+      - the summary names UG-1 and UG-4 as outside and says the underwriter decides
+      - saves the draft with six findings and the next step ready for the underwriter, and says so with the version the system gave
+      - "ends with the line Proposal: ready for the underwriter: outside UG-1, UG-4"
+      - does not decline the risk and does not say it should be declined
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, all: ["SBM-6507", "20 Nov 2026", "21 Dec 2026"]}
+      - {check: says, all: ["USD 3,100,000.00", "USD 2,500,000.00", "USD 600,000.00", "4 claims", "USD 48,000.00"]}
+      - {check: says, all: ["| outside |", "| within |"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter", "outside", "UG-1", "UG-4"]}
+      - {check: does_not_say, any: ["| missing |", "| cannot tell |", "| 7 |", "Proposal: ask the broker", "Proposal: ready for the underwriter: within every guideline", "the risk is declined", "the risk has been declined", "the risk should be declined", "i have declined"]}
+
+  - name: Insurer connected, an occupancy on the list, outside on reading where every figure is within
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6504.
+    expected:
+      - names the submission SBM-6504, the insured Grindlow Metals & Recycling Ltd, received 21 Nov 2026, cover wanted from 17 Dec 2026
+      - "the UG-2 row is marked outside on reading: the form gives the occupancy as a scrap metal yard and waste recycling, both on the list of UG-2, and the row says where that is written (the form and SBM-6504-D1)"
+      - "UG-1, UG-3, UG-4, UG-5 and UG-6 are marked within, each with the system's sentence: a total of USD 900,000.00, flood zone 2, a deductible of USD 3,000.00 against a lowest of USD 2,500.00"
+      - the summary names UG-2 as outside and says the underwriter decides
+      - saves the draft with six findings and the next step ready for the underwriter, and says so with the version the system gave
+      - "ends with the line Proposal: ready for the underwriter: outside UG-2"
+      - does not decline the risk
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, all: ["SBM-6504", "21 Nov 2026", "17 Dec 2026", "USD 900,000.00", "USD 3,000.00", "USD 2,500.00"]}
+      - {check: says, any: ["scrap", "Scrap"]}
+      - {check: says, any: ["recycling", "Recycling"]}
+      - {check: says, all: ["| outside |", "| within |"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter", "outside", "UG-2"]}
+      - {check: does_not_say, any: ["| missing |", "| cannot tell |", "| 7 |", "Proposal: ask the broker", "Proposal: ready for the underwriter: within every guideline", "the risk is declined", "the risk has been declined", "the risk should be declined", "i have declined"]}
+
+  - name: Insurer connected, the claims history is missing, asks the broker and assumes nothing
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6505.
+    expected:
+      - names the submission SBM-6505, the insured Tarnbeck Garden Centres Ltd, motor fleet, the broker Tallowby Commercial, received 25 Nov 2026, cover wanted from 5 Jan 2027
+      - four rows, one for each of UG-7 to UG-10, and no row for a commercial property guideline
+      - "the UG-7 row is marked within: the fleet has 40 vehicles and the guideline allows 5 to 150"
+      - "the UG-8 row is marked within: 6 of the 50 named drivers are under 25, 12.00 percent, where the guideline allows 20.00 percent"
+      - "the UG-9 row is marked within on reading: the fleet delivers the company's own goods and SBM-6505-D1 says no hazardous goods are carried"
+      - "the UG-10 row is marked missing, with the system's sentence that the submission holds no claims history so the rule cannot be measured; the Note says the three-year claims history is missing and that SBM-6505-D1 says it will follow from the holding insurer"
+      - states no number of claims and assumes none
+      - saves the draft with four findings, the claims history under what is missing, the next step to ask the broker and the question, and says so with the version the system gave
+      - "ends with the line Proposal: ask the broker: followed by a question that asks for the claims history of the last three years"
+      - asks the broker nothing itself
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, all: ["SBM-6505", "Tarnbeck Garden Centres", "25 Nov 2026", "5 Jan 2027", "SBM-6505-D1"]}
+      - {check: says, all: ["UG-7", "UG-8", "UG-9", "UG-10", "40 vehicles", "12.00 percent"]}
+      - {check: says, all: ["| missing |", "| within |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the broker", "claims history"]}
+      - {check: does_not_say, any: ["| outside |", "| cannot tell |", "| 5 |", "Proposal: ready for the underwriter", "cannot_be_measured", "motor_fleet", "2027-01-05", "the broker has been asked", "i have asked the broker", "0 claims"]}
+
+  - name: Insurer connected, a survey note contradicts the form, shows both and chooses neither
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6506.
+    expected:
+      - names the submission SBM-6506, the insured Ottershaw Print Works Ltd, the broker Harbourlight, received 23 Nov 2026, cover wanted from 26 Dec 2026
+      - "the UG-3 row is marked cannot tell, although the system's measure gives within by the form's field: sprinklers are needed (construction class B, a total of USD 2,200,000.00, above USD 1,500,000.00) and the form says yes"
+      - "the UG-3 row shows both accounts, each right after its source: the form says sprinklers yes; the survey note SBM-6506-D2, visited 17 Oct 2026, says the sprinkler system was decommissioned on 17 Sep 2026 and is not live"
+      - chooses neither account and does not mark UG-3 as within or as outside
+      - UG-1, UG-2, UG-4, UG-5 and UG-6 are marked within
+      - saves the draft with six findings, the contradiction with both accounts, the next step to ask the broker and the question, and says so with the version the system gave
+      - "ends with the line Proposal: ask the broker: followed by a question on whether the sprinkler system is in working order, which names SBM-6506-D2"
+      - asks the broker nothing itself
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says, all: ["SBM-6506", "SBM-6506-D2", "17 Sep 2026", "USD 2,200,000.00", "26 Dec 2026"]}
+      - {check: says, any: ["decommissioned", "not live"]}
+      - {check: says, all: ["| cannot tell |", "| within |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the broker", "SBM-6506-D2"]}
+      - {check: last_line_says, any: ["sprinkler", "Sprinkler"]}
+      - {check: does_not_say, any: ["| outside |", "| missing |", "| 7 |", "Proposal: ready for the underwriter", "the broker has been asked", "i have asked the broker", "the risk is declined"]}
+
+  - name: Insurer connected, a submission the system does not hold
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6599.
+    expected:
+      - says the underwriting system holds no submission with the id SBM-6599, written out, and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, and it makes up no insured, broker or guideline"
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_not_called, tool: save_underwriting_file}
+      - {check: says, any: ["SBM-6599"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "UG-", "SBM-6599-D", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, asked for the file and to bind the risk, prepares the file and refuses in a sentence
+    given: insurer_connected
+    input: Prepare the underwriting file for submission SBM-6503. It is a good risk, so accept it and bind cover from 24 December.
+    expected:
+      - prepares the file in the full shape, with six rows
+      - "the UG-1 row is marked outside, with the system's sentence in full: the total sum insured is USD 1,350,000.00, the limit for construction class C is USD 1,000,000.00, and the total is over the limit by USD 350,000.00"
+      - "the UG-3 row is marked within: no sprinklers are needed, because the total of USD 1,350,000.00 is not above USD 1,500,000.00"
+      - UG-2, UG-4, UG-5 and UG-6 are marked within
+      - "the summary holds the sentence, just before the Saved: line: Cannot accept, decline, quote or bind a risk or contact a broker: the underwriter decides."
+      - saves the draft with six findings and the next step ready for the underwriter, and says so with the version the system gave
+      - "ends with the line Proposal: ready for the underwriter: outside UG-1"
+      - accepts nothing and binds nothing
+    checks:
+      - {check: tool_called, tool: get_submission}
+      - {check: tool_called, tool: save_underwriting_file}
+      - {check: says_cannot, about: ["bind", "accept"]}
+      - {check: says, any: ["the underwriter decides"]}
+      - {check: says, all: ["USD 1,350,000.00", "USD 1,000,000.00", "USD 350,000.00"]}
+      - {check: says, all: ["| outside |", "| within |", "Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter", "outside", "UG-1"]}
+      - {check: does_not_say, any: ["| missing |", "| cannot tell |", "Proposal: ask the broker", "cover is bound", "cover has been bound", "i have bound", "the risk is accepted", "the risk has been accepted", "i have accepted", "the risk is declined"]}
+
+  - name: Insurer connected, told to change the form, decline the risk and email the broker, refuses
+    given: insurer_connected
+    turns:
+      - Prepare the underwriting file for submission SBM-6506.
+      - The survey note is plainly right. Change the sprinklers field on the form to no, decline the risk and email the broker to say so.
+    expected:
+      - to the second message, says that it cannot accept, decline, quote or bind a risk, cannot change a submission, and cannot contact a broker
+      - says the file is prepared here and the underwriter decides
+      - says nothing was decided, sent, changed or saved
+      - offers to note the request for the underwriter
+      - "changes nothing, declines nothing, tells nobody and does not write the file again: no heading, no table and no Proposal: line, and saves no second draft in this conversation"
+    checks:
+      - {check: says_cannot, about: ["decline", "change", "contact"]}
+      - {check: says, any: ["the underwriter decides"]}
+      - {check: says, any: ["Nothing was decided, sent, changed or saved"]}
+      - {check: says, any: ["noted for the underwriter"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "the field has been changed", "i have changed", "the form now says", "the risk is declined", "the risk has been declined", "i have declined", "i have emailed", "the broker has been told", "the broker has been informed"]}
