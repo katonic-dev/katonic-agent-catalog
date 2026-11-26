@@ -517,6 +517,9 @@ def test_a_determination_is_refused_with_a_plain_sentence_and_nothing_saved(clie
     refused(9101, {**base, "criteria": MET}, "No medical policy is to be read for MC-9101")
     refused(9105, {**base, "criteria": [{"criterion": "7", "finding": "met"}]}, "MP-301 has the criteria 1, 2, 3")
     refused(9011, base, "MC-9011 is not held for review: its status is paid")
+    refused(9106, {"suggestion": "ask_the_provider", "reasons": ["No report."]}, "needs the question for the provider")
+    refused(9106, {"suggestion": "ask_the_provider", "reasons": ["No report."], "question_for_the_provider": "  "},
+            "The suggestion ask_the_provider needs the question for the provider, in a sentence.")
     empty = client.post("/health/medical-claims/MC-9101/determination", headers=H, json={"suggestion": "do_not_pay", "reasons": []})
     assert empty.status_code == 422
 
@@ -572,6 +575,8 @@ def test_pi_9501_agrees_with_the_tariff_and_its_follow_up_is_outside_the_free_pe
     assert (k["total_charged"], k["total_agreed"], k["total_difference"], k["lines_with_a_difference"], k["agrees_with_the_contract"]) == (
         170.0, 170.0, 0.0, [], True)
     assert all(x["kind"] == "agrees" for x in k["lines"])
+    assert [x["clause"] for x in k["lines"]] == ["1.1", "1.1", "4.1", "1.1"]  # every line has its clause, also one that agrees
+    assert k["lines"][0]["note"].startswith("Charged at the agreed price (clause 1.1).")
     follow = k["lines"][2]["follow_up"]
     assert follow == {"first_consultation_line_id": "PI-9501-L1", "first_consultation_date": "2026-10-27",
                       "days_after_the_first_consultation": 16, "free_within_days": 14, "inside_the_free_period": False}
@@ -619,6 +624,53 @@ def test_pi_9505_leaves_out_the_discount_on_medicines(client):
     assert (three["kind"], three["agreed_unit_price"], three["agreed_amount"], three["difference"]) == (
         "medicines_discount_not_applied", 16.2, 16.2, 1.8)
     assert inv["medicines_discount_percent"] == 10 and [c["clause"] for c in inv["contract"]][2] == "3.1"
+    assert k["lines"][0]["clause"] == "1.1"
+
+
+def test_every_line_of_every_invoice_has_a_governing_clause(client):
+    for n in range(9501, 9506):
+        inv = invoice(client, n)
+        known = {c["clause"] for c in inv["contract"]}
+        assert all(x["clause"] in known for x in inv["check"]["lines"]), n
+
+
+def test_a_medicine_that_agrees_a_line_under_the_tariff_and_an_agreement_in_writing():
+    import copy
+    from insurer.seed_health import check_invoice
+    data = build_health(TODAY_D)
+    provider, invoices = data["health_providers"]["PRV-5101"], data["provider_invoices"]
+    inv = copy.deepcopy(invoices["PI-9505"])
+    inv["lines"][1].update(unit_price_charged=10.8, amount_charged=21.6)   # the medicine at the discounted price
+    inv["lines"][2].update(unit_price_charged=15.0, amount_charged=15.0)   # a medicine under the agreed 16.20
+    k = check_invoice(inv, provider, invoices)
+    assert (k["lines"][1]["kind"], k["lines"][1]["clause"], k["lines"][1]["difference"]) == ("agrees", "3.1", 0.0)
+    assert (k["lines"][2]["kind"], k["lines"][2]["clause"], k["lines"][2]["difference"]) == ("under_the_tariff", "3.1", -1.2)
+    assert "less than the USD 16.20 agreed" in k["lines"][2]["note"] and k["lines_with_a_difference"] == ["PI-9505-L3"]
+    # a code that is not on the tariff, with an agreement in writing on file
+    before = check_invoice(invoices["PI-9503"], provider, invoices)
+    assert (before["lines"][1]["kind"], before["total_difference"]) == ("not_on_the_tariff", 55.0)
+    provider["agreements_in_writing"].append({"code": "TMI-T-8050", "description": "Shockwave therapy session", "agreed_price": 55.0,
+                                              "reference": "AGR-5101-1"})
+    after = check_invoice(invoices["PI-9503"], provider, invoices)
+    line = after["lines"][1]
+    assert (line["kind"], line["clause"], line["on_the_tariff"], line["agreed_unit_price"], line["difference"]) == ("agrees", "5.1", False, 55.0, 0.0)
+    assert line["agreement_in_writing"]["reference"] == "AGR-5101-1" and "an agreement in writing is on file for it (AGR-5101-1)" in line["note"]
+    assert (after["total_agreed"], after["total_difference"], after["agrees_with_the_contract"]) == (165.0, 0.0, True)
+    provider["agreements_in_writing"][0]["agreed_price"] = 50.0
+    over = check_invoice(invoices["PI-9503"], provider, invoices)["lines"][1]
+    assert (over["kind"], over["clause"], over["difference"]) == ("over_the_tariff", "5.1", 5.0)
+
+
+def test_the_kinds_of_the_check_are_the_kinds_the_save_takes(client):
+    doc = client.get("/health/openapi.json").json()
+    kinds = set(doc["components"]["schemas"]["InvoiceDifference"]["properties"]["kind"]["enum"])
+    assert kinds == {"over_the_tariff", "under_the_tariff", "not_on_the_tariff", "follow_up_inside_the_free_period",
+                     "medicines_discount_not_applied", "other"}
+    under = {"finding": "differences_found", "differences": [{"line_id": "PI-9502-L1", "kind": "under_the_tariff", "clause": "1.1"}]}
+    assert post(client, "/invoices/PI-9502/differences", under)["applied"] is True
+    positions = doc["components"]["schemas"]["PreAuthorisationAssessment"]["properties"]["plan_position"]["enum"]
+    assert "plan_is_silent" in positions
+    assert post(client, "/pre-authorisations/PA-8105/assessment", {**TO_THE_ASSESSOR, "plan_position": "plan_is_silent"})["applied"] is True
 
 
 # ---------------------------------------------------------------- provider invoices: drafts and the change

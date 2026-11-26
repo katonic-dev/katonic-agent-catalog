@@ -35,15 +35,16 @@ class CriterionFinding(BaseModel):
 class PreAuthorisationAssessment(BaseModel):
     cover_in_force_on_planned_date: Literal["yes", "no", "not_checked"] = Field(
         ..., description="What the request's record says about the member's cover on the planned date.")
-    plan_position: Literal["needs_pre_authorisation", "no_pre_authorisation_needed", "not_covered_by_the_plan"] = Field(
-        ..., description="What the member's plan says about this procedure, as the request's record gives it.")
+    plan_position: Literal["needs_pre_authorisation", "no_pre_authorisation_needed", "not_covered_by_the_plan", "plan_is_silent"] = Field(
+        ..., description="What the member's plan says about this procedure, as the request's record gives it. plan_is_silent when "
+                         "no benefit of the plan names the procedure: the proposal is then refer_to_the_assessor.")
     criteria: list[CriterionFinding] = Field(default_factory=list, description="One row for each criterion of the medical policy the "
                                              "record gives. Leave the list empty when the record gives no medical policy to read.")
     proposal: Literal["send_to_the_assessor_as_met", "ask_the_provider", "refer_to_the_medical_reviewer", "refer_to_the_assessor"] = Field(
         ..., description="send_to_the_assessor_as_met when every criterion is met; ask_the_provider when the notes say nothing about "
                          "a criterion; refer_to_the_medical_reviewer when a criterion is plainly not met; refer_to_the_assessor when "
-                         "the member's cover is not in force on the planned date, the plan does not cover the procedure, or the plan "
-                         "needs no pre-authorisation for it. No value refuses the request.")
+                         "the member's cover is not in force on the planned date, the plan does not cover the procedure, the plan "
+                         "needs no pre-authorisation for it, or the plan is silent on it. No value refuses the request.")
     question_for_the_provider: str = Field("", description="What to ask the provider, in a sentence. Needed when the proposal is "
                                                            "ask_the_provider. Otherwise leave empty.")
     reason: str = Field(..., min_length=1, description="Why this proposal, in one or two sentences, with the dates and figures the record gives.")
@@ -83,8 +84,12 @@ class ClaimDecision(BaseModel):
 
 class InvoiceDifference(BaseModel):
     line_id: str = Field(..., description="The id of the invoice line, for example PI-9502-L2.")
-    kind: Literal["over_the_tariff", "not_on_the_tariff", "follow_up_inside_the_free_period", "medicines_discount_not_applied",
-                  "other"] = Field(..., description="What kind of difference it is, as the invoice's check gives it.")
+    kind: Literal["over_the_tariff", "under_the_tariff", "not_on_the_tariff", "follow_up_inside_the_free_period",
+                  "medicines_discount_not_applied", "other"] = Field(
+        ..., description="What kind of difference it is, in the word the invoice's check gives for the line: over_the_tariff, "
+                         "under_the_tariff (charged less than the agreed price), not_on_the_tariff, "
+                         "follow_up_inside_the_free_period or medicines_discount_not_applied. other only for a difference the check "
+                         "does not name.")
     clause: str = Field("", description="The clause of the provider's contract the difference rests on, for example 4.1.")
     note: str = Field("", description="The figures in a few words: charged, agreed and the difference, as the check gives them.")
 
@@ -384,7 +389,7 @@ def build(ctx: Ctx):
     @reg(app, "post", "/pre-authorisations/{pre_authorisation_id}/assessment", "save_pre_authorisation_assessment",
          "Save an assessment of a pre-authorisation request (draft)",
          "Save the assessment of a pre-authorisation request: whether the member's cover is in force on the planned date, what the "
-         "plan says about the procedure, one row for each criterion of the medical policy (met, not_met or not_stated, with the "
+         "plan says about the procedure (when the plan is silent on it, the proposal is to refer to the assessor), one row for each criterion of the medical policy (met, not_met or not_stated, with the "
          "evidence), a proposal and the reason. This is a draft for the assessor or the medical reviewer: stored with who wrote it, "
          "a time and a version number, earlier versions kept. It approves nothing, declines nothing and contacts nobody. Refused "
          "with 409, and nothing saved, when a row names a criterion the request's medical policy does not have, when rows are sent "
@@ -480,7 +485,8 @@ def build(ctx: Ctx):
          "Read one medical claim with everything an assessor needs, in one call: the member with scheme and plan, the provider, the "
          "date received, the hold reason set by the claims engine with its note, every line with code, description, quantity, amount "
          "and date of service, and the documents as text. cover_on_date_of_service says whether the member's cover was in force on "
-         "the date of service, with the reason and the days worked out. compared_with sets each line beside every earlier claim "
+         "the date of service, with the reason and the days worked out. For a claim with several dates of service it is given "
+         "for the earliest one. compared_with sets each line beside every earlier claim "
          "line of the same member with the same code: whether the provider, the date of service and the amount are the same, the "
          "days between the two dates of service, whether member, provider, date and code all match, and a sentence. "
          "if_paid_under_the_plan gives, for each line and in total, the amount within the plan's limit, the amount over it, the "
@@ -507,8 +513,9 @@ def build(ctx: Ctx):
          "(within the limit, over the limit, the member's share and what the plan pays) and the answer returns them. This is a draft "
          "for the assessor: stored with who wrote it, a time and a version number. It decides nothing, pays nothing and contacts "
          "nobody. Refused with 409, and nothing saved, when the claim is not held, when duplicate_of is not a medical claim the "
-         "insurer holds or is the claim itself, when a row names a criterion the claim's medical policy does not have, or when rows "
-         "are sent for a claim that is not held for medical necessity.")
+         "insurer holds or is the claim itself, when a row names a criterion the claim's medical policy does not have, when rows "
+         "are sent for a claim that is not held for medical necessity, or when the suggestion is ask_the_provider and no question "
+         "is given.")
     def save_medical_claim_determination(body: ClaimDetermination, claim_id: str = mc_p):
         c = claim_or_404(claim_id)
         if c["status"] != "held":
@@ -518,6 +525,8 @@ def build(ctx: Ctx):
                            "compared with are in compared_with of get_medical_claim. Leave duplicate_of empty when the claim is not "
                            "a duplicate. Nothing was saved.")
         policy_check(body.criteria, claim_policy(c), claim_id)
+        if body.suggestion == "ask_the_provider" and not body.question_for_the_provider.strip():
+            raise conflict("The suggestion ask_the_provider needs the question for the provider, in a sentence. Nothing was saved.")
         view = claim_view(c)
         figures = {k: v for k, v in view["if_paid_under_the_plan"].items() if k not in ("lines", "working", "what_this_is")}
         payload = {**body.model_dump(exclude={"drafted_by", "criteria"}), "criteria": [x.model_dump() for x in body.criteria],
@@ -594,7 +603,11 @@ def build(ctx: Ctx):
          "the agreed unit price (for a medicine the tariff price less the contract's discount; for a follow-up consultation inside "
          "the contract's free period, nothing), the agreed amount, the difference, the kind of difference (agrees, over_the_tariff, "
          "under_the_tariff, not_on_the_tariff, follow_up_inside_the_free_period or medicines_discount_not_applied), the contract "
-         "clause it rests on and a note with the working. For a follow-up consultation it gives the same patient's first "
+         "clause that governs the line and a note with the working. Every line has a clause, also a line that agrees: the clause on "
+         "prices for a line charged at the agreed price, the clause on medicines for a medicine, the clause on follow-up "
+         "consultations for a follow-up measured against the free period (charged or not), and the clause on services not on the "
+         "tariff for a code that is not on it. A code that is not on the tariff and has an agreement in writing on file is set "
+         "against the price in that agreement and is not a difference when charged at it. For a follow-up consultation it gives the same patient's first "
          "consultation, the days between the two visits worked out by the system, and whether that is inside the free period. "
          "check also gives the totals charged and agreed, the total difference, the lines with a difference and the working. Use "
          "these figures and do not add up or count days yourself. decision is the claims officer's decision once recorded. Saved "

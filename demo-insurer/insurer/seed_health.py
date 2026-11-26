@@ -601,8 +601,12 @@ def build_invoices(today: date) -> dict:
 
 
 def check_invoice(invoice: dict, provider: dict, invoices: dict) -> dict:
-    """An invoice set against the provider's contract and tariff, line by line, with the totals."""
+    """An invoice set against the provider's contract and tariff, line by line, with the totals.
+
+    Every line carries the clause that governs it: 1.1 for a price, 3.1 for a medicine, 4.1 for a follow-up consultation
+    measured against the free period, 5.1 for a service that is not on the tariff."""
     tariff = {row["code"]: row for row in provider["tariff"]}
+    agreements = {row["code"]: row for row in provider.get("agreements_in_writing", [])}
     discount, free_days, name = provider["medicines_discount_percent"], provider["follow_up_free_within_days"], provider["name"]
     firsts = [line for inv in invoices.values() if inv["provider_id"] == provider["provider_id"]
               for line in inv["lines"] if line["code"] == FIRST_CONSULTATION]
@@ -611,19 +615,27 @@ def check_invoice(invoice: dict, provider: dict, invoices: dict) -> dict:
         qty, unit, charged = line["quantity"], line["unit_price_charged"], line["amount_charged"]
         row = {"line_id": line["line_id"], "code": line["code"], "description": line["description"], "quantity": qty,
                "unit_price_charged": unit, "amount_charged": charged, "on_the_tariff": line["code"] in tariff,
-               "tariff_price": None, "agreed_unit_price": None, "follow_up": None}
-        entry = tariff.get(line["code"])
-        if entry is None:
+               "tariff_price": None, "agreed_unit_price": None, "agreement_in_writing": None, "follow_up": None}
+        entry, agreement = tariff.get(line["code"]), agreements.get(line["code"])
+        if entry is None and agreement is None:
             row.update(agreed_amount=0.0, difference=charged, kind="not_on_the_tariff", clause="5.1",
                        note=f"{line['code']} is not on the tariff of {name}. Under clause 5.1 a service not on the tariff needs the "
                             "insurer's agreement in writing before it is given, and no such agreement is on file. Nothing is agreed "
                             f"for this line, so the whole {usd(charged)} is a difference.")
             rows.append(row)
             continue
-        price = agreed = entry["agreed_price"]
-        row["tariff_price"] = price
-        kind, clause, note = "agrees", None, ""
-        if entry["is_a_medicine"]:
+        kind, clause, note, is_medicine = "agrees", "1.1", "", False
+        if entry is None:
+            price = agreed = float(agreement["agreed_price"])
+            clause, row["agreement_in_writing"] = "5.1", agreement
+            note = (f"{line['code']} is not on the tariff of {name}, and an agreement in writing is on file for it"
+                    + (f" ({agreement['reference']})" if agreement.get("reference") else "")
+                    + f": {usd(price)} a unit is agreed under clause 5.1.")
+        else:
+            price = agreed = entry["agreed_price"]
+            row["tariff_price"] = price
+            is_medicine = entry["is_a_medicine"]
+        if is_medicine:
             agreed, clause = money(price * (100 - discount) / 100), "3.1"
             note = (f"A medicine: the tariff price of {usd(price)} less {discount} percent under clause 3.1 is {usd(agreed)} a unit.")
         if line["code"] == FOLLOW_UP:
@@ -633,6 +645,7 @@ def check_invoice(invoice: dict, provider: dict, invoices: dict) -> dict:
                 first = max(earlier, key=lambda f: f["date_of_service"])
                 days = (date.fromisoformat(line["date_of_service"]) - date.fromisoformat(first["date_of_service"])).days
                 inside = days <= free_days
+                clause = "4.1"
                 row["follow_up"] = {"first_consultation_line_id": first["line_id"], "first_consultation_date": first["date_of_service"],
                                     "days_after_the_first_consultation": days, "free_within_days": free_days,
                                     "inside_the_free_period": inside}
@@ -640,23 +653,23 @@ def check_invoice(invoice: dict, provider: dict, invoices: dict) -> dict:
                         f"This follow-up on {long_date(line['date_of_service'])} is {plural(days, 'day')} later. Clause 4.1 gives "
                         f"{free_days} days, so the follow-up is {'not charged' if inside else 'charged'}.")
                 if inside:
-                    agreed, kind, clause = 0.0, "follow_up_inside_the_free_period", "4.1"
+                    agreed, kind = 0.0, "follow_up_inside_the_free_period"
             else:
                 note = "No first consultation for this patient is on this provider's invoices, so clause 4.1 does not take the charge away."
         agreed_amount = money(qty * agreed)
         difference = money(charged - agreed_amount)
         if kind == "agrees" and difference > 0:
-            if entry["is_a_medicine"] and unit == price:
+            if is_medicine and unit == price:
                 kind = "medicines_discount_not_applied"
                 note += f" The invoice charges the full tariff price of {usd(price)}: the discount was not applied."
             else:
-                kind, clause = "over_the_tariff", "1.1"
-                note = (note + " " if note else "") + f"Charged {usd(unit)} a unit where {usd(agreed)} is agreed (clause 1.1)."
+                kind = "over_the_tariff"
+                note = (note + " " if note else "") + f"Charged {usd(unit)} a unit where {usd(agreed)} is agreed (clause {clause})."
         elif kind == "agrees" and difference < 0:
             kind = "under_the_tariff"
-            note = (note + " " if note else "") + f"Charged {usd(unit)} a unit, which is less than the {usd(agreed)} agreed."
+            note = (note + " " if note else "") + f"Charged {usd(unit)} a unit, which is less than the {usd(agreed)} agreed (clause {clause})."
         elif kind == "agrees" and not note:
-            note = "Charged at the agreed price."
+            note = "Charged at the agreed price (clause 1.1)."
         row.update(agreed_unit_price=agreed, agreed_amount=agreed_amount, difference=difference, kind=kind, clause=clause,
                    note=f"{note} {qty} x {agreed:,.2f} = {agreed_amount:,.2f} agreed; {charged:,.2f} charged; difference {difference:,.2f}.")
         rows.append(row)
