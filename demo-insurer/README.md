@@ -15,7 +15,7 @@ Licence: Apache-2.0.
 | System | Path | What it holds | Operations |
 |---|---|---|---|
 | policy | `/policy` | policies with their schedules and endorsements, and two policy wordings with numbered clauses | 4 |
-| claims | `/claims` | loss reports, claims with their documents, checklists by claim type, the handling guide, letter templates, settlements | 19 |
+| claims | `/claims` | loss reports, claims with their documents, checklists by claim type, the handling guide, letter templates, settlements | 21 |
 
 For each system `<path>`:
 
@@ -32,6 +32,7 @@ Three things to know:
 
 - **Wordings are records here.** A real insurer keeps its wordings as documents. Here each wording is a list of numbered clauses that an operation returns, so that an agent can be tried before any document store is connected. `insurance/` says which agents were also tried with the wording as a document.
 - **The system does the sums.** `check_policy_cover_on_date` says whether a policy was in force on a date and counts the days. `get_claim` gives the days from the loss to the report. `calculate_settlement` applies the limits and the deductible and adds up; the agent says which lines the wording does not cover. `calculate_settlement` is sent as a POST because the lines go in the body. It saves nothing.
+- **A saved draft is not part of the file.** `get_claim` and `get_loss_report` only count the drafts saved on a record. `list_claim_drafts` and `list_claim_file_drafts` read them. So one agent never reads another agent's proposal as a fact, and a second run of a test does not see the first run's answer.
 - **A decline letter needs a decision.** `save_claim_letter` refuses the decline template unless an adjuster's decision to decline is recorded on the claim.
 
 The scenarios and their right answers are in [SCENARIOS.md](SCENARIOS.md).

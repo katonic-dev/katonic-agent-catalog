@@ -275,3 +275,18 @@ def test_the_driver_of_a_motor_accident_comes_with_an_age_worked_out_by_the_syst
     assert get(client, "/claims/claims/CLM-4001")["driver"]["age_on_the_date_of_the_loss"] == 44
     assert get(client, "/claims/claims/CLM-4005")["driver"]["under_25_on_the_date_of_the_loss"] is False
     assert get(client, "/claims/claims/CLM-4004")["driver"] is None
+
+
+def test_saved_drafts_are_not_part_of_the_file_another_agent_reads(client):
+    triage = {"rule_id": "HG-3", "track": "fast track", "team": "fast-track team", "severity": "low", "reason": "Estimate under 2,500."}
+    post(client, "/claims/claims/CLM-4001/triage", triage)
+    c = get(client, "/claims/claims/CLM-4001")
+    assert "triage_drafts" not in c and "fast-track team" not in str(c)
+    assert c["drafts_on_file"]["triage_drafts"] == 1 and c["drafts_on_file"]["letter_drafts"] == 0
+    drafts = get(client, "/claims/claims/CLM-4001/drafts")
+    assert drafts["triage_drafts"][0]["team"] == "fast-track team" and drafts["pack_check_drafts"] == []
+    post(client, "/claims/loss-reports/LR-3001/claim-file", FILE)
+    r = get(client, "/claims/loss-reports/LR-3001")
+    assert "claim_file_drafts" not in r and r["claim_file_drafts_on_file"] == 1
+    assert get(client, "/claims/loss-reports/LR-3001/claim-file")["items"][0]["proposal"] == "register"
+    assert all("claim_file_drafts" not in x for x in get(client, "/claims/loss-reports")["items"])

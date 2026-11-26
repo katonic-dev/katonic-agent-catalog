@@ -20,6 +20,9 @@ CLAIM_TYPE = Literal["motor_own_damage", "motor_theft", "motor_third_party", "ho
 DRAFTED_BY = Field("agent", description="Who wrote the draft. Free text.")
 
 
+DRAFT_SETS = ("triage_drafts", "pack_check_drafts", "summary_drafts", "coverage_check_drafts", "settlement_drafts", "letter_drafts")
+
+
 def usd(amount: float) -> str:
     return f"USD {amount:,.2f}"
 
@@ -208,7 +211,9 @@ def build(ctx: Ctx):
             born, loss = date.fromisoformat(c["driver"]["date_of_birth"]), date.fromisoformat(c["loss_date"])
             age = loss.year - born.year - ((loss.month, loss.day) < (born.month, born.day))
             about["driver"] = {**c["driver"], "age_on_the_date_of_the_loss": age, "under_25_on_the_date_of_the_loss": age < 25}
-        return {**c, **about, "documents": list(c["documents"].values()), "days_from_loss_to_report": days,
+        kept = {k: v for k, v in c.items() if k not in DRAFT_SETS}
+        return {**kept, **about, "documents": list(c["documents"].values()), "days_from_loss_to_report": days,
+                "drafts_on_file": {name: len(c.get(name, [])) for name in DRAFT_SETS},
                 "cover_on_loss_date": cover_on(policy, c["loss_date"]) if policy else None,
                 "document_checklist": checklist_for(c), "read_on": today().isoformat()}
 
@@ -217,13 +222,24 @@ def build(ctx: Ctx):
          "List the loss reports received, whole: id, status (new or registered), channel, the date received, the reporter, the policy "
          "number the reporter gave, and the text of the report.")
     def list_loss_reports(status: str | None = Query(None, description="Only reports with this status: new or registered.")):
-        return listing([r for r in d()["loss_reports"].values() if not status or r["status"] == status])
+        return listing([{k: v for k, v in r.items() if k != "claim_file_drafts"} for r in d()["loss_reports"].values()
+                        if not status or r["status"] == status])
 
     @reg(app, "get", "/loss-reports/{loss_report_id}", "get_loss_report", "Get one loss report",
          "Read one loss report: the channel, the date received, the reporter, the policy number the reporter gave (it may be wrong), the "
-         "text of the report as it arrived, earlier claim file drafts, and the claim id once it is registered.")
+         "text of the report as it arrived, and the claim id once it is registered. Saved claim file drafts are not part of the "
+         "report: claim_file_drafts_on_file only counts them, and list_claim_file_drafts reads them.")
     def get_loss_report(loss_report_id: str = lr_p):
-        return {**report_or_404(loss_report_id), "read_on": today().isoformat()}
+        r = report_or_404(loss_report_id)
+        return {**{k: v for k, v in r.items() if k != "claim_file_drafts"}, "claim_file_drafts_on_file": len(r["claim_file_drafts"]),
+                "read_on": today().isoformat()}
+
+    @reg(app, "get", "/loss-reports/{loss_report_id}/claim-file", "list_claim_file_drafts", "List the claim file drafts saved on a loss report",
+         "Read every claim file draft saved on a loss report, each with its version number, who wrote it and when. A draft is "
+         "somebody's proposal, not a fact of the report.")
+    def list_claim_file_drafts(loss_report_id: str = lr_p):
+        r = report_or_404(loss_report_id)
+        return listing(r["claim_file_drafts"], loss_report_id=loss_report_id)
 
     @reg(app, "post", "/loss-reports/{loss_report_id}/claim-file", "save_claim_file_draft", "Save a claim file prepared from a loss report (draft)",
          "Save the claim file prepared from a loss report: the policy, the claim type, the date and place of the loss, what happened, "
@@ -289,9 +305,18 @@ def build(ctx: Ctx):
          "can be read, and its invoice or estimate lines (each with a line id, a description, a category and an amount). It also gives "
          "cover_on_loss_date (whether the policy was in force on the date of the loss, with the reason) and document_checklist (for "
          "each document the claim type requires: what it must show, whether it is in the file, its id and whether it can be read). "
-         "A document in the file must still be read to see that it shows what the checklist says it must. Earlier drafts are included.")
+         "A document in the file must still be read to see that it shows what the checklist says it must. Saved drafts are not "
+         "part of the file: drafts_on_file only counts them, and list_claim_drafts reads them.")
     def get_claim(claim_id: str = clm_p):
         return full_claim(claim_or_404(claim_id))
+
+    @reg(app, "get", "/claims/{claim_id}/drafts", "list_claim_drafts", "List the drafts saved on a claim",
+         "Read every draft saved on a claim, by kind: how it was sorted, pack checks, summaries, coverage checks, settlement "
+         "calculations and letters. Each draft has its version number, who wrote it and when. A draft is somebody's proposal, not a "
+         "fact of the claim file.")
+    def list_claim_drafts(claim_id: str = clm_p):
+        c = claim_or_404(claim_id)
+        return {"claim_id": claim_id, **{name: c.get(name, []) for name in DRAFT_SETS}}
 
     @reg(app, "get", "/checklists/{claim_type}", "get_claim_checklist", "Get the document checklist for a claim type",
          "Read the documents a claim of one type must hold, each with its type, its plain name and what it must show to count.")

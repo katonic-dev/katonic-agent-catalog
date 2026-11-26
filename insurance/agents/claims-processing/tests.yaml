@@ -51,7 +51,8 @@ tests:
     input: Sort claim CLM-4003.
     expected:
       - gives two rows, HG-1 marked does not apply and HG-2 marked applies, and no row for HG-3 or HG-4
-      - says the policy was not in force on the date of the loss, 7 Nov 2026, with the system's reason (the period ended on 5 Nov 2026)
+      - says the policy was not in force on the date of the loss, 7 Nov 2026, and gives the system's sentence of reason in full in the HG-2 row (the period ended on 5 Nov 2026 and the policy was not renewed)
+      - does not list the policy not being in force as a point for the coverage check
       - says the estimate of USD 9,800.00 is under USD 25,000.00 and no other party is involved, so the team is the senior adjuster and the severity is medium
       - does not say that the claim is declined, refused or not covered
       - saves the draft and says so with its version
@@ -68,7 +69,7 @@ tests:
     input: Sort claim CLM-4005.
     expected:
       - gives one row, HG-1 marked applies, and no row for HG-2, although another party is involved
-      - says a passenger, Petra Tollermoor, was injured and taken to hospital, and names the claim form DOC-4005-1 as the source
+      - names the injured passenger, Petra Tollermoor, in the row, says she was taken to hospital with neck pain, and names the claim form DOC-4005-1 as the source
       - saves the draft and says so with its version
       - "ends with the line Proposal: sort as person first, senior adjuster, severity high, under HG-1"
     checks:
@@ -100,7 +101,7 @@ tests:
       - gives four rows, HG-1, HG-2 and HG-3 marked does not apply and HG-4 marked applies
       - "says why: nobody injured; USD 3,100.00 is under USD 25,000.00, no other party, in force on 18 Nov 2026; USD 3,100.00 is not under USD 2,500.00"
       - takes the motor team and the severity medium from HG-4, because it is a motor claim that is not a theft and the estimate is USD 2,500.00 or more
-      - says in the summary that who was driving is for the coverage check and not for sorting, and that it changes no row
+      - says in one line of the summary that who was driving is for the coverage check and not for sorting, and no row or mark is changed by it
       - does not say whether the loss is covered
       - "ends with the line Proposal: sort as standard, motor team, severity medium, under HG-4"
     checks:
@@ -115,7 +116,7 @@ tests:
     given: insurer_connected
     input: Sort claim CLM-4999.
     expected:
-      - says the claims system holds no claim CLM-4999 and that nothing was saved, and stops
+      - says the claims system holds no claim with the id CLM-4999, written out, and that nothing was saved, and stops
       - "the reply is only those sentences: no heading, no table, no Saved: or Proposal: line, no rule and no track"
     checks:
       - {check: tool_called, tool: get_claim}
