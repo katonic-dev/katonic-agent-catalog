@@ -69,7 +69,7 @@ A desk is the shared case desk ([katonic-case-desk](https://github.com/katonic-d
 | Investigations desk | Fraud Detection, Investigation Case File | Investigator | Planned |
 | Underwriting desk | Underwriting Support, Underwriting Referral Memo, Renewal Review | Underwriter | Planned |
 | Policy servicing desk | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Planned |
-| Health claims desk | Pre-authorisation Preparation, Medical Claims Adjudication Support, Provider Invoice Check | Clinician or assessor | Planned |
+| [Health claims desk](desks/health-claims/README.md) | Pre-authorisation Preparation, Medical Claims Adjudication Support, Provider Invoice Check | Clinician or assessor | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the clause of an invoice line is not drawn in the row |
 | Complaints desk | Complaint Handling | Complaints officer | Planned |
 | Reinsurance desk | Bordereaux Check, Treaty Recovery | Reinsurance accountant | Planned |
 

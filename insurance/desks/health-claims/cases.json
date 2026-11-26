@@ -1,0 +1,164 @@
+{
+  "$comment": "The seventeen demo cases of the health claims desk. The desk lists the newest case first, so the file is written last to first. Everything is invented: Thornmere Mutual Insurance, its members, its providers, its claims and its invoices. Every id, date and amount is what the invented insurer returns when it is started with the date 26 November 2026.",
+  "cases": [
+    {
+      "title": "Ilvane Harbour Clinic, invoice PI-9505: provider invoice",
+      "kind": "Provider invoice",
+      "reference": "PI-9505",
+      "provider": "Ilvane Harbour Clinic",
+      "amount": "USD 102.00",
+      "received_on": "2026-11-25",
+      "text": "THE INVOICE\nInvoice: PI-9505\nProvider: Ilvane Harbour Clinic (PRV-5101)\nContract: CON-5101\nReceived: 25 Nov 2026\nTotal charged: USD 102.00\nTHE LINES\nPI-9505-L1: First consultation, general practitioner, 20 Nov 2026, 1 at USD 60.00, USD 60.00 (MEM-7203)\n\nPI-9505-L2: Medicine: pain relief tablets, pack of 28, 20 Nov 2026, 2 at USD 12.00, USD 24.00 (MEM-7203)\n\nPI-9505-L3: Medicine: antibiotic course, 7 days, 20 Nov 2026, 1 at USD 18.00, USD 18.00 (MEM-7203)\nTHE AGENT'S TASK\nThe agent sets the invoice out line by line against the agreed tariff and the provider's contract, and lists the differences, each with the clause of the contract. It queries nothing, pays nothing and contacts nobody. A claims officer decides what is queried with the provider, and the provider relations team writes to the provider. Everything here is as the health system holds it. The agent reads the invoice and the contract themselves from the health system."
+    },
+    {
+      "title": "Ilvane Harbour Clinic, invoice PI-9503: provider invoice",
+      "kind": "Provider invoice",
+      "reference": "PI-9503",
+      "provider": "Ilvane Harbour Clinic",
+      "amount": "USD 165.00",
+      "received_on": "2026-11-21",
+      "text": "THE INVOICE\nInvoice: PI-9503\nProvider: Ilvane Harbour Clinic (PRV-5101)\nContract: CON-5101\nReceived: 21 Nov 2026\nTotal charged: USD 165.00\nTHE LINES\nPI-9503-L1: Consultation, specialist, 15 Nov 2026, 1 at USD 110.00, USD 110.00 (MEM-7201)\n\nPI-9503-L2: Shockwave therapy session, 15 Nov 2026, 1 at USD 55.00, USD 55.00 (MEM-7201)\nTHE AGENT'S TASK\nThe agent sets the invoice out line by line against the agreed tariff and the provider's contract, and lists the differences, each with the clause of the contract. It queries nothing, pays nothing and contacts nobody. A claims officer decides what is queried with the provider, and the provider relations team writes to the provider. Everything here is as the health system holds it. The agent reads the invoice and the contract themselves from the health system."
+    },
+    {
+      "title": "Marlow Reach Medical Centre, invoice PI-9502: provider invoice",
+      "kind": "Provider invoice",
+      "reference": "PI-9502",
+      "provider": "Marlow Reach Medical Centre",
+      "amount": "USD 180.00",
+      "received_on": "2026-11-23",
+      "text": "THE INVOICE\nInvoice: PI-9502\nProvider: Marlow Reach Medical Centre (PRV-5102)\nContract: CON-5102\nReceived: 23 Nov 2026\nTotal charged: USD 180.00\nTHE LINES\nPI-9502-L1: Consultation, specialist, 17 Nov 2026, 1 at USD 100.00, USD 100.00 (MEM-7208)\n\nPI-9502-L2: X-ray, one region, 17 Nov 2026, 1 at USD 80.00, USD 80.00 (MEM-7208)\nTHE AGENT'S TASK\nThe agent sets the invoice out line by line against the agreed tariff and the provider's contract, and lists the differences, each with the clause of the contract. It queries nothing, pays nothing and contacts nobody. A claims officer decides what is queried with the provider, and the provider relations team writes to the provider. Everything here is as the health system holds it. The agent reads the invoice and the contract themselves from the health system."
+    },
+    {
+      "title": "Marlow Reach Medical Centre, invoice PI-9504: provider invoice",
+      "kind": "Provider invoice",
+      "reference": "PI-9504",
+      "provider": "Marlow Reach Medical Centre",
+      "amount": "USD 112.00",
+      "received_on": "2026-11-24",
+      "text": "THE INVOICE\nInvoice: PI-9504\nProvider: Marlow Reach Medical Centre (PRV-5102)\nContract: CON-5102\nReceived: 24 Nov 2026\nTotal charged: USD 112.00\nTHE LINES\nPI-9504-L1: First consultation, general practitioner, 14 Nov 2026, 1 at USD 55.00, USD 55.00 (MEM-7207)\n\nPI-9504-L2: Blood test, full count, 14 Nov 2026, 1 at USD 22.00, USD 22.00 (MEM-7207)\n\nPI-9504-L3: Follow-up consultation, general practitioner, 19 Nov 2026, 1 at USD 35.00, USD 35.00 (MEM-7207)\nTHE AGENT'S TASK\nThe agent sets the invoice out line by line against the agreed tariff and the provider's contract, and lists the differences, each with the clause of the contract. It queries nothing, pays nothing and contacts nobody. A claims officer decides what is queried with the provider, and the provider relations team writes to the provider. Everything here is as the health system holds it. The agent reads the invoice and the contract themselves from the health system."
+    },
+    {
+      "title": "Ilvane Harbour Clinic, invoice PI-9501: provider invoice",
+      "kind": "Provider invoice",
+      "reference": "PI-9501",
+      "provider": "Ilvane Harbour Clinic",
+      "amount": "USD 170.00",
+      "received_on": "2026-11-22",
+      "text": "THE INVOICE\nInvoice: PI-9501\nProvider: Ilvane Harbour Clinic (PRV-5101)\nContract: CON-5101\nReceived: 22 Nov 2026\nTotal charged: USD 170.00\nTHE LINES\nPI-9501-L1: First consultation, general practitioner, 27 Oct 2026, 1 at USD 60.00, USD 60.00 (MEM-7205)\n\nPI-9501-L2: Blood test, full count, 27 Oct 2026, 1 at USD 25.00, USD 25.00 (MEM-7205)\n\nPI-9501-L3: Follow-up consultation, general practitioner, 12 Nov 2026, 1 at USD 40.00, USD 40.00 (MEM-7205)\n\nPI-9501-L4: Physiotherapy session, 14 Nov 2026, 1 at USD 45.00, USD 45.00 (MEM-7203)\nTHE AGENT'S TASK\nThe agent sets the invoice out line by line against the agreed tariff and the provider's contract, and lists the differences, each with the clause of the contract. It queries nothing, pays nothing and contacts nobody. A claims officer decides what is queried with the provider, and the provider relations team writes to the provider. Everything here is as the health system holds it. The agent reads the invoice and the contract themselves from the health system."
+    },
+    {
+      "title": "Etherby, three physiotherapy sessions: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9106",
+      "provider": "Marlow Reach Medical Centre",
+      "member": "Rosalind Etherby",
+      "amount": "USD 126.00",
+      "received_on": "2026-11-23",
+      "text": "THE CLAIM\nClaim: MC-9106\nMember: Rosalind Etherby (MEM-7201), Thornmere Health Complete\nProvider: Marlow Reach Medical Centre (PRV-5102)\nHeld for: medical necessity\nHold note: The claims engine holds this claim until the medical policy for the procedure is read against the file.\nClaimed: USD 126.00, received 23 Nov 2026\nDocuments: MC-9106-D1 doctor's referral\nTHE LINES\nMC-9106-L1: Physiotherapy session, 12 Nov 2026, USD 42.00\n\nMC-9106-L2: Physiotherapy session, 16 Nov 2026, USD 42.00\n\nMC-9106-L3: Physiotherapy session, 20 Nov 2026, USD 42.00\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Thorneloe, MRI scan of the lower back: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9105",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Maren Thorneloe",
+      "amount": "USD 620.00",
+      "received_on": "2026-11-21",
+      "text": "THE CLAIM\nClaim: MC-9105\nMember: Maren Thorneloe (MEM-7203), Thornmere Health Complete\nProvider: Ilvane Harbour Clinic (PRV-5101)\nHeld for: medical necessity\nHold note: The claims engine holds this claim until the medical policy for the procedure is read against the file.\nClaimed: USD 620.00, received 21 Nov 2026\nDocuments: MC-9105-D1 clinical notes; MC-9105-D2 mRI report\nTHE LINES\nMC-9105-L1: MRI scan, lumbar spine, 18 Nov 2026, USD 620.00\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Wrenfield, medicines: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9104",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Tobias Wrenfield",
+      "amount": "USD 113.40",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: MC-9104\nMember: Tobias Wrenfield (MEM-7207), Thornmere Health Essential\nProvider: Ilvane Harbour Clinic (PRV-5101)\nHeld for: a limit of the plan\nHold note: The claims engine found that the claim may take the member over a limit of the plan.\nClaimed: USD 113.40, received 22 Nov 2026\nDocuments: none on file\nTHE LINES\nMC-9104-L1: Medicine: pain relief tablets, pack of 28, 19 Nov 2026, quantity 6, USD 64.80\n\nMC-9104-L2: Medicine: antibiotic course, 7 days, 19 Nov 2026, quantity 3, USD 48.60\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Linnet, first consultation: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9103",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Hesper Linnet",
+      "amount": "USD 60.00",
+      "received_on": "2026-11-18",
+      "text": "THE CLAIM\nClaim: MC-9103\nMember: Hesper Linnet (MEM-7206), Thornmere Health Essential\nProvider: Ilvane Harbour Clinic (PRV-5101)\nHeld for: cover on the date of service\nHold note: The claims engine could not confirm that the member's cover was in force on the date of service.\nClaimed: USD 60.00, received 18 Nov 2026\nDocuments: none on file\nTHE LINES\nMC-9103-L1: First consultation, general practitioner, 14 Nov 2026, USD 60.00\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Quickfall, physiotherapy session: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9102",
+      "provider": "Marlow Reach Medical Centre",
+      "member": "Barnaby Quickfall",
+      "amount": "USD 42.00",
+      "received_on": "2026-11-21",
+      "text": "THE CLAIM\nClaim: MC-9102\nMember: Barnaby Quickfall (MEM-7205), Thornmere Health Essential\nProvider: Marlow Reach Medical Centre (PRV-5102)\nHeld for: a possible duplicate\nHold note: The claims engine found an earlier claim for the same member with the same code.\nClaimed: USD 42.00, received 21 Nov 2026\nDocuments: none on file\nTHE LINES\nMC-9102-L1: Physiotherapy session, 17 Nov 2026, USD 42.00\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Etherby, first consultation: held claim",
+      "kind": "Held claim",
+      "reference": "MC-9101",
+      "provider": "Marlow Reach Medical Centre",
+      "member": "Rosalind Etherby",
+      "amount": "USD 55.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: MC-9101\nMember: Rosalind Etherby (MEM-7201), Thornmere Health Complete\nProvider: Marlow Reach Medical Centre (PRV-5102)\nHeld for: a possible duplicate\nHold note: The claims engine found an earlier claim for the same member with the same code.\nClaimed: USD 55.00, received 20 Nov 2026\nDocuments: none on file\nTHE LINES\nMC-9101-L1: First consultation, general practitioner, 6 Nov 2026, USD 55.00\nTHE AGENT'S TASK\nThe agent says why the claim was held, sets out what the assessor needs from the file and suggests a determination with its reasons. It pays nothing and declines nothing. The assessor decides every held claim, and the medical reviewer reads a claim where a criterion of a medical policy is not met. Everything here is as the health claims system holds it. The agent reads the claim itself from the health claims system."
+    },
+    {
+      "title": "Farrowby, MRI scan of the lower back: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8106",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Odette Farrowby",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: PA-8106\nMember: Odette Farrowby (MEM-7204), Thornmere Health Complete\nProvider: Ilvane Harbour Clinic (PRV-5101)\nProcedure: MRI scan, lumbar spine (TMI-T-3010)\nRequested: 25 Nov 2026, planned for 2 Dec 2026\nDocuments: PA-8106-D1 pre-authorisation request form; PA-8106-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    },
+    {
+      "title": "Sandeman, removal of a wisdom tooth: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8105",
+      "provider": "Marlow Reach Medical Centre",
+      "member": "Philippa Sandeman",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: PA-8105\nMember: Philippa Sandeman (MEM-7208), Thornmere Health Essential\nProvider: Marlow Reach Medical Centre (PRV-5102)\nProcedure: Surgical removal of a wisdom tooth (TMI-T-6040)\nRequested: 24 Nov 2026, planned for 10 Dec 2026\nDocuments: PA-8105-D1 pre-authorisation request form; PA-8105-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    },
+    {
+      "title": "Linnet, day-case knee arthroscopy: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8104",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Hesper Linnet",
+      "received_on": "2026-11-23",
+      "text": "THE REQUEST\nRequest: PA-8104\nMember: Hesper Linnet (MEM-7206), Thornmere Health Essential\nProvider: Ilvane Harbour Clinic (PRV-5101)\nProcedure: Day-case knee arthroscopy (TMI-T-5030)\nRequested: 23 Nov 2026, planned for 6 Dec 2026\nDocuments: PA-8104-D1 pre-authorisation request form; PA-8104-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    },
+    {
+      "title": "Thorneloe, day-case knee arthroscopy: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8102",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Caspian Thorneloe",
+      "received_on": "2026-11-23",
+      "text": "THE REQUEST\nRequest: PA-8102\nMember: Caspian Thorneloe (MEM-7202), Thornmere Health Complete\nProvider: Ilvane Harbour Clinic (PRV-5101)\nProcedure: Day-case knee arthroscopy (TMI-T-5030)\nRequested: 23 Nov 2026, planned for 8 Dec 2026\nDocuments: PA-8102-D1 pre-authorisation request form; PA-8102-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    },
+    {
+      "title": "Wrenfield, MRI scan of the lower back: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8103",
+      "provider": "Marlow Reach Medical Centre",
+      "member": "Tobias Wrenfield",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: PA-8103\nMember: Tobias Wrenfield (MEM-7207), Thornmere Health Essential\nProvider: Marlow Reach Medical Centre (PRV-5102)\nProcedure: MRI scan, lumbar spine (TMI-T-3010)\nRequested: 25 Nov 2026, planned for 5 Dec 2026\nDocuments: PA-8103-D1 pre-authorisation request form; PA-8103-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    },
+    {
+      "title": "Quickfall, MRI scan of the lower back: pre-authorisation",
+      "kind": "Pre-authorisation",
+      "reference": "PA-8101",
+      "provider": "Ilvane Harbour Clinic",
+      "member": "Barnaby Quickfall",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: PA-8101\nMember: Barnaby Quickfall (MEM-7205), Thornmere Health Essential\nProvider: Ilvane Harbour Clinic (PRV-5101)\nProcedure: MRI scan, lumbar spine (TMI-T-3010)\nRequested: 24 Nov 2026, planned for 3 Dec 2026\nDocuments: PA-8101-D1 pre-authorisation request form; PA-8101-D2 clinical notes\nTHE AGENT'S TASK\nThe agent sets the request against the member's own plan and the insurer's medical policy, and prepares the file: what is met, what is not, and what the provider's notes do not say. It approves nothing and refuses nothing. The assessor decides, and where a criterion is not met the medical reviewer, a clinician, reads the request. Everything here is as the health system holds it. The agent reads the request itself from the health system."
+    }
+  ]
+}
