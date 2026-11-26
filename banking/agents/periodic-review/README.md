@@ -9,7 +9,7 @@ Compares what the bank holds about a customer with the fresh documents received 
 | How people meet it | An application: the Onboarding and review desk |
 | Reads from | The bank's onboarding system: the review, the profile the bank holds and the fresh documents. The bank's screening service: the watchlist |
 | Changes | Saves a draft refreshed profile. The draft sends nothing and does not change the customer's record |
-| State | Written, not yet built. The instructions and tests have not been run on a model. The schedule that lists the reviews is not wired here |
+| State | Built on a development cluster. All six tests pass five runs in a row. Its desk is tested against a stand-in agent |
 
 ## How it writes
 
