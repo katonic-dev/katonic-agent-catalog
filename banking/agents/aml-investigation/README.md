@@ -10,6 +10,7 @@ Builds the case file for a transaction monitoring alert and drafts the narrative
 | Reads from | The bank's monitoring system, core system and press archive: the alert with its rule and the investigations already saved on it, the account's transactions, the counterparties, the customer's alert history and contacts, and press coverage |
 | Changes | Saves a draft investigation on the alert: the findings with the ids of the records that show them, the narrative and a recommendation. It opens no case and has no operation that does |
 | State | Built on a development cluster on 25 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-kyc-aml-compliance-agent](https://www.katonic.ai/use-cases/banking-kyc-aml-compliance-agent) |
 
 ## What it does
 

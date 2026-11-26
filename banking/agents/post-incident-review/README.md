@@ -10,6 +10,7 @@ Given a closed incident, it plans its own investigation across the IT operations
 | Reads from | The bank's IT operations system: the incident, metrics, changes and runbooks |
 | Changes | Nothing in the bank. It saves the review as a draft |
 | State | Built on a development cluster. All six tests pass five runs in a row |
+| Website page | [katonic.ai/use-cases/banking-post-incident-review-agent](https://www.katonic.ai/use-cases/banking-post-incident-review-agent) |
 
 ## What it does
 

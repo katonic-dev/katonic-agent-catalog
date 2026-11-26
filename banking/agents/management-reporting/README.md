@@ -10,6 +10,7 @@ Answers a question on the bank's finance warehouse in plain language, shows the 
 | Reads from | The bank's finance warehouse: a general ledger and management accounts for 24 months |
 | Changes | Nothing. It saves a draft commentary, which publishes nothing |
 | State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-management-reporting-agent](https://www.katonic.ai/use-cases/banking-management-reporting-agent) |
 
 ## What it does
 

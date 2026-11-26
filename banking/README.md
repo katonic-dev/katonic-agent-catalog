@@ -8,6 +8,8 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 
 ## The agents
 
+Each agent has a page on the Katonic website that explains it for a buyer. The link is in the agent's own README, under Website page. All thirty are listed at [katonic.ai/solutions/banking](https://www.katonic.ai/solutions/banking).
+
 | # | Agent | What it does | Type and form | How people meet it | State |
 |---|---|---|---|---|---|
 | | **Financial crime** | | | | |

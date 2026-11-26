@@ -10,6 +10,7 @@ Searches the bank's press archive for a named subject and reports what it finds,
 | Reads from | The bank's press archive, and the core system and monitoring system for the subject's own record |
 | Changes | Saves a draft screening summary. Nothing else changes |
 | State | Built on a development cluster on 24 November 2026. All nine tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-adverse-media-screening-agent](https://www.katonic.ai/use-cases/banking-adverse-media-screening-agent) |
 
 ## What it does
 

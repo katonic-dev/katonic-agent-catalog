@@ -10,6 +10,7 @@ Compares a customer's record with a watchlist entry field by field and recommend
 | Reads from | The bank's screening system: the alert, the customer's fields and the list entry's fields side by side (place of birth and address included), the list entry and the earlier alerts. The core system: the customer's contact history |
 | Changes | Saves a draft recommendation. The draft closes no alert |
 | State | Built on a development cluster on 24 November 2026. All ten tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-sanctions-alert-review-agent](https://www.katonic.ai/use-cases/banking-sanctions-alert-review-agent) |
 
 ## What it does
 

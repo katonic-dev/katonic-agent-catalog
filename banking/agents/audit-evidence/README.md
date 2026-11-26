@@ -10,6 +10,7 @@ For a control test, it collects the evidence the test plan names from tickets, c
 | Reads from | The bank's audit system: control tests, tickets, change records, access reviews and recovery tests |
 | Changes | Nothing in the bank's records. It saves an evidence pack as a draft |
 | State | Built on a development cluster. All seven tests pass five runs in a row |
+| Website page | [katonic.ai/use-cases/banking-audit-evidence-agent](https://www.katonic.ai/use-cases/banking-audit-evidence-agent) |
 
 ## What it does
 

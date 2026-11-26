@@ -10,6 +10,7 @@ Spreads an application's financial figures, works out the ratios the bank's lend
 | Reads from | The bank's lending system (the application, its documents and the lending policy) and the bank's customer records (the customer's existing exposure) |
 | Changes | Saves a draft credit memo. The draft does not decide the application |
 | State | Built on a development cluster on 25 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-credit-analysis-agent](https://www.katonic.ai/use-cases/banking-credit-analysis-agent) |
 
 ## What it does
 

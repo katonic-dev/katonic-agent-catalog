@@ -10,6 +10,7 @@ Compares the signed contract and the security documents of an approved loan with
 | Reads from | The bank's lending system: the approved terms and the loan's documents |
 | Changes | Saves a draft list of differences. The draft changes no loan |
 | State | Built on a development cluster on 25 November 2026. All six tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-document-verification-agent](https://www.katonic.ai/use-cases/banking-document-verification-agent) |
 
 ## What it does
 

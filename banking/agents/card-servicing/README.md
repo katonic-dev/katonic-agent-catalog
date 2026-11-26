@@ -10,6 +10,7 @@ For a member of staff on a call about a card. It shows the card's status, recent
 | Reads from | The bank's customer records and its card system |
 | Changes | A card's status, a replacement request, a dispute. Each one waits for the staff member |
 | State | Built on a development cluster. All seven tests pass five runs in a row, and each change waits for approval. The step after a second person approves is not tried yet |
+| Website page | [katonic.ai/use-cases/banking-card-servicing-agent](https://www.katonic.ai/use-cases/banking-card-servicing-agent) |
 
 ## What it does
 

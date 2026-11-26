@@ -10,6 +10,7 @@ Reads a company's registry extract and constitutional documents, draws its owner
 | Reads from | The bank's onboarding system: the application, its documents and the account opening requirements. The bank's screening service: the watchlist |
 | Changes | Saves a draft file. The draft sends nothing and changes no status |
 | State | Built on a development cluster. All six tests pass five runs in a row. Its desk is tested against a stand-in agent |
+| Website page | [katonic.ai/use-cases/banking-business-onboarding-agent](https://www.katonic.ai/use-cases/banking-business-onboarding-agent) |
 
 ## How it writes
 

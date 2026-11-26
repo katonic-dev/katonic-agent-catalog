@@ -10,6 +10,7 @@ Gathers the facts on a flagged card payment or payment and drafts the case summa
 | Reads from | The bank's fraud system, cards system and payments system: the case, the rule, the card's payments and the payments |
 | Changes | Saves a draft summary, a recommended action and a message to the customer. The case stays open and nothing is sent |
 | State | Built on a development cluster on 25 November 2026. All seven tests pass five runs in a row. Not on the Catalog shelf |
+| Website page | [katonic.ai/use-cases/banking-fraud-detection-agent](https://www.katonic.ai/use-cases/banking-fraud-detection-agent) |
 
 ## What it does
 
