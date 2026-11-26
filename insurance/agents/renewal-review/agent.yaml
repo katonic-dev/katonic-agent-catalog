@@ -1,0 +1,58 @@
+id: renewal-review
+name: Renewal Review
+pack: insurance
+area: Underwriting
+summary: >
+  Before a policy's period ends, sets the expiring terms beside the claims of
+  the period, with the totals and the loss ratio the system works out, and the
+  changes in the risk reported since the period started, and marks which
+  renewal rule each finding touches. Where two records disagree it shows both
+  figures and sends the point to a person. The underwriter decides the terms.
+  The agent never renews, quotes, offers or refuses terms.
+
+type: workflow
+form: scheduled
+started_by: A schedule. Each renewal whose period ends within a set number of days, which the underwriting system lists, is sent to the agent by its id
+
+meets_people_through: application
+application: Underwriting desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the renewal's id and reads the reply. The
+# renewal comes whole in one read: the expiring terms, the claims of the
+# period, the totals with both loss ratios, any disagreement between records
+# with the totals that leave the disputed claims out, the changes reported, and
+# each renewal rule with whether it applies. No other read is needed.
+needs:
+  - id: underwriting-system
+    kind: api
+    required: true
+    label: The insurer's underwriting system, to read a renewal with its expiring terms, the claims of the period, the totals and loss ratios, the changes reported and the renewal rules measured, and to save the review as a draft
+    operations:
+      - get_renewal
+      - save_renewal_review
+
+demo_insurer_systems: [underwriting]
+
+stops_for_a_person:
+  - The underwriter reads the review and decides the terms. The agent renews nothing, quotes nothing, and offers or refuses no terms, whichever way the figures fall.
+  - Where the loss ratio is above the limit, or a change in the protections is reported, the renewal goes to a senior underwriter before terms are offered.
+  - Where a change of occupancy is reported, a survey comes before terms are offered. A person orders it.
+  - Where the claims record and the policy record disagree, the agent shows both figures and chooses neither. The claims team settles the point.
+  - A reserve on an open claim is an estimate. The agent says how much of the cost is reserve, and a person judges it.
+
+# Saving a review is a draft kept with its author, a time and a version
+# number. It offers no terms, renews nothing and contacts nobody, and it
+# changes neither the policy nor a claim.
+changes:
+  - {tool: save_renewal_review, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

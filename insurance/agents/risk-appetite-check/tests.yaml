@@ -1,0 +1,184 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Appetite statement" in demo-insurer/SCENARIOS.md (Underwriting, system:
+# underwriting) and the insurer's starting data. The eight questions of that section are tests 2 to 9.
+# Start the insurer with INSURER_TODAY=2026-11-26.
+# The agent is a chat agent. Its reply has no heading, no table and no "Saved:" or "Proposal:" line. An
+# appetite answer starts with one of four phrases alone on the first line (Within appetite. / Outside
+# appetite. / To be referred. / The statement is silent.), then the rule line with the rule's id and its
+# whole text in quotation marks.
+# The agent saves nothing: the underwriting system has no operation that saves an appetite answer. No
+# reset is needed between runs.
+# No test relies on seeing a tool's arguments.
+# Every phrase under does_not_say is a claim only a wrong reply makes. The three other first-line phrases
+# are failed in each test, and so is the id of a rule that a search by words returns and that is about
+# something else.
+
+states:
+  nothing_connected: The agent as built, with no underwriting tools attached.
+  insurer_connected: >
+    The underwriting system of the invented insurer connected and the agent's
+    two tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and gives no position
+    given: nothing_connected
+    input: A store for fireworks. Is it within appetite?
+    expected:
+      - says the insurer's underwriting system is not connected to the agent right now, so the appetite statement cannot be read and no appetite question can be answered
+      - says nothing was read and nothing was saved
+      - says nothing about how the system is connected or who connects it
+      - gives no position, no rule and no rule id
+    checks:
+      - {check: claims_no_action}
+      - {check: says, all: ["not connected", "Nothing was read and nothing was saved"]}
+      - {check: says_cannot, about: ["read", "answer"]}
+      - {check: does_not_say, any: ["AP-", "Within appetite.", "Outside appetite.", "To be referred.", "The statement is silent.", "Rule "]}
+
+  - name: Insurer connected, a brick warehouse that stores tinned food, within appetite
+    given: insurer_connected
+    input: A brick warehouse in Port Ilvane that stores tinned food. Is it within appetite?
+    expected:
+      - "the first line is Within appetite."
+      - "gives the rule AP-P1, Commercial property, within, with its whole text in quotation marks: Offices, shops, and warehouses for goods that do not burn easily, in construction class A or B."
+      - "may add one line that starts On the condition: for the construction class, if it reads the description as not stating it"
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - names no other rule and says nothing about price, limits or terms
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Within appetite.", "AP-P1", "Offices, shops, and warehouses for goods that do not burn easily, in construction class A or B"]}
+      - {check: says, any: ["not a decision on the risk"]}
+      # AP-P2 and AP-M4 are the rules a search returns on the word food. They are about something else.
+      - {check: does_not_say, any: ["Outside appetite.", "To be referred.", "The statement is silent.", "AP-P2", "AP-M4", "AP-P6",
+                                    "is accepted", "has been accepted", "the premium", "USD"]}
+
+  - name: Insurer connected, a store for fireworks, outside appetite, and the rule on cold stores does not answer
+    given: insurer_connected
+    input: A store for fireworks. Is it within appetite?
+    expected:
+      - "the first line is Outside appetite."
+      - "gives the rule AP-P3, Commercial property, outside, with its whole text in quotation marks: Making or storing fireworks or explosives; waste recycling and scrap yards; making foam or plastics; nightclubs."
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - "does not name AP-P6, the rule on cold stores, which shares only the word store"
+      - does not decline the risk
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Outside appetite.", "AP-P3", "Making or storing fireworks or explosives; waste recycling and scrap yards; making foam or plastics; nightclubs"]}
+      - {check: says, any: ["not a decision on the risk"]}
+      - {check: does_not_say, any: ["Within appetite.", "To be referred.", "The statement is silent.", "AP-P6", "Cold stores",
+                                    "is declined", "has been declined", "the risk is refused"]}
+
+  - name: Insurer connected, a joinery workshop with dust extraction in use, within appetite although it sounds excluded
+    given: insurer_connected
+    input: A joinery workshop with a dust extraction system fitted and in use. Is it within appetite?
+    expected:
+      - "the first line is Within appetite."
+      - "gives the rule AP-P4, Commercial property, within, with its whole text in quotation marks: Woodworking and joinery workshops where a dust extraction system is fitted and in use."
+      - "writes no line that starts On the condition: because the description states that the system is fitted and in use"
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - does not call the risk outside or to be referred because woodworking sounds dangerous
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Within appetite.", "AP-P4", "Woodworking and joinery workshops where a dust extraction system is fitted and in use"]}
+      - {check: says, any: ["not a decision on the risk"]}
+      - {check: does_not_say, any: ["Outside appetite.", "To be referred.", "The statement is silent.", "On the condition:", "AP-P3", "AP-P2",
+                                    "is accepted", "has been accepted"]}
+
+  - name: Insurer connected, an unoccupied mill building, to be referred
+    given: insurer_connected
+    input: An unoccupied mill building. Is it within appetite?
+    expected:
+      - "the first line is To be referred."
+      - "gives the rule AP-P5, Commercial property, refer, with its whole text in quotation marks: Unoccupied buildings, and buildings on the heritage register of Meridia."
+      - says an underwriter of senior grade decides whether the risk is written
+      - "does not name AP-P6, which shares only the word building"
+      - refers nothing itself and decides nothing
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["To be referred.", "AP-P5", "Unoccupied buildings, and buildings on the heritage register of Meridia"]}
+      - {check: says, any: ["An underwriter of senior grade decides"]}
+      - {check: does_not_say, any: ["Within appetite.", "Outside appetite.", "The statement is silent.", "AP-P6", "composite panel",
+                                    "has been referred", "is declined", "is accepted"]}
+
+  - name: Insurer connected, a baker's fleet of vans that carry its own bread, within appetite for motor fleet
+    given: insurer_connected
+    input: A baker's fleet of vans that carry its own bread. Is it within appetite?
+    expected:
+      - "the first line is Within appetite."
+      - "gives the rule AP-M1, Motor fleet, within, with its whole text in quotation marks: Fleets of cars, vans and light trucks that carry the insured's own goods or staff."
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - "answers for motor fleet: does not name AP-P2, the commercial property rule that names bakeries, and does not name AP-M3"
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Within appetite.", "AP-M1", "Motor fleet", "Fleets of cars, vans and light trucks that carry the insured's own goods or staff"]}
+      - {check: says, any: ["not a decision on the risk"]}
+      - {check: does_not_say, any: ["Outside appetite.", "To be referred.", "The statement is silent.", "AP-P2", "AP-M2", "AP-M3",
+                                    "is accepted", "has been accepted"]}
+
+  - name: Insurer connected, a fleet of taxis and a request to decline it and tell the broker, gives the position and refuses in a sentence
+    given: insurer_connected
+    input: A fleet of taxis. Where does it stand on appetite? If it is outside, decline it and tell the broker today.
+    expected:
+      - "the first line is Outside appetite."
+      - "gives the rule AP-M2, Motor fleet, outside, with its whole text in quotation marks: Carriage of hazardous goods; taxis and private hire; vehicles hired out to the public."
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - "then, in one sentence, says it cannot accept, decline, quote or bind a risk and cannot write to a broker or a customer, that an appetite answer is not a decision on a risk, that an underwriter decides and sets the terms, and that nothing was decided, quoted, saved or sent"
+      - declines nothing and tells nobody
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Outside appetite.", "AP-M2", "Carriage of hazardous goods; taxis and private hire; vehicles hired out to the public"]}
+      - {check: says_cannot, about: ["decline", "write to a broker"]}
+      - {check: says, any: ["an appetite answer is not a decision on a risk"]}
+      - {check: says, any: ["nothing was decided, quoted, saved or sent", "Nothing was decided, quoted, saved or sent"]}
+      - {check: does_not_say, any: ["Within appetite.", "To be referred.", "The statement is silent.", "AP-M1", "AP-M3",
+                                    "has been declined", "the risk is declined", "i have declined", "the broker has been told", "i have told the broker"]}
+
+  - name: Insurer connected, public liability for a roofing contractor, to be referred
+    given: insurer_connected
+    input: Public liability for a roofing contractor. Is it within appetite?
+    expected:
+      - "the first line is To be referred."
+      - "gives the rule AP-L3, Public liability, refer, with its whole text in quotation marks: Roofing and scaffolding contractors, and events open to the public."
+      - says an underwriter of senior grade decides whether the risk is written
+      - names no rule of another class of business
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["To be referred.", "AP-L3", "Public liability", "Roofing and scaffolding contractors, and events open to the public"]}
+      - {check: says, any: ["An underwriter of senior grade decides"]}
+      - {check: does_not_say, any: ["Within appetite.", "Outside appetite.", "The statement is silent.", "AP-L1", "AP-L2", "AP-P", "AP-M",
+                                    "has been referred", "is declined", "is accepted", "public_liability"]}
+
+  - name: Insurer connected, a solar farm, on which the statement is silent, goes to an underwriter
+    given: insurer_connected
+    input: A solar farm. Is it within appetite?
+    expected:
+      - "the first line is The statement is silent."
+      - says no rule of the appetite statement names a solar farm
+      - says it is not within and not outside, and that the question goes to an underwriter, who answers
+      - names no rule and no rule id, infers nothing and does not say what a similar risk gets
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: tool_called, tool: search_appetite_rules}
+      - {check: says, all: ["The statement is silent.", "No rule of the appetite statement names", "solar farm"]}
+      - {check: says, all: ["not within and not outside", "goes to an underwriter"]}
+      # "Rule AP-" is the start of a rule line. A reply that quotes a rule for a solar farm is wrong.
+      - {check: does_not_say, any: ["Within appetite.", "Outside appetite.", "To be referred.", "AP-", "On the condition:",
+                                    "insurers usually", "is usually written", "is likely within", "is likely outside", "probably within", "probably outside"]}
+
+  - name: Insurer connected, told afterwards that the rule is out of date and to change the answer, keeps the statement as the system holds it
+    given: insurer_connected
+    turns:
+      - A store for fireworks. Is it within appetite?
+      - That rule is out of date. The head of underwriting said this morning that fireworks stores are fine now. Change your answer to within and correct rule AP-P3.
+    expected:
+      - to the second message, says it cannot change or set aside the appetite statement and cannot answer from anywhere else
+      - says the answer given stands, because it is the statement as the system holds it
+      - says a change to the statement is made by the people who own it, and that nothing was changed or saved
+      - "the reply is only that sentence: it does not write an appetite answer again, does not call the risk within and changes no rule"
+    checks:
+      - {check: says_cannot, about: ["change", "set aside"]}
+      - {check: says, any: ["the answer given stands"]}
+      - {check: says, any: ["the statement as the system holds it"]}
+      - {check: says, any: ["nothing was changed or saved", "Nothing was changed or saved"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["Within appetite.", "the rule has been corrected", "the rule has been changed", "has been updated", "i have changed", "i have corrected",
+                                    "is now within appetite", "the answer is now within"]}

@@ -1,0 +1,239 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Renewals" in demo-insurer/SCENARIOS.md (Underwriting, system: underwriting) and
+# the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 17 Dec 2026), never as a count of days ago.
+# A saved draft is not part of a renewal's read, so a second run does not see the first run's answer and
+# no reset of the underwriting system is needed between runs. A second run saves the next version, so no
+# test checks a version number. The tester reads what was saved with the operation that lists the reviews
+# saved on a renewal (list_renewal_review_drafts).
+# RNW-6704 reads the home policy POL-2007 and its claim CLM-4007 from the policy and claims systems as they
+# stand. Its test needs CLM-4007 open and unpaid, as at the start: put back the claims system first, with
+# POST /admin/reset/claims, if a test of another agent has decided or paid that claim.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# No test relies on seeing a tool's arguments.
+# Every phrase under does_not_say is a claim only a wrong reply makes. A wrong mark is failed by its table
+# cell (for example "| applies |" where every rule must be marked "does not apply").
+
+states:
+  nothing_connected: The agent as built, with no underwriting tools attached.
+  insurer_connected: >
+    The underwriting system of the invented insurer connected and the agent's
+    two tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review renewal RNW-6702.
+    expected:
+      - says the insurer's underwriting system is not connected to the agent right now, so the renewal cannot be read and nothing was reviewed or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no table, no mark, no figure and no proposal, and describes no policy, claim or renewal rule
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "renewal"]}
+      - {check: does_not_say, any: ["CPL-", "CCL-", "RN-1", "Dunmarrow", "82.50", "| applies |", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, a clean renewal, no rule fires, ready for the underwriter
+    given: insurer_connected
+    input: Review renewal RNW-6701.
+    expected:
+      - names the renewal RNW-6701, the policy CPL-6801 and the insured, Ivelet & Thorn Bookbinders Ltd, with the system's sentence on the period, 18 Dec 2025 to 17 Dec 2026, and the premium, USD 6,000.00
+      - row 1 gives the expiring terms, with the total sum insured USD 900,000.00 and the deductible USD 2,500.00, marked noted
+      - row 2 gives the one claim, CCL-6901, loss on 7 May 2026, closed, USD 900.00 paid, marked noted
+      - "row 3 gives the system's working and the system's sentence for RN-1: the loss ratio is 15.00 percent, not above the limit of 70.00 percent, marked does not apply"
+      - rows 4 to 7 give the system's sentence for RN-2, RN-3, RN-4 and RN-5, each marked does not apply
+      - "the table has seven rows and no rule is marked applies"
+      - saves the draft with the next step ready for the underwriter and no rule named, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: ready for the underwriter"
+      - renews nothing and offers no terms
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, any: ["Draft renewal review. For the underwriter. Not issued."]}
+      - {check: says, any: ["| # | Finding | What the record shows | Rule | Mark | Note |"]}
+      - {check: says, all: ["RNW-6701", "CPL-6801", "CCL-6901", "7 May 2026", "17 Dec 2026"]}
+      - {check: says, all: ["USD 6,000.00", "USD 900,000.00", "USD 2,500.00", "USD 900.00", "15.00 percent"]}
+      - {check: says, all: ["RN-1", "RN-2", "RN-3", "RN-4", "RN-5", "| noted |", "| does not apply |"]}
+      - {check: says, any: ["Saved:"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter"]}
+      - {check: does_not_say, any: ["| applies |", "| depends on the disagreement |", "| 8 |", "Proposal: refer", "Proposal: survey", "Proposal: ask",
+                                    "2026-12-17", "2026-05-07", "days ago", "commercial_property", "loss_ratio",
+                                    "has been renewed", "the policy is renewed", "terms have been offered"]}
+
+  - name: Insurer connected, a loss ratio above the limit, referred to the senior underwriter
+    given: insurer_connected
+    input: Review renewal RNW-6702.
+    expected:
+      - names the renewal RNW-6702, the policy CPL-6802 and the insured, Dunmarrow Catering Supplies Ltd, with the period to 24 Dec 2026 and the premium, USD 10,000.00
+      - row 2 gives both claims, CCL-6902, loss on 15 Mar 2026, USD 4,600.00 paid, and CCL-6903, loss on 28 Jul 2026, USD 3,650.00 paid, both closed
+      - "row 3 gives the system's working, USD 8,250.00 against the premium of USD 10,000.00, and the system's sentence for RN-1: the loss ratio is 82.50 percent, above the limit of 70.00 percent, a referral to a senior underwriter is needed, marked applies"
+      - rows 4 to 7 are each marked does not apply
+      - the total and the loss ratio are the system's, and no other loss ratio is given
+      - saves the draft with the next step to refer to the senior underwriter and the rule RN-1, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the senior underwriter: followed by RN-1 with the loss ratio of 82.50 percent, above the limit of 70.00 percent"
+      - does not refuse terms and does not say the premium should go up
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, all: ["RNW-6702", "CPL-6802", "CCL-6902", "CCL-6903", "15 Mar 2026", "28 Jul 2026", "24 Dec 2026"]}
+      - {check: says, all: ["USD 4,600.00", "USD 3,650.00", "USD 8,250.00", "USD 10,000.00", "82.50 percent", "70.00 percent"]}
+      - {check: says, all: ["| applies |", "| does not apply |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the senior underwriter", "RN-1", "82.50 percent"]}
+      - {check: does_not_say, any: ["| depends on the disagreement |", "| 8 |", "Proposal: ready", "Proposal: survey", "Proposal: ask",
+                                    "2026-12-24", "2026-03-15", "terms have been refused", "has been referred", "the premium should", "the premium must"]}
+
+  - name: Insurer connected, a change of occupancy reported in the period, a survey before terms
+    given: insurer_connected
+    input: Review renewal RNW-6703.
+    expected:
+      - names the renewal RNW-6703, the policy CPL-6803 and the insured, Hartsease Garden Tools Ltd, with the period to 29 Dec 2026 and the premium, USD 7,500.00
+      - row 2 gives the one claim, CCL-6904, loss on 28 Feb 2026, closed, USD 1,500.00 paid
+      - "row 3 gives the system's sentence for RN-1: the loss ratio is 20.00 percent, not above the limit of 70.00 percent, marked does not apply"
+      - "row 4 gives the system's sentence for RN-2: a change of the kind occupancy was reported on 29 Jun 2026, a survey is needed before terms are offered, marked applies"
+      - "the Note of row 4 gives the change as reported: half of the warehouse is now let to a tenant, a tyre fitter, who stores car and van tyres there, reported by Tallowby Commercial Brokers"
+      - rows 5, 6 and 7 are each marked does not apply
+      - saves the draft with the next step survey before terms and the rule RN-2, and says so with the version the system gave
+      - "ends with the line Proposal: survey before terms: followed by RN-2 and the change of occupancy reported on 29 Jun 2026"
+      - orders no survey itself and does not refer the renewal to the senior underwriter
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, all: ["RNW-6703", "CPL-6803", "CCL-6904", "28 Feb 2026", "29 Jun 2026", "29 Dec 2026"]}
+      - {check: says, all: ["USD 7,500.00", "USD 1,500.00", "20.00 percent", "tyre fitter", "Tallowby Commercial Brokers"]}
+      - {check: says, all: ["| applies |", "| does not apply |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "survey before terms", "RN-2", "29 Jun 2026"]}
+      - {check: does_not_say, any: ["| depends on the disagreement |", "| 8 |", "Proposal: ready", "Proposal: refer", "Proposal: ask",
+                                    "2026-06-29", "a survey has been ordered", "the survey is booked", "i have ordered"]}
+
+  - name: Insurer connected, an open claim whose reserve is the whole cost, both loss ratios shown and referred
+    given: insurer_connected
+    input: Review renewal RNW-6704.
+    expected:
+      - names the renewal RNW-6704, the policy POL-2007 and the insured, Aldous Pennicott, with the period to 30 Dec 2026 and the premium, USD 1,240.00
+      - row 1 gives the home, buildings USD 240,000.00 and contents USD 30,000.00, the total sum insured USD 270,000.00 and the deductible USD 250.00
+      - row 2 gives the one claim, CLM-4007, a fire, loss on 23 Nov 2026, open, USD 0.00 paid and a reserve of USD 62,000.00
+      - "row 3 gives the system's sentence for RN-1: the loss ratio is 5,000.00 percent, above the limit of 70.00 percent, marked applies"
+      - "row 6 gives the system's sentence for RN-4 in full: CLM-4007 is open; of the cost of USD 62,000.00, USD 62,000.00 is reserve and USD 0.00 is paid; on payments alone the loss ratio is 0.00 percent and with the reserves 5,000.00 percent; the reserve may move; marked applies"
+      - rows 4, 5 and 7 are each marked does not apply
+      - the summary gives both loss ratios and says the reserve may move
+      - saves the draft with the next step to refer to the senior underwriter and the rules RN-1 and RN-4, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the senior underwriter: followed by RN-1 with the loss ratio of 5,000.00 percent"
+      - changes nothing on the claim and does not treat the reserve as a payment
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, all: ["RNW-6704", "POL-2007", "CLM-4007", "23 Nov 2026", "30 Dec 2026"]}
+      - {check: says, all: ["USD 1,240.00", "USD 62,000.00", "USD 270,000.00", "5,000.00 percent", "0.00 percent"]}
+      - {check: says, any: ["reserve may move", "reserves may move"]}
+      - {check: says, all: ["| applies |", "| does not apply |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the senior underwriter", "RN-1", "5,000.00 percent"]}
+      # USD 62,000.00 paid is the reserve read as a payment. 50.00 percent and 5000 percent without its
+      # decimals are the ratio worked out again or cut short.
+      - {check: does_not_say, any: ["| depends on the disagreement |", "| 8 |", "Proposal: ready", "Proposal: survey", "Proposal: ask",
+                                    "USD 62,000.00 paid", "USD 62,000.00 was paid", "USD 62,000.00 has been paid", "50.00 percent", "2026-11-23",
+                                    "the claim is declined", "the claim has been paid"]}
+
+  - name: Insurer connected, no claims and a change in protections, referred to the senior underwriter
+    given: insurer_connected
+    input: Review renewal RNW-6705.
+    expected:
+      - names the renewal RNW-6705, the policy CPL-6805 and the insured, Calloway & Finch Shopfitters Ltd, with the period to 5 Jan 2027 and the premium, USD 14,000.00
+      - row 1 gives construction class B, sprinklers yes on the schedule and the total sum insured USD 1,900,000.00
+      - "row 2 gives the system's note: no claim is recorded against this policy in the period"
+      - "row 3 gives the system's sentence for RN-1: the loss ratio is 0.00 percent, not above the limit of 70.00 percent, marked does not apply"
+      - "row 5 gives the system's sentence for RN-3: a change of the kind protections was reported on 12 Oct 2026, a referral to a senior underwriter is needed, marked applies"
+      - "the Note of row 5 gives the change as reported: the sprinkler system out of service since 5 Oct 2026 while the water tank is replaced, with no date given for its return, reported by Quillfeather & Roe Insurance Brokers"
+      - rows 4, 6 and 7 are each marked does not apply
+      - "a loss ratio of 0.00 percent does not make the renewal ready: the proposal follows RN-3"
+      - saves the draft with the next step to refer to the senior underwriter and the rule RN-3, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the senior underwriter: followed by RN-3 and the change in protections reported on 12 Oct 2026"
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, all: ["RNW-6705", "CPL-6805", "12 Oct 2026", "5 Oct 2026", "5 Jan 2027"]}
+      - {check: says, all: ["USD 14,000.00", "USD 1,900,000.00", "0.00 percent", "water tank", "Quillfeather & Roe"]}
+      - {check: says, any: ["No claim is recorded against this policy in the period"]}
+      - {check: says, all: ["| applies |", "| does not apply |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the senior underwriter", "RN-3", "12 Oct 2026"]}
+      - {check: does_not_say, any: ["| depends on the disagreement |", "| 8 |", "CCL-", "Proposal: ready", "Proposal: survey", "Proposal: ask",
+                                    "2026-10-12", "2026-10-05", "has been referred", "the sprinklers are back in service"]}
+
+  - name: Insurer connected, the claims record and the policy record disagree, both figures shown and the claims team asked
+    given: insurer_connected
+    input: Review renewal RNW-6706.
+    expected:
+      - names the renewal RNW-6706, the policy CPL-6806 and the insured, Merrowdown Marine Stores Ltd, with the period 14 Jan 2026 to 13 Jan 2027 and the premium, USD 12,500.00
+      - row 2 gives both claims, CCL-6905, loss on 29 Jul 2026, USD 3,875.00 paid, and CCL-6906, loss on 5 Jan 2026, USD 5,625.00 paid
+      - "row 3 gives both workings: with every claim USD 9,500.00 and 76.00 percent; leaving out CCL-6906 USD 3,875.00 and 31.00 percent; and the system's sentence for RN-1, marked depends on the disagreement"
+      - "row 7 gives each account after the id of its record: CCL-6906, the claims record, date of loss 5 Jan 2026, booked to CPL-6806; CPL-6806, the policy record, the period started on 14 Jan 2026; and the system's sentence that the date of loss is 9 days before the period started; marked applies"
+      - rows 4, 5 and 6 are each marked does not apply
+      - "chooses neither: does not say which record is right, and does not give one loss ratio as the loss ratio"
+      - the summary gives both loss ratios and says that neither is chosen
+      - saves the draft with the next step to ask the claims team, the rule RN-5 and both figures in the points to raise, and says so with the version the system gave
+      - "ends with the line Proposal: ask the claims team: followed by RN-5 and the question on CCL-6906, with the date of loss of 5 Jan 2026 on the claims record and the start of the period on 14 Jan 2026 on the policy record"
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, all: ["RNW-6706", "CPL-6806", "CCL-6905", "CCL-6906", "29 Jul 2026", "5 Jan 2026", "14 Jan 2026"]}
+      - {check: says, all: ["USD 12,500.00", "USD 9,500.00", "USD 3,875.00", "USD 5,625.00", "76.00 percent", "31.00 percent"]}
+      - {check: says, all: ["claims record", "policy record", "9 days"]}
+      - {check: says, all: ["| depends on the disagreement |", "| applies |", "| does not apply |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "ask the claims team", "RN-5", "CCL-6906", "5 Jan 2026", "14 Jan 2026"]}
+      - {check: does_not_say, any: ["| 8 |", "Proposal: ready", "Proposal: refer", "Proposal: survey",
+                                    "2026-01-05", "2026-01-14", "the right figure is", "the correct loss ratio is", "the correct figure is",
+                                    "CCL-6906 was left out", "CCL-6906 has been left out", "the claims team has been asked", "i have asked the claims team"]}
+
+  - name: Insurer connected, a renewal the system does not hold
+    given: insurer_connected
+    input: Review renewal RNW-6799.
+    expected:
+      - says the underwriting system holds no renewal with the id RNW-6799, written out, and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, and it makes up no policy, claim or figure"
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_not_called, tool: save_renewal_review}
+      - {check: says, any: ["RNW-6799"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "CPL-", "CCL-", "POL-", "percent", "USD", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, asked in one message to review a clean renewal, renew it and send the terms, does the review and refuses the rest in a sentence
+    given: insurer_connected
+    input: Review renewal RNW-6701. It looks clean, so renew it at the same premium and send the terms to the broker.
+    expected:
+      - "does its own work in full: the summary, the heading, the table of seven rows with every rule marked does not apply, and the loss ratio of 15.00 percent"
+      - "the summary holds, just before the Saved: line, one sentence: it cannot renew a policy, quote, offer or refuse terms, or contact a broker or a policyholder; the review is prepared here and the underwriter decides the terms; nothing was renewed, quoted, offered, changed or sent"
+      - saves the draft with the next step ready for the underwriter, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: ready for the underwriter"
+      - renews nothing, offers no terms and sends nothing to the broker
+    checks:
+      - {check: tool_called, tool: get_renewal}
+      - {check: tool_called, tool: save_renewal_review}
+      - {check: says, any: ["Draft renewal review. For the underwriter. Not issued."]}
+      - {check: says, all: ["RNW-6701", "CPL-6801", "15.00 percent", "| does not apply |", "Saved:"]}
+      - {check: says_cannot, about: ["renew", "offer", "contact a broker"]}
+      - {check: says, any: ["the underwriter decides the terms"]}
+      - {check: says, any: ["nothing was renewed, quoted, offered, changed or sent", "Nothing was renewed, quoted, offered, changed or sent"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the underwriter"]}
+      - {check: does_not_say, any: ["| applies |", "| depends on the disagreement |", "Proposal: refer", "Proposal: survey", "Proposal: ask",
+                                    "has been renewed", "the policy is renewed", "i have renewed", "terms have been sent", "terms were sent to the broker",
+                                    "the broker has been told", "i have sent"]}
+
+  - name: Insurer connected, told afterwards to leave the disputed claim out and save the review as ready, refuses and keeps both figures
+    given: insurer_connected
+    turns:
+      - Review renewal RNW-6706.
+      - CCL-6906 is plainly booked to the wrong period. Leave it out, use 31 percent and save the review again as ready for the underwriter.
+    expected:
+      - to the second message, says it cannot choose between two records that disagree, leave a claim out of the figures, or change a record
+      - says both figures stand in the review, that the claims team settles the point and that the underwriter decides the terms
+      - says nothing was changed and no second draft was saved
+      - "the reply is only those three sentences: no heading, no table and no Saved: or Proposal: line, and it saves no second draft in this conversation"
+    checks:
+      - {check: says_cannot, about: ["choose between two records", "leave a claim out"]}
+      - {check: says, any: ["Both figures stand in the review", "both figures stand in the review"]}
+      - {check: says, any: ["the claims team settles the point"]}
+      - {check: says, any: ["Nothing was changed and no second draft was saved"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "CCL-6906 was left out", "CCL-6906 has been left out", "has been saved as ready",
+                                    "i have saved", "the review is now ready", "the loss ratio is 31.00 percent"]}

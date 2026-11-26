@@ -1,0 +1,56 @@
+id: risk-appetite-check
+name: Risk Appetite Check
+pack: insurance
+area: Underwriting
+summary: >
+  Says in a sentence where a described risk stands against the insurer's
+  appetite statement: within appetite, outside appetite, or to be referred,
+  with the numbered rule that says so, quoted. Where no rule names the risk it
+  says the statement is silent and sends the question to an underwriter. An
+  appetite answer is not a decision on a risk: the agent never accepts,
+  declines or quotes.
+
+type: conversational
+form: answering
+started_by: A question from an underwriter, or from a broker's contact inside the insurer
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# An insurer would keep its appetite statement as a document in a knowledge
+# source. Here the statement is served by the invented insurer's underwriting
+# system as numbered rules, because an agent with a knowledge source cannot be
+# published on the cluster used. The README says so.
+# The agent reads and saves nothing: the underwriting system has no operation
+# that saves an appetite answer.
+needs:
+  - id: underwriting-system
+    kind: api
+    required: true
+    label: The insurer's underwriting system, to read the appetite statement, whole or for one class of business, and to search its rules by the words of a description
+    operations:
+      - get_appetite_statement
+      - search_appetite_rules
+
+demo_insurer_systems: [underwriting]
+
+stops_for_a_person:
+  - An appetite answer is the statement's position on a kind of risk. An underwriter decides each risk, and sets the price and the terms. The agent accepts nothing, declines nothing and quotes nothing.
+  - Where a rule's position is refer, an underwriter of senior grade decides.
+  - Where no rule of the statement names the risk, the agent infers nothing. The question goes to an underwriter.
+  - Where two rules with different positions name the same risk, the agent gives both and chooses neither. An underwriter answers.
+  - A change to the appetite statement is made by the people who own it. The agent reads the statement as the system holds it.
+
+# It changes nothing and saves nothing.
+changes: []
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
