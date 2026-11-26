@@ -8,7 +8,7 @@ Every JSON answer carries `"demo_data": true` at the top level, and every respon
 
 Licence: Apache-2.0.
 
-**Status: work in progress.** Three systems are written. The systems for underwriting, investigations, complaints, reinsurance and the rest follow with their agents.
+**Status: work in progress.** Five systems are written: policy, claims, health, underwriting and investigations. The systems for servicing, complaints, reinsurance and the rest follow with their agents.
 
 ## The systems
 
@@ -17,6 +17,8 @@ Licence: Apache-2.0.
 | policy | `/policy` | policies with their schedules and endorsements, and two policy wordings with numbered clauses | 4 |
 | claims | `/claims` | loss reports, claims with their documents, checklists by claim type, the handling guide, letter templates, settlements | 21 |
 | health | `/health` | two group medical schemes with their tables of benefits, members with what they have used, medical policies, pre-authorisation requests, medical claims held for review, providers with their contracts and tariffs, provider invoices, call-back requests | 26 |
+| underwriting | `/underwriting` | the underwriting guidelines as numbered rules, the appetite statement by class of business, submissions from brokers, the authority of each underwriter grade with the referral rules, referrals and precedents, the renewal rules, commercial policies and the renewals that are due | 20 |
+| investigations | `/investigations` | closed claims with their payment files and the handling standards of the leakage review, new claims with the fraud indicators, claims referred to the investigations desk, the parties on them, and public notices | 21 |
 
 For each system `<path>`:
 
@@ -39,6 +41,8 @@ Things to know:
 - **The health system does the sums too.** `get_member` gives what a member has used and has left. `calculate_member_benefit` gives what the plan pays on an amount: the part within the limit, the part over it and the member's share. `get_medical_claim` gives the same for a held claim, and sets it beside the earlier claims. `get_provider_invoice` checks an invoice against the provider's contract and tariff, line by line, and counts the days between a first consultation and a follow-up. These are reads: they save nothing.
 - **The record says which medical policy to read.** A pre-authorisation request carries its medical policy only when the member's cover is in force, the plan covers the procedure and the plan needs pre-authorisation for it. Otherwise a note says why none is read. No operation declines a request for an agent: a clinician decides.
 - **`/health` is two things.** `GET /health` is still the health check of the service. The health system's operations are under `/health/...`, with its documents at `/health/openapi.json` and `/health/docs`.
+- **Underwriting saves drafts only.** The underwriting system has no change operation. `save_underwriting_file`, `save_referral_memo` and `save_renewal_review` each store a draft with a version number and change nothing else; nothing accepts, declines, quotes, binds or refers. The system measures: `get_submission` sets a submission against every guideline with a figure (a value exactly on a limit is within), `get_underwriting_referral` says which referral rule applies and to which grade, and `get_renewal` adds up the period's claims and works out the loss ratios. The measure of a submission uses the form's fields only: the documents are still read, and where a note contradicts a field both are shown. One renewal (RNW-6704) reads a home policy and its claim from the policy and claims systems as they stand. `tests/test_underwriting.py` checks the right answers.
+- **Investigations saves drafts only.** The investigations system has no change operation. `save_leakage_finding`, `save_fraud_referral` and `save_case_file` each store a draft with a version number and change nothing else; nothing declines a claim, holds a payment, asks for money back or says that a person did wrong. The system does the sums and the matching: `calculate_what_should_have_been_paid` tests a closed claim against the handling standards LS-1 to LS-6 and gives what should have been paid; `run_fraud_indicators` measures the indicators FI-1 to FI-6 and gives each measured value beside its threshold; `get_parties_earlier_claims` counts earlier claims; `get_claim_links` finds a shared repairer, witness, phone number, address or bank account; `get_public_notices_for_party` sets a notice's date of birth and address beside the party's. Two people with one name and different dates of birth are two parties. It holds its own claims (CLM-6xxx) and reads policies and the handling guide from the policy and claims systems; policies that only its cases need (POL-27xx) are kept in this system and are not in the policy system's list. Phone numbers (`+999 555 ....`), bank accounts (`DEMO-ACCT-....`) and public notices are invented. `tests/test_investigations.py` checks the right answers.
 
 The scenarios and their right answers are in [SCENARIOS.md](SCENARIOS.md).
 

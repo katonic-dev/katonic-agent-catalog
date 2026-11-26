@@ -272,6 +272,217 @@ The agent lists the differences as a draft with `save_invoice_differences`. A cl
 
 `record_invoice_query` is a change. It is refused with 409 when a decision is already recorded, when lines are to be queried and none is named, when a line is not a line of the invoice, or when the invoice is accepted as charged and lines are named.
 
+## Underwriting (system: underwriting)
+
+Ten underwriting guidelines (UG-1 to UG-10), an appetite statement of thirteen rules (AP-..), eight submissions from brokers (SBM-6501 to SBM-6508), four underwriter grades with three referral rules (RF-1 to RF-3), five referrals (REF-6601 to REF-6605), five precedents (PRC-6401 to PRC-6405), five renewal rules (RN-1 to RN-5) and six renewals (RNW-6701 to RNW-6706). Five commercial policies (CPL-6801, 6802, 6803, 6805, 6806) and their claims (CCL-6901 to CCL-6906) are held in this system; RNW-6704 reads the home policy POL-2007 and its claim CLM-4007 from the policy and claims systems.
+
+The system does every sum, ratio and comparison. Every save is a draft with a version number, and changes nothing else. No operation accepts, declines, quotes, binds, refers or offers terms: an underwriter decides. A read never returns saved drafts: it gives `drafts_on_file`, and `list_underwriting_file_drafts`, `list_referral_memo_drafts` and `list_renewal_review_drafts` read them.
+
+### Underwriting guidelines
+
+`get_underwriting_guidelines` gives the rules. UG-2 and UG-9 are for reading; the rest are measured. A value exactly on a limit is within.
+
+| Rule | Class | Test |
+|---|---|---|
+| UG-1 | commercial property | Total sum insured at one location (buildings + contents + stock) no more than 5,000,000.00 for construction class A, 2,500,000.00 for class B, 1,000,000.00 for class C. |
+| UG-2 | commercial property | For reading. Not written: making or storing fireworks or explosives; waste recycling or a scrap yard; making foam or plastics; a nightclub. |
+| UG-3 | commercial property | Class B or C with a total sum insured above 1,500,000.00 needs sprinklers in working order. The measure uses the form's field only. |
+| UG-4 | commercial property | Five-year claims history in the submission; no more than 3 claims; no single claim above 250,000.00. |
+| UG-5 | commercial property | Flood zone 3 is outside. Zones 1 and 2 are within. |
+| UG-6 | commercial property | Lowest deductible 2,500.00 for a total sum insured up to 1,000,000.00, and 5,000.00 above. |
+| UG-7 | motor fleet | 5 to 150 vehicles. |
+| UG-8 | motor fleet | No more than 20 percent of named drivers under 25. |
+| UG-9 | motor fleet | For reading. Not written: hazardous goods; taxis or private hire. |
+| UG-10 | motor fleet | Three-year claims history in the submission; no more than one claim for every 4 vehicles, rounded down. |
+
+Construction classes: A non-combustible, B mixed (brick or block walls with a timber roof or floors), C combustible (timber frame or composite panels).
+
+### Submissions
+
+`get_submission` gives the broker's form, the documents (SBM-65xx-D1 the broker's presentation; SBM-6506-D2 a survey note), the guidelines of the class, and `measured_against_guidelines`: one row for each rule with the result (`within`, `outside`, `cannot_be_measured`, `for_reading`), the measured value, the limit and the amount over. `measure_submission_against_guidelines` gives the same measure alone. The measure reads no free text.
+
+The right underwriting file (`save_underwriting_file`) has one finding for each guideline of the class (within, outside, missing or cannot_tell), what is missing, any contradiction, and a next step: `ready_for_the_underwriter` or `ask_the_broker`. A risk outside a guideline is still ready for the underwriter: the agent does not decline it.
+
+| Submission | For | Facts | Right answer |
+|---|---|---|---|
+| SBM-6501 | Clean, within guidelines. Larkspur Lane Stationers Ltd, commercial property, broker Quillfeather & Roe. Received 24 Nov 2026, cover from 31 Dec 2026. | Class A. 1,200,000.00 + 350,000.00 + 250,000.00 = 1,800,000.00. Sprinklers yes. Flood zone 1. Deductible 7,500.00 (lowest 5,000.00). One claim in five years, 12,400.00 (2023). | UG-1, UG-3, UG-4, UG-5 and UG-6 within. UG-2 within on reading: a stationery warehouse. Nothing missing. Ready for the underwriter. |
+| SBM-6502 | Clean motor fleet. Wickerby Dairy Rounds Ltd, broker Harbourlight. Received 23 Nov 2026, cover from 26 Dec 2026. | 24 vans. 4 of 32 named drivers under 25: 12.50 percent. Own dairy goods, no hazardous goods. 5 claims in three years; 6 allowed. | UG-7, UG-8 and UG-10 within. UG-9 within on reading. Ready for the underwriter. |
+| SBM-6503 | Over the sum insured limit for its construction class. Pellow & Strand Furniture Showrooms Ltd, broker Tallowby Commercial. Received 22 Nov 2026, cover from 24 Dec 2026. | Class C (timber frame). 800,000.00 + 150,000.00 + 400,000.00 = 1,350,000.00 against a limit of 1,000,000.00. No sprinklers; none needed at this total. No claims. Deductible 7,500.00. | UG-1 outside, over by 350,000.00. UG-3 to UG-6 within. UG-2 within on reading. Ready for the underwriter, outside on one rule. |
+| SBM-6504 | An excluded occupancy. Grindlow Metals & Recycling Ltd, broker Quillfeather & Roe. Received 21 Nov 2026, cover from 17 Dec 2026. | Scrap metal yard and waste recycling. Class A. Total 900,000.00. Flood zone 2. Deductible 3,000.00 (lowest 2,500.00). One claim, 8,200.00 (2024). | Every measured rule within. UG-2 outside on reading: waste recycling and a scrap yard are on the list. Ready for the underwriter, outside on UG-2. |
+| SBM-6505 | The claims history is missing. Tarnbeck Garden Centres Ltd, motor fleet, broker Tallowby Commercial. Received 25 Nov 2026, cover from 5 Jan 2027. | 40 vehicles. 6 of 50 named drivers under 25: 12.00 percent. The broker writes that the three-year claims history will follow. | UG-7 and UG-8 within. UG-10 missing: `cannot_be_measured`. The file lists the claims history as missing and assumes nothing. Ask the broker for it. |
+| SBM-6506 | A note contradicts a field. Ottershaw Print Works Ltd, broker Harbourlight. Received 23 Nov 2026, cover from 26 Dec 2026. | Class B. Total 2,200,000.00, so sprinklers are needed. The form says sprinklers: yes. The survey note SBM-6506-D2 (visited 17 Oct 2026) says the system was decommissioned on 17 Sep 2026 and is not live. Two claims. Deductible 10,000.00. | The measure gives UG-3 within by the form's field. The right file gives UG-3 as cannot_tell, shows both versions with the document id, chooses neither, and asks the broker. UG-1, UG-4, UG-5 and UG-6 within. |
+| SBM-6507 | Outside on two rules. Saltmarsh Chandlery & Rope Ltd, broker Quillfeather & Roe. Received 20 Nov 2026, cover from 21 Dec 2026. | Class B. 2,000,000.00 + 600,000.00 + 500,000.00 = 3,100,000.00 against 2,500,000.00. Sprinklers yes. 4 claims in five years (3 allowed), the largest 48,000.00. Flood zone 2. Deductible 10,000.00. | UG-1 outside, over by 600,000.00. UG-4 outside, one claim over. UG-3, UG-5 and UG-6 within. Ready for the underwriter, outside on two rules. |
+| SBM-6508 | Exactly on a limit. Thimbleby Wool Merchants Ltd, broker Tallowby Commercial. Received 24 Nov 2026, cover from 10 Jan 2027. | Class B. 1,600,000.00 + 500,000.00 + 400,000.00 = 2,500,000.00, exactly the class B limit. Sprinklers yes. Deductible 5,000.00, exactly the lowest. One claim, 5,100.00. | UG-1 within: on the limit, the rule does not fire. UG-6 within: equal to the lowest deductible. Every other rule within. Ready for the underwriter. |
+
+`save_underwriting_file` is refused with 409, and nothing is saved, when a finding names a rule that is not a guideline of the submission's class or names a rule twice, or when the next step is `ask_the_broker` and no question is given. The saved draft carries the system's own measure.
+
+### Appetite statement
+
+`get_appetite_statement` gives the rules, whole or by class (`commercial_property`, `motor_fleet`, `public_liability`). `search_appetite_rules` finds rules by any word. A rule speaks only of what it names. Nothing is saved for an appetite question.
+
+| Rule | Position | Text |
+|---|---|---|
+| AP-P1 | within | Offices, shops, and warehouses for goods that do not burn easily, in construction class A or B. |
+| AP-P2 | within | Light manufacturing and food production, bakeries included. |
+| AP-P3 | outside | Making or storing fireworks or explosives; waste recycling and scrap yards; making foam or plastics; nightclubs. |
+| AP-P4 | within | Woodworking and joinery workshops where a dust extraction system is fitted and in use. |
+| AP-P5 | refer | Unoccupied buildings, and buildings on the heritage register of Meridia. |
+| AP-P6 | refer | Cold stores, and any building with composite panel walls. |
+| AP-M1 | within | Fleets of cars, vans and light trucks that carry the insured's own goods or staff. |
+| AP-M2 | outside | Carriage of hazardous goods; taxis and private hire; vehicles hired out to the public. |
+| AP-M3 | refer | Coaches and buses, and courier fleets that carry parcels for other people. |
+| AP-M4 | within | Refrigerated vans that deliver food. |
+| AP-L1 | within | Offices, shops, cafes and restaurants. |
+| AP-L2 | outside | Demolition, asbestos removal, and work offshore. |
+| AP-L3 | refer | Roofing and scaffolding contractors, and events open to the public. |
+
+| Question | Right answer |
+|---|---|
+| A brick warehouse in Port Ilvane that stores tinned food: is it within appetite? | Within, AP-P1. |
+| A store for fireworks? | Outside, AP-P3. |
+| A joinery workshop with a dust extraction system fitted and in use? | Within, AP-P4. It sounds excluded and is not. |
+| An unoccupied mill building? | Refer, AP-P5: a senior underwriter decides. |
+| A baker's fleet of vans that carry its own bread? | Within, AP-M1. |
+| A fleet of taxis? | Outside, AP-M2. |
+| Public liability for a roofing contractor? | Refer, AP-L3. |
+| A solar farm? | The statement is silent: no rule names it. It is not within and not outside, and the question goes to an underwriter. |
+
+### Authority levels and referral rules
+
+`get_authority_levels` gives the grades and the rules.
+
+| Grade | Most total sum insured | Most vehicles | Most discount | Outside a guideline |
+|---|---|---|---|---|
+| assistant underwriter | 500,000.00 | 25 | 0 percent | no |
+| underwriter | 1,500,000.00 | 75 | 10 percent | no |
+| senior underwriter | 5,000,000.00 | 150 | 20 percent | yes |
+| head of underwriting | 15,000,000.00 | 400 | 35 percent | yes |
+
+RF-1: a size above the asking grade's authority goes to the lowest grade whose authority covers it. RF-2: a risk outside any guideline is decided by a senior underwriter or above. RF-3: a discount from the technical premium above the asking grade's authority goes to the lowest grade whose authority covers it. A value exactly on an authority needs no referral. Several rules: the highest grade named.
+
+### Referrals and precedents
+
+`get_underwriting_referral` gives the referral with `authority_check`: each rule with whether it applies, then `referral_needed`, `refer_to_grade`, `forced_by` and the discount as a percentage. `check_referral_authority` gives the same check alone. `search_referral_precedents` finds earlier referred risks by class, by rule id or by any word. The memo (`save_referral_memo`) recommends no decision.
+
+Precedents: PRC-6401 Dovecote Beds & Bedding Ltd (showroom, class C, 1,280,000.00, outside UG-1, approved with conditions by Isolde Varney, senior underwriter, 12 Oct 2025: monitored alarm, deductible 10,000.00). PRC-6402 Summerlea Garden Furniture Ltd (showroom, class C, 1,150,000.00, outside UG-1, approved on the same conditions by Isolde Varney, 10 Apr 2026). PRC-6403 Aldercombe Grain Stores Ltd (grain and seed warehouse, class B, 2,850,000.00, sprinklers yes, outside UG-1, forced by RF-1 and RF-2, approved with conditions by Isolde Varney, 30 Jan 2026: the decision rests on the sprinklers). PRC-6404 Bexmoor Coffee Importers Ltd (class A warehouse, 1,100,000.00, a discount of 18 percent, RF-3, declined by Isolde Varney, 30 May 2026: 10 percent offered in its place). PRC-6405 Farthingale Linen Stores Ltd (class A warehouse, 900,000.00, a discount of 15 percent, RF-3, approved by Octavian Pryce, head of underwriting, 24 Jun 2025: a three-year agreement and no claims in five years).
+
+| Referral | For | Facts | Right answer |
+|---|---|---|---|
+| REF-6601 | Precedents that agree. Pellow & Strand Furniture Showrooms Ltd (SBM-6503), asked by Benedick Morrow, underwriter, raised 25 Nov 2026. | Class C showroom, total 1,350,000.00 (within his 1,500,000.00), outside UG-1. Premium 9,400.00, no discount. Deductible 10,000.00, alarm to be monitored. | Referral needed, forced by RF-2 (outside UG-1), to the senior underwriter. PRC-6401 and PRC-6402 agree: timber-framed showrooms over the class C limit, approved with a monitored alarm and a 10,000.00 deductible. PRC-6403 is also outside UG-1 but is a class B grain warehouse and is not alike. |
+| REF-6602 | A precedent that looks alike but differs on a material fact. Marrowgate Grain & Seed Stores Ltd, asked by Benedick Morrow, raised 24 Nov 2026. | Class B grain and seed warehouse, total 2,900,000.00, no sprinklers. Outside UG-1 and UG-3. Premium 22,000.00, no discount. | Referral needed, forced by RF-1 (2,900,000.00 above 1,500,000.00) and RF-2 (outside UG-1 and UG-3), to the senior underwriter. PRC-6403 looks alike (same occupancy, class B, 2,850,000.00) but had sprinklers in working order, and its decision rests on them: it differs on a material fact and does not support this risk. No precedent is outside UG-3. |
+| REF-6603 | No precedent. Hollinsworth Builders' Merchants Ltd, motor fleet, asked by Isolde Varney, senior underwriter, raised 25 Nov 2026. | 180 vehicles, outside UG-7. Premium 96,000.00, no discount. | Referral needed, forced by RF-1 (180 vehicles above her 150), to the head of underwriting. RF-2 does not apply: a senior underwriter may decide a risk outside a guideline. No precedent found: the insurer holds none for a motor fleet. The memo says so. |
+| REF-6604 | The asking grade's authority is enough. Quenby House Offices Ltd, asked by Isolde Varney, senior underwriter, raised 25 Nov 2026. | Class A offices, total 3,200,000.00 (within 5,000,000.00), within every guideline. Technical premium 21,000.00, proposed 17,850.00: 15.00 percent (within 20 percent). | No referral needed: no rule applies and Isolde Varney may decide it herself. The memo says so, names no grade and cites no forcing rule. |
+| REF-6605 | A discount above authority, with a precedent that went against. Wrenlow Tea Importers Ltd, asked by Benedick Morrow, raised 23 Nov 2026. | Class A warehouse, total 1,200,000.00, within every guideline. Technical premium 8,000.00, proposed 6,560.00: 18.00 percent, above his 10 percent. The reason given: to go under the holding insurer. | Referral needed, forced by RF-3, to the senior underwriter (20 percent). PRC-6404 went against: the same 18 percent to match another insurer was declined. PRC-6405 differs on a material fact: its 15 percent was approved for a three-year agreement, which this risk does not offer. |
+
+`save_referral_memo` is refused with 409, and nothing is saved, when a forcing rule is not a referral rule or a guideline, when a precedent id is not one the insurer holds, or when no referral is needed and a grade to refer to is given. The saved draft carries the system's own authority check.
+
+### Renewals
+
+`list_renewals_due` lists the renewals whose period ends within a number of days (60 when none is given), soonest first: within 30 days it gives RNW-6701 and RNW-6702; within 60 all six. `get_renewal_rules` gives the rules. `get_renewal` gives the expiring terms, the claims of the period, the totals with the loss ratio on payments alone and with reserves, the changes reported, any disagreement between records, and each rule with whether it applies.
+
+RN-1: a loss ratio (paid plus reserves, over the period's premium) above 70 percent needs a referral to a senior underwriter; exactly 70 percent does not. RN-2: a change of occupancy needs a survey before terms. RN-3: a change in protections needs a referral to a senior underwriter. RN-4: for an open claim the review gives the ratio on payments alone and with reserves. RN-5: where two records disagree, both are shown, neither is chosen, and the claims team is asked.
+
+| Renewal | For | Facts | Right answer |
+|---|---|---|---|
+| RNW-6701 | A clean renewal. CPL-6801 Ivelet & Thorn Bookbinders Ltd, period 18 Dec 2025 to 17 Dec 2026 (21 days left). | Total sum insured 900,000.00, deductible 2,500.00, premium 6,000.00. One closed claim, CCL-6901, loss 7 May 2026, paid 900.00. No change reported. | Loss ratio 15.00 percent. No rule applies. Ready for the underwriter. |
+| RNW-6702 | A high loss ratio. CPL-6802 Dunmarrow Catering Supplies Ltd, period 25 Dec 2025 to 24 Dec 2026 (28 days left). | Premium 10,000.00. CCL-6902, loss 15 Mar 2026, paid 4,600.00; CCL-6903, loss 28 Jul 2026, paid 3,650.00. Both closed. | 4,600.00 + 3,650.00 = 8,250.00; loss ratio 82.50 percent, above 70 percent. RN-1 applies: refer to the senior underwriter. |
+| RNW-6703 | A change of occupancy mid-term. CPL-6803 Hartsease Garden Tools Ltd, period 30 Dec 2025 to 29 Dec 2026 (33 days left). | Premium 7,500.00. CCL-6904, loss 28 Feb 2026, paid 1,500.00, closed. On 29 Jun 2026 the broker reported that half of the warehouse is let to a tyre fitter who stores tyres there. | Loss ratio 20.00 percent. RN-2 applies: a survey before terms are offered. |
+| RNW-6704 | An open large claim whose reserve changes the ratio. POL-2007 Aldous Pennicott (home), period 31 Dec 2025 to 30 Dec 2026 (34 days left). | Buildings 240,000.00 + contents 30,000.00 = 270,000.00, deductible 250.00, premium 1,240.00 (held on the renewal). CLM-4007, fire, loss 23 Nov 2026, open, nothing paid, reserve 62,000.00. | On payments alone 0.00 percent; with the reserve 62,000.00 / 1,240.00 = 5,000.00 percent. RN-1 and RN-4 apply: refer to the senior underwriter, and say that the whole cost is a reserve that may move. |
+| RNW-6705 | No claims, but a change in protections. CPL-6805 Calloway & Finch Shopfitters Ltd, period 6 Jan 2026 to 5 Jan 2027 (40 days left). | Class B, total 1,900,000.00, sprinklers yes on the schedule, premium 14,000.00. No claim. On 12 Oct 2026 the broker reported the sprinkler system out of service since 5 Oct 2026, with no date for its return. | Loss ratio 0.00 percent. RN-3 applies: refer to the senior underwriter. |
+| RNW-6706 | The claims record and the policy record disagree on a date. CPL-6806 Merrowdown Marine Stores Ltd, period 14 Jan 2026 to 13 Jan 2027 (48 days left). | Premium 12,500.00. CCL-6905, loss 29 Jul 2026, paid 3,875.00. CCL-6906, paid 5,625.00, booked to this policy with a date of loss of 5 Jan 2026, 9 days before the period started. | With every claim: 9,500.00, 76.00 percent. Leaving out CCL-6906: 3,875.00, 31.00 percent. RN-5 applies; RN-1 depends on the disagreement. The review shows both, chooses neither, and the next step is to ask the claims team. |
+
+RNW-6704 follows the claims system as it stands: once CLM-4007 is declined or paid, the figures change. A review saved on it writes nothing to the policy or the claim.
+
+`save_renewal_review` is refused with 409, and nothing is saved, when a rule named is not a renewal rule, or when the next step is `ready_for_the_underwriter` and rules that apply are named. The saved draft carries the system's own figures.
+
+## Investigations (system: investigations)
+
+Six handling standards (LS-1 to LS-6), eight closed claims for the leakage review (CLM-6101 to CLM-6108), six fraud indicators (FI-1 to FI-6), eight new claims waiting for the fraud check (CLM-6201 to CLM-6208), seven claims referred to the investigations desk (CLM-6301 to CLM-6307), thirteen earlier closed claims (CLM-6011 to CLM-6041), thirty-three parties (PTY-3001 to PTY-3029 people, PTY-3501 to PTY-3513 firms) and three public notices (PN-901 to PN-903). Policies POL-2701 to POL-2727 are held in this system only; five closed claims read POL-2001, POL-2002, POL-2011, POL-2012 and POL-2014 from the policy system. Every phone number is `+999 555 ....`, every bank account `DEMO-ACCT-....`, and every notice is invented.
+
+The system does every sum, count and match. Every save is a draft with a version number, and changes nothing else: there is no change operation. No operation declines a claim, holds a payment, asks for money back or says that a person did wrong. A read never returns saved drafts: it gives `drafts_on_file`, and `list_leakage_finding_drafts`, `list_fraud_referral_drafts` and `list_case_file_drafts` read them.
+
+### Handling standards (leakage review)
+
+`get_claims_handling_standards` gives the rules. `calculate_what_should_have_been_paid` tests one closed claim against all six and gives each a result: `met`, `not_met` or `cannot_tell`.
+
+| Standard | Test |
+|---|---|
+| LS-1 | The deductible is taken once: the schedule's deductible (clause 4.1), or 500.00 for a home escape of water claim (home clause 4.2). |
+| LS-2 | A line the wording limits is paid at the limit. Motor: windscreen 500.00 (3.2), personal belongings 300.00 (3.3), hire car 40.00 a day for up to 10 days (3.4), the vehicle never above the sum insured (3.1). Home: 2,500.00 for an item not listed in the schedule (3.2), trace and access 1,500.00 (3.4). |
+| LS-3 | More than 5,000.00 paid in all needs a senior adjuster's approval on the file; more than 25,000.00 the claims manager's (rule HG-5). |
+| LS-4 | Where the file names another party as at fault, a recovery is raised before the claim is closed (rule HG-7). |
+| LS-5 | An invoice is paid once: two payments to the same payee against the same invoice number are a duplicate. |
+| LS-6 | Nothing is paid on a loss dated outside the policy period. Met on all eight claims. |
+
+### Closed claims
+
+`list_closed_claims_for_review` with no dates gives the claims closed from 27 Oct 2026 to 26 Nov 2026: all eight. `get_closed_claim_payment_file` gives one claim with its invoices, the settlement record, the payments and the policy. The finding (`save_leakage_finding`) has one of three outcomes: paid within the standards, paid outside the standards, or cannot tell and needs a person.
+
+| Claim | For | Facts | Right answer |
+|---|---|---|---|
+| CLM-6101 | Paid correctly; a limit was applied. Isaura Venn, POL-2011, motor. Loss 17 Oct 2026, closed 5 Nov 2026. | Invoice CC-3117: bumper and light cluster 1,480.00, rear windscreen 610.00. The handler allowed the windscreen at 500.00. Deductible 300.00 taken. Paid 1,680.00, approved by Ottilie Marsh, handler. | 1,480.00 + 500.00 = 1,980.00, less 300.00 = 1,680.00 should have been paid; 1,680.00 paid; difference 0.00. Every standard met. LS-2 does not fire: the line over its limit was paid at the limit. Paid within the standards. |
+| CLM-6102 | Paid correctly; above the handler's authority, with a second approval and a recovery. Fenwick Aldergrove, POL-2701, motor. Loss 2 Oct 2026, closed 8 Nov 2026. | Repair 6,900.00 and hire car 8 days at 38.00 = 304.00. Deductible 350.00 taken. Paid 6,550.00 + 304.00 = 6,854.00. Approved by Lucan Thirlby, handler, and Fenella Arkwright, senior adjuster. The file names Hollis Drummock as at fault; recovery REC-0412 raised on 7 Nov 2026. | 7,204.00 less 350.00 = 6,854.00 should have been paid; 6,854.00 paid. LS-3 met: the senior adjuster's approval is on the file. LS-4 met: the recovery is raised. Paid within the standards. |
+| CLM-6103 | The deductible not applied. Corwin Ashgrove, POL-2001, motor. Loss 9 Oct 2026, closed 1 Nov 2026. | Invoice GBR-2240, 1,940.00. Deductible due 250.00, taken 0.00. Paid 1,940.00. | LS-1 not met. 1,690.00 should have been paid; 1,940.00 paid; difference 250.00. Paid outside the standards. |
+| CLM-6104 | A line paid over its limit. Elspeth Marrowdene, POL-2002, home theft. Loss 13 Oct 2026, closed 12 Nov 2026. | Gold bracelet 3,400.00 (CLM-6104-L1, not listed in the schedule) and television 900.00. The handler allowed 3,400.00 on the bracelet. Deductible 300.00 taken. Paid 4,000.00. | LS-2 not met on CLM-6104-L1: 3,400.00 allowed where the limit is 2,500.00 (clause 3.2), 900.00 over. 2,500.00 + 900.00 = 3,400.00, less 300.00 = 3,100.00 should have been paid; 4,000.00 paid; difference 900.00. Paid outside the standards. |
+| CLM-6105 | A duplicate invoice paid twice. Ignatius Corbrook, POL-2702, home fire. Loss 5 Oct 2026, closed 18 Nov 2026. | Joinery invoice MRJ-0448 2,300.00, electrical invoice SE-7713 640.00. Deductible 250.00 taken. Payments: CLM-6105-P1 2,050.00 to Marlow Reach Joinery on 30 Oct 2026, CLM-6105-P2 640.00, CLM-6105-P3 2,050.00 to Marlow Reach Joinery against MRJ-0448 again on 8 Nov 2026. | LS-5 not met: CLM-6105-P3 repeats CLM-6105-P1. 2,940.00 less 250.00 = 2,690.00 should have been paid; 4,740.00 paid; difference 2,050.00. LS-3 met: 4,740.00 is within the handler's authority. Paid outside the standards. |
+| CLM-6106 | Paid above authority with no second approval. Ansel Whitlocke, POL-2014, motor. Loss 20 Oct 2026, closed 15 Nov 2026. | Invoice BHM-6031, 7,150.00. Deductible 300.00 taken. Paid 6,850.00 on the approval of Ottilie Marsh, handler, alone. | LS-3 not met: 6,850.00 needs a senior adjuster's approval and none is on the file. The amount is right: 6,850.00 should have been paid and was; difference 0.00. Paid outside the standards. |
+| CLM-6107 | A recovery not raised. Sunniva Marchbank, POL-2703, motor. Loss 15 Oct 2026, closed 10 Nov 2026. | Invoice LHG-4472, 2,860.00. Deductible 300.00 taken. Paid 2,560.00. The other driver, Edric Vollenhoe, says in his signed statement of 16 Oct 2026 that he reversed into the parked vehicle. No recovery is raised. | LS-4 not met. The amount is right: 2,560.00 should have been paid and was; difference 0.00. Paid outside the standards. The finding does not contact the other driver. |
+| CLM-6108 | An incomplete record. Elric Stannaway, POL-2012, home escape of water. Loss 7 Oct 2026, closed 20 Nov 2026. | Invoice OP-3381, 780.00, on the file; deductible 500.00 taken (clause 4.2); CLM-6108-P1 280.00. CLM-6108-P2, 1,930.00 to Dunmere Drying and Decorating against invoice DDD-2291, which is not on the file. Paid 2,210.00 in all. | Cannot tell, needs a person. What should have been paid is not worked out. LS-2 cannot be told; no standard is shown as not met. What is missing: invoice DDD-2291. |
+
+`save_leakage_finding` is refused with 409, and nothing is saved, when a row names a standard the insurer does not have or names one twice, when the outcome is paid outside the standards and no row says not met, when the outcome is paid within the standards and a row says not met or cannot tell, or when the outcome is cannot tell and what is missing is not given. The saved draft carries the system's own figures.
+
+### Fraud indicators
+
+`get_fraud_indicators` gives the rules. `run_fraud_indicators` measures all six on one claim and gives the measured value, the threshold and whether the indicator is met. Two people are the same person only when the name and the date of birth are both the same.
+
+| Indicator | Test |
+|---|---|
+| FI-1 Early loss | The loss is 30 days or fewer after the start of the policy period. |
+| FI-2 Frequent claimant | 3 or more earlier claims by the same person with a date of loss in the 24 months before this loss. |
+| FI-3 Same repairer | The repairer is on 3 or more claims by the same claimant, this claim included. |
+| FI-4 Shared bank account | The bank account for payment is on a claim by 1 or more unrelated claimants: a different person who is not recorded at the claimant's address. |
+| FI-5 Invoice dated before the loss | A repair invoice or repair estimate is dated 1 day or more before the loss. |
+| FI-6 Estimate close to the limit | The estimate is 95 percent or more of the sum insured that applies (the vehicle, contents for a home theft, buildings for any other home claim). |
+
+### New claims for the fraud check
+
+`list_claims_for_fraud_check` lists them. `get_claim_for_checking` gives one claim with its parties, documents and policy. `get_parties_earlier_claims` gives the earlier claims of every party. The referral (`save_fraud_referral`) proposes one of two things: refer to the investigations desk, or no referral and the handler goes on. It never says a claim is false.
+
+Measured values are in the order FI-1 to FI-6.
+
+| Claim | For | Facts | Measured | Right answer |
+|---|---|---|---|---|
+| CLM-6201 | Clean. Perpetua Hollowell (PTY-3001), POL-2711, motor. Loss 20 Nov 2026, estimate 1,820.00. | Policy started 30 Jan 2026. No earlier claims. Sum insured 13,000.00. Estimate dated 22 Nov 2026. | 294 days; 0; 1; 0; 0; 14.0 percent | No indicator met. No referral. |
+| CLM-6202 | Clean, though it looks odd. Lorcan Whitmarsh (PTY-3002), POL-2712, motor. Loss 19 Nov 2026, estimate 10,920.00. | Policy started 16 Oct 2026. Earlier claims CLM-6011 (loss 22 Oct 2025) and CLM-6012 (loss 29 Jun 2026); CLM-6012 used the same repairer, Ferry Road Motors. The account DEMO-ACCT-3002 is also on CLM-6013 by Niamh Whitmarsh (PTY-3003), who is recorded at the same address: not unrelated. Estimate dated the day of the loss. Sum insured 12,000.00. | 34 days; 2; 2; 0; 0; 91.0 percent | Every indicator is below its threshold. No indicator met. No referral. |
+| CLM-6203 | An early loss. Benedikt Farrowdale (PTY-3004), POL-2713, motor theft. Loss 18 Nov 2026, value 9,600.00. | Policy started 6 Nov 2026. | 12 days; 0; 0; 0; 0; 60.0 percent | FI-1 met: 12 days. Refer. |
+| CLM-6204 | A frequent claimant. Clementine Durrow (PTY-3005), POL-2714, home escape of water. Loss 17 Nov 2026, estimate 3,360.00. | Four earlier claims: CLM-6014 (loss 9 Jun 2024), CLM-6015 (14 Feb 2025), CLM-6016 (2 Oct 2025), CLM-6017 (9 Jun 2026). The 24 months start on 17 Nov 2024, so CLM-6014 is not counted. | 311 days; 3; 0; 0; 0; 1.2 percent | FI-2 met: 3 earlier claims in the 24 months. Refer. |
+| CLM-6205 | A bank account shared with an unrelated claimant. Rafferty Coombe (PTY-3006), POL-2715, motor. Loss 21 Nov 2026, estimate 2,900.00. | The account DEMO-ACCT-7741 is also on CLM-6021 by Isolde Penhallow (PTY-3007), of another address. | 200 days; 0; 1; 1; 0; 20.0 percent | FI-4 met: 1 unrelated claimant. Refer. The referral states the shared account and accuses neither person. |
+| CLM-6206 | An invoice dated before the loss. Marguerite Ashdown (PTY-3008), POL-2716, home escape of water. Loss 16 Nov 2026, estimate 4,200.00. | Repair invoice DOC-6206-2 from Swallowfield Flooring is dated 10 Nov 2026. | 255 days; 0; 0; 0; 6 days; 1.4 percent | FI-5 met: 6 days before the loss. Refer. |
+| CLM-6207 | Two indicators. Thaddeus Wren (PTY-3009), POL-2717, motor. Loss 21 Nov 2026, estimate 17,640.00. | Policy started 12 Nov 2026. Sum insured 18,000.00. | 9 days; 0; 1; 0; 0; 98.0 percent | FI-1 met (9 days) and FI-6 met (98.0 percent). Refer, with both. |
+| CLM-6208 | A name that matches an earlier claimant, with another date of birth. Gideon Marlowe (PTY-3010, born 2 Jun 1985), POL-2718, motor. Loss 22 Nov 2026, estimate 2,480.00. | Another Gideon Marlowe (PTY-3011, born 19 Oct 1961) has three claims: CLM-6022, CLM-6023, CLM-6024. He is another person. | 146 days; 0; 1; 0; 0; 16.0 percent | No indicator met. FI-2 does not fire: the claimant has no earlier claim, and the other man's claims are not his. No referral. |
+
+`save_fraud_referral` is refused with 409, and nothing is saved, when the claim is not waiting for the fraud check, when a row names an indicator the insurer does not have or names one twice, when a referral is proposed with no row, or when no referral is proposed and rows are sent. The saved draft carries the system's own measurement. `run_fraud_indicators` is refused with 409 for a closed claim.
+
+### Claims referred to the investigations desk
+
+`list_flagged_claims` lists them, each with who referred it and the indicators met. `get_claim_links` gives everything a claim shares with other claims and parties in one call. `get_party_links` gives what one party shares. `search_parties` finds parties by any word of a name, or by a whole phone number or bank account. `get_public_notices_for_party` gives the notices that name a person with a party's name and says whether each is about the same person. `search_public_notices` searches the notices. The case file (`save_case_file`) states what the records show. It is not a finding about any person.
+
+All seven were referred by Lucan Thirlby, claims handler.
+
+| Claim | For | Facts | Right answer |
+|---|---|---|---|
+| CLM-6301 | One of three linked claims. Osric Fenn (PTY-3021), POL-2721, motor. Loss 14 Nov 2026, estimate 5,200.00. Referred 16 Nov 2026 on FI-1 (18 days). | Repairer Brackenfold Motor Works (PTY-3501). Phone +999 555 0142. No earlier claims. No public notice. | Linked to CLM-6302 (Dagny Rookhope) and CLM-6303 (Ulric Staveley), each by the repairer and by the phone number. The file names both claims, the repairer and the number, and says what the records show and no more. |
+| CLM-6302 | The second of the three. Dagny Rookhope (PTY-3022), POL-2722, motor. Loss 11 Nov 2026, estimate 14,400.00. Referred 13 Nov 2026 on FI-6 (96.0 percent of 15,000.00). | The same repairer and the same phone number. | Linked to CLM-6301 and CLM-6303 by the repairer and the phone number. |
+| CLM-6303 | The third of the three. Ulric Staveley (PTY-3023), POL-2723, motor. Loss 17 Nov 2026, estimate 6,800.00. Referred 19 Nov 2026 on FI-1 (22 days). | The same repairer and the same phone number. | Linked to CLM-6301 and CLM-6302 by the repairer and the phone number. |
+| CLM-6304 | A public notice about the claimant. Evander Pryce (PTY-3024, born 12 Mar 1979, 4 Rope Walk, Port Ilvane), POL-2724, motor. Loss 15 Nov 2026, estimate 12,125.00. Referred 17 Nov 2026 on FI-6 (97.0 percent of 12,500.00). | PN-901, court list of Port Ilvane District Court of 16 Mar 2025: Evander Pryce, born 12 Mar 1979, of 4 Rope Walk, pleaded guilty to making a false statement in support of an insurance claim; a fine of 1,200.00. One earlier claim, CLM-6041 (loss 3 Aug 2025, paid 1,300.00). No link to another claimant. | The notice is about the claimant: the name, the date of birth and the address agree. The file gives the notice as a public record of what it says, lists CLM-6041, says no link was found, and draws no conclusion about this claim. |
+| CLM-6305 | A notice about a different person of the same name. Leofric Tansley (PTY-3025, born 14 Jul 1991, 27 Mariners Row, Port Ilvane), POL-2725, motor. Loss 20 Nov 2026, estimate 3,900.00. Referred 22 Nov 2026 on FI-1 (19 days). | PN-902, Tallowby Courier of 12 Oct 2025: a Leofric Tansley born in 1968, of Sheepwash Lane, Tallowby, barred from acting as a company director. No earlier claims. No links. | The notice is about a different person: the year of birth and the address differ. The file says so, and says the notice tells nothing about the claimant. No links found. |
+| CLM-6306 | No links at all. Wilhelmina Orrell (PTY-3026), POL-2726, motor. Loss 18 Nov 2026, estimate 2,640.00. Referred 20 Nov 2026 on FI-5 (the estimate is dated 16 Nov 2026, 2 days before the loss). | No earlier claims. Nothing shared with any claim or party. No public notice. | The file says that no earlier claim, no link and no public notice was found. It reports the reason for the referral and adds nothing. |
+| CLM-6307 | A link that runs through a party who is named and not accused. Cuthbert Lyle (PTY-3027), POL-2727, motor. Loss 13 Nov 2026, estimate 10,560.00. Referred 15 Nov 2026 on FI-6 (96.0 percent of 11,000.00). | The witness, Hester Quarmby (PTY-3028), is also the witness on CLM-6031, a claim by Ambrose Tidewell (PTY-3029, loss 11 Mar 2026, paid 4,100.00). The two claimants share nothing else. No public notice names any of the three. | Linked to CLM-6031 by the witness only. The file names Hester Quarmby as a witness on both claims, as a fact of the records, and says nothing more about her. |
+
+PN-903 (Marlow Reach County Court, 30 Jan 2026, a bankruptcy order against Dorian Applegarth) names nobody on any claim.
+
+`save_case_file` is refused with 409, and nothing is saved, when the claim is not referred to the investigations desk, when a row names a claim, a party or a notice the insurer does not hold, when links are said to be found and no row is sent, or when no links are said to be found and rows are sent. The saved draft carries what the system found itself.
+
 ## Rules for checking
 
 - A draft keeps every version and changes no status.

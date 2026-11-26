@@ -16,6 +16,8 @@ READ_CALLS = {
     "policy": ("get_policy", {"policy_id": "POL-2001"}, "policy_id", "POL-2001"),
     "claims": ("get_claim", {"claim_id": "CLM-4001"}, "claim_id", "CLM-4001"),
     "health": ("get_member", {"member_id": "MEM-7201"}, "member_id", "MEM-7201"),
+    "underwriting": ("get_submission", {"submission_id": "SBM-6501"}, "submission_id", "SBM-6501"),
+    "investigations": ("get_claim_for_checking", {"claim_id": "CLM-6201"}, "claim_id", "CLM-6201"),
 }
 
 

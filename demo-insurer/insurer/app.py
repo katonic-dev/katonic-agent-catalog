@@ -18,9 +18,13 @@ from .config import INSURER_NAME, INVENTED_NOTICE, load_settings
 from .mcp_doors import install_mcp
 from .store import Store
 from .systems import claims, health, policy
+from .systems import underwriting
+from .systems import investigations
 
 log = logging.getLogger("demo-insurer")
 SYSTEMS = [policy, claims, health]
+SYSTEMS.append(underwriting)
+SYSTEMS.append(investigations)
 
 
 class DemoHeaderMiddleware:

@@ -219,4 +219,10 @@ class Store:
             "pre_authorisation_requests_received": sum(1 for r in d["pre_authorisations"].values() if r["status"] == "received"),
             "medical_claims_held": sum(1 for c in d["medical_claims"].values() if c["status"] == "held"),
             "provider_invoices_received": sum(1 for i in d["provider_invoices"].values() if i["status"] == "received"),
+            "underwriting_submissions_received": sum(1 for s in d["uw_submissions"].values() if s["status"] == "received"),
+            "underwriting_referrals_to_draft": len(d["uw_referrals"]),
+            "renewals_due_for_review": len(d["uw_renewals"]),
+            "closed_claims_in_the_leakage_review": len(d["leakage_claims"]),
+            "claims_waiting_for_the_fraud_check": sum(1 for c in d["investigation_claims"].values() if c["status"] == "new"),
+            "claims_referred_to_investigations": sum(1 for c in d["investigation_claims"].values() if c["status"] == "flagged"),
         }
