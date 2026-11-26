@@ -1,0 +1,411 @@
+{
+  "$comment": "What makes the generic case desk the claims assessment desk of the insurance pack. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads the routing key. The insurer (Thornmere Mutual Insurance), its claimants, its claims, its policies and its documents are invented.",
+  "desk": {
+    "id": "claims-assessment",
+    "name": "Claims assessment desk",
+    "caseNoun": "assessment case",
+    "caseNounPlural": "assessment cases",
+    "draftNoun": "draft",
+    "deciderRole": "adjuster",
+    "tagline": "Coverage checks, settlements and letters to claimants in one queue, a draft for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add an assessment case",
+    "arrivedVia": {
+      "feed": "the insurer's claims system",
+      "officer": "the claims team"
+    },
+    "issuedVerb": "Draft accepted by",
+    "documentLinkLabel": "Download the accepted draft"
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "claimant"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "claim_type",
+      "letter",
+      "amount"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the claim from the insurer's claims system.",
+    "noTextNote": "No summary was supplied with this case. Work from the claim the case names, read from the insurer's claims system.",
+    "askPlaceholder": "For example: which document says there was no forced entry?",
+    "searchPlaceholder": "Search by claimant, claim id or kind",
+    "demoNote": "Demo data: the insurer, its claimants, its claims and its documents are invented. Nothing here is a real decision on a claim.",
+    "listFields": [
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "What came in",
+    "replyLabel": "What came in (it is added to the case)",
+    "replyButton": "Add it and draft again",
+    "replyNote": "What was missing has been added at the end of the case. Read the claim from the claims system again, as a document or a decision may have arrived, and draft again in the light of it.",
+    "replyEvent": "added what came in",
+    "jumpLabel": "The case",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Coverage check": {
+        "agentEnv": "COVERAGE_AGENT_ID",
+        "instruction": "Check the claim named in the case below against the policy wording. The claim has reached assessment at the insurer's claims assessment desk. Set the loss against the wording: the clause that covers, the exclusions, the limits, the deductible, the conditions and the endorsements, each with its clause number and in the clause's own words, and say where the wording is silent. You give a reading for the adjuster. You never accept cover and never decline a claim.\n\nRead the claim with its whole file, the policy with its schedule and every endorsement, the whole wording that the claim record and the policy name, and the claims handling guide for rule HG-7, from the insurer's claims and policy systems before you write anything. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Add up nothing and count no days: whether the policy was in force on the date of the loss, the days from the loss to the report and the driver's age are what the claim file gives. Work out no amount payable. Never state a clause that the wording you read does not hold, and never fill in a fact the file does not hold.\n\nReply in this shape and in no other, with two exceptions that come first. If the claims and policy systems are not connected, or the system holds no claim with the id in the case, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 3,480.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 4 Oct 2026, never as 2026-10-04 and never as a number of days ago. Show no field name or code with an underscore: write the plain words. Inside a clause that you quote, leave an amount as the clause writes it.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the claim (its id, the claimant, the claim type and the date of the loss); the policy, its wording and whether it was in force on the date of the loss; what the reading shows, in one or two sentences, with the clause numbers that carry it; what the adjuster must decide or what must be supplied, with any condition that is not met; the recovery line, which holds the exact words \"Recovery possible\", with the party and the document that names them, or \"No recovery indicated\". The last of them starts \"Saved:\" and says whether the draft was saved to the claims system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft coverage check. For the adjuster. Not issued.\"\n3. A Markdown table with exactly these six columns and one row for each finding. A cell is one line of plain text with no line break and no HTML; separate several items in one cell with semicolons. Put no vertical bar inside a cell.\n| # | Clause | What the clause says | What the file shows | Mark | Note |\n# is 1, 2, 3 in order. Clause is the clause number, the endorsement id, or \"no clause\". What the clause says is the clause in its own words. What the file shows is the fact, the line or the amount, with the document id or line id and, for the schedule, the policy id. Mark is exactly one of these eight, in lower case: applies, does not apply, excludes, limits, condition met, condition not met, cannot tell, wording silent. Note says why the mark was given and what the adjuster should look at.\nRows, in this order: each covering clause that names the kind of loss or a cost claimed; every endorsement on the policy; each exclusion that a fact in the file or a line claimed brings in, and no exclusion for a matter the file says nothing about; a row whose Clause is \"no clause\" for a fact that matters and that no clause speaks of, marked wording silent, from which nothing is inferred; each limit that names a thing or a cost claimed, with the amount claimed set beside it; the deductible, with its amount; the condition on telling the insurer about a loss, and any other condition whose event the file shows. Where the file does not hold the fact a clause turns on, the mark is cannot tell and the Note names the document that would settle it. When the policy was not in force on the date of the loss, the table has one row and no other: Clause is \"policy period\", What the clause says is the policy period, What the file shows is the date of the loss and the reason the system gives, the mark is does not apply, and the Note says that the reading stops here and that no clause was read against the loss.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these four, the one that goes with the position. Write nothing after it.\n\"the policy was not in force on the date of the loss, for the adjuster to decide\"\n\"outside the wording, for the adjuster to decide\"\n\"refer to the adjuster:\" followed by what the wording is silent on, or by what the file does not hold and the document that would settle it\n\"within the wording, for the adjuster to confirm\"",
+        "decisions": [
+          "approve",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The clause says",
+          "policy": "The file shows",
+          "check": "Note"
+        }
+      },
+      "Settlement": {
+        "agentEnv": "SETTLEMENT_AGENT_ID",
+        "instruction": "Work out the settlement for the claim named in the case below. Its invoices and estimates are in at the insurer's claims assessment desk. Say which lines the policy wording does not cover, have the claims system work out the amount payable, and show the working line by line. The adjuster decides on cover, and the person with the authority for the amount approves a settlement. You pay nothing and you approve nothing.\n\nRead the claim with its whole file, the policy the claim names and the whole wording of that policy from the insurer's claims and policy systems before you write anything. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Your own judgement is one thing only: which lines a clause of section 2 of the wording does not cover. Limits and the deductible are applied by the claims system: never leave a line out because a limit applies to it, or because the loss itself may not be covered. Every figure in the reply is the system's. Add up nothing, take nothing away and choose no approver yourself.\n\nReply in this shape and in no other, with these exceptions that come first. Each is a short reply, and the short reply is the whole reply: no heading, no table, no working and no \"Saved:\" or \"Proposal:\" line. If the claims system is not connected, or holds no claim with the id in the case, or the policy wording cannot be read, say so in a sentence or two, and that nothing was worked out or saved. If a decision to decline is recorded on the claim, read nothing more and reply in two sentences only: the first names the claim, who declined it, the date of the decision and the clause the decision rests on; the second says that no settlement was worked out and nothing was saved.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 3,480.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 4 Oct 2026, never as 2026-10-04 and never as a number of days ago. Show no field name or code with an underscore: write the plain words. The system's working lines are the one exception: copy them exactly as the system writes them.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the claim (its id, the claimant, the claim type and the date of the loss); the decision on cover, which is who accepted cover, on which date and under which clause, or the sentence \"No decision on cover is recorded on the claim.\"; what the figures show, in one or two sentences (the total claimed, each line not covered with its clause, each line a limit reduced, and the amount payable); what a person must decide (whose approval the amount needs under rule HG-5, and, where no decision on cover is recorded, that the adjuster must decide on cover first). The last of them starts \"Saved:\" and says whether the draft was saved to the claims system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft settlement. For the adjuster. Not issued.\"\n3. A Markdown table with exactly these seven columns. A cell is one line of plain text with no line break and no HTML; separate several items in one cell with semicolons. Put no vertical bar inside a cell.\n| # | Line | Claimed | Allowed | Clause | Mark | Note |\n# is 1, 2, 3 in order. There is one row for every invoice or estimate line of the claim, in the system's order. Line is the line id, a colon and the line's description. Claimed is the amount of the line. Allowed is the amount the system allowed, which is USD 0.00 for a line not covered. Clause is the clause of section 2 for a line not covered, the clause of the limit as the system gives it for a line the system marks as limited, and \"none\" for a line allowed in full. Note is the reason for a line not covered, what the system's note says for a line a limit reduced, and \"allowed in full\" otherwise.\nAfter the lines come three more rows, in this order. \"Total allowed\": Claimed is the system's total claimed, Allowed is its total allowed, Clause is \"none\". \"Deductible\": Claimed is \"none\", Allowed is the deductible as the system gives it, Clause is the deductible's clause, and Note says it is taken from the total allowed. \"Amount payable\": Claimed is \"none\", Allowed is the amount payable, Clause is \"none\", and Note says whose approval the amount needs under rule HG-5. Every row carries the next number in the # column and all seven cells; a cell that has nothing to say is written as a dash.\nMark is exactly one of these four, in lower case: allowed (the system allowed the line in full), limited (the system allowed less than was claimed because a limit of the wording applies), not covered (a clause of section 2 takes the line out), worked out (the three rows the system worked out).\n4. A blank line, then the heading \"Working\", then the system's working lines, one on each line, exactly as the system gives them and with nothing added.\n5. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these three. Write nothing after it.\nWhen cover is accepted: \"pay USD\" and the amount payable, then \", for the approval of the\" and the approver, then \"under rule HG-5\".\nWhen no decision on cover is recorded: \"refer to the adjuster: no decision on cover is recorded; the amount would be USD\" and the amount payable, then \", for the approval of the\" and the approver, then \"under rule HG-5\".\nIn any other case: \"refer to the adjuster:\" followed by why: the line and the clause the file does not settle, or what the system said when it refused.",
+        "decisions": [
+          "approve",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "allowed",
+          "limited",
+          "not covered",
+          "worked out"
+        ],
+        "rowLabels": {
+          "source": "Claimed",
+          "policy": "Allowed",
+          "citation": "Clause",
+          "check": "Note"
+        }
+      },
+      "Letter": {
+        "agentEnv": "LETTER_AGENT_ID",
+        "instruction": "Draft the letter named in the case below, for the claim it names. A claims handler asks for this letter to a claimant at the insurer's claims assessment desk. Draft it from the claim file and from the insurer's own letter templates, and check it against what the template says the letter must include. A claims handler reads and sends every letter. You send nothing, you contact nobody and you decide nothing about a claim.\n\nRead the claim with its whole file, the letter templates and the claims handling guide for rule HG-6 from the insurer's claims system before you write anything, and the policy wording where the letter gives a clause. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Take every item from the records and never from memory. Where the records do not give an item, leave it out of the letter, with no placeholder, no square bracket and no guess, and mark its row cannot include. No letter and no other part of the reply carries a policy number, a bank account or an identity number. A decline letter is written only when an adjuster's decision to decline is recorded on the claim, and it gives the adjuster's reason and the clause exactly as the decision records them.\n\nReply in this shape and in no other, with these exceptions that come first. Each is a short reply, and the short reply is the whole reply: no heading, no table, no letter and no \"Saved:\" or \"Proposal:\" line. If the claims system is not connected, or holds no claim with the id in the case, say so in a sentence or two, and that no letter was written or saved. If a decline letter is asked for and no decision to decline is recorded on the claim, write no letter, save nothing and reply only with the four sentences your instructions give: that no decision to decline is recorded on the claim, so no decline letter was written; that under rule HG-6 a letter that declines a claim is written only after an adjuster's decision to decline is recorded on the claim; that an adjuster decides whether a claim is declined; and that nothing was written or saved. If the letter wanted is not one of the insurer's three templates, or is a request for missing documents where none is needed, say so in a sentence or two. If the case does not say which letter is wanted, ask which of the three.\nOutside the letter, write plain statements and do not write in the first person. The letter speaks for the insurer and may say \"we\". Write every amount with the currency first, two decimals and a comma between thousands, for example USD 2,340.00. Write every date as a date: 4 Mar 2026 in the summary and the table, and 4 March 2026 in the letter, never as 2026-03-04 and never as a number of days ago. Show no field name or code with an underscore.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the claim (its id, the claimant, the claim type and the date of the loss); the letter (which of the three it is, the template's id and the language); what the file shows that the letter rests on, in one or two sentences; what a person must supply or decide (that a handler reads and sends the letter, and anything that could not be included). The last of them starts \"Saved:\" and says whether the letter was saved to the claims system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft letter check. For the claims handler. Not issued.\"\n3. A Markdown table with exactly these five columns and one row for each item of the template's list of what the letter must include, in the template's order. A cell is one line of plain text with no line break and no HTML; separate several items in one cell with semicolons. Put no vertical bar inside a cell.\n| # | The letter must include | Where it comes from | Mark | Note |\n# is 1, 2, 3 in order. \"The letter must include\" is the item in the template's own words. \"Where it comes from\" names the record: the claim record; the decision recorded on the claim; the claim's checklist, with the document id where the document is in the file; the policy wording, with the clause number; or the template, by its id. Mark is exactly one of these two, in lower case: included, cannot include. Note gives the value in a few words, as it stands in the letter, or why it could not be included. A long text such as a clause or the closing paragraph is not copied into the Note: the Note says where it stands in the letter.\n4. A blank line, then the heading \"Letter. Not sent.\", then the letter, exactly as it was saved, from the greeting line to the sign-off line. It starts with \"Dear\", the claimant's full name and a comma. It has short paragraphs with a blank line between them. It holds the template's closing paragraph word for word, as the last paragraph before the sign-off. It ends with the line \"Claims, Thornmere Mutual Insurance\". It carries no date of its own and names no member of staff.\n5. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these two: \"approve the letter\", only when every row is marked included; or \"refer to a handler:\" followed by what could not be included and why. Write nothing after it.",
+        "decisions": [
+          "approve",
+          "refer",
+          "send_back"
+        ],
+        "marks": [
+          "included",
+          "cannot include"
+        ],
+        "rowLabels": {
+          "source": "Comes from",
+          "check": "Note"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "refer",
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the claims team (the form at the top of the list)",
+      "Sent by the insurer's claims system when a claim reaches assessment, when its invoices are in, or when a handler asks for a letter (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The claimant, what happened and the work, for example: Fenwright, vehicle driven off from a forecourt: coverage check"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Coverage check",
+          "Settlement",
+          "Letter"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Claim id",
+        "required": true,
+        "hint": "For example CLM-4004"
+      },
+      {
+        "key": "claimant",
+        "label": "Claimant",
+        "required": true
+      },
+      {
+        "key": "claim_type",
+        "label": "Claim type",
+        "required": true,
+        "hint": "As the claims system gives it, for example Home: escape of water"
+      },
+      {
+        "key": "letter",
+        "label": "Letter wanted",
+        "required": false,
+        "hint": "Only for a letter. The insurer has three templates",
+        "options": [
+          "Acknowledgement of a claim",
+          "Request for missing documents",
+          "Decline of a claim"
+        ]
+      },
+      {
+        "key": "amount",
+        "label": "Amount claimed",
+        "required": false,
+        "hint": "With the currency, for example USD 8,400.00"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "The claim, what happened and the documents on file with their ids. For a letter, say which letter is wanted"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "An assessment case has arrived whose kind of work is not one this desk knows. The kinds are Coverage check, Settlement and Letter. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the claims system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft",
+      {
+        "heading": "Working",
+        "title": "Working",
+        "hint": "The claims system's own working lines, as it gave them. The agent adds up nothing."
+      },
+      {
+        "heading": "Letter. Not sent.",
+        "title": "Letter",
+        "hint": "To the claimant. Not sent. A claims handler reads and sends every letter."
+      }
+    ],
+    "marks": {
+      "applies": "Applies",
+      "does not apply": "Does not apply",
+      "excludes": "Excludes",
+      "limits": "Limits",
+      "condition met": "Condition met",
+      "condition not met": "Condition not met",
+      "cannot tell": "Cannot tell",
+      "wording silent": "Wording silent",
+      "allowed": "Allowed",
+      "limited": "Limited",
+      "not covered": "Not covered",
+      "worked out": "Worked out",
+      "included": "Included",
+      "cannot include": "Cannot include"
+    },
+    "markTones": {
+      "applies": "ok",
+      "does not apply": "warn",
+      "excludes": "err",
+      "limits": "info",
+      "condition met": "ok",
+      "condition not met": "err",
+      "cannot tell": "warn",
+      "wording silent": "person",
+      "allowed": "ok",
+      "limited": "warn",
+      "not covered": "err",
+      "worked out": "plain",
+      "included": "ok",
+      "cannot include": "warn"
+    },
+    "markIcons": {
+      "does not apply": "–",
+      "cannot tell": "?",
+      "limits": "•",
+      "worked out": "="
+    },
+    "quietMarks": [
+      "worked out",
+      "limits"
+    ],
+    "markHints": {
+      "applies": "A clause that covers the loss or a cost claimed",
+      "does not apply": "A covering clause or an endorsement that was read, and that the facts fall outside of",
+      "excludes": "A clause or an endorsement that takes the loss, or one line of it, out of cover",
+      "limits": "A limit or a deductible. The settlement calculation works out what it leaves",
+      "condition met": "A condition, met as the file shows it",
+      "condition not met": "A condition, not met as the file shows it. A point for the adjuster to weigh",
+      "cannot tell": "The file does not hold the fact the clause turns on. The note names the document that would settle it",
+      "wording silent": "A fact that matters and that no clause speaks of. Nothing is inferred from it. The adjuster decides",
+      "allowed": "The claims system allowed the line in full",
+      "limited": "The claims system allowed less than was claimed, because a limit of the wording applies",
+      "not covered": "A clause of section 2 of the wording takes the line out, and nothing is allowed for it",
+      "worked out": "A figure the claims system worked out: the total allowed, the deductible or the amount payable",
+      "included": "The letter holds the item, and the records give it",
+      "cannot include": "The records do not give the item, so the letter does not hold it"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft",
+    "rowLabels": {
+      "source": "The clause says",
+      "policy": "The file shows",
+      "citation": "Clause",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "summaryAboveRows": true
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Accept the draft",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you accept version {version}{edited} of the draft as the file note, in your name. It accepts no cover, declines no claim, approves no payment and sends no letter, and it changes nothing in the claims system.",
+      "proposalPrefix": [
+        "within the wording",
+        "pay USD",
+        "approve the letter"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Wait for what is missing",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What is missing, one item to a line",
+      "noteHint": "The case waits here until what is missing is added. This sends nothing to anyone: a claims handler asks the claimant for a document, and the adjuster records a decision on cover in the claims system.",
+      "proposalPrefix": [
+        "refer to the adjuster: no decision on cover is recorded"
+      ]
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority: a senior adjuster, the person who approves the amount under rule HG-5, a claims handler or the recoveries team. Name them and give the reason.",
+      "proposalPrefix": [
+        "refer to a handler"
+      ]
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the draft",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being redone",
+    "issued": "Draft accepted",
+    "info_requested": "Waiting",
+    "referred": "Referred on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk accepts no cover, declines no claim, approves no payment and sends no letter: the adjuster, the person with the authority for the amount or a claims handler does that, in the claims system.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "claimant",
+      "claim_type",
+      "letter",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "kind",
+      "reference",
+      "claimant",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "kind": "Kind",
+      "reference": "Claim",
+      "claimant": "Claimant",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Draft versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other adjuster can. You can still ask the agent to redo the draft.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as accepted. Nothing further happens on this desk. Cover, a decline, a payment and any letter are decided and recorded in the claims system, by the adjuster, the person with the authority for the amount or a claims handler.",
+    "info_requested": "When what is missing has come in, add it here. The agent reads the claim again and the draft comes back for review.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs."
+  },
+  "decisionLabels": {
+    "issued": "Accepted the draft",
+    "info_requested": "Put on hold for what is missing",
+    "referred": "Referred on",
+    "sent_back": "Asked the agent to redo the draft",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}

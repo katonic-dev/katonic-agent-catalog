@@ -1,0 +1,135 @@
+{
+  "$comment": "Thirteen invented cases for the demo, from the invented insurer Thornmere Mutual Insurance. The claimants, claims, policies and documents do not exist. Coverage check: CLM-4004 the wording is silent, CLM-4006 outside the wording, CLM-4003 the policy was not in force, CLM-4001 within the wording, CLM-4002 the file does not hold the fact. Settlement: CLM-4009 cover accepted, CLM-4001 no decision on cover, CLM-4010 declined (a short reply). Letter: CLM-4004 acknowledgement, CLM-4002 missing documents, CLM-4010 decline, CLM-4006 a decline that is refused (a short reply), CLM-4001 acknowledgement with no team on the record. Each case names only what the insurer's claims system holds.",
+  "cases": [
+    {
+      "title": "Ashgrove, struck a gate post: acknowledgement letter",
+      "kind": "Letter",
+      "reference": "CLM-4001",
+      "claimant": "Corwin Ashgrove",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "letter": "Acknowledgement of a claim",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nClaim type: Motor: damage to the insured vehicle\nLoss: 17 Nov 2026, reported 20 Nov 2026\nWhat happened: Reversing out of the drive at home, the policyholder struck a gate post. The rear bumper and tailgate are dented and the rear windscreen is cracked. Nobody was hurt and no other vehicle or property of another person was involved.\nTHE REQUEST\nA claims handler asks for this letter: the acknowledgement letter for claim CLM-4001\nHandling team on the claim record: none is named\nTHE AGENT'S TASK\nThe agent drafts the letter from the claim file and the insurer's letter template, and checks it against what the template says the letter must include. It sends nothing. A claims handler reads and sends every letter. Everything here is as the claims system holds it. The agent reads the claim and the templates themselves from the claims system."
+    },
+    {
+      "title": "Quillby, theft from the home: decline letter",
+      "kind": "Letter",
+      "reference": "CLM-4006",
+      "claimant": "Henrietta Quillby",
+      "claim_type": "Home: theft",
+      "letter": "Decline of a claim",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4006\nClaimant: Henrietta Quillby\nClaim type: Home: theft\nLoss: 11 Nov 2026, reported 12 Nov 2026\nWhat happened: Items were taken from the home during the afternoon while the policyholder was out. The back door had been left unlocked.\nTHE REQUEST\nA claims handler asks for this letter: the decline letter for claim CLM-4006\nHandling team on the claim record: property team\nTHE AGENT'S TASK\nThe agent drafts the letter from the claim file and the insurer's letter template, and checks it against what the template says the letter must include. It sends nothing. A claims handler reads and sends every letter. Everything here is as the claims system holds it. The agent reads the claim and the templates themselves from the claims system."
+    },
+    {
+      "title": "Corrimond, burst pipe in the loft: decline letter",
+      "kind": "Letter",
+      "reference": "CLM-4010",
+      "claimant": "Yvaine Corrimond",
+      "claim_type": "Home: escape of water",
+      "letter": "Decline of a claim",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4010\nClaimant: Yvaine Corrimond\nClaim type: Home: escape of water\nLoss: 10 Nov 2026, reported 13 Nov 2026\nWhat happened: A pipe in the loft burst while the home was empty. Water damaged two bedrooms and the stairs.\nTHE REQUEST\nA claims handler asks for this letter: the decline letter for claim CLM-4010\nHandling team on the claim record: property team\nTHE AGENT'S TASK\nThe agent drafts the letter from the claim file and the insurer's letter template, and checks it against what the template says the letter must include. It sends nothing. A claims handler reads and sends every letter. Everything here is as the claims system holds it. The agent reads the claim and the templates themselves from the claims system."
+    },
+    {
+      "title": "Marrowdene, ceiling leak: missing documents letter",
+      "kind": "Letter",
+      "reference": "CLM-4002",
+      "claimant": "Elspeth Marrowdene",
+      "claim_type": "Home: escape of water",
+      "letter": "Request for missing documents",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4002\nClaimant: Elspeth Marrowdene\nClaim type: Home: escape of water\nLoss: 14 Nov 2026, reported 16 Nov 2026\nWhat happened: Water came through the kitchen ceiling. The ceiling, one wall and the kitchen floor are damaged.\nTHE REQUEST\nA claims handler asks for this letter: the letter that asks for the missing documents on claim CLM-4002\nHandling team on the claim record: property team\nTHE AGENT'S TASK\nThe agent drafts the letter from the claim file and the insurer's letter template, and checks it against what the template says the letter must include. It sends nothing. A claims handler reads and sends every letter. Everything here is as the claims system holds it. The agent reads the claim and the templates themselves from the claims system."
+    },
+    {
+      "title": "Fenwright, vehicle driven off from a forecourt: acknowledgement letter",
+      "kind": "Letter",
+      "reference": "CLM-4004",
+      "claimant": "Odalys Fenwright",
+      "claim_type": "Motor: theft of the insured vehicle",
+      "letter": "Acknowledgement of a claim",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4004\nClaimant: Odalys Fenwright\nClaim type: Motor: theft of the insured vehicle\nLoss: 19 Nov 2026, reported 19 Nov 2026\nWhat happened: The insured vehicle was driven away from a petrol station forecourt while the policyholder was inside paying. The key was in the ignition.\nTHE REQUEST\nA claims handler asks for this letter: the acknowledgement letter for claim CLM-4004\nHandling team on the claim record: theft team\nTHE AGENT'S TASK\nThe agent drafts the letter from the claim file and the insurer's letter template, and checks it against what the template says the letter must include. It sends nothing. A claims handler reads and sends every letter. Everything here is as the claims system holds it. The agent reads the claim and the templates themselves from the claims system."
+    },
+    {
+      "title": "Corrimond, burst pipe in the loft: settlement",
+      "kind": "Settlement",
+      "reference": "CLM-4010",
+      "claimant": "Yvaine Corrimond",
+      "claim_type": "Home: escape of water",
+      "amount": "USD 11,200.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4010\nClaimant: Yvaine Corrimond\nClaim type: Home: escape of water\nLoss: 10 Nov 2026, reported 13 Nov 2026\nPolicy: POL-2010, wording TMI-HOM-02\nWhat happened: A pipe in the loft burst while the home was empty. Water damaged two bedrooms and the stairs.\nDECISION ON COVER\nDeclined by Fenella Arkwright, adjuster, on 20 Nov 2026 under clause 2.2\nINVOICES AND ESTIMATES ON FILE\nDOC-4010-3 repair estimate, Ilvane Restoration, 2 lines\nTHE AGENT'S TASK\nThe agent says which lines the wording does not cover and shows the amount payable as the claims system works it out. It pays nothing and approves nothing. The adjuster decides on cover, and the person with the authority for the amount approves a settlement. Everything here is as the claims system holds it. The agent reads the claim and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Ashgrove, struck a gate post: settlement",
+      "kind": "Settlement",
+      "reference": "CLM-4001",
+      "claimant": "Corwin Ashgrove",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 2,350.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nClaim type: Motor: damage to the insured vehicle\nLoss: 17 Nov 2026, reported 20 Nov 2026\nPolicy: POL-2001, wording TMI-MOT-01\nWhat happened: Reversing out of the drive at home, the policyholder struck a gate post. The rear bumper and tailgate are dented and the rear windscreen is cracked. Nobody was hurt and no other vehicle or property of another person was involved.\nDECISION ON COVER\nNone is recorded on the claim\nINVOICES AND ESTIMATES ON FILE\nDOC-4001-3 repair estimate, Gatewick Body Repairs, 4 lines\nTHE AGENT'S TASK\nThe agent says which lines the wording does not cover and shows the amount payable as the claims system works it out. It pays nothing and approves nothing. The adjuster decides on cover, and the person with the authority for the amount approves a settlement. Everything here is as the claims system holds it. The agent reads the claim and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Brackwell, failed pipe joint: settlement",
+      "kind": "Settlement",
+      "reference": "CLM-4009",
+      "claimant": "Teodor Brackwell",
+      "claim_type": "Home: escape of water",
+      "amount": "USD 8,400.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4009\nClaimant: Teodor Brackwell\nClaim type: Home: escape of water\nLoss: 27 Oct 2026, reported 28 Oct 2026\nPolicy: POL-2009, wording TMI-HOM-02\nWhat happened: A joint on the supply pipe under the hall floor failed. Water damaged the hall floor and the carpet.\nDECISION ON COVER\nCover accepted by Fenella Arkwright, adjuster, on 6 Nov 2026 under clause 1.3\nINVOICES AND ESTIMATES ON FILE\nDOC-4009-3 invoices, 4 lines\nTHE AGENT'S TASK\nThe agent says which lines the wording does not cover and shows the amount payable as the claims system works it out. It pays nothing and approves nothing. The adjuster decides on cover, and the person with the authority for the amount approves a settlement. Everything here is as the claims system holds it. The agent reads the claim and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Marrowdene, ceiling leak: coverage check",
+      "kind": "Coverage check",
+      "reference": "CLM-4002",
+      "claimant": "Elspeth Marrowdene",
+      "claim_type": "Home: escape of water",
+      "amount": "USD 6,400.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4002\nClaimant: Elspeth Marrowdene\nClaim type: Home: escape of water\nLoss: 14 Nov 2026, reported 16 Nov 2026\nPolicy: POL-2002, wording TMI-HOM-02\nWhat happened: Water came through the kitchen ceiling. The ceiling, one wall and the kitchen floor are damaged.\nDOCUMENTS ON FILE\nDOC-4002-1 claim form\nDOC-4002-2 repair estimate, Tallowby Building Services\nDOC-4002-3 photographs of the damage (cannot be read)\nTHE AGENT'S TASK\nThe agent reads the loss against the policy wording, clause by clause, and says where the wording is silent. The adjuster decides on cover. Everything here is as the claims system holds it. The agent reads the claim, the policy and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Ashgrove, struck a gate post: coverage check",
+      "kind": "Coverage check",
+      "reference": "CLM-4001",
+      "claimant": "Corwin Ashgrove",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 2,350.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4001\nClaimant: Corwin Ashgrove\nClaim type: Motor: damage to the insured vehicle\nLoss: 17 Nov 2026, reported 20 Nov 2026\nPolicy: POL-2001, wording TMI-MOT-01\nWhat happened: Reversing out of the drive at home, the policyholder struck a gate post. The rear bumper and tailgate are dented and the rear windscreen is cracked. Nobody was hurt and no other vehicle or property of another person was involved.\nDOCUMENTS ON FILE\nDOC-4001-1 claim form\nDOC-4001-2 driving licence (extract)\nDOC-4001-3 repair estimate, Gatewick Body Repairs\nDOC-4001-4 photographs of the damage (description)\nTHE AGENT'S TASK\nThe agent reads the loss against the policy wording, clause by clause, and says where the wording is silent. The adjuster decides on cover. Everything here is as the claims system holds it. The agent reads the claim, the policy and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Kellhaven, vehicle taken from the street: coverage check",
+      "kind": "Coverage check",
+      "reference": "CLM-4003",
+      "claimant": "Dariusz Kellhaven",
+      "claim_type": "Motor: theft of the insured vehicle",
+      "amount": "USD 9,800.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4003\nClaimant: Dariusz Kellhaven\nClaim type: Motor: theft of the insured vehicle\nLoss: 7 Nov 2026, reported 8 Nov 2026\nPolicy: POL-2003, wording TMI-MOT-01\nWhat happened: The insured vehicle was taken overnight from the street outside the policyholder's home.\nDOCUMENTS ON FILE\nDOC-4003-1 claim form\nDOC-4003-2 police report\nDOC-4003-3 vehicle registration document (extract)\nDOC-4003-4 declaration of the keys held\nTHE AGENT'S TASK\nThe agent reads the loss against the policy wording, clause by clause, and says where the wording is silent. The adjuster decides on cover. Everything here is as the claims system holds it. The agent reads the claim, the policy and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Quillby, theft from the home: coverage check",
+      "kind": "Coverage check",
+      "reference": "CLM-4006",
+      "claimant": "Henrietta Quillby",
+      "claim_type": "Home: theft",
+      "amount": "USD 5,500.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4006\nClaimant: Henrietta Quillby\nClaim type: Home: theft\nLoss: 11 Nov 2026, reported 12 Nov 2026\nPolicy: POL-2006, wording TMI-HOM-02\nWhat happened: Items were taken from the home during the afternoon while the policyholder was out. The back door had been left unlocked.\nDOCUMENTS ON FILE\nDOC-4006-1 claim form\nDOC-4006-2 police report\nDOC-4006-3 receipts\nTHE AGENT'S TASK\nThe agent reads the loss against the policy wording, clause by clause, and says where the wording is silent. The adjuster decides on cover. Everything here is as the claims system holds it. The agent reads the claim, the policy and the wording themselves from the claims and policy systems."
+    },
+    {
+      "title": "Fenwright, vehicle driven off from a forecourt: coverage check",
+      "kind": "Coverage check",
+      "reference": "CLM-4004",
+      "claimant": "Odalys Fenwright",
+      "claim_type": "Motor: theft of the insured vehicle",
+      "amount": "USD 14,740.00",
+      "received_on": "2026-11-26",
+      "text": "THE CLAIM\nClaim: CLM-4004\nClaimant: Odalys Fenwright\nClaim type: Motor: theft of the insured vehicle\nLoss: 19 Nov 2026, reported 19 Nov 2026\nPolicy: POL-2004, wording TMI-MOT-01\nWhat happened: The insured vehicle was driven away from a petrol station forecourt while the policyholder was inside paying. The key was in the ignition.\nDOCUMENTS ON FILE\nDOC-4004-1 claim form\nDOC-4004-2 police report\nDOC-4004-3 vehicle registration document (extract)\nDOC-4004-4 declaration of the keys held\nDOC-4004-5 valuation and hire car invoice\nTHE AGENT'S TASK\nThe agent reads the loss against the policy wording, clause by clause, and says where the wording is silent. The adjuster decides on cover. Everything here is as the claims system holds it. The agent reads the claim, the policy and the wording themselves from the claims and policy systems."
+    }
+  ]
+}

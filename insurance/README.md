@@ -65,7 +65,7 @@ A desk is the shared case desk ([katonic-case-desk](https://github.com/katonic-d
 | Desk | Agents behind it | Who decides | State |
 |---|---|---|---|
 | [Claims intake desk](desks/claims-intake/README.md) | First Notice of Loss Intake, Claims Processing, Claim Pack Completeness, Claim Summary | Claims handler | Settings written and tested end to end against a stand-in agent. Needs an engine change that is in an open pull request of the case desk |
-| Claims assessment desk | Coverage Check, Settlement Calculation, Claims Correspondence | Adjuster | Planned |
+| [Claims assessment desk](desks/claims-assessment/README.md) | Coverage Check, Settlement Calculation, Claims Correspondence | Adjuster | Settings written and tested end to end against a stand-in agent. Needs an engine change that is in an open pull request of the case desk |
 | Investigations desk | Fraud Detection, Investigation Case File | Investigator | Planned |
 | Underwriting desk | Underwriting Support, Underwriting Referral Memo, Renewal Review | Underwriter | Planned |
 | Policy servicing desk | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Planned |
