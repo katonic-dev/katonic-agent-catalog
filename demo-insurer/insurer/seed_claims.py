@@ -94,7 +94,7 @@ HANDLING_GUIDE = {
     },
     "correspondence_rules": {
         "rule_id": "HG-6",
-        "text": "Every letter names the claim by its id. A letter never carries a policy number in full, a bank account or an identity number. "
+        "text": "Every letter names the claim by its id. A letter never carries a policy number, a bank account or an identity number. "
                 "A letter that declines a claim, in whole or in part, is written only after an adjuster's decision to decline is recorded on the "
                 "claim, and it gives the adjuster's reason and the clause exactly as the decision records them. A letter that offers a "
                 "settlement is written only after the settlement is approved. A handler reads and sends every letter.",
@@ -147,11 +147,13 @@ def _line(description, category, amount, quantity=None, unit_amount=None):
 
 
 def _claim(claim_id, policy_id, claimant, claim_type, loss_ago, reported_ago, estimate, description, today, *, status="new",
-           third_party=False, notes=None, decision=None):
+           third_party=False, notes=None, decision=None, team=None, driver=None):
     return {"claim_id": claim_id, "policy_id": policy_id, "claimant": claimant, "claim_type": claim_type,
             "claim_type_label": CLAIM_TYPES[claim_type], "status": status, "loss_date": d_ago(today, loss_ago),
             "reported_date": d_ago(today, reported_ago), "estimate": float(estimate), "currency": "USD",
             "third_party_involved": third_party, "description": description, "notes": notes or [], "decision": decision,
+            "driver": {"name": driver[0], "date_of_birth": driver[1]} if driver else None,
+            "handling_team": team, "team_assigned_by": "Ottilie Marsh, claims handler" if team else None,
             "documents": {}, "triage_drafts": [], "pack_check_drafts": [], "summary_drafts": [], "coverage_check_drafts": [],
             "settlement_drafts": [], "letter_drafts": [], "letters_sent": [], "payments": []}
 
@@ -173,7 +175,7 @@ def build_claims(today: date) -> dict:
     # ---- CLM-4001 motor own damage, complete pack, a line over a limit and a line that is not covered
     add(_claim("CLM-4001", "POL-2001", "Corwin Ashgrove", "motor_own_damage", 9, 6, 2350,
                "Reversing out of the drive at home, the policyholder struck a gate post. The rear bumper and tailgate are dented and "
-               "the rear windscreen is cracked. Nobody was hurt and no other vehicle or property of another person was involved.", today),
+               "the rear windscreen is cracked. Nobody was hurt and no other vehicle or property of another person was involved.", today, driver=("Corwin Ashgrove", "1982-03-03")),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Corwin Ashgrove\nDriver at the time: Corwin Ashgrove (the policyholder)\nDate of loss: {L(9)}\n"
           "Place: the drive of 14 Larchfield Row, Marlow Reach\nWhat happened: reversing out of the drive I hit the gate post. Rear bumper and "
@@ -191,7 +193,7 @@ def build_claims(today: date) -> dict:
 
     # ---- CLM-4002 home escape of water, the plumber's report is missing and the photographs cannot be read
     add(_claim("CLM-4002", "POL-2002", "Elspeth Marrowdene", "home_escape_of_water", 12, 10, 6400,
-               "Water came through the kitchen ceiling from the bathroom above. The ceiling, one wall and the kitchen floor are damaged.", today),
+               "Water came through the kitchen ceiling. The ceiling, one wall and the kitchen floor are damaged.", today, team="property team"),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Elspeth Marrowdene\nDate of loss: {L(12)}\nPlace: 3 Weavers Yard, Tallowby\n"
           "What happened: I came downstairs and found water coming through the kitchen ceiling. I turned the water off at the main. "
@@ -223,7 +225,7 @@ def build_claims(today: date) -> dict:
     # ---- CLM-4004 motor theft with the key left in the vehicle: the wording says nothing about it
     add(_claim("CLM-4004", "POL-2004", "Odalys Fenwright", "motor_theft", 7, 7, 14740,
                "The insured vehicle was driven away from a petrol station forecourt while the policyholder was inside paying. "
-               "The key was in the ignition.", today),
+               "The key was in the ignition.", today, team="theft team"),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Odalys Fenwright\nDate of loss: {L(7)}\nPlace: Harbour Road petrol station, Port Ilvane\n"
           "What happened: I filled up and went in to pay. I left the key in the ignition. When I came out the car was being driven away.\n"
@@ -245,7 +247,7 @@ def build_claims(today: date) -> dict:
     # ---- CLM-4005 motor accident with another party, a passenger hurt, no police report, an estimate for another registration
     add(_claim("CLM-4005", "POL-2005", "Bram Tollermoor", "motor_third_party", 5, 4, 7900,
                "The insured vehicle and another car collided at the junction of Quarry Bank and Mill Road. The policyholder's passenger "
-               "was taken to hospital with neck pain. Both vehicles are damaged.", today, third_party=True),
+               "was taken to hospital with neck pain. Both vehicles are damaged.", today, driver=("Bram Tollermoor", "1990-08-19"), third_party=True),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Bram Tollermoor\nDriver at the time: Bram Tollermoor (the policyholder)\nDate of loss: {L(5)}\n"
           "Place: junction of Quarry Bank and Mill Road, Marlow Reach\nWhat happened: a car came out of Mill Road and we collided. "
@@ -264,7 +266,7 @@ def build_claims(today: date) -> dict:
 
     # ---- CLM-4006 home theft with no forced entry, one item above the single item limit
     add(_claim("CLM-4006", "POL-2006", "Henrietta Quillby", "home_theft", 15, 14, 5500,
-               "Items were taken from the home during the afternoon while the policyholder was out. The back door had been left unlocked.", today),
+               "Items were taken from the home during the afternoon while the policyholder was out. The back door had been left unlocked.", today, team="property team"),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Henrietta Quillby\nDate of loss: {L(15)}\nPlace: 61 Thistledown Close, Tallowby\n"
           "What happened: I went out for the afternoon and left the back door unlocked. When I came back a watch, a laptop and some cash had gone.\n"
@@ -303,7 +305,7 @@ def build_claims(today: date) -> dict:
     # ---- CLM-4008 motor own damage, the driver is not a named driver and the policy has a named drivers endorsement
     add(_claim("CLM-4008", "POL-2008", "Marisol Underhay", "motor_own_damage", 8, 6, 3100,
                "The insured vehicle left the road on a bend and struck a fence. The front bumper, a wing and a headlamp are damaged. "
-               "The driver was the policyholder's son. Nobody was hurt.", today),
+               "The driver was the policyholder's son. Nobody was hurt.", today, driver=("Leander Underhay", "2007-06-11")),
         [("claim_form", "Claim form",
           f"CLAIM FORM\nPolicyholder: Marisol Underhay\nDriver at the time: Leander Underhay (the policyholder's son)\nDate of loss: {L(8)}\n"
           "Place: Hollow Lane, near Marlow Reach\nWhat happened: my son took the bend too fast, the car left the road and hit a fence.\n"
@@ -319,7 +321,7 @@ def build_claims(today: date) -> dict:
 
     # ---- CLM-4009 home escape of water, cover accepted by an adjuster, ready for the settlement to be worked out
     add(_claim("CLM-4009", "POL-2009", "Teodor Brackwell", "home_escape_of_water", 30, 29, 8400,
-               "A joint on the supply pipe under the hall floor failed. Water damaged the hall floor and the carpet.", today, status="in_assessment",
+               "A joint on the supply pipe under the hall floor failed. Water damaged the hall floor and the carpet.", today, team="property team", status="in_assessment",
                decision={"decision": "cover_accepted", "decided_by": "Fenella Arkwright", "role": "adjuster", "decided_on": d_ago(today, 20),
                          "reason": "Sudden failure of a joint on a fixed supply pipe, as the plumber's report says.", "clause": "1.3"}),
         [("claim_form", "Claim form",
@@ -342,7 +344,7 @@ def build_claims(today: date) -> dict:
 
     # ---- CLM-4010 home escape of water, declined by an adjuster: the home had been unoccupied for 74 days
     add(_claim("CLM-4010", "POL-2010", "Yvaine Corrimond", "home_escape_of_water", 16, 13, 11200,
-               "A pipe in the loft burst while the home was empty. Water damaged two bedrooms and the stairs.", today, status="decided",
+               "A pipe in the loft burst while the home was empty. Water damaged two bedrooms and the stairs.", today, team="property team", status="decided",
                notes=[{"date": d_ago(today, 9), "by": "Fenella Arkwright",
                        "text": "The policyholder confirms she was working abroad and the home had been empty for 74 days in a row when the pipe burst."}],
                decision={"decision": "declined", "decided_by": "Fenella Arkwright", "role": "adjuster", "decided_on": d_ago(today, 6),

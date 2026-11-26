@@ -217,7 +217,30 @@ def test_a_pack_check_refuses_a_document_type_that_is_not_on_the_checklist(clien
     r = post(client, "/claims/claims/CLM-4002/pack-check", body, 422)
     assert "Not on the checklist for home_escape_of_water: police_report" in r["detail"]
     body["items"][0]["doc_type"] = "plumber_report"
+    short = post(client, "/claims/claims/CLM-4002/pack-check", body, 422)
+    assert "Left out: claim_form, repair_estimate, photographs" in short["detail"]
+    body["items"] = [{"doc_type": "claim_form", "finding": "received", "document_id": "DOC-4002-1"},
+                     {"doc_type": "plumber_report", "finding": "missing"},
+                     {"doc_type": "repair_estimate", "finding": "received", "document_id": "DOC-4002-2"},
+                     {"doc_type": "photographs", "finding": "cannot_be_read", "document_id": "DOC-4002-3"}]
     assert post(client, "/claims/claims/CLM-4002/pack-check", body)["draft"]["version"] == 1
+
+
+def test_a_claim_carries_what_the_policy_insures_its_wording_and_its_team(client):
+    c = get(client, "/claims/claims/CLM-4005")
+    assert (c["insured_vehicle_registration"], c["wording_id"], c["wording_version"], c["handling_team"]) == ("MR-7720-B", "TMI-MOT-01", "3", None)
+    assert get(client, "/claims/claims/CLM-4002")["insured_item"] == "3 Weavers Yard, Tallowby, Meridia"
+    assert [get(client, f"/claims/claims/CLM-{n}")["handling_team"] for n in (4002, 4004, 4006, 4009, 4010)] == [
+        "property team", "theft team", "property team", "property team", "property team"]
+    for n in (4001, 4003, 4005, 4007, 4008):  # the claims used to test sorting have no team yet
+        assert get(client, f"/claims/claims/CLM-{n}")["handling_team"] is None
+
+
+def test_a_limited_line_names_the_clause_of_its_limit(client):
+    lines = {x["category"]: x for x in calc(client, "CLM-4001", [("DOC-4001-3-L4", "2.5")])["lines"]}
+    assert (lines["windscreen"]["limited"], lines["windscreen"]["clause"]) == (True, "3.2")
+    assert (lines["repair"]["limited"], lines["repair"]["clause"]) == (False, None)
+    assert (lines["cleaning"]["excluded"], lines["cleaning"]["clause"]) == (True, "2.5")
 
 
 def test_drafts_keep_every_version_and_change_no_status(client, store):
@@ -244,3 +267,11 @@ def test_the_handling_guide_holds_seven_rules(client):
     g = get(client, "/claims/handling-guide")
     assert [r["rule_id"] for r in g["sorting_rules"]["rules"]] == ["HG-1", "HG-2", "HG-3", "HG-4"]
     assert (g["settlement_authority"]["rule_id"], g["correspondence_rules"]["rule_id"], g["recovery_rule"]["rule_id"]) == ("HG-5", "HG-6", "HG-7")
+
+
+def test_the_driver_of_a_motor_accident_comes_with_an_age_worked_out_by_the_system(client):
+    d = get(client, "/claims/claims/CLM-4008")["driver"]
+    assert (d["name"], d["age_on_the_date_of_the_loss"], d["under_25_on_the_date_of_the_loss"]) == ("Leander Underhay", 19, True)
+    assert get(client, "/claims/claims/CLM-4001")["driver"]["age_on_the_date_of_the_loss"] == 44
+    assert get(client, "/claims/claims/CLM-4005")["driver"]["under_25_on_the_date_of_the_loss"] is False
+    assert get(client, "/claims/claims/CLM-4004")["driver"] is None

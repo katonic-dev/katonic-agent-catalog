@@ -88,7 +88,7 @@ WORDINGS = {
             ("4.1", "The deductible", "The deductible", "The deductible in the schedule is taken once from each claim."),
             ("4.2", "The deductible", "Escape of water", "For a claim under clause 1.3 the deductible is USD 500, in place of the deductible in the schedule."),
             ("5.1", "Conditions", "Telling us", "You must tell us about a loss within 30 days of the date it happened."),
-            ("5.2", "Conditions", "The police", "Theft or attempted theft must be reported to the police within 48 hours. You must send us the police report."),
+            ("5.2", "Conditions", "The police", "Theft or attempted theft must be reported to the police. You must send us the police report."),
             ("5.3", "Conditions", "Damaged items", "Keep damaged items until we have had the chance to see them."),
         ]),
     },

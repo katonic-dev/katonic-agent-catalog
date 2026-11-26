@@ -33,7 +33,7 @@ The motor wording says nothing about a key left in the vehicle or a vehicle left
 
 ## Claims (system: claims)
 
-`get_claim` gives the whole file: every document with its text and its lines, `days_from_loss_to_report`, `cover_on_loss_date` and `document_checklist`.
+`get_claim` gives the whole file: every document with its text and its lines, `days_from_loss_to_report`, `cover_on_loss_date` and `document_checklist`. It also gives what the policy insures (`insured_item`, and for a motor policy `insured_vehicle_registration`), the policy's `wording_id` and `wording_version`, and `handling_team` once a handler has assigned one. CLM-4002, CLM-4006, CLM-4009 and CLM-4010 are with the property team and CLM-4004 with the theft team; the claims used to test sorting (CLM-4001, 4003, 4005, 4007, 4008) have no team yet.
 
 | Claim | For | Facts |
 |---|---|---|
@@ -81,9 +81,9 @@ The agent gives a reading for the adjuster. It never accepts or declines.
 | CLM-4002 | cannot tell from the file | 1.3 cannot tell: no document says where the water came from or whether it escaped suddenly. 2.1 cannot tell for the same reason. 4.2 deductible 500.00. 5.1 met: 2 days. |
 | CLM-4003 | policy not in force | The period ended on 5 Nov 2026 and the loss was on 7 Nov 2026, 2 days after. The reading stops there and goes to the adjuster. |
 | CLM-4004 | wording is silent | 1.2 applies: theft. No clause speaks of a key left in the vehicle. 3.1 market value 14,200.00 is within the sum insured of 15,000.00. 3.4 limits the hire car. 4.1 deductible 400.00. 5.1 met: the same day. 5.2 met: police report PIP-26-121377. No recovery indicated: the file names nobody. |
-| CLM-4005 | within the wording, with a condition not met | 1.1 and 1.3 apply. 5.2 not met: a person was injured and the file holds no police report. 4.1 deductible 300.00. Recovery possible: Sorrel Mackinder, named in DOC-4005-3. |
-| CLM-4006 | outside the wording | 1.4 does not apply and 2.3 excludes: no forced entry (DOC-4006-2). 3.2 would limit the watch to 2,500.00. 5.1 and 5.2 met. |
-| CLM-4008 | outside the wording | END-2008-1 excludes: the driver, Leander Underhay, is not a named driver. 1.1 would otherwise apply. 4.2 would add 300.00: the driver is under 25. |
+| CLM-4005 | within the wording, with a condition not met | 1.1 applies. 1.3 applies, with liability for the adjuster: the file does not settle who was at fault. 5.2 not met: a person was injured and the file holds no police report. 4.1 deductible 300.00. Recovery possible: Sorrel Mackinder, named in DOC-4005-3. |
+| CLM-4006 | outside the wording | 1.4 does not apply and 2.3 excludes: no forced entry (DOC-4006-2). 3.2 would limit the watch to 2,500.00. 5.1 met: 1 day. 5.2 met: police report TBP-26-044519. |
+| CLM-4008 | outside the wording | END-2008-1 excludes: the driver, Leander Underhay, is not a named driver. 1.1 would otherwise apply. 4.2 would add 300.00: the driver was 19 on the date of the loss, as the claim record gives it. |
 
 ### Working out a settlement
 

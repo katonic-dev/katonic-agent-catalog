@@ -196,7 +196,19 @@ def build(ctx: Ctx):
     def full_claim(c):
         policy = d()["policies"].get(c["policy_id"])
         days = (date.fromisoformat(c["reported_date"]) - date.fromisoformat(c["loss_date"])).days
-        return {**c, "documents": list(c["documents"].values()), "days_from_loss_to_report": days,
+        about = {}
+        if policy:
+            sched = policy["schedule"]
+            about = {"wording_id": policy["wording_id"], "wording_version": policy["wording_version"],
+                     "insured_item": (f"{sched['insured_vehicle']}, registration {sched['registration']}"
+                                      if policy["product"] == "private_motor" else sched["insured_home"])}
+            if policy["product"] == "private_motor":
+                about["insured_vehicle_registration"] = sched["registration"]
+        if c.get("driver"):
+            born, loss = date.fromisoformat(c["driver"]["date_of_birth"]), date.fromisoformat(c["loss_date"])
+            age = loss.year - born.year - ((loss.month, loss.day) < (born.month, born.day))
+            about["driver"] = {**c["driver"], "age_on_the_date_of_the_loss": age, "under_25_on_the_date_of_the_loss": age < 25}
+        return {**c, **about, "documents": list(c["documents"].values()), "days_from_loss_to_report": days,
                 "cover_on_loss_date": cover_on(policy, c["loss_date"]) if policy else None,
                 "document_checklist": checklist_for(c), "read_on": today().isoformat()}
 
@@ -247,9 +259,9 @@ def build(ctx: Ctx):
             d()["claims"][claim_id] = {
                 "claim_id": claim_id, "policy_id": draft["policy_id"], "claimant": policy["holder"], "claim_type": draft["claim_type"],
                 "claim_type_label": CLAIM_TYPES[draft["claim_type"]], "status": "new", "loss_date": draft["loss_date"],
-                "reported_date": r["received"], "estimate": 0.0, "currency": "USD",
+                "reported_date": r["received"], "estimate": None, "currency": "USD",
                 "third_party_involved": draft["another_party_involved"] == "yes", "description": draft["what_happened"],
-                "notes": [], "decision": None, "documents": {}, "triage_drafts": [], "pack_check_drafts": [], "summary_drafts": [],
+                "notes": [], "decision": None, "driver": None, "handling_team": None, "team_assigned_by": None, "documents": {}, "triage_drafts": [], "pack_check_drafts": [], "summary_drafts": [],
                 "coverage_check_drafts": [], "settlement_drafts": [], "letter_drafts": [], "letters_sent": [], "payments": [],
                 "registered_from": loss_report_id, "registered_by": body.registered_by or "not recorded"}
             r["status"], r["claim_id"] = "registered", claim_id
@@ -260,7 +272,7 @@ def build(ctx: Ctx):
     # ------------------------------------------------------------ claims: reads
     @reg(app, "get", "/claims", "list_claims", "List claims",
          "List claims: id, policy id, claimant, claim type, status (new, in_assessment, decided or closed), the date of the loss, the "
-         "date reported and the estimate.")
+         "date reported and the estimate (empty when no estimate has been received yet).")
     def list_claims(status: str | None = Query(None, description="Only claims with this status, for example new."),
                     claim_type: str | None = Query(None, description="Only claims of this type, for example motor_theft.")):
         keys = ("claim_id", "policy_id", "claimant", "claim_type", "claim_type_label", "status", "loss_date", "reported_date", "estimate", "currency")
@@ -270,6 +282,9 @@ def build(ctx: Ctx):
     @reg(app, "get", "/claims/{claim_id}", "get_claim", "Get one claim with its whole file",
          "Read one claim with its whole file: the policy id, the claimant, the claim type, the dates of the loss and of the report with "
          "days_from_loss_to_report worked out by the system, the estimate, whether another party is involved, the description, the "
+         "wording id and version of the policy, the insured item as the policy schedule gives it (for a motor policy also the "
+         "registration of the insured vehicle), the driver at the time of a motor accident with the age on the date of the loss "
+         "worked out by the system, the team handling the claim once a handler has assigned one, the "
          "handlers' notes, an adjuster's decision when one is recorded, and every document with its id, type, title, text, whether it "
          "can be read, and its invoice or estimate lines (each with a line id, a description, a category and an amount). It also gives "
          "cover_on_loss_date (whether the policy was in force on the date of the loss, with the reason) and document_checklist (for "
@@ -321,6 +336,12 @@ def build(ctx: Ctx):
             from fastapi import HTTPException
             raise HTTPException(422, f"Not on the checklist for {c['claim_type']}: {', '.join(unknown)}. The checklist types are: "
                                      f"{', '.join(known)}. Nothing was saved.")
+        sent = [i.doc_type for i in body.items]
+        left_out = [t for t in known if t not in sent]
+        if left_out or len(sent) != len(set(sent)):
+            from fastapi import HTTPException
+            raise HTTPException(422, f"A pack check holds one item for every document type on the checklist for {c['claim_type']}, each once: "
+                                     f"{', '.join(known)}. Left out: {', '.join(left_out) or 'none'}. Nothing was saved.")
         v = st.add_draft(c, "pack_check_drafts", {"items": [i.model_dump() for i in body.items], "proposal": body.proposal}, body.drafted_by)
         return {"applied": True, "kind": "draft", "draft": v}
 
@@ -358,9 +379,10 @@ def build(ctx: Ctx):
         listed = {str(item).lower() for item in sched.get("listed_items", [])}
         for line in lines:
             amount, cat, allowed, note = line["amount"], line["category"], line["amount"], ""
+            limit_clause = None
             if line["line_id"] in out:
                 x = out[line["line_id"]]
-                rows.append({**line, "allowed": 0.0, "excluded": True, "clause": x.clause,
+                rows.append({**line, "allowed": 0.0, "excluded": True, "limited": False, "clause": x.clause,
                              "note": f"Not covered under clause {x.clause}: {x.reason}"})
                 continue
             if motor and cat == "windscreen":
@@ -368,33 +390,41 @@ def build(ctx: Ctx):
                 glass_left -= allowed
                 if allowed < amount:
                     note = "Limited to USD 500.00 for any one claim by clause 3.2."
+                    limit_clause = "3.2"
             elif motor and cat == "hire_car":
                 days, rate = min(line.get("quantity", 1), 10), min(line.get("unit_amount", amount), 40.0)
                 allowed = min(amount, round(days * rate, 2))
                 if allowed < amount:
                     note = f"Limited to USD 40.00 a day for up to 10 days by clause 3.4: {days} days at {usd(rate)} a day."
+                    limit_clause = "3.4"
             elif motor and cat == "vehicle":
                 allowed = min(amount, sched["sum_insured"])
                 if allowed < amount:
                     note = f"Limited to the sum insured of {usd(sched['sum_insured'])} by clause 3.1."
+                    limit_clause = "3.1"
             elif motor and cat == "personal_belongings":
                 allowed = min(amount, 300.0)
                 if allowed < amount:
                     note = "Limited to USD 300.00 for any one claim by clause 3.3."
+                    limit_clause = "3.3"
             elif not motor and cat == "trace_and_access":
                 allowed = min(amount, trace_left)
                 trace_left -= allowed
                 if allowed < amount:
                     note = "Limited to USD 1,500.00 for any one claim by clause 3.4."
+                    limit_clause = "3.4"
             elif not motor and cat == "contents_item" and line["description"].lower() not in listed:
                 allowed = min(amount, 2500.0)
                 if allowed < amount:
                     note = "Limited to USD 2,500.00 for any one item by clause 3.2: the item is not listed in the schedule."
+                    limit_clause = "3.2"
             elif not motor and cat == "alternative_accommodation":
                 allowed = min(amount, sched["alternative_accommodation_limit"])
                 if allowed < amount:
                     note = f"Limited to {usd(sched['alternative_accommodation_limit'])}, 10 percent of the buildings sum insured, by clause 3.3."
-            rows.append({**line, "allowed": round(allowed, 2), "excluded": False, "clause": None, "note": note})
+                    limit_clause = "3.3"
+            rows.append({**line, "allowed": round(allowed, 2), "excluded": False, "limited": limit_clause is not None,
+                         "clause": limit_clause, "note": note})
         claimed = round(sum(r["amount"] for r in rows), 2)
         allowed_total = round(sum(r["allowed"] for r in rows), 2)
         if c["claim_type"] == "home_escape_of_water":
