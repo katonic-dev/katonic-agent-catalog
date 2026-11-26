@@ -51,7 +51,8 @@ changes:
   - {tool: save_evidence_pack, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand and published to the development environment of a development cluster on 25 November 2026; five versions of the instructions were published and tested there on 25 and 26 November 2026. Not promoted. All seven tests pass five runs in a row: tests 1, 2, 5 and 6 on the third version, with one run each repeated on the fourth and the fifth; test 3 on the fourth; test 7, the batch, on the third and again on the fourth; test 4 on the fifth. Test 1 with no tools, the others in the Work Room, a new conversation for each run, the audit system put back before each run. What changed along the way: the bank's lists return whole records, so one call reads all the items of a plan and no tool is called more than eight times in a turn; a ticket search leaves the words empty and reads every ticket of the system, because the search returns only tickets that hold every word; a ticket is reported with every fact it states, the reason included; and a period is written as its two dates. In every batch run four packs were saved, one for each test, each as version 1. Things to know. The platform holds for approval any operation sent as a POST by an agent published after 26 November 2026, the save of an evidence pack included; on this cluster it was cleared by the workspace owner, and a bank must decide the same for its own systems. Whole replies were lost several times to a restarting server or a dropped connection; a lost run is no result and was run again. No test was concluded or closed in any run: the agent saves a draft pack and the auditor concludes.

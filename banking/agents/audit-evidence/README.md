@@ -9,7 +9,7 @@ For a control test, it collects the evidence the test plan names from tickets, c
 | How people meet it | Through the bank's own system: the evidence pack goes to the auditor |
 | Reads from | The bank's audit system: control tests, tickets, change records, access reviews and recovery tests |
 | Changes | Nothing in the bank's records. It saves an evidence pack as a draft |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All seven tests pass five runs in a row |
 
 ## What it does
 
