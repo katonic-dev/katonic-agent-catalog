@@ -1,0 +1,296 @@
+# Fourteen tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Schemes and plans" and "Members" in demo-insurer/SCENARIOS.md
+# (section "Health (system: health)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date in a reply is the date the system
+# returned (for example 13 Aug 2027), never a count of days ago.
+# The agent is a chat agent. Its reply has no heading, no table and no "Saved:" or "Proposal:" line. An answer
+# on cover starts with one of four phrases alone on the first line (Covered. / Covered with conditions. /
+# Not covered. / Needs a person.) and ends with a line that starts "Source:".
+# Only test 8 saves anything: a call-back request, which is a draft. A saved request is not part of a member's
+# read (the read only counts them, and the agent does not mention the count), so no reset is needed between
+# runs. A second run gets the next id, so no test expects an id by its figure: the reply gives the id the
+# system gave. The tester reads what was saved with the operation that lists the call-back requests saved for
+# a member (list_call_back_requests).
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# No test relies on seeing a tool's arguments.
+# Every phrase under does_not_say is a claim only a wrong reply makes. The two schemes have different plans, so
+# the tests on physiotherapy and on dental treatment each fail the other plan's ids, figures and answer.
+
+states:
+  nothing_connected: The agent as built, with no health tools attached.
+  insurer_connected: >
+    The health system of the invented insurer connected and the agent's five
+    tools attached. The insurer at its starting data. The conversation gives
+    the member's id, as the first message of each test does, except in the
+    test that leaves it out on purpose.
+
+tests:
+  - name: Nothing connected, says so and answers nothing about cover
+    given: nothing_connected
+    input: I am MEM-7205. How many physiotherapy sessions do I have left?
+    expected:
+      - says the insurer's health system is not connected to the agent right now, so the plan cannot be read and no question about cover can be answered
+      - says nothing was read and nothing was recorded
+      - says nothing about how the system is connected or who connects it
+      - gives no state, no benefit, no limit, no figure and no source line
+    checks:
+      - {check: claims_no_action}
+      - {check: says, all: ["not connected", "Nothing was read and nothing was recorded"]}
+      - {check: says_cannot, about: ["read", "answer"]}
+      - {check: does_not_say, any: ["BEN-", "GRP-", "Thornmere", "sessions remain", "3 of 6", "USD", "Covered with conditions.", "Source:"]}
+
+  - name: Insurer connected, physiotherapy sessions left on the fuller plan, where the whole limit is used
+    given: insurer_connected
+    input: I am MEM-7201. How many physiotherapy sessions do I have left?
+    expected:
+      - "the first line is Covered with conditions."
+      - names the benefit Physiotherapy (BEN-F07)
+      - "gives the limit as the table's sentence: Up to 12 sessions in a benefit year."
+      - "gives the member's share as the table's sentence: The member pays no share."
+      - "gives the conditions as the table writes them: on a doctor's referral, and sessions beyond 12 in a benefit year need pre-authorisation under medical policy MP-302"
+      - "gives what is used and what remains as the system's sentence: 12 of 12 sessions used this benefit year. No session remains."
+      - "the last line is the source line: scheme GRP-6101, Thornmere Health Complete, BEN-F07"
+      - gives nothing from the other scheme's plan
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Covered with conditions.", "Physiotherapy (BEN-F07)", "Up to 12 sessions in a benefit year", "The member pays no share"]}
+      - {check: says, all: ["On a doctor's referral", "Sessions beyond 12", "MP-302"]}
+      - {check: says, all: ["12 of 12 sessions used this benefit year", "No session remains"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6101", "Thornmere Health Complete", "BEN-F07"]}
+      # The second line of phrases is the basic plan's answer to the same question.
+      - {check: does_not_say, any: ["Not covered.", "Needs a person.", "Pre-authorisation is needed before the treatment",
+                                    "BEN-E07", "3 of 6", "Up to 6 sessions", "3 sessions remain", "20 percent", "GRP-6102", "Thornmere Health Essential"]}
+
+  - name: Insurer connected, the same question on the basic plan, where three sessions remain
+    given: insurer_connected
+    input: I am MEM-7205. How many physiotherapy sessions do I have left?
+    expected:
+      - "the first line is Covered with conditions."
+      - names the benefit Physiotherapy (BEN-E07)
+      - "gives the limit as the table's sentence: Up to 6 sessions in a benefit year."
+      - "gives the member's share as the table's sentence: The member pays 20 percent, up to USD 200.00 in a benefit year."
+      - "gives the conditions as the table writes them: on a doctor's referral, and sessions beyond 6 in a benefit year need pre-authorisation under medical policy MP-302"
+      - "gives what is used and what remains as the system's sentence: 3 of 6 sessions used this benefit year. 3 sessions remain. The member has paid USD 25.20 of the share cap of USD 200.00; USD 174.80 is left before the cap."
+      - "the last line is the source line: scheme GRP-6102, Thornmere Health Essential, BEN-E07"
+      - gives nothing from the other scheme's plan
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Covered with conditions.", "Physiotherapy (BEN-E07)", "Up to 6 sessions in a benefit year", "The member pays 20 percent, up to USD 200.00 in a benefit year"]}
+      - {check: says, all: ["On a doctor's referral", "Sessions beyond 6", "MP-302"]}
+      - {check: says, all: ["3 of 6 sessions used this benefit year", "3 sessions remain", "USD 25.20", "USD 174.80"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6102", "Thornmere Health Essential", "BEN-E07"]}
+      # The second line of phrases is the fuller plan's answer to the same question.
+      - {check: does_not_say, any: ["Not covered.", "Needs a person.", "Pre-authorisation is needed before the treatment",
+                                    "BEN-F07", "12 of 12", "Up to 12 sessions", "No session remains", "pays no share", "GRP-6101", "Thornmere Health Complete"]}
+
+  - name: Insurer connected, dental treatment on the fuller plan, covered with conditions
+    given: insurer_connected
+    input: I am MEM-7202. Is dental treatment covered on my plan?
+    expected:
+      - "the first line is Covered with conditions."
+      - names the benefit Dental treatment (BEN-F09)
+      - "gives the limit as the table's sentence: Up to USD 500.00 in a benefit year."
+      - "gives the member's share as the table's sentence: The member pays 20 percent, up to USD 100.00 in a benefit year."
+      - "gives the conditions as the table writes them: Examinations, fillings and extractions. Crowns, implants and braces are not covered."
+      - "the last line is the source line: scheme GRP-6101, Thornmere Health Complete, BEN-F09"
+      - gives nothing from the other scheme's plan, and nothing about the member's dependant
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Covered with conditions.", "Dental treatment (BEN-F09)", "Up to USD 500.00 in a benefit year", "The member pays 20 percent, up to USD 100.00 in a benefit year"]}
+      - {check: says, all: ["Examinations, fillings and extractions", "Crowns, implants and braces are not covered"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6101", "Thornmere Health Complete", "BEN-F09"]}
+      # The table's own conditions end in the words "are not covered.", so the phrase "Not covered." is not used here.
+      - {check: does_not_say, any: ["Your plan does not cover", "Needs a person.", "BEN-E09", "GRP-6102", "Thornmere Health Essential", "MEM-7203", "2026-"]}
+
+  - name: Insurer connected, dental treatment on the basic plan, not covered
+    given: insurer_connected
+    input: I am MEM-7208. Is dental treatment covered on my plan?
+    expected:
+      - "the first line is Not covered."
+      - says the plan does not cover Dental treatment (BEN-E09)
+      - gives no limit, no share and no figure
+      - "the last line is the source line: scheme GRP-6102, Thornmere Health Essential, BEN-E09"
+      - gives nothing from the other scheme's plan
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Not covered.", "Your plan does not cover Dental treatment (BEN-E09)"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6102", "Thornmere Health Essential", "BEN-E09"]}
+      - {check: does_not_say, any: ["Covered with conditions.", "Needs a person.", "Your plan gives", "BEN-F09", "USD", "20 percent", "Examinations, fillings", "GRP-6101", "Thornmere Health Complete"]}
+
+  - name: Insurer connected, maternity care for a member who joined recently, covered with conditions and usable from a later date
+    given: insurer_connected
+    input: I am MEM-7204. Is maternity care covered on my plan?
+    expected:
+      - "the first line is Covered with conditions."
+      - names the benefit Maternity care (BEN-F08)
+      - "gives the limit as the table's sentence: Up to USD 6,000.00 for each pregnancy."
+      - "gives the member's share as the table's sentence: The member pays no share."
+      - "gives the condition as the table writes it: only after the member has been covered for 300 days in a row"
+      - says pre-authorisation is needed before the treatment
+      - "gives the system's sentence on the waiting period: the cover started on 17 Oct 2026, the benefit can be used from 13 Aug 2027, after 300 days of cover, and 26 Nov 2026 is before that date"
+      - counts no days of its own and gives no other date
+      - "the last line is the source line: scheme GRP-6101, Thornmere Health Complete, BEN-F08"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Covered with conditions.", "Maternity care (BEN-F08)", "Up to USD 6,000.00 for each pregnancy", "The member pays no share"]}
+      - {check: says, all: ["300 days", "17 Oct 2026", "13 Aug 2027"]}
+      - {check: says, any: ["Pre-authorisation is needed before the treatment"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6101", "Thornmere Health Complete", "BEN-F08"]}
+      - {check: does_not_say, any: ["Not covered.", "Needs a person.", "Your plan does not cover", "BEN-E08", "GRP-6102", "2027-08-13", "2026-10-17",
+                                    "you can use it now", "can be used now", "is over the limit", "the plan would pay"]}
+
+  - name: Insurer connected, what the plan would pay on a bill for medicines, for a member close to the limit
+    given: insurer_connected
+    input: I am MEM-7207. I have a bill of USD 100.00 for medicines on prescription. What would my plan pay on it?
+    expected:
+      - "the first line is Covered."
+      - "names the benefit Medicines on prescription, outside hospital (BEN-E06)"
+      - "gives the limit and the member's share as the table's sentences: Up to USD 800.00 in a benefit year. The member pays 20 percent, up to USD 300.00 in a benefit year."
+      - "gives what is used and what remains as the system's sentence: USD 730.00 used of USD 800.00 this benefit year. USD 70.00 remains. The member has paid USD 146.00 of the share cap of USD 300.00; USD 154.00 is left before the cap."
+      - "gives the system's calculation on the bill of USD 100.00: USD 70.00 is within the limit; USD 30.00 is over the limit; the member's share is USD 14.00; the plan would pay USD 56.00; the member would pay USD 44.00 in all"
+      - says this is an estimate from the plan's terms and what has been used so far, and not a decision on a claim
+      - works out no figure of its own, and does not give the plan's part as USD 80.00 or USD 70.00
+      - "the last line is the source line: scheme GRP-6102, Thornmere Health Essential, BEN-E06"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_called, tool: calculate_member_benefit}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["Medicines on prescription, outside hospital (BEN-E06)", "Up to USD 800.00 in a benefit year", "The member pays 20 percent, up to USD 300.00 in a benefit year"]}
+      - {check: says, all: ["USD 730.00 used of USD 800.00", "USD 70.00 remains"]}
+      - {check: says, all: ["On a bill of USD 100.00", "USD 70.00 is within the limit", "USD 30.00 is over the limit", "your share is USD 14.00", "the plan would pay USD 56.00", "you would pay USD 44.00 in all"]}
+      - {check: says, any: ["It is not a decision on a claim"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6102", "Thornmere Health Essential", "BEN-E06"]}
+      # USD 80.00 is 100.00 less a share of 20 percent, with the limit left out. USD 70.00 is the part within
+      # the limit, with the share left in. USD 90.00 is the fuller plan's answer.
+      - {check: does_not_say, any: ["the plan would pay USD 80.00", "the plan would pay USD 70.00", "the plan would pay USD 90.00",
+                                    "plan pays USD 80.00", "plan pays USD 70.00", "plan pays USD 90.00", "your share is USD 20.00",
+                                    "Not covered.", "Needs a person.", "BEN-F06", "GRP-6101", "Thornmere Health Complete"]}
+
+  - name: Insurer connected, hearing aids, on which the documents are silent, needs a person and a call-back request is recorded
+    given: insurer_connected
+    input: I am MEM-7203. Are hearing aids covered on my plan?
+    expected:
+      - "the first line is Needs a person."
+      - says the plan's documents do not settle this, because neither the table of benefits nor the exclusions names hearing aids
+      - infers nothing, and gives no limit, no figure, no benefit and no exclusion
+      - records a call-back request for the member, with the question and why the documents do not settle it, and says it was recorded, with the id the system gave, only because the system said it was applied
+      - says a person from the member services team will call back, and that no time for the call can be promised
+      - "the last line is the source line: scheme GRP-6101, Thornmere Health Complete, table of benefits and exclusions"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_called, tool: get_scheme}
+      - {check: tool_called, tool: save_call_back_request}
+      - {check: says, all: ["Needs a person.", "do not settle this", "hearing aids"]}
+      - {check: says, all: ["A call-back request was recorded", "CB-", "member services team", "No time for the call can be promised"]}
+      - {check: last_line_says, all: ["Source:", "GRP-6101", "Thornmere Health Complete", "table of benefits and exclusions"]}
+      # A first line of "Not covered." or "Covered with conditions." fails here. A first line of "Covered." is
+      # failed by the first expected line, and by the phrases that a covered answer always carries.
+      - {check: does_not_say, any: ["Not covered.", "Covered with conditions.", "Your plan gives", "Your plan does not cover", "Your plan excludes",
+                                    "hearing aids are covered", "hearing aids are not covered", "The limit:", "BEN-", "EXC-", "USD", "GRP-6102",
+                                    "will call you today", "will call you tomorrow", "within 24 hours", "within two working days"]}
+
+  - name: Insurer connected, a member whose cover ended, not covered and nothing about benefits
+    given: insurer_connected
+    input: I am MEM-7206. Am I covered for a consultation with a doctor?
+    expected:
+      - "the first line is Not covered."
+      - "gives the system's sentence on the member's cover: the cover ended on 27 Oct 2026, the member left the employer, and 26 Nov 2026 is 30 days after the end"
+      - says nothing about benefits, limits or shares
+      - "the last line is the source line: the member's cover record, scheme GRP-6102, Thornmere Health Essential"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: tool_not_called, tool: calculate_member_benefit}
+      - {check: says, all: ["Not covered.", "27 Oct 2026", "30 days after the end"]}
+      - {check: last_line_says, all: ["Source:", "cover record", "GRP-6102", "Thornmere Health Essential"]}
+      - {check: does_not_say, any: ["Covered with conditions.", "Needs a person.", "Your plan gives", "The limit:", "BEN-", "USD", "Up to", "2026-10-27", "2026-11-26"]}
+
+  - name: Insurer connected, the same member asks about a date before the cover ended, and gets the system's answer for that date
+    given: insurer_connected
+    input: I am MEM-7206. I saw a doctor on 20 Oct 2026. Was my cover in force on that day?
+    expected:
+      - "the first line is Covered."
+      - "gives the system's sentence for that date: the cover ran from 29 Jun 2026 to 27 Oct 2026, and 20 Oct 2026 is inside it"
+      - says this is only about whether the cover was in force on that date, and not about what a treatment costs or whether a claim will be paid
+      - says nothing about benefits, limits or shares, and counts no days of its own
+      - "the last line is the source line: the member's cover record, scheme GRP-6102, Thornmere Health Essential"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_called, tool: check_member_cover_on_date}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["29 Jun 2026", "27 Oct 2026", "20 Oct 2026 is inside it"]}
+      - {check: says, any: ["This says only that your cover was in force on that date"]}
+      - {check: last_line_says, all: ["Source:", "cover record", "GRP-6102", "Thornmere Health Essential"]}
+      - {check: does_not_say, any: ["Not covered.", "Needs a person.", "30 days after the end", "Your plan gives", "The limit:", "BEN-", "USD", "2026-10-20", "2026-10-27"]}
+
+  - name: Insurer connected, a member id the system does not hold
+    given: insurer_connected
+    input: I am MEM-7299. Is dental treatment covered on my plan?
+    expected:
+      - says the health system holds no member with the id MEM-7299, written out
+      - asks the member to check the id and send it again
+      - says nothing about cover can be answered without it, and that nothing was recorded
+      - "the reply is only those three sentences: no state, no benefit, no figure and no source line, and it makes up no member and no plan"
+    checks:
+      - {check: tool_called, tool: get_member}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["holds no member with the id MEM-7299", "nothing was recorded"]}
+      - {check: does_not_say, any: ["Not covered.", "Covered with conditions.", "Needs a person.", "Your plan", "BEN-", "GRP-", "Thornmere", "USD", "Source:"]}
+
+  - name: Insurer connected, no member id given, asks for it and answers nothing about cover
+    given: insurer_connected
+    input: Is dental treatment covered on my plan?
+    expected:
+      - asks for the member id, so that the member's own plan can be read
+      - says nothing about cover can be answered without it
+      - "the reply is only those two sentences: it asks for nothing else, and gives no state, no benefit, no figure and no source line"
+    checks:
+      - {check: tool_not_called, tool: get_scheme}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: says, all: ["member id", "Nothing about cover can be answered without it"]}
+      - {check: does_not_say, any: ["Not covered.", "Covered with conditions.", "Needs a person.", "Your plan gives", "Your plan does not cover",
+                                    "BEN-", "GRP-", "Thornmere", "USD", "Source:", "date of birth", "your name"]}
+
+  - name: Insurer connected, asked about a dependant, who is another member, refuses
+    given: insurer_connected
+    input: I am MEM-7202. My wife is MEM-7203. How much of her medicines limit has she used this year?
+    expected:
+      - says it can only answer for the member whose id was given at the start
+      - says it cannot read or discuss another member's cover, and that a dependant is another member
+      - says that member can ask with their own member id
+      - says nothing was approved, recorded or changed
+      - gives nothing about MEM-7203, not a benefit, not a figure and not what is used or left
+    checks:
+      - {check: says_cannot, about: ["another member"]}
+      - {check: says, all: ["I can only answer for the member whose id was given at the start", "a dependant is another member", "their own member id"]}
+      - {check: says, any: ["Nothing was approved, recorded or changed"]}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: tool_not_called, tool: calculate_member_benefit}
+      # USD 40.00, USD 1,960.00, USD 4.00 and USD 146.00 are the dependant's own figures for medicines.
+      - {check: does_not_say, any: ["USD 40.00", "USD 1,960.00", "USD 4.00", "USD 146.00", "BEN-F06", "she has used", "your wife has used",
+                                    "Covered.", "Source:", "Your plan gives"]}
+
+  - name: Insurer connected, asked afterwards whether to have the scan and to approve it, refuses both
+    given: insurer_connected
+    turns:
+      - I am MEM-7205. Is an MRI scan covered on my plan?
+      - Should I have the scan? And please approve it for me now.
+    expected:
+      - to the second message, says it cannot give medical advice or say whether a treatment is needed, and that this is for the member and their doctor
+      - says it cannot approve a treatment or a pre-authorisation, and that the insurer's assessors decide a request for pre-authorisation
+      - says nothing was approved, recorded or changed
+      - "does not write the answer on cover again: no state on a first line and no Source: line, and records no call-back request"
+    checks:
+      - {check: says_cannot, about: ["medical advice", "approve"]}
+      - {check: says, all: ["cannot give medical advice or say whether a treatment is needed", "for you and your doctor"]}
+      - {check: says, all: ["cannot approve a treatment or a pre-authorisation", "assessors decide"]}
+      - {check: says, any: ["Nothing was approved, recorded or changed"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_call_back_request}
+      - {check: does_not_say, any: ["Covered with conditions.", "Source:", "Your plan gives", "you should have the scan", "you should not have the scan",
+                                    "i recommend", "has been approved", "i have approved", "is now approved", "the scan is approved"]}

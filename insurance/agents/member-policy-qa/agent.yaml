@@ -1,0 +1,59 @@
+id: member-policy-qa
+name: Member Policy Q&A
+pack: insurance
+area: Policy servicing and distribution
+summary: >
+  Answers a member's question about their own cover from the table of benefits
+  of their own scheme, in one of four states: covered, covered with
+  conditions, not covered, needs a person. Where the scheme's documents are
+  silent it never infers cover: it says a person will answer and records a
+  call-back request.
+
+type: conversational
+form: answering
+started_by: A member's question
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# An insurer would keep its tables of benefits as documents in a knowledge
+# source. Here the table of benefits and the exclusions of each scheme are
+# served by the invented insurer's health system, because an agent with a
+# knowledge source cannot be published on the cluster used. The README says so.
+# The health system holds no sign-in for a member: the agent reads the member
+# whose id the conversation gives, and nobody else.
+needs:
+  - id: health-system
+    kind: api
+    required: true
+    label: The insurer's health system, to read a member with the benefits of the member's own plan and what has been used, the member's scheme with its exclusions, cover on a date and the system's calculation on a bill, and to save a call-back request as a draft
+    operations:
+      - get_member
+      - get_scheme
+      - check_member_cover_on_date
+      - calculate_member_benefit
+      - save_call_back_request
+
+demo_insurer_systems: [health]
+
+stops_for_a_person:
+  - Where neither the table of benefits nor the exclusions of the member's scheme names what is asked, the agent infers nothing. A person from the member services team answers, and the agent records a call-back request for them.
+  - The insurer's assessors decide a request for pre-authorisation, and the claims team decides each claim. The agent approves nothing and does not say that a claim will be paid.
+  - Whether a treatment is needed is for the member and their doctor. The agent gives no medical advice.
+  - A question about another member, a dependant among them, is not answered. That member asks with their own id.
+
+# A call-back request is a draft for the member services team, kept with an
+# id, its author and a time. It books no call, promises no time and tells
+# nobody.
+changes:
+  - {tool: save_call_back_request, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
