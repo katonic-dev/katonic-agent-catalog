@@ -9,7 +9,7 @@ Compares a claim's documents with the checklist for its claim type and lists wha
 | How people meet it | An application: the Claims intake desk |
 | Reads from | The insurer's claims system: the claim with every document and the checklist for its claim type |
 | Changes | Saves the pack check as a draft. The draft contacts nobody and changes no status |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster on 26 November 2026. All eight tests pass five runs in a row. Not on the Catalog shelf |
 
 ## What it does
 
