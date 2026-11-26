@@ -95,11 +95,14 @@ class ClaimSummary(BaseModel):
 
 
 class CoverageRow(BaseModel):
-    reference: str = Field(..., description="The clause number of the wording, for example 1.3, or the endorsement id, for example END-2008-1.")
-    finding: Literal["applies", "does_not_apply", "excludes", "limits", "condition_met", "condition_not_met", "cannot_tell"] = Field(
+    reference: str = Field(..., description="The clause number of the wording, for example 1.3, or the endorsement id, for example "
+                           "END-2008-1, or the words no clause for a row whose finding is wording_silent.")
+    finding: Literal["applies", "does_not_apply", "excludes", "limits", "condition_met", "condition_not_met", "cannot_tell",
+                     "wording_silent"] = Field(
         ..., description="applies for a clause that covers the loss; does_not_apply for a clause read and found not to bear on it; "
                          "excludes for a clause or endorsement that takes the loss out of cover; limits for a limit or a deductible; "
-                         "condition_met or condition_not_met for a condition; cannot_tell when the file does not hold the fact needed.")
+                         "condition_met or condition_not_met for a condition; cannot_tell when the file does not hold the fact needed; "
+                         "wording_silent for a fact that matters and that no clause speaks of.")
     note: str = Field(..., min_length=1, description="The fact from the file that the finding rests on, with the document id.")
 
 
