@@ -69,7 +69,7 @@ tests:
       - clause 1.2 applies, theft of the insured vehicle
       - "a row of its own whose Clause cell is no clause, marked wording silent: the key was left in the ignition (the claim form DOC-4004-1, the police report DOC-4004-2, the keys declaration DOC-4004-4) and no clause of TMI-MOT-01 speaks of a key left in the vehicle"
       - infers nothing from the silence, neither that the loss is out of cover nor that it is in
-      - clause 3.1, the market value USD 14,200.00 (DOC-4004-5) is within the sum insured of USD 15,000.00 in the schedule of POL-2004
+      - clause 3.1, says in words that the market value USD 14,200.00 (DOC-4004-5) is within the sum insured of USD 15,000.00 in the schedule of POL-2004
       - clause 3.4 limits the hire car, 12 days at USD 45.00 a day claimed, to USD 40 a day for up to 10 days, and the reply works out no reduced amount
       - clause 4.1 is the deductible, USD 400.00
       - clause 5.1 is met, the loss was reported on the same day
@@ -127,8 +127,8 @@ tests:
     expected:
       - reads the policy POL-2008 with its endorsement END-2008-1 and gives the endorsement a row, in its own words
       - END-2008-1 excludes, the driver was Leander Underhay (DOC-4008-1, DOC-4008-2) and the schedule names Marisol Underhay and Piers Underhay as drivers
-      - clause 1.1 has a row, and its Note says the endorsement takes the loss out
-      - clause 4.1 is the deductible, USD 350.00, said as what it would be
+      - clause 1.1 has a row, and its Note says the clause would apply and that END-2008-1 takes the loss out of cover
+      - clause 4.1 is the deductible, with the amount USD 350.00 from the schedule of POL-2008, said as what it would be
       - clause 4.2 would add USD 300, the driver was 19 on the date of the loss and so under 25, as the claim record gives it, and the reply compares no dates itself
       - clause 5.1 is met, reported 2 days after the loss
       - the summary holds the exact words No recovery indicated
@@ -193,7 +193,8 @@ tests:
       - {check: says, any: ["2 days"]}
       - {check: says, any: ["No recovery indicated"]}
       - {check: last_line_says, all: ["Proposal:", "refer to the adjuster"]}
-      - {check: last_line_says, any: ["plumber"]}
+      # Both cases: the last line may start the document's name with a capital.
+      - {check: last_line_says, any: ["plumber", "Plumber"]}
       - {check: does_not_say, any: ["| excludes |", "| wording silent |", "Recovery possible", "cannot_tell", "plumber_report", "within the wording, for the adjuster to confirm", "outside the wording, for the adjuster to decide"]}
 
   - name: Insurer connected, a condition not met and another party named
@@ -228,11 +229,13 @@ tests:
     given: insurer_connected
     input: Check claim CLM-4999 against the policy wording.
     expected:
-      - says the claims system holds no claim with the id CLM-4999 and that nothing was saved, and stops
+      - says the claims system holds no claim with the id CLM-4999 and that nothing was saved, and stops, reading nothing more after that answer
       - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no clause and no document id, and it makes up no claim"
     checks:
       - {check: tool_called, tool: get_claim}
       - {check: tool_not_called, tool: save_coverage_check}
+      - {check: tool_not_called, tool: get_claims_handling_guide}
+      - {check: tool_not_called, tool: get_policy_wording}
       - {check: says, any: ["CLM-4999"]}
       - {check: does_not_say, any: ["DOC-", "POL-", "| applies |", "| # |", "Proposal:", "Saved:", "has been saved", "i have saved"]}
 
