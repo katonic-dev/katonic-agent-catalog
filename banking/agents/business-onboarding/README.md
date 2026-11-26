@@ -9,7 +9,7 @@ Reads a company's registry extract and constitutional documents, draws its owner
 | How people meet it | An application: the Onboarding and review desk |
 | Reads from | The bank's onboarding system: the application, its documents and the account opening requirements. The bank's screening service: the watchlist |
 | Changes | Saves a draft file. The draft sends nothing and changes no status |
-| State | Written, not yet built. The instructions and tests have not been run on a model |
+| State | Built on a development cluster. All six tests pass five runs in a row. Its desk is tested against a stand-in agent |
 
 ## How it writes
 

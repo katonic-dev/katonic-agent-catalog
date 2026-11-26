@@ -57,7 +57,8 @@ sample_data:
   - ../../desks/onboarding-and-review/cases.json
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: Written, not yet built. The instructions and tests have not been run on a model.
+  notes: >
+    Built by hand as one agent and published to the development environment of a development cluster on 25 November 2026; the second version of the instructions was published and tested there on 26 November 2026. Not promoted. All six tests pass five runs in a row: tests 1, 3, 4, 5 and 6 on the first version, with one or two runs each repeated on the second; test 2 on the second. Test 1 with no tools, the others in the Work Room, a new conversation for each run, the onboarding system put back before each run that saves. What changed for the second version: a watchlist hit is reported part by part, the first name and the surname each as agrees or differs, then the date of birth, the nationality and the identity number each as agrees, differs or not given by the documents; on the first version four runs of five showed the two names without saying that the first name differs. One test line was corrected to the bank's data: the documents give the director's country, not a nationality. Things to know. The platform holds for approval any operation sent as a POST by an agent published after 26 November 2026, the watchlist name search and the draft save included; on this cluster both were cleared by the workspace owner, and a bank must decide the same for its own systems. The onboarding desk's message was refused by the workspace guardrail three times and went through on the next try. Not tried: the job as separate stages. No account was opened and no applicant was told anything in any run: the agent saves a draft file and a person decides.
