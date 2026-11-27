@@ -41,7 +41,7 @@ tests:
       - the UG-1 row is marked outside, with the note the underwriter recorded
       - "PRC-6401 (Dovecote Beds & Bedding Ltd, USD 1,280,000.00) and PRC-6402 (Summerlea Garden Furniture Ltd, USD 1,150,000.00) are each marked agrees: timber-framed showrooms over the class C limit, approved with conditions by Isolde Varney, senior underwriter, on 12 Oct 2025 and 10 Apr 2026, with a monitored alarm and a deductible of USD 10,000.00, which the terms proposed here hold"
       - "PRC-6403 is marked not alike: a class B grain warehouse, not a class C showroom"
-      - saves the draft with the referral needed, the grade senior underwriter, the rules RF-2 and UG-1 and the two precedents that agree, and says so only because the system said it was applied, with the version it gave
+      - saves the draft with the referral needed, the grade senior underwriter, the rules RF-2 and UG-1, and three precedent rows (PRC-6401 and PRC-6402 as agreeing, PRC-6403 as not alike with the reason), and says so only because the system said it was applied, with the version it gave
       - "ends with the line Proposal: refer to the senior underwriter: forced by RF-2"
       - recommends no decision and approves nothing
     checks:
@@ -70,7 +70,7 @@ tests:
       - "PRC-6403 (Aldercombe Grain Stores Ltd, a class B grain warehouse, USD 2,850,000.00, approved with conditions by Isolde Varney on 30 Jan 2026) is marked differs: its decision rests on a sprinkler system in working order, and this risk has no sprinklers"
       - does not count PRC-6403 as support for this risk
       - PRC-6401 and PRC-6402, timber-framed class C showrooms, are marked not alike
-      - saves the draft with the referral needed, the grade senior underwriter, the rules RF-1, RF-2, UG-1 and UG-3, and PRC-6403 as differing on a material fact, and says so with the version the system gave
+      - saves the draft with the referral needed, the grade senior underwriter, the rules RF-1, RF-2, UG-1 and UG-3, and three precedent rows (PRC-6403 as differing on a material fact, PRC-6401 and PRC-6402 as not alike with the reason), and says so with the version the system gave
       - "ends with the line Proposal: refer to the senior underwriter: forced by RF-1 and RF-2"
     checks:
       - {check: tool_called, tool: get_underwriting_referral}

@@ -19,7 +19,7 @@ Drafts the referral memo for a risk an underwriter has raised: the risk, the ter
 - Sets each precedent beside the risk and marks it: agrees, differs, went against or not alike. A precedent that looks alike but differs on the fact its decision rested on is marked differs and is not counted as support.
 - Says so when no precedent is found, and brings in none from another class of business.
 - Says so when no referral is needed: the underwriter who asked may decide, and the memo names no grade and no forcing rule.
-- Saves the memo as a draft, and says it was saved only if the system's reply says so.
+- Saves the memo as a draft, with one row for each precedent it cites, a precedent that is not alike included with the reason, and says it was saved only if the system's reply says so.
 - Ends with one proposal line: refer to the grade the system names, with the rules that force it; or no referral needed.
 
 ## What it does not do
