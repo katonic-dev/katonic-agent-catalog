@@ -11,6 +11,7 @@ Everything is invented: every coverholder, reinsurer, administrator, repairer, s
 from __future__ import annotations
 
 import copy
+import re
 from datetime import date, timedelta
 
 from .seed_policy import long_date
@@ -47,7 +48,8 @@ WHO_DECIDES = {"reinsurance": "the reinsurance accountant", "partners": "the sup
 RESULT_LABELS = {"within": "within the term", "outside": "outside the term", "not_applicable": "the term does not apply to this row"}
 CHECK_LABELS = {"class": "class of business allowed", "territory": "territory", "maximum_line": "maximum line per risk",
                 "period": "period", "commission": "commission rate", "share": "share ceded", "claims_authority": "claims authority",
-                "row_total": "the row adds up", "declared_once": "declared once"}
+                "row_total": "the row adds up", "declared_once": "declared once",
+                "machinery_age": "age of the machinery at the start of the risk"}
 BORDEREAU_KINDS = {"risks_bound": "risks bound in the month", "claims_paid": "claims paid in the month",
                    "cessions": "risks ceded to a treaty in the month"}
 CONTRACT_KINDS = {"binder": "binding authority (binder): a coverholder binds risks for the insurer",
@@ -58,6 +60,8 @@ CLASS_LABELS = {"HH": "household buildings and contents", "LL": "let property (l
                 "PC": "pleasure craft up to 12 metres", "DG": "dinghies and small open boats",
                 "EN": "engineering: machinery and plant", "CP": "commercial property"}
 
+AGE_NOTE = (" The age of the machinery is the one exception: where a row gives the year of installation, the system "
+            "measures it against this term (the check machinery_age) and the agent does not count the years.")
 EXCLUDED_NOTE = ("The system does not read the description of a risk. Read each description against the excluded risks of this "
                  "term yourself. A risk that the description plainly puts in an excluded group is a difference; where the "
                  "description does not say, it is not.")
@@ -185,7 +189,8 @@ def build_contracts(today: date) -> dict:
         "counterparty": {"role": "reinsurer", "name": "Windlecombe Re"},
         "period_start": R("2026-01-01"), "period_end": R("2026-12-31"), "treaty_year": R("2026-01-01")[:4], "currency": "USD",
         "figures": {"classes_covered": classes("EN"), "territory": ["Meridia"], "cession_percent": 40.0, "maximum_line": 2000000.0,
-                    "commission_rate_percent": 30.0, "premium_due_days": 45, "cash_loss_limit": 100000.0},
+                    "commission_rate_percent": 30.0, "premium_due_days": 45, "cash_loss_limit": 100000.0,
+                    "maximum_machinery_age_years": 25},
         "terms": _terms([
             ("1", "Class covered", "measured", "Engineering: machinery and plant (class EN) written by the insurer. No other class."),
             ("2", "Territory", "measured", "Risks in Meridia."),
@@ -332,7 +337,8 @@ def build_bordereaux(today: date) -> dict:
                      "class_label": CLASS_LABELS["EN"], "location": place, "country": "Meridia", "sum_insured": float(si),
                      "ceded_sum_insured_stated": round(si * 0.40, 2), "inception": R(start), "gross_premium": gp,
                      "ceded_premium_stated": ceded_premium, "commission_stated": commission,
-                     "net_premium_stated": round(ceded_premium - commission, 2)})
+                     "net_premium_stated": round(ceded_premium - commission, 2),
+                     "installed_year": int(re.search("installed ([0-9]{4})", text).group(1))})
     add("BDX-8704", "cessions", "TRY-8652", {"role": "reinsurance accounts team", "name": "Thornmere Mutual Insurance"}, rows,
         ("ceded_sum_insured_stated", "ceded_premium_stated", "commission_stated", "net_premium_stated"),
         sent_to={"role": "reinsurer", "name": "Windlecombe Re"})
@@ -422,6 +428,23 @@ def _once_check(row, key, seen, what):
     return c
 
 
+def _age_check(row, limit):
+    start_year = int(row["inception"][:4])
+    age = start_year - row["installed_year"]
+    over = max(age - limit, 0)
+    if over:
+        tail = f"{plural(over, 'year')} over the limit of {limit} years: an excluded risk."
+    elif age == limit:
+        tail = f"exactly on the limit of {limit} years, which is within it."
+    else:
+        tail = f"within the limit of {limit} years."
+    c = _check("machinery_age", "7", not over, age, limit, over,
+               f"The machinery was installed in {row['installed_year']} and the risk starts in {start_year}: "
+               f"{start_year} - {row['installed_year']} = {plural(age, 'year')}, {tail}", unit="years")
+    c["installed_year"], c["year_the_risk_starts"] = row["installed_year"], start_year
+    return c
+
+
 def _column(label, stated, re_added):
     return {"column_label": label, "stated_on_the_bordereau": stated, "re_added_by_the_system": re_added,
             "difference": round(stated - re_added, 2)}
@@ -466,6 +489,8 @@ def measure_bordereau(bdx: dict, contract: dict, today_iso: str) -> dict:
                              "net ceded premium"),
                 _once_check(row, row["policy_reference"], seen, "policy"),
             ]
+            if row.get("installed_year") and f.get("maximum_machinery_age_years"):
+                checks.append(_age_check(row, f["maximum_machinery_age_years"]))
         else:  # claims_paid
             reference = row["claim_reference"]
             total = round(row["indemnity"] + row["fees"], 2)
@@ -518,7 +543,10 @@ def measure_bordereau(bdx: dict, contract: dict, today_iso: str) -> dict:
         wrong = [f"{c['column_label']}: stated {usd(c['stated_on_the_bordereau'])}, re-added {usd(c['re_added_by_the_system'])}, a "
                  f"difference of {usd(abs(c['difference']))}" for c in columns.values() if c["difference"] != 0]
         total_sentence = "The totals do not add up. " + "; ".join(wrong) + "."
-    totals = {"columns": columns, "adds_up": adds_up, "sentence": total_sentence}
+    totals_term = next((t for t in contract["terms"] if t["heading"] in ("Bordereaux", "Cession lists")), None)
+    totals = {"term": totals_term["term"] if totals_term else None,
+              "term_heading": totals_term["heading"] if totals_term else None,
+              "columns": columns, "adds_up": adds_up, "sentence": total_sentence}
 
     if kind != "claims_paid":
         base_field = "gross_premium" if kind == "risks_bound" else "ceded_premium_stated"
@@ -568,7 +596,8 @@ def measure_bordereau(bdx: dict, contract: dict, today_iso: str) -> dict:
     excluded = next((t for t in contract["terms"] if t["heading"] == "Excluded risks"), None)
     for_reading = None
     if kind != "claims_paid" and excluded:
-        for_reading = {"term": excluded["term"], "heading": excluded["heading"], "text": excluded["text"], "note": EXCLUDED_NOTE}
+        for_reading = {"term": excluded["term"], "heading": excluded["heading"], "text": excluded["text"],
+                       "note": EXCLUDED_NOTE + (AGE_NOTE if f.get("maximum_machinery_age_years") else "")}
     return {"bordereau_id": bdx["bordereau_id"], "contract_id": contract["contract_id"], "kind": kind, "kind_label": bdx["kind_label"],
             "measured_on": today_iso, "rows": rows, "totals": totals, "premium_due": premium_due,
             "differences_measured": found,

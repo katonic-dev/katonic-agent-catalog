@@ -258,6 +258,32 @@ def test_bdx_8704_is_clean_and_a_cession_exactly_on_the_line_is_within(client):
     assert m == get(client, "/bordereaux/BDX-8704")["measured"] | {"saved": False, "demo_data": True}
 
 
+def test_the_age_of_the_machinery_is_measured_against_the_excluded_risks_term(client):
+    from insurer.seed_reinsurance import measure_bordereau
+    m = measure(client, 8704)
+    ages = [(c["installed_year"], c["measured"], c["limit"], c["result"], c["term"]) for c in (check_of(m, n, "machinery_age") for n in range(1, 9))]
+    assert ages == [(y, 2026 - y, 25, "within", "7") for y in (2018, 2016, 2020, 2014, 2012, 2019, 2022, 2021)]
+    assert "2026 - 2012 = 14 years, within the limit of 25 years" in check_of(m, 5, "machinery_age")["sentence"]
+    assert "measures it against this term" in m["excluded_risks_for_reading"]["note"]
+    assert get(client, "/bordereaux/BDX-8704")["rows"][4]["installed_year"] == 2012
+    assert "machinery_age" not in [c["check"] for c in measure(client, 8701)["rows"][0]["checks"]]
+    data = build_reinsurance(TODAY_D)
+    bdx, treaty = data["ri_bordereaux"]["BDX-8704"], data["ri_contracts"]["TRY-8652"]
+    bdx["rows"][0]["installed_year"], bdx["rows"][1]["installed_year"] = 2001, 2000
+    old = measure_bordereau(bdx, treaty, TODAY)
+    on, over = check_of(old, 1, "machinery_age"), check_of(old, 2, "machinery_age")
+    assert (on["measured"], on["difference"], on["result"]) == (25, 0, "within") and "exactly on the limit" in on["sentence"]
+    assert (over["measured"], over["difference"], over["result"]) == (26, 1, "outside") and "1 year over the limit of 25 years" in over["sentence"]
+    assert [(x["row_number"], x["check"], x["term"]) for x in old["differences_measured"]] == [(2, "machinery_age", "7")]
+
+
+def test_the_totals_name_the_term_they_are_checked_against(client):
+    for n in (8701, 8702, 8703, 8704):
+        t = measure(client, n)["totals"]
+        assert t["term"] == "9" and t["term_heading"] == ("Cession lists" if n == 8704 else "Bordereaux")
+    assert get(client, "/bordereaux/BDX-8703")["measured"]["totals"]["term"] == "9"
+
+
 def test_a_difference_list_is_a_versioned_draft_and_not_part_of_the_bordereau(client, store):
     before = copy.deepcopy(store.data)
     one = post(client, "/bordereaux/BDX-8701/differences", {**DIFFS, "overall": "Differences found", "suggested_step": "none"})
