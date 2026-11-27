@@ -20,6 +20,8 @@ READ_CALLS = {
     "investigations": ("get_claim_for_checking", {"claim_id": "CLM-6201"}, "claim_id", "CLM-6201"),
     "servicing": ("get_change_request", {"change_request_id": "CHG-7301"}, "change_request_id", "CHG-7301"),
     "conduct": ("get_complaint", {"complaint_id": "CMP-7101"}, "complaint_id", "CMP-7101"),
+    "reinsurance": ("get_bordereau", {"bordereau_id": "BDX-8701"}, "bordereau_id", "BDX-8701"),
+    "portfolio": ("get_proposed_product_change", {"change_id": "PCR-8501"}, "change_id", "PCR-8501"),
 }
 
 

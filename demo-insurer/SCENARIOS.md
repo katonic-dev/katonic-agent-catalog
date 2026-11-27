@@ -785,6 +785,183 @@ The same kind of report has two answers: an engineer's or surveyor's report aske
 
 `save_document_schedule` is refused with 409, and nothing is saved, when a row names a document that is not in the set or names one twice, when a document of the set has no row (the refusal names each one), when a category is not one of DC-1 to DC-7, when a rule is not one of PG-1 to PG-7, or when `duplicate_of` is not another document of the set. The saved draft carries the system's own counts.
 
+## Reinsurance and partners (system: reinsurance)
+
+Two binders (BND-8601, BND-8602) and two treaties (TRY-8651, TRY-8652) with numbered terms; four bordereaux for 1 Oct 2026 to 31 Oct 2026 (BDX-8701 to BDX-8704); eleven paid claims (RCL-8801 to RCL-8811), one event (EVT-8891) and two recoveries already raised (RCV-8851, RCV-8852); eight partners (PTN-8901 to PTN-8908) with service levels SL-1 to SL-4, the credentials term SL-5 and credentials (PTN-8901-C1 and so on).
+
+Every coverholder, reinsurer, administrator, repairer, supplier and insured is invented.
+
+The system does every sum, share and day count and returns its working. Every save is a draft with a version number, and changes nothing else: there is no change operation. No operation books a recovery, pays, rejects a bordereau, ends a contract, or contacts a reinsurer, a coverholder or a supplier. A read never returns saved drafts: it gives `drafts_on_file` (or `recovery_list_drafts_on_file`), and `list_bordereau_difference_drafts`, `list_recovery_list_drafts` and `list_partner_review_drafts` read them. Results name a role (the reinsurance accountant, the supplier manager), never a member of staff. Every code has a plain label beside it.
+
+### Binders and treaties
+
+`list_binders_and_treaties` gives all four whole. `get_binder_or_treaty` gives one. A term of the kind measured turns on a figure or a date and the system measures it. A term of the kind for_reading is read against the words of a row.
+
+| Contract | Other side | Period | Terms |
+|---|---|---|---|
+| BND-8601 Household binder | Pellowmere Cover Agency, coverholder | 1 Jan 2026 to 31 Dec 2026 | 1 classes HH (household) and LL (let property). 2 territory Meridia. 3 maximum line USD 750,000.00 per risk, exactly on it is within. 4 period, by the start date of the risk. 5 commission 25.00 percent of the gross premium. 6 net premium due within 45 days after the month ends. 7 excluded risks, for reading: a thatched roof; unoccupied more than 60 days in a row; a house in multiple occupation; under construction or major renovation. 8 claims authority USD 10,000.00, more needs an agreement reference on the row. 9 each risk and claim declared once, rows and totals add up. |
+| BND-8602 Pleasure craft binder | Quillfeather Marine Agency, coverholder | 1 Apr 2026 to 31 Mar 2027 | 1 classes PC (pleasure craft up to 12 metres) and DG (dinghies). 2 territory Meridia. 3 maximum line USD 250,000.00. 4 period. 5 commission 20.00 percent. 6 net premium due within 30 days. 7 excluded risks, for reading: racing; hire or charter; a maximum speed above 35 knots; a houseboat used as a permanent home. 8 claims authority USD 5,000.00. 9 declared once, totals add up. |
+| TRY-8651 Commercial property excess of loss, per risk | Greyfell Reinsurance Company, reinsurer | 1 Jan 2026 to 31 Dec 2026, by the date of loss | 1 class CP (commercial property). 2 territory Meridia. 3 period: the date of loss decides. 4 attachment point USD 250,000.00: only the part above it is recovered, a paid loss exactly on it recovers nothing. 5 limit USD 750,000.00 above the attachment point; the part above USD 1,000,000.00 stays with the insurer. 6 one event: claims that carry one event id are added together and treated as one loss, and the attachment point and limit apply once to the sum. 7 reinstatement: for each recovery a premium of the recovery divided by the limit, times the annual premium of USD 180,000.00. 8 raising a recovery, for reading. |
+| TRY-8652 Engineering quota share | Windlecombe Re, reinsurer | 1 Jan 2026 to 31 Dec 2026 | 1 class EN (engineering). 2 territory Meridia. 3 cession 40.00 percent of sum insured and premium, ceded sum insured at most USD 2,000,000.00 per risk, exactly on it is within. 4 period. 5 ceding commission 30.00 percent of the ceded premium. 6 net ceded premium due within 45 days. 7 excluded risks, for reading: plant at sea; plant underground in a mine; prototype machinery; machinery installed more than 25 years before the start. 8 the reinsurer pays 40.00 percent of every paid loss, in the quarterly account, or at once by a cash call where the paid loss is USD 100,000.00 or more. 9 declared once, totals add up. |
+
+### Bordereaux (Bordereaux Check)
+
+`get_bordereau` gives the rows, the binder or treaty whole and `measured`. `measure_bordereau_against_terms` gives the measure alone. The system measures every row against the numeric and dated terms, re-adds every total and finds a row declared twice. It does not read the description of a risk: the excluded risks (term 7) are read by the agent.
+
+The right draft (`save_bordereau_differences`) gives `overall`, one entry for each difference with the row number, the kind, the term and a note, and a summary. Row 0 is the totals.
+
+| Bordereau | For | Right answer |
+|---|---|---|
+| BDX-8701 | Risks bound, BND-8601, 12 rows. Faults in three rows, and one row exactly on the line. | Three differences. Row 5 (PCA-10435): sum insured USD 825,000.00, USD 75,000.00 over the maximum line (term 3). Row 7 (PCA-10437): the risk is at Lake Sorrin, Veldmark, outside the territory (term 2). Row 8 (PCA-10438): "Cottage with a thatched roof", an excluded risk (term 7); the system does not measure this one, the agent reads it. Row 3 (PCA-10433) is exactly on USD 750,000.00 and is within: it must not be listed. Rows 4, 9 and 12 are let to one family or one tenant, which is not multiple occupation. Totals add up: gross premium USD 11,190.00, commission USD 2,797.50, net premium USD 8,392.50. Net premium due 15 Dec 2026, 19 days left, not late. |
+| BDX-8702 | Risks bound, BND-8602, 10 rows. | Three differences. Row 5 (QMA-5505): commission of USD 270.00 taken on USD 1,200.00, which is 22.50 percent; at 20.00 percent it is USD 240.00, so USD 30.00 too much (term 5). Row 7 (QMA-5507): start date 28 Mar 2026, 4 days before the period starts (term 4). Row 9 repeats row 4 (QMA-5504): declared twice (term 9). The stated totals are the sum of the rows as sent: gross premium USD 8,510.00, commission USD 1,732.00, net premium USD 6,778.00. At the rate of the term the commission is USD 1,702.00. Without row 9 the net premium is USD 6,442.00. No description is an excluded risk: the two motor cruisers give 22 and 28 knots, under 35. Net premium due 30 Nov 2026, 4 days left. |
+| BDX-8703 | Claims paid, BND-8601, 9 rows. | One difference, in a row and in the total. Row 5 (PCA-C-2205): indemnity USD 3,400.00 plus fees USD 250.00 is USD 3,650.00 and the row states USD 3,850.00, USD 200.00 too high (term 9). The total stated is USD 48,800.00 and the system re-adds USD 48,600.00 from the indemnity (USD 45,040.00) and the fees (USD 3,560.00): a difference of USD 200.00. Two rows must not be listed: row 4 is exactly on the claims authority of USD 10,000.00, and row 7 is USD 23,400.00 with the agreement reference TMI-AGR-0417 on the row (term 8). |
+| BDX-8704 | Cessions under TRY-8652, 8 rows. The clean one. | No differences: `overall` is `no_differences` and the list is empty. Row 5 (TMI-EN-0305) cedes USD 2,000,000.00, exactly on the maximum line, and is within. Totals add up: ceded sum insured USD 7,200,000.00, ceded premium USD 34,160.00, ceding commission USD 10,248.00, net ceded premium USD 23,912.00. No description is an excluded risk. |
+
+`save_bordereau_differences` is refused with 409, and nothing is saved, when a row number is not a row of the bordereau, when a term is not a term of the binder or treaty, when `overall` is `no_differences` and differences are listed, or when it is `differences_found` and none is listed. `suggested_step` is optional: an empty text or "none" is read as no value. The saved draft carries the system's own measured differences.
+
+### Paid claims and recoveries (Treaty Recovery)
+
+`list_paid_claims_for_recovery` lists the paid claims with a payment in a period (by default 1 Jan 2026 to the insurer date), each with the recovery worked out, and adds what is to raise. `calculate_treaty_recovery` works out one claim under each treaty with the working. `get_paid_claim` gives one claim whole. `list_recoveries_raised` gives RCV-8851 (USD 300,000.00 on RCL-8804, raised 11 Sep 2026 when the paid loss stood at USD 550,000.00) and RCV-8852 (a cash call of USD 60,000.00 on RCL-8811, raised 16 Sep 2026).
+
+Claims RCL-8801 to RCL-8809 are commercial property and fall under TRY-8651; TRY-8652 does not apply to them. RCL-8810 and RCL-8811 are engineering and fall under TRY-8652.
+
+| Claim | For | Facts | Right answer |
+|---|---|---|---|
+| RCL-8801 | Below the attachment point. | Paid USD 90,000.00. Loss 14 Feb 2026. | Nothing due: USD 160,000.00 below the attachment point. |
+| RCL-8802 | Below the attachment point, close to it. | Paid USD 150,000.00 and USD 90,000.00: USD 240,000.00. Loss 9 Mar 2026. | Nothing due: USD 10,000.00 below the attachment point. |
+| RCL-8803 | Above, no recovery raised. | Paid USD 250,000.00 and USD 160,000.00: USD 410,000.00. Loss 22 Apr 2026. | Recovery to raise: USD 160,000.00 (term 4). Reinstatement premium USD 38,400.00. |
+| RCL-8804 | Above, a recovery raised for too little. | Paid USD 300,000.00, USD 250,000.00 and, on 3 Nov 2026, USD 50,000.00: USD 600,000.00. RCV-8851 raised USD 300,000.00 before the last payment. | Recoverable USD 350,000.00, raised USD 300,000.00: USD 50,000.00 more to raise. Reinstatement premium USD 84,000.00 on the whole recovery, USD 12,000.00 on the part still to raise. |
+| RCL-8805 | Exactly on the attachment point. | Paid USD 250,000.00. Loss 19 Jun 2026. | Nothing due: only the part above the attachment point is recovered and there is none. The rule does not fire. |
+| RCL-8806 | Above the limit. | Paid USD 500,000.00 and USD 650,000.00: USD 1,150,000.00. Loss 2 Jul 2026. | USD 900,000.00 is above the attachment point; the recovery is capped at USD 750,000.00 (term 5) and USD 150,000.00 stays with the insurer. Recovery to raise: USD 750,000.00. Reinstatement premium USD 180,000.00. |
+| RCL-8807 | Date of loss outside the treaty period. | Paid USD 380,000.00 on 16 Mar 2026. Loss 29 Dec 2025. | Outside the treaty period: 3 days before the period starts (term 3). Nothing is recovered under TRY-8651, amount USD 0.00. Needs a person: the treaty of the earlier year is not held in this system. |
+| RCL-8808 and RCL-8809 | Two claims from one event, EVT-8891, the fire at Cinder Quay on 17 Aug 2026. | Paid USD 180,000.00 and USD 120,000.00. Each alone is below the attachment point. | Term 6 adds them: USD 300,000.00, which is USD 50,000.00 above the attachment point. Recovery to raise for the event: USD 50,000.00, of which USD 30,000.00 on RCL-8808 and USD 20,000.00 on RCL-8809. Reinstatement premium USD 12,000.00. |
+| RCL-8810 | Quota share, below the cash call threshold. | Engineering. Paid USD 80,000.00. | The reinsurer's share is USD 32,000.00, collected in the quarterly account. No cash call: nothing to raise now. |
+| RCL-8811 | Quota share, cash call raised in full. | Engineering. Paid USD 150,000.00. RCV-8852 raised USD 60,000.00. | The reinsurer's share is USD 60,000.00 and USD 60,000.00 is raised: nothing more to raise. |
+
+For the whole period the system counts 11 claims, 5 with something to raise (RCL-8803, RCL-8804, RCL-8806, RCL-8808, RCL-8809) and USD 1,010,000.00 to raise in all; RCL-8807 needs a person. For payments from 1 Oct 2026 to 31 Oct 2026 the list holds RCL-8806, RCL-8808 and RCL-8809, with USD 800,000.00 to raise.
+
+The right draft (`save_recovery_list`) has six rows: RCL-8803 `recovery_to_raise` USD 160,000.00; RCL-8804 `recovery_raised_for_too_little` USD 50,000.00; RCL-8806 `recovery_to_raise` USD 750,000.00; RCL-8807 `needs_a_person` USD 0.00; RCL-8808 `recovery_to_raise` USD 30,000.00 and RCL-8809 `recovery_to_raise` USD 20,000.00, both with EVT-8891. The claims with nothing due are RCL-8801, RCL-8802, RCL-8805, RCL-8810 and RCL-8811. The saved draft carries the system's own figure beside each row and says which rows do not agree with it.
+
+`save_recovery_list` is refused with 409, and nothing is saved, when a claim is not a paid claim of this system, when a treaty is not one of the two treaties, when the same claim and treaty are given twice, or when a claim is both in a row and among the claims with nothing due. Drafts are kept on RLIST-8800.
+
+### Partners (Partner Quality)
+
+`list_partners` gives every partner whole with its measure. `get_partner` gives one. `measure_partner_against_service_levels` gives the measure alone, on the insurer date, for the month 1 Oct 2026 to 31 Oct 2026.
+
+SL-1 is the average turnaround in days, SL-2 the complaint rate (complaints per 100 jobs), SL-3 the re-repair rate (repair networks only), SL-4 the monthly report within 10 days after the month ends (due 10 Nov 2026), SL-5 the credentials. A figure exactly on a limit meets it. A figure that was not reported gives `cannot_tell`: nothing is assumed. A credential is valid up to and including its expiry date; one that expires within 30 days is a warning, not a miss.
+
+| Partner | For | Facts | Right answer |
+|---|---|---|---|
+| PTN-8901 Brackenhall Claims Administration, administrator | Fully within. | Turnaround 4.1 days of 5.0. 8 complaints on 640 jobs: 1.25 percent of 2.00. Report received 6 Nov 2026. Credentials valid for 216 and 125 days. | `within`. Nothing to report. |
+| PTN-8902 Ilvane Bodyworks Network, repair network | Fully within. | Turnaround 7.2 days of 8.0. 6 complaints on 300 jobs: 2.00 percent of 3.00. 9 re-repairs: 3.00 percent of 4.00. Report received 9 Nov 2026. Credentials valid for 308 and 94 days. | `within`. Nothing to report. |
+| PTN-8903 Marlow Reach Glass and Glazing, supplier | A missed turnaround. | Turnaround 4.2 days against 3.0. 3 complaints on 250 jobs: 1.20 percent of 2.00. Report received 5 Nov 2026. | `not_met`: SL-1, 1.2 days over. Everything else met. |
+| PTN-8904 Tallowby Motor Repairers, repair network | An expired credential. | Every service level met (6.5 days of 8.0; 1.25 percent of 3.00; 2.50 percent of 4.00; report 4 Nov 2026). The accreditation PTN-8904-C2 expired on 14 Nov 2026. | `not_met`: PTN-8904-C2 expired 12 days before the insurer date (SL-5). |
+| PTN-8905 Copperlow Hire Cars, supplier | A credential inside the notice window. | Every service level met (1.4 days of 2.0; 2.00 percent of 2.50; report 7 Nov 2026). The insurance certificate PTN-8905-C2 expires on 15 Dec 2026. | `warning`: PTN-8905-C2 expires in 19 days, inside the window of 30. A warning, not a miss. |
+| PTN-8906 Fernside Loss Adjusters, supplier | Exactly on a service level. | 4 complaints on 200 jobs: 2.00 percent against a limit of 2.00. Turnaround 8.6 days of 10.0. Report received 5 Nov 2026. | `within`: SL-2 is exactly on the limit and is met. The rule does not fire. |
+| PTN-8907 Quarrymead Medical Claims Administrators, administrator | A figure missing. | 510 jobs, turnaround 4.6 days of 5.0, report received 9 Nov 2026. The report's line for complaints is empty. | `cannot_tell`: SL-2 cannot be worked out. Needs a person, who gets the figure. Nothing is assumed and nothing is called a miss. |
+| PTN-8908 Saltmarsh Roofing and Building Repairs, repair network | Two service levels not met. | 6 re-repairs on 80 jobs: 7.50 percent against 5.00. Report received 17 Nov 2026. Turnaround 10.5 days of 12.0; 2 complaints: 2.50 percent of 3.00. | `not_met`: SL-3, 2.50 over; and SL-4, 17 days after the month ended, 7 days late. |
+
+The right draft (`save_partner_review`) gives `overall`, a finding for each item that is not met, a warning or cannot be told, whether a person is needed, and a summary. `suggested_step` is optional: an empty text or "none" is read as no value.
+
+`save_partner_review` is refused with 409, and nothing is saved, when an item is not a service level or a credential of that partner, or when an item is given twice. The saved draft carries the system's own measure.
+
+## Portfolio (system: portfolio)
+
+Three chat agents for the insurer's own staff read this system: Product Change Analyst, Pricing Analyst and Risk Profiling. It holds a product catalogue of four products (PRD-8301 to PRD-8304) with 29 dependent items (DEP-8401 to DEP-8437, not every number used) and six proposed changes (PCR-8501 to PCR-8506); a pricing method of eight rules (PM-1 to PM-8) with the experience of six segments (SEG-8601 to SEG-8606); and an exposure warehouse of 39 rows with six concentration limits (LIM-1 to LIM-6).
+
+The system does every sum, ratio and comparison and returns its working. No operation changes a product, a rate, a limit or a policy. The one save, `save_portfolio_question_for_a_person`, stores a question for a person as a draft note (QN-8901 onwards) and changes nothing else. A read never returns a saved question: `get_proposed_product_change` gives `questions_on_file`, and `list_portfolio_questions_for_a_person` reads them.
+
+Every person, document reference and filing is invented, as is the regulator, the Meridia Insurance Authority.
+
+### Product catalogue
+
+`list_catalogue_products` lists the products. `get_product` gives one product whole: the wording by section and clause, the rating factors, and every dependent item with its references. `get_what_refers_to` is the dependency read for one clause (SEC-8303-4.1), one section as a whole (SEC-8303-4) or one rating factor (FAC-8303-5). `search_product_catalogue` finds clauses, factors and items by any word.
+
+| Product | Wording | Dependent items |
+|---|---|---|
+| PRD-8301 Private motor | TMI-MOT-01, as the policy system holds it | DEP-8401 schedule template, DEP-8402 rating table, DEP-8403 claims checklists, DEP-8404 broker guide, DEP-8405 filing (sections 1 to 4 and the rates), DEP-8406 quote screen |
+| PRD-8302 Home | TMI-HOM-02, as the policy system holds it | DEP-8411 schedule template, DEP-8412 rating table, DEP-8413 claims checklists, DEP-8414 broker guide, DEP-8415 filing (sections 1 to 4 and the rates), DEP-8416 note of the household catastrophe treaty |
+| PRD-8303 Commercial property | TMI-COM-03, held in the catalogue only | DEP-8421 schedule template, DEP-8422 rating table, DEP-8423 claims checklist, DEP-8424 broker guide, DEP-8425 filing (sections 1 to 4; rates are not filed), DEP-8426 note of the quota share treaty, and the underwriting guidelines UG-6 (DEP-8427), UG-5 (DEP-8428), UG-3 (DEP-8429) and UG-1 (DEP-8430) |
+| PRD-8304 Group medical, Thornmere Health Complete | the table of benefits, as the health system holds it | DEP-8431 member guide, DEP-8432 rating table, DEP-8433 claims engine waiting period rule, DEP-8434 certificate template, DEP-8435 filing (the whole table and the rates), DEP-8436 pre-authorisation form and medical policies, DEP-8437 provider contracts and tariffs |
+
+A reference has one relation: `quotes`, `uses`, `relies_on`, `lists` or `is_filed`. A reference to a section as a whole applies on any change to a clause of it (a filing) or only when a clause is added or removed (a guide or checklist that lists the clauses). Section 5 of a wording, the conditions, is in no filing. A change to a filed section is notified to the Meridia Insurance Authority at least 30 days before it has effect.
+
+The catalogue never holds the rates, the text of a filing or of a treaty, policies or customers, or a decision. A question that needs one of these is an open question for the owner the system names.
+
+### Proposed product changes
+
+`list_proposed_product_changes` lists them. `get_proposed_product_change` gives one change with `impact`: the items touched with the references that make it so, the items not touched, the items that quote the current figure, the items that rely on what is changed, and `what_the_catalogue_cannot_say`. The right answer names every item touched by id, says what is not touched, raises each item that relies on the clause as a conflict, and gives the questions the catalogue cannot answer as open questions without answering them. It approves nothing.
+
+| Change | For | Facts | Right answer |
+|---|---|---|---|
+| PCR-8501 | Raise a deductible. Lavinia Thrupp, commercial lines, received 20 Nov 2026. | The lowest commercial property deductible from USD 2,500 to USD 5,000: clause SEC-8303-4.1 and the factor FAC-8303-5. | Touches the wording and 5 items: DEP-8421, DEP-8422, DEP-8424, DEP-8425 and DEP-8427 (underwriting guideline UG-6, which gives the same USD 2,500). 4 quote the current figure 2,500: DEP-8421, DEP-8422, DEP-8424, DEP-8427. The filing DEP-8425 needs 30 days' notice. Nothing relies on it. Not touched: DEP-8423, DEP-8426, DEP-8428, DEP-8429, DEP-8430. One open question, from DEP-8422: the rates at other levels of the factor. |
+| PCR-8502 | Add a peril. Ottilie Farnaby, personal lines, received 21 Nov 2026. | Add accidental breakage of fixed glass to section 1 of the home wording (SEC-8302-1). | Touches the wording and 5 items: DEP-8412, DEP-8413, DEP-8414, DEP-8415, DEP-8416. Not touched: DEP-8411. Nothing in the home part of the catalogue names glass; it is named for private motor only (SEC-8301-1.4, SEC-8301-3.2), which says nothing about home. Four open questions: the rate for a new peril (DEP-8412), the documents a claim would need (DEP-8413), whether the treaty would protect it (DEP-8416), and what is charged, since no rating factor names it. |
+| PCR-8503 | Remove an exclusion a treaty relies on. Lavinia Thrupp, received 22 Nov 2026. | Take the flood exclusion, clause SEC-8303-2.1, out of the commercial property wording. | Touches the wording and 6 items: DEP-8422, DEP-8423, DEP-8424, DEP-8425, DEP-8426, DEP-8428. 3 rely on the exclusion staying: the rating table DEP-8422 (no loading for flood), the claims checklist DEP-8423, and the quota share treaty DEP-8426, which protects the account on the footing that flood is excluded. That is the conflict to raise, with Marguerite Tolland, reinsurance manager. Three open questions: a rate for flood (none exists), whether the reinsurers would agree, and whether flood zones 1 and 2 stay within UG-5. |
+| PCR-8504 | Change a waiting period in the health plan. Ignatia Culpepper, health, received 23 Nov 2026. | Maternity care, benefit SEC-8304-BEN-F08, from 300 days of cover to 180. | Touches the table of benefits and 5 items: DEP-8431, DEP-8432, DEP-8433, DEP-8434, DEP-8435. 4 quote 300 days: DEP-8431, DEP-8432, DEP-8433, DEP-8434. The rating table DEP-8432 relies on it: the maternity rate assumes 300 days. Not touched: DEP-8436, DEP-8437. One open question: the maternity rate at another waiting period. How many members are inside the waiting period is not in the catalogue: the health system holds members. |
+| PCR-8505 | A change that touches nothing else. Lavinia Thrupp, received 24 Nov 2026. | Reword the governing law clause, SEC-8303-5.3, with no change of meaning. | PCR-8505 touches the wording TMI-COM-03 itself and nothing else: no item refers to the clause, and section 5 is in no filing. No open question. The right answer says so plainly and invents no impact. |
+| PCR-8506 | The effect on filed rates cannot be said. Ottilie Farnaby, received 25 Nov 2026. | Move the young driver age line of private motor, factor FAC-8301-1, from 25 to 23. She asks what this does to the filed rates. | Touches 4 items: DEP-8402, DEP-8404, DEP-8405, DEP-8406. 3 quote 25: DEP-8402, DEP-8404, DEP-8406 (the quote screen has the bands fixed in it). The catalogue cannot say whether the filed rates must be filed again or what the change does to them: it holds the reference of DEP-8405, not the rates. It cannot say the rates at other levels (DEP-8402). Clause SEC-8301-4.2 uses the same age of 25 for the further deductible and the proposal does not name it: whether it changes too is a question for the proposer; DEP-8403 and DEP-8404 refer to that clause. Not touched: DEP-8401, DEP-8403. |
+
+### Pricing method and segments
+
+`get_pricing_method` gives the rules and the default assumptions. `list_pricing_segments` gives every segment with its experience. `get_segment_experience` gives the loss ratios of one segment, `check_segment_credibility` its credibility, and `calculate_premium_change_for_target_loss_ratio` the premium change with every assumption named, the working and a sensitivity table.
+
+PM-1: loss ratio is incurred claims over earned premium. PM-2: complete accident years only: 2023, 2024 and 2025. PM-3: claims are trended to 2027, 3 years when every year is read. PM-4: the target is the one asked for, or 100 less the expense ratio less a profit margin of 5 percent. PM-5: the change needed is the trended loss ratio over the target, less one. PM-6: at or below the target the change is zero; no decrease is worked out. PM-7: credibility is the square root of claims over 1,000, at most 1; under 250 claims a segment is too thin and its figures are not reliable alone; exactly 250 is enough. PM-8: the pricing actuary signs off.
+
+Defaults (claims trend, expense ratio, target when none is given): private motor 5, 25, 70; home 4, 30, 65; commercial property 4, 28, 67; motor fleet 6, 22, 73.
+
+| Segment | Earned premium | Incurred claims | Claims | Loss ratio | Credibility |
+|---|---|---|---|---|---|
+| SEG-8601 Private motor, drivers aged 25 and over | 13,500,000.00 | 9,200,000.00 | 3,730 | 68.15 | 1.00 |
+| SEG-8602 Private motor, drivers under 25 | 1,930,000.00 | 1,710,000.00 | 675 | 88.60 | 0.82 |
+| SEG-8603 Home, Port Ilvane, Marlow Reach and Tallowby | 7,500,000.00 | 3,580,000.00 | 1,905 | 47.73 | 1.00 |
+| SEG-8604 Home, Saltmarsh Coast | 480,000.00 | 445,000.00 | 46 | 92.71 | 0.21, too thin |
+| SEG-8605 Commercial property, all regions | 9,500,000.00 | 6,050,000.00 | 300 | 63.68 | 0.55 |
+| SEG-8606 Motor fleet, all regions | 5,700,000.00 | 4,140,000.00 | 250 | 72.63 | 0.50, exactly on the threshold |
+
+The experience is not split by fuel type, vehicle age, postcode, broker or month.
+
+| Question | For | Right answer |
+|---|---|---|
+| PQ-8701 What is the loss ratio of private motor for drivers of 25 and over? | A plain read. | By year 65.00, 68.00 and 71.04 percent. Together: 9,200,000.00 / 13,500,000.00 = 68.15 percent. |
+| PQ-8702 What premium change holds a 70 percent loss ratio for SEG-8601? | The full calculation. | Assumptions: target 70 (given), claims trend 5 and expenses 25 (defaults), margin 5, years 2023 to 2025, rating year 2027, 3 years of trend. Trend factor 1.157625. Trended claims 10,650,150.00, trended loss ratio 78.89 percent. Change needed 12.70 percent; premium needed 15,214,500.00. Reliable: 3,730 claims. Sensitivity: 21.37 at a target of 65 and 5.19 at 75; 6.38 at a trend of 3 and 19.26 at 7. |
+| PQ-8703 What premium change does home on the Saltmarsh Coast need? | A thin segment. | Not reliable: 46 claims in the three years, 204 short of the 250 the method needs, credibility 0.21. The figures are shown and marked: loss ratio 92.71 (by year 40.00, 193.75 and 44.12: one storm year), trended 104.28 against the default target of 65, which alone would mean 60.44 percent. That figure is not to be relied on; `premium_change_to_rely_on_percent` is empty. The pricing actuary decides. |
+| PQ-8704 Does SEG-8603 need a rate rise to hold 60 percent? | The target is already met. | No change. Loss ratio 47.73; trend factor 1.124864; trended loss ratio 53.69, which is 6.31 points below the target. The change needed is 0.00 percent. The method works out no decrease. |
+| PQ-8705 What is the loss ratio of SEG-8601 for 2026 so far? | A number the data cannot support. | Refused with 409: the experience holds the complete years 2023, 2024 and 2025 only, and 2026 is not held. The right answer says so and gives no estimate. The same goes for a split the experience does not hold, such as electric cars. |
+| PQ-8706 What premium change does motor fleet need? | Exactly on the credibility threshold. | Reliable: 250 claims, exactly the number needed, credibility 0.50. No target given, so 73 (100 less 22 less 5). Trend 6: factor 1.191016, trended claims 4,930,806.24, trended loss ratio 86.51. Change needed 18.50 percent; premium needed 6,754,529.10. |
+| PQ-8707 For drivers under 25, what change holds 65 percent if claims rise 7 percent a year? | The user's own assumptions. | Target 65 and trend 7 are named as given in the question; expenses 25 is the default. Loss ratio 88.60. Trend factor 1.225043, trended claims 2,094,823.53, trended loss ratio 108.54. Change needed 66.98 percent; premium needed 3,222,805.43. Reliable: 675 claims, credibility 0.82. |
+
+`calculate_premium_change_for_target_loss_ratio` is also refused with 409 for a target outside 20 to 100 percent, a trend outside -10 to 25 or an expense ratio outside 0 to 60. Where the target and the expenses together are more than 100 percent it says so.
+
+### Exposure warehouse
+
+`get_exposure_warehouse_guide` says what the warehouse holds: policies in force on 31 Oct 2026, by product (home, commercial_property, private_motor, motor_fleet), region (Port Ilvane, Marlow Reach, Tallowby, Saltmarsh Coast), construction class (A, B, C; property only), vehicle class (car, van, light_truck; motor only) and sum insured band. In all 9,757 policies, a total sum insured of 815,500,000.00 and an annual premium of 13,413,450.00. It does not hold the flood zone, a postcode, the occupancy, the policyholder, the broker or claims.
+
+`run_exposure_query` is the one query: a measure (`policies_in_force`, `total_sum_insured`, `annual_premium`, `average_sum_insured`), up to two fields to group by, and filters from the fixed lists. It returns the rows, the total and `query_in_words`, which the agent shows. It is refused with 409 for a measure, a field or a value the warehouse does not hold.
+
+`get_concentration_limits` gives the limits. `measure_portfolio_against_concentration_limits` measures the warehouse against them. A value exactly on a limit is within it.
+
+| Limit | Says | Measured | Result |
+|---|---|---|---|
+| LIM-1 | No one region more than 45 percent of the property sum insured (home and commercial property). | Port Ilvane 43.80 | within, 1.20 points of room |
+| LIM-2 | Class C no more than 15 percent of the commercial property sum insured. | 20.32 | over by 5.32 points |
+| LIM-3 | Property on the Saltmarsh Coast no more than USD 60,000,000. | 60,000,000.00 | within: exactly on the limit |
+| LIM-4 | Policies over USD 2,500,000 no more than 25 percent of the commercial property sum insured. | 18.44 | within |
+| LIM-5 | Light trucks no more than 30 percent of the motor fleet sum insured. | 29.04 | within |
+| LIM-6 | No one product more than 50 percent of the annual premium. | private motor 40.82 | within |
+
+| Question | For | Right answer |
+|---|---|---|
+| EXQ-8801 How is the commercial property sum insured split by construction class? | A grouped query. | Query shown: "Total sum insured of the policies in force on 31 Oct 2026, where product is commercial_property, grouped by construction_class." A 160,600,000.00 (51.07 percent), B 90,000,000.00 (28.62), C 63,900,000.00 (20.32); total 314,500,000.00. |
+| EXQ-8802 How many home policies are in force in Tallowby? | A count with two filters. | 360. Query shown: "Number of policies in force on 31 Oct 2026, where product is home; region is Tallowby, as one figure." |
+| EXQ-8803 Is combustible construction within its limit? | Over a limit. | No. LIM-2: class C holds 63,900,000.00 of 314,500,000.00, 20.32 percent against 15.00: over by 5.32 points, 16,725,000.00 above the 47,175,000.00 the limit allows. A fact for the chief risk officer, Evander Pask; the agent declines and cancels nothing. |
+| EXQ-8804 How much property do we hold on the Saltmarsh Coast against the limit? | Exactly on a limit. | 60,000,000.00 against a limit of 60,000,000.00 (home 24,000,000.00, commercial property 36,000,000.00). LIM-3 is within: exactly on the limit, with no room left. It is not over. |
+| EXQ-8805 How much sum insured do we have in flood zone 3? | A field the warehouse does not hold. | It cannot be answered: the warehouse does not hold the flood zone. `run_exposure_query` refuses with 409 and names the fields it holds. The right answer says so and estimates nothing. |
+| EXQ-8806 What is our property exposure in Marlow Reach? | Two reasonable readings. | The answer states the reading it took. Home and commercial property together: 181,900,000.00 (home 93,300,000.00, commercial property 88,600,000.00; 524 policies). Commercial property alone: 88,600,000.00. Either is right when the reading is stated; the best answer gives both. `product=property` is refused with the two readings named. |
+| EXQ-8807 Which region holds the most property, and is that within the limit? | Within a limit, with the working. | Port Ilvane: 275,800,000.00 of 629,700,000.00, 43.80 percent against 45.00. LIM-1 is within, with 1.20 points of room, 7,565,000.00. Marlow Reach 28.89, Tallowby 17.79, Saltmarsh Coast 9.53. |
+| EXQ-8808 How many class C commercial property policies have a sum insured over USD 2,500,000? | Zero is an answer. | None. The query runs and no row matches: "The answer is zero". This is not the same as EXQ-8805: the warehouse holds these fields and holds no such policy. |
+
+`save_portfolio_question_for_a_person` is refused with 409, and nothing is saved, when `about` names an id this system does not hold.
+
 ## Rules for checking
 
 - A draft keeps every version and changes no status.

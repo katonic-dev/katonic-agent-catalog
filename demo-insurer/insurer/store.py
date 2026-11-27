@@ -231,4 +231,9 @@ class Store:
             "complaints_new": sum(1 for c in d["cd_complaints"].values() if c["status"] == "new"),
             "regulatory_publications_new": sum(1 for p in d["cd_publications"].values() if p["status"] == "new"),
             "disputed_claims_to_be_sorted": len(d["cd_disputes"]),
+            "bordereaux_received": sum(1 for b in d["ri_bordereaux"].values() if b["status"] == "received"),
+            "paid_claims_for_treaty_recovery": len(d["ri_claims"]),
+            "partners_to_review": len(d["ri_partners"]),
+            "product_changes_proposed": sum(1 for c in d["pf_change_requests"].values() if c["status"] == "proposed"),
+            "portfolio_questions_saved_for_a_person": len(d["pf_questions"]),
         }

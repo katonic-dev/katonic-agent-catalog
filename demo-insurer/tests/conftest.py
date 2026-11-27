@@ -19,6 +19,8 @@ SYSTEMS.append("underwriting")
 SYSTEMS.append("investigations")
 SYSTEMS.append("servicing")
 SYSTEMS.append("conduct")
+SYSTEMS.append("reinsurance")
+SYSTEMS.append("portfolio")
 ALL_SYSTEMS = list(SYSTEMS)
 H = {"X-API-Key": KEY}
 

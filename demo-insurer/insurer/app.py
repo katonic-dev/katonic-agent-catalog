@@ -22,6 +22,8 @@ from .systems import underwriting
 from .systems import investigations
 from .systems import servicing
 from .systems import conduct
+from .systems import reinsurance
+from .systems import portfolio
 
 log = logging.getLogger("demo-insurer")
 SYSTEMS = [policy, claims, health]
@@ -29,6 +31,8 @@ SYSTEMS.append(underwriting)
 SYSTEMS.append(investigations)
 SYSTEMS.append(servicing)
 SYSTEMS.append(conduct)
+SYSTEMS.append(reinsurance)
+SYSTEMS.append(portfolio)
 
 
 class DemoHeaderMiddleware:
