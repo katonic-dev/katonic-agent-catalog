@@ -353,6 +353,16 @@ def test_crq_7405_asks_for_a_date_after_the_policy_period_ends(client):
     assert r["checked_against_the_policy"]["can_be_prepared_as_asked"] is False
 
 
+def test_crq_7405_the_item_row_gives_no_figure_for_a_date_outside_the_period(client):
+    check = crq(client, 7405)["checked_against_the_policy"]
+    row = {r["item_id"]: r for r in check["rows"]}["CRQ-7405-A"]
+    assert (row["result"], row["the_policy_holds"], row["field"]) == ("not_in_force_on_the_date", None, "buildings_sum_insured")
+    assert row["sentence"] == "The policy is not in force on 25 May 2027, so it gives nothing to show for this item on that date."
+    assert "298" not in json.dumps(check) and len(check["differences"]) == 1
+    inside = {r["item_id"]: r for r in crq(client, 7401)["checked_against_the_policy"]["rows"]}["CRQ-7401-A"]
+    assert inside["result"] == "shown_from_the_policy" and inside["the_policy_holds"] == 310000.0
+
+
 def test_crq_7406_the_certificate_date_decides_which_limit_shows(client):
     r = crq(client, 7406)
     row = rows_of(r)["CRQ-7406-A"]

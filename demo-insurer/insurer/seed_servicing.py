@@ -655,6 +655,17 @@ def check_certificate_request(req: dict, data: dict, today_iso: str) -> dict:
         differences.append(f"The policy is not in force on the certificate date. {cover['reason']}")
     for item in req["must_show"]:
         kind = item["kind"]
+        if not cover["in_force"]:
+            # Outside the period the policy gives nothing on that date: no figure, party or waiver is set beside the request.
+            asked = (item.get("asked_amount") if kind == "limit" else item["party_name"] if kind == "interested_party"
+                     else f"a waiver of rights of recovery against {item['party_name']}")
+            row = {"item_id": item["item_id"], "kind": kind}
+            if kind == "limit":
+                row.update({"field": item["field"], "label": item["label"]})
+            rows.append({**row, "result": "not_in_force_on_the_date", "asked": asked, "the_policy_holds": None,
+                         "sentence": f"The policy is not in force on {long_date(on)}, so it gives nothing to show for this item "
+                                     "on that date."})
+            continue
         if kind == "limit":
             holds, asked, label = schedule.get(item["field"]), item.get("asked_amount"), item["label"]
             if holds is None:
