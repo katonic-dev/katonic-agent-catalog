@@ -1,0 +1,252 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Complaints procedure" and "Complaints" in demo-insurer/SCENARIOS.md
+# (section "Conduct (system: conduct)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date and every count of days in a reply is the one
+# the system returned: CMP-7108 is then exactly on its acknowledgement day and CMP-7107 is 5 working days late.
+# A saved draft is not part of a complaint's read, so a second run does not see the first run's answer and no reset
+# is needed between runs. A second run saves the next version, so no test expects a version number by its figure:
+# the reply gives the version the system gave. To start clean all the same, POST /admin/reset/conduct on the insurer.
+# The tester reads what was saved with the operation that lists the drafts on a complaint
+# (list_complaint_response_drafts), which the agent does not hold.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# The agent is started by a new complaint arriving. In every test a person sends the message.
+# Every phrase under does_not_say is a claim only a wrong reply makes: an outcome, an offer of money, an apology,
+# a wrong date or a wrong mark. None of them is in a test's own input or in a right refusal.
+
+states:
+  nothing_connected: The agent as built, with no conduct tools attached.
+  insurer_connected: >
+    The conduct system of the invented insurer connected and the agent's
+    three tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare complaint CMP-7101.
+    expected:
+      - says the insurer's conduct system is not connected to the agent right now, so the complaint and the complaints procedure cannot be read and nothing was prepared or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no category, no date, no table, no letter and no proposal, and names no customer
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "prepare"]}
+      - {check: does_not_say, any: ["Corwin", "CC-", "POL-", "27 Nov", "| # |", "Proposal:", "Saved:", "Dear "]}
+
+  - name: Insurer connected, a complaint exactly on its acknowledgement day, due today and not late
+    given: insurer_connected
+    input: Prepare complaint CMP-7108.
+    expected:
+      - the summary names the complaint CMP-7108, Teodor Brackwell, email, received 23 Nov 2026, policy POL-2009
+      - "says it is a complaint, category CC-4 Premiums, charges and refunds: a charge of USD 25.00 on 20 Nov 2026 for moving his payment date that he says nobody told him about"
+      - the row of the acknowledgement gives the system's sentence in full, due by 26 Nov 2026, the last day allowed, due on this day and not late, and is marked due today
+      - marks nothing as late, in the table, the summary or the proposal
+      - the row of the final response gives the system's sentence, due by 23 Dec 2026 under CH-2, and is marked on time
+      - the rows of the vulnerable customer rule, the regulator or lawyer rule and the repeat complaint rule are each marked does not apply
+      - gives the policy POL-2009 and the claim CLM-4009 on it, with a Note that the complaint does not name this claim
+      - the Note of the category row says the records read do not show whether he was told of the charge, and that the complaints officer finds out
+      - says the complaint goes to the complaints officer, Rosamund Achterberg
+      - the letter starts Dear Teodor Brackwell, names CMP-7108, gives the date received as 23 November 2026 and the final response date as 23 December 2026, and ends with the line Complaints Team, Thornmere Mutual Insurance
+      - the letter does not uphold or reject, offers no refund, holds no apology and carries no policy id
+      - the summary says the complaints officer decides whether the complaint is upheld or rejected, writes that sentence and sends, and that the draft leaves it out
+      - saves the draft as a complaint with category CC-4, no special rule and no linked complaint, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: for the complaints officer: CMP-7108, CC-4, acknowledgement due today, final response due 23 Dec 2026"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: get_complaints_procedure}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Summary", "Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, any: ["| # | Point | Rule | What the record shows | Mark | Note |"]}
+      - {check: says, all: ["CMP-7108", "Teodor Brackwell", "POL-2009", "CLM-4009", "CC-4", "USD 25.00", "23 Nov 2026", "26 Nov 2026", "23 Dec 2026"]}
+      - {check: says, all: ["| due today |", "| on time |", "| does not apply |", "| noted |"]}
+      - {check: says, any: ["is due on this day and is not late"]}
+      - {check: says, any: ["The records read do not show whether"]}
+      - {check: says, all: ["Dear Teodor Brackwell,", "23 November 2026", "23 December 2026", "Complaints Team, Thornmere Mutual Insurance", "Rosamund Achterberg"]}
+      - {check: last_line_says, all: ["Proposal: for the complaints officer:", "CMP-7108", "CC-4", "acknowledgement due today", "final response due 23 Dec 2026"]}
+      - {check: does_not_say, any: ["| late |", "| applies |", "acknowledgement late", "the acknowledgement is late", "Proposal: for the senior complaints officer", ", linked to CMP", "we will refund", "will be refunded", "we apologise", "we are sorry", "your complaint is upheld", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a complaint that mentions the regulator goes to the senior complaints officer
+    given: insurer_connected
+    input: Prepare complaint CMP-7103.
+    expected:
+      - the summary names the complaint CMP-7103, Odalys Fenwright, web form, received 24 Nov 2026, policy POL-2004 and claim CLM-4004
+      - "says it is a complaint, category CC-3 Claim handling: no news since she reported the theft of her car on 19 Nov 2026"
+      - the row of the regulator or lawyer rule, CH-4, is marked applies and quotes her words that mention the Meridia Insurance Authority
+      - says the complaint goes to the senior complaints officer, Leopold Vanterpool, under CH-4
+      - the row of the acknowledgement gives the system's sentence, acknowledged on 25 Nov 2026, 1 working day after the day received, in time, and is marked on time
+      - the row of the final response gives 24 Dec 2026 under CH-2, and is marked on time
+      - the row of claim CLM-4004 gives the theft of the insured vehicle, the date of the loss and the date reported, 19 Nov 2026, the theft team, no decision, and that the complaint names this claim
+      - the letter starts Dear Odalys Fenwright, names CMP-7103 and CLM-4004, says our senior complaints officer will look into it and gives the final response date as 24 December 2026
+      - the letter promises no payment for the hire car, holds no apology and does not uphold or reject
+      - saves the draft with category CC-3, the rule CH-4 and the senior complaints officer
+      - "ends with the line Proposal: for the senior complaints officer: CMP-7103, CC-3, acknowledgement made, final response due 24 Dec 2026"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: get_complaints_procedure}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7103", "Odalys Fenwright", "POL-2004", "CLM-4004", "CC-3", "CH-4", "Meridia Insurance Authority", "25 Nov 2026", "24 Dec 2026", "19 Nov 2026"]}
+      - {check: says, all: ["senior complaints officer", "Leopold Vanterpool", "theft team"]}
+      - {check: says, all: ["| applies |", "| on time |", "| does not apply |"]}
+      - {check: says, all: ["Dear Odalys Fenwright,", "24 December 2026", "Complaints Team, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: for the senior complaints officer:", "CMP-7103", "CC-3", "acknowledgement made", "final response due 24 Dec 2026"]}
+      - {check: does_not_say, any: ["Proposal: for the complaints officer", "| late |", "| due today |", "acknowledgement made late", ", linked to CMP", "we will pay for", "we will cover the cost", "we apologise", "we are sorry", "your complaint is upheld", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a customer marked vulnerable, the final response is due in 15 days and contact is by telephone
+    given: insurer_connected
+    input: Prepare complaint CMP-7104.
+    expected:
+      - the summary names the complaint CMP-7104, Aldous Pennicott, telephone, received 25 Nov 2026, policy POL-2007 and claim CLM-4007
+      - "says it is a complaint, category CC-3 Claim handling: nobody has told him whether somewhere to stay will be paid for since the fire of 23 Nov 2026"
+      - the row of the vulnerable customer rule, CH-3, is marked applies and gives what the customer care record says, marked vulnerable, recorded 23 Nov 2026, aged 81, lives alone, out of his home since the fire, preferred contact telephone
+      - takes the mark from the customer care record, not from his age in the complaint
+      - the row of the final response gives the system's sentence, 15 days in place of 30 under CH-3, due by 10 Dec 2026
+      - the row of the acknowledgement gives 30 Nov 2026, not late, and is marked on time
+      - says the complaint goes to the complaints officer, Rosamund Achterberg, on the day it is logged, and that he is to be contacted by telephone
+      - the letter starts Dear Aldous Pennicott, gives the final response date as 10 December 2026, and does not say whether somewhere to stay will be paid for
+      - saves the draft with category CC-3 and the rule CH-3
+      - "ends with the line Proposal: for the complaints officer: CMP-7104, CC-3, acknowledgement due 30 Nov 2026, final response due 10 Dec 2026"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7104", "Aldous Pennicott", "POL-2007", "CLM-4007", "CC-3", "CH-3", "telephone", "23 Nov 2026", "30 Nov 2026", "10 Dec 2026", "Rosamund Achterberg"]}
+      - {check: says, any: ["15 days in place of 30"]}
+      - {check: says, all: ["| applies |", "| on time |"]}
+      - {check: says, all: ["Dear Aldous Pennicott,", "10 December 2026"]}
+      - {check: last_line_says, all: ["Proposal: for the complaints officer:", "CMP-7104", "CC-3", "acknowledgement due 30 Nov 2026", "final response due 10 Dec 2026"]}
+      # 25 Dec 2026 is the date a reply would give if it used 30 days.
+      - {check: does_not_say, any: ["final response due 25 Dec 2026", "25 December 2026", "Proposal: for the senior complaints officer", "| late |", "we will pay for", "we have arranged", "we apologise", "we are sorry", "your complaint is upheld", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a repeat complaint is linked to the first, and the records do not show whether the refund was paid
+    given: insurer_connected
+    input: Prepare complaint CMP-7105.
+    expected:
+      - the summary names the complaint CMP-7105, Henrietta Quillby, email, received 23 Nov 2026, policy POL-2006
+      - "says it is a complaint, category CC-4 Premiums, charges and refunds: she says the second premium of USD 31.50 has not been refunded"
+      - the row of the repeat complaint rule, CH-5, is marked applies, names CMP-7051, received 13 Oct 2026, closed 27 Oct 2026, CC-4, with its matter, a premium of USD 31.50 collected twice, and its recorded outcome, and says the matter is the same
+      - links the complaint to CMP-7051, with the Note linked to CMP-7051, and gives the dates the system counted from the new complaint
+      - the row of the acknowledgement gives the system's sentence, acknowledged on 24 Nov 2026, in time, and the row of the final response gives 23 Dec 2026
+      - says the records read do not show whether the refund was paid, and that the complaints officer finds out
+      - does not say that the refund is overdue or late, and counts no working days from the letter of 27 Oct 2026
+      - the row of claim CLM-4006 says the complaint does not name this claim
+      - the letter starts Dear Henrietta Quillby, names CMP-7105 and the earlier complaint CMP-7051, says the two are linked, gives the final response date as 23 December 2026, and promises no refund
+      - saves the draft with category CC-4, the rule CH-5 and the linked complaint CMP-7051
+      - "ends with the line Proposal: for the complaints officer: CMP-7105, CC-4, acknowledgement made, final response due 23 Dec 2026, linked to CMP-7051"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7105", "Henrietta Quillby", "POL-2006", "CLM-4006", "CC-4", "CH-5", "CMP-7051", "USD 31.50", "13 Oct 2026", "27 Oct 2026", "24 Nov 2026", "23 Dec 2026"]}
+      - {check: says, any: ["The records read do not show whether"]}
+      - {check: says, all: ["| applies |", "| on time |", "linked to CMP-7051"]}
+      - {check: says, all: ["Dear Henrietta Quillby,", "23 December 2026"]}
+      - {check: last_line_says, all: ["Proposal: for the complaints officer:", "CMP-7105", "CC-4", "acknowledgement made", "final response due 23 Dec 2026", "linked to CMP-7051"]}
+      - {check: does_not_say, any: ["the refund is overdue", "refund is late", "we will refund", "your refund will be paid", "we apologise", "we are sorry", "your complaint is upheld", "Proposal: for the senior complaints officer", "| late |", "| due today |", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a late acknowledgement, and an earlier complaint about a different matter is not linked
+    given: insurer_connected
+    input: Prepare complaint CMP-7107.
+    expected:
+      - the summary names the complaint CMP-7107, Bram Tollermoor, web form, received 13 Nov 2026, policy POL-2005
+      - "says it is a complaint, category CC-6 Policy administration: the certificate of motor insurance he asked for on 2 Nov 2026 and 9 Nov 2026 has not been sent"
+      - the row of the acknowledgement gives the system's sentence in full, due by 19 Nov 2026, no acknowledgement recorded, late by 5 working days, is marked late, and names Charter Day, 16 Nov 2026, as left out of the count
+      - "the row of the final response gives the system's sentence, due by 11 Dec 2026 because day 30, 13 Dec 2026, is not a working day, and is marked on time"
+      - the row of the repeat complaint rule, CH-5, is marked does not apply, names CMP-7052 with its matter, a wait of 50 minutes on the service line, and says it is a different matter and is not linked
+      - the row of claim CLM-4005 says the complaint does not name this claim
+      - the letter starts Dear Bram Tollermoor, gives the final response date as 11 December 2026, holds no apology and does not say the certificate will be sent
+      - saves the draft with category CC-6, no special rule and no linked complaint
+      - "ends with the line Proposal: for the complaints officer: CMP-7107, CC-6, acknowledgement late, final response due 11 Dec 2026"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7107", "Bram Tollermoor", "POL-2005", "CLM-4005", "CC-6", "CMP-7052", "13 Nov 2026", "19 Nov 2026", "11 Dec 2026", "Charter Day", "16 Nov 2026"]}
+      - {check: says, any: ["late by 5 working days"]}
+      - {check: says, all: ["| late |", "| on time |", "| does not apply |"]}
+      - {check: says, any: ["not linked"]}
+      - {check: says, all: ["Dear Bram Tollermoor,", "11 December 2026"]}
+      - {check: last_line_says, all: ["Proposal: for the complaints officer:", "CMP-7107", "CC-6", "acknowledgement late", "final response due 11 Dec 2026"]}
+      # A linked complaint would stand at the end of the proposal after a comma. 13 Dec 2026 is day 30, which is not a working day.
+      - {check: does_not_say, any: [", linked to CMP-7052", "final response due 13 Dec 2026", "13 December 2026", "| applies |", "| due today |", "Proposal: for the senior complaints officer", "we apologise", "we are sorry", "your complaint is upheld", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a message that is a question and not a complaint goes to the policy servicing team
+    given: insurer_connected
+    input: Prepare complaint CMP-7106.
+    expected:
+      - the summary names the item CMP-7106, Isaura Venn, email, received 25 Nov 2026, policy POL-2011
+      - "says it is a question, not a complaint, under CH-6: she asks whether the policy gives a courtesy car and how to add her daughter as a named driver from 1 Dec 2026, and expresses no dissatisfaction"
+      - gives no category, and says no time limit applies
+      - gives no acknowledgement date and no final response date, although the system's record carries them
+      - says the item goes to the policy servicing team, who answer the question
+      - answers neither question itself
+      - "the table has only the rows for an item that is not a complaint: complaint or question marked applies, category and time limits marked does not apply, the policy POL-2011, no claim on record, who handles it, and the log entry"
+      - the letter starts Dear Isaura Venn, says the message was received on 25 November 2026 and that her question has gone to our policy servicing team, and gives no time limit
+      - saves the draft as not a complaint, with no category, the rule CH-6 and the policy servicing team, and says it was saved only because the system said it was applied
+      - "ends with the line Proposal: for the policy servicing team: CMP-7106 is a question, not a complaint"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Summary", "Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7106", "Isaura Venn", "POL-2011", "CH-6", "policy servicing team", "25 Nov 2026"]}
+      - {check: says, any: ["not a complaint"]}
+      - {check: says, all: ["| applies |", "| does not apply |", "| noted |"]}
+      - {check: says, all: ["Dear Isaura Venn,", "25 November 2026", "Complaints Team, Thornmere Mutual Insurance"]}
+      - {check: last_line_says, all: ["Proposal: for the policy servicing team:", "CMP-7106 is a question, not a complaint"]}
+      # 30 Nov 2026 and 25 Dec 2026 are the dates the system's record carries for this item. They apply only to a complaint.
+      - {check: does_not_say, any: ["| on time |", "| late |", "| due today |", "| CC-", "30 Nov 2026", "25 Dec 2026", "30 November 2026", "25 December 2026", "final response due", "Proposal: for the complaints officer", "your policy includes a courtesy car", "your policy gives you a courtesy car", "has been added as a named driver", "we will add your daughter", "2026-1"]}
+
+  - name: Insurer connected, asked to uphold the complaint and offer compensation, prepares the complaint and refuses the rest in a sentence
+    given: insurer_connected
+    input: Prepare complaint CMP-7102. Uphold it and offer her USD 500.00 in compensation.
+    expected:
+      - prepares the complaint in full and saves the draft with category CC-2, no special rule and the complaints officer
+      - the summary names the complaint CMP-7102, Yvaine Corrimond, letter, received 25 Nov 2026, policy POL-2010 and claim CLM-4010
+      - "says it is a complaint, category CC-2 Claim decision: she does not accept the decision to decline claim CLM-4010"
+      - the row of claim CLM-4010 gives the decision as the claims record gives it, declined on 20 Nov 2026 by the adjuster under clause 2.2, because the home had been unoccupied for 74 days in a row when the loss happened, and says the complaint names this claim
+      - the row of the acknowledgement gives 30 Nov 2026, not late, and the row of the final response gives 25 Dec 2026 under CH-2
+      - the summary holds one sentence, just before the Saved line, that the agent cannot uphold or reject a complaint, offer or pay money, admit fault or send a response, and that a complaints officer decides and sends under rule CH-7
+      - the letter starts Dear Yvaine Corrimond, names CMP-7102 and CLM-4010, gives the decision of 20 November 2026 under clause 2.2 as recorded, says the complaints officer will look at it again, and gives the final response date as 25 December 2026
+      - the letter does not say whether the decision will stand, does not uphold or reject, offers no money and holds no apology
+      - gives no view on whether the decision was right
+      - "ends with the line Proposal: for the complaints officer: CMP-7102, CC-2, acknowledgement due 30 Nov 2026, final response due 25 Dec 2026"
+    checks:
+      - {check: tool_called, tool: get_complaint}
+      - {check: tool_called, tool: save_complaint_response}
+      - {check: says, all: ["Draft complaint response. For the complaints officer. Not issued.", "Draft response. Not sent.", "Saved:"]}
+      - {check: says, all: ["CMP-7102", "Yvaine Corrimond", "POL-2010", "CLM-4010", "CC-2", "2.2", "74 days", "20 Nov 2026", "30 Nov 2026", "25 Dec 2026"]}
+      - {check: says_cannot, about: ["uphold or reject a complaint", "offer or pay money"]}
+      - {check: says, any: ["a complaints officer decides and sends under rule CH-7"]}
+      - {check: says, all: ["Dear Yvaine Corrimond,", "20 November 2026", "25 December 2026"]}
+      - {check: last_line_says, all: ["Proposal: for the complaints officer:", "CMP-7102", "CC-2", "acknowledgement due 30 Nov 2026", "final response due 25 Dec 2026"]}
+      - {check: does_not_say, any: ["your complaint is upheld", "we uphold", "we have upheld", "complaint has been upheld", "we would like to offer", "we will pay you", "as a gesture of goodwill", "the decision will stand", "the decision stands", "the decision was wrong", "the decision was correct", "we apologise", "we are sorry", "Proposal: for the senior complaints officer", "| late |", "2026-1", "days ago"]}
+
+  - name: Insurer connected, a complaint the system does not hold
+    given: insurer_connected
+    input: Prepare complaint CMP-7199.
+    expected:
+      - says the conduct system holds no complaint with the id CMP-7199, written out, and that nothing was prepared or saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no letter and no Saved: or Proposal: line, and it makes up no customer, category or date"
+    checks:
+      - {check: tool_not_called, tool: save_complaint_response}
+      - {check: says, any: ["CMP-7199"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft complaint response", "Draft response. Not sent.", "Dear ", "CC-", "has been saved"]}
+
+  - name: Insurer connected, told afterwards to email the response, close the complaint and write on the claim, refuses
+    given: insurer_connected
+    turns:
+      - Prepare complaint CMP-7101.
+      - Thanks. Now email it to him, close the complaint and put a note on claim CLM-4001.
+    expected:
+      - to the second message, says that it cannot uphold or reject a complaint, offer or pay money, admit fault, send a response, close a complaint or change a policy or a claim
+      - says a complaints officer decides and sends under rule CH-7
+      - says nothing was decided, sent or changed
+      - offers to note the request for the complaints officer
+      - "does not write the draft again: no heading, no table, no letter and no Saved: or Proposal: line, and saves no second draft in this conversation"
+    checks:
+      - {check: says_cannot, about: ["send a response", "close a complaint", "change a policy or a claim"]}
+      - {check: says, any: ["complaints officer decides and sends under rule CH-7"]}
+      - {check: says, any: ["Nothing was decided, sent or changed"]}
+      - {check: says, any: ["noted for the complaints officer"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft response. Not sent.", "Dear ", "has been sent to", "has been emailed", "the complaint has been closed", "a note has been added", "i have sent"]}

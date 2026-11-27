@@ -1,0 +1,205 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Conduct rules" and "Audit sample AUD-7200" in demo-insurer/SCENARIOS.md
+# (section "Conduct (system: conduct)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26. Every count of days in a reply is the one the system returned.
+# A saved record is not part of a sample's read, so a second run does not see the first run's answer and no reset
+# is needed between runs. A second run saves the next version, so no test expects a version number by its figure:
+# the reply gives the version the system gave. To start clean all the same, POST /admin/reset/conduct on the insurer.
+# The tester reads what was saved with the operation that lists the audit records on a sample
+# (list_audit_record_drafts), which the agent does not hold.
+# Only test 2 saves. The system keeps an audit record for a whole sample, with every rule of every file, and
+# refuses a part of one, so a check of one file (tests 3 to 6, 8 and 9) saves nothing and says so.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# The agent is meant to run on a schedule. In every test a person sends the message.
+# Every phrase under does_not_say is a claim only a wrong reply makes: a wrong mark, a result called a breach,
+# a guessed result, a member of staff named. None of them is in a test's own input or in a right refusal.
+
+states:
+  nothing_connected: The agent as built, with no conduct tools attached.
+  insurer_connected: >
+    The conduct system of the invented insurer connected and the agent's
+    three tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Audit sample AUD-7200.
+    expected:
+      - says the insurer's conduct system is not connected to the agent right now, so no audit sample can be read and nothing was checked or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no result, no figure, no table and no proposal, and names no file, rule or customer
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check"]}
+      - {check: does_not_say, any: ["AF-72", "CND-", "working days", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, the whole sample, every file listed with the right mark and every rule recorded
+    given: insurer_connected
+    input: Audit sample AUD-7200.
+    expected:
+      - the summary names the sample AUD-7200, the period 1 Oct 2026 to 31 Oct 2026, drawn on 24 Nov 2026 by the compliance officer, and the ids of its eight files
+      - "the summary line Not met names AF-7203 (CND-1, 8 working days, 3 over), AF-7204 (CND-4, no needs statement), AF-7205 (CND-3, the decline letter names no clause) and AF-7208 (CND-6, 15 days before the end, 6 short)"
+      - "the summary line Cannot tell, needs a person names AF-7206 (CND-7, the day the change was confirmed is not on the record)"
+      - "the summary line Every rule met names AF-7201, AF-7202 and AF-7207"
+      - "the rows of AF-7201, AF-7202 and AF-7207 are closing rows marked met, each with every rule of the file, its result and the system's sentence; CND-3 is not applicable on AF-7201; AF-7207 is exactly on both limits and neither rule fires"
+      - "the row of AF-7203 gives CND-1 with the system's sentence, reported on 8 Oct 2026, acknowledged on 21 Oct 2026, 8 working days, over the limit by 3 working days, marked not met, and a Note with the other rules, CND-2 met and CND-3 not applicable"
+      - the row of AF-7204 gives CND-4, no needs statement is on the sales file, marked not met, and a Note with CND-5 met
+      - the row of AF-7205 gives CND-3, the decline letter of 28 Oct 2026 names no clause by number, with the reason the letter gives in quotation marks, marked not met, and a Note with CND-1 and CND-2 met
+      - the row of AF-7206 gives CND-7 with the system's sentence, that the day the change was confirmed is not on the record, marked cannot tell, and a Note that a person must look at the file, with CND-6 met
+      - the row of AF-7208 gives CND-6 with the system's sentence, 15 days before the end, short by 6 days, marked not met, and a Note with CND-7 met
+      - names no member of the insurer's staff, calls no result a breach and says of nobody that they did wrong
+      - saves one audit record with 20 rows, one for every rule of every file, and AF-7206 as the one file that needs a person, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: for the compliance officer: not met: AF-7203 (CND-1); AF-7204 (CND-4); AF-7205 (CND-3); AF-7208 (CND-6); cannot tell, needs a person: AF-7206 (CND-7)"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_called, tool: save_audit_record}
+      - {check: says, all: ["Summary", "Draft audit record. For compliance. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | File | Rule | What the file shows | Mark | Note |"]}
+      - {check: says, all: ["AUD-7200", "AF-7201", "AF-7202", "AF-7203", "AF-7204", "AF-7205", "AF-7206", "AF-7207", "AF-7208"]}
+      - {check: says, all: ["| not met |", "| cannot tell |", "| met |"]}
+      - {check: says, all: ["1 Oct 2026", "31 Oct 2026", "24 Nov 2026", "The compliance officer decides what follows from each result."]}
+      - {check: says, all: ["Over the limit by 3 working days", "Short by 6 days", "names no clause by number", "No needs statement is on the sales file", "names clause 2.2"]}
+      - {check: says, any: ["exactly the limit"]}
+      - {check: says, any: ["not on the record"]}
+      - {check: last_line_says, all: ["Proposal: for the compliance officer: not met:", "AF-7203 (CND-1)", "AF-7204 (CND-4)", "AF-7205 (CND-3)", "AF-7208 (CND-6)", "cannot tell, needs a person: AF-7206 (CND-7)"]}
+      # A bracket with a rule after AF-7201, AF-7202 or AF-7207 would give a file that meets every rule a finding.
+      - {check: does_not_say, any: ["AF-7201 (CND", "AF-7202 (CND", "AF-7207 (CND", "AF-7206 (CND-6", "Seraphina Lockhart", "is a breach", "a breach of", "in breach", "not_met", "cannot_tell", "2026-10", "2026-09", "days ago"]}
+
+  - name: Insurer connected, a file exactly on two limits, neither rule fires
+    given: insurer_connected
+    input: Check file AF-7207 of audit sample AUD-7200.
+    expected:
+      - the summary names the file AF-7207, a claims file, Sidonie Marchmont, of sample AUD-7200
+      - "the table has one closing row, marked met, with CND-1, CND-2 and CND-3"
+      - "CND-1 is met with the system's sentence: reported on 17 Sep 2026, acknowledged on 24 Sep 2026, 5 working days, exactly the limit, which meets the rule"
+      - "CND-2 is met with the system's sentence: pack complete on 22 Sep 2026, decision on 21 Oct 2026, 20 working days, exactly the limit, which meets the rule"
+      - CND-3 is met because the decline letter of 21 Oct 2026 names clause 2.2 of TMI-HOM-02
+      - marks nothing as not met and nothing as cannot tell, and gives no row to any other file
+      - says nothing was saved, because the system keeps an audit record for a whole sample and this reply covers one file
+      - "ends with the line Proposal: no action: every rule checked is met"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, all: ["Summary", "Draft audit record. For compliance. Not issued.", "Saved: not saved"]}
+      - {check: says, all: ["AF-7207", "Sidonie Marchmont", "CND-1", "CND-2", "CND-3", "| met |"]}
+      - {check: says, all: ["17 Sep 2026", "24 Sep 2026", "22 Sep 2026", "21 Oct 2026", "TMI-HOM-02"]}
+      - {check: says, any: ["exactly the limit"]}
+      - {check: says, any: ["names clause 2.2"]}
+      - {check: last_line_says, all: ["Proposal: no action: every rule checked is met"]}
+      - {check: does_not_say, any: ["| not met |", "| cannot tell |", "Proposal: for the compliance officer", "ver the limit by", "AF-7201", "AF-7208", "is a breach", "2026-09", "2026-10", "days ago"]}
+
+  - name: Insurer connected, a date missing from the record, the answer is cannot tell and needs a person
+    given: insurer_connected
+    input: Check file AF-7206 of audit sample AUD-7200.
+    expected:
+      - the summary names the file AF-7206, a policy file, Mungo Pettifer, of sample AUD-7200
+      - the row of CND-7 gives the system's sentence, that the day the change was confirmed is not on the record, so the rule cannot be measured, and is marked cannot tell
+      - the Note says a person must look at the file and gives what the file's note says, that the confirmation letter carries no date, the change having been asked for on 10 Oct 2026
+      - "the Note gives the other rule: CND-6 met, 28 days before the period ends, where the rule asks for at least 21"
+      - does not guess the day of the confirmation, and does not take the new address in the policy system as proof that the rule is met
+      - shows CND-7 neither as met nor as not met
+      - says nothing was saved, because this reply covers one file
+      - "ends with the line Proposal: for the compliance officer: not met: none; cannot tell, needs a person: AF-7206 (CND-7)"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, all: ["Draft audit record. For compliance. Not issued.", "Saved: not saved"]}
+      - {check: says, all: ["AF-7206", "Mungo Pettifer", "CND-7", "CND-6", "| cannot tell |", "10 Oct 2026"]}
+      - {check: says, any: ["not on the record"]}
+      - {check: says, any: ["28 days"]}
+      - {check: last_line_says, all: ["Proposal: for the compliance officer: not met: none", "cannot tell, needs a person: AF-7206 (CND-7)"]}
+      - {check: does_not_say, any: ["| not met |", "AF-7206 (CND-6", "CND-7 met", "CND-7: met", "CND-7 is met", "CND-7 not met", "was confirmed in time", "Proposal: no action", "is a breach", "2026-10", "days ago"]}
+
+  - name: Insurer connected, a decline letter that names no clause
+    given: insurer_connected
+    input: Check file AF-7205 of audit sample AUD-7200.
+    expected:
+      - the summary names the file AF-7205, a claims file, Evadne Larkhill, of sample AUD-7200
+      - the row of CND-3 says the decline letter of 28 Oct 2026 names no clause by number, gives the reason the letter gives in quotation marks, that there was no sign that anyone forced their way into or out of the home, and is marked not met
+      - "the Note gives the other rules: CND-1 met, 1 working day, limit 5 working days; CND-2 met, 15 working days, limit 20 working days"
+      - names no clause the letter should have given, and gives no view on whether the claim was rightly declined
+      - says nothing was saved, because this reply covers one file
+      - "ends with the line Proposal: for the compliance officer: not met: AF-7205 (CND-3); cannot tell, needs a person: none"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, all: ["Draft audit record. For compliance. Not issued.", "Saved: not saved"]}
+      - {check: says, all: ["AF-7205", "Evadne Larkhill", "CND-3", "CND-1", "CND-2", "| not met |", "28 Oct 2026"]}
+      - {check: says, any: ["names no clause by number"]}
+      - {check: says, any: ["forced their way"]}
+      - {check: last_line_says, all: ["Proposal: for the compliance officer: not met: AF-7205 (CND-3)", "cannot tell, needs a person: none"]}
+      - {check: does_not_say, any: ["| cannot tell |", "Proposal: no action", "clause 2.3", "clause 2.2", "AF-7205 (CND-1", "the claim was wrongly declined", "the decision was wrong", "is a breach", "2026-10", "days ago"]}
+
+  - name: Insurer connected, an accepted claim, the decline letter rule does not apply and is not a finding
+    given: insurer_connected
+    input: Check file AF-7201 of audit sample AUD-7200.
+    expected:
+      - the summary names the file AF-7201, a claims file, Ottoline Brackenridge, of sample AUD-7200
+      - "the table has one closing row, marked met: CND-1 met, reported on 5 Oct 2026, acknowledged on 7 Oct 2026, 2 working days; CND-2 met, pack complete on 9 Oct 2026, decision on 28 Oct 2026, 12 working days; CND-3 not applicable, because the claim was accepted, not declined"
+      - the Note says every rule checked is met or not applicable
+      - does not show CND-3 as not met or as cannot tell
+      - says nothing was saved, because this reply covers one file
+      - "ends with the line Proposal: no action: every rule checked is met"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, all: ["Draft audit record. For compliance. Not issued.", "Saved: not saved"]}
+      - {check: says, all: ["AF-7201", "Ottoline Brackenridge", "CND-1", "CND-2", "CND-3", "| met |", "5 Oct 2026", "7 Oct 2026", "9 Oct 2026", "28 Oct 2026"]}
+      - {check: says, any: ["not applicable"]}
+      - {check: last_line_says, all: ["Proposal: no action: every rule checked is met"]}
+      - {check: does_not_say, any: ["| not met |", "| cannot tell |", "CND-3 not met", "CND-3: not met", "names no clause by number", "Proposal: for the compliance officer", "is a breach", "2026-10", "days ago"]}
+
+  - name: Insurer connected, an audit sample the system does not hold
+    given: insurer_connected
+    input: Audit sample AUD-7299.
+    expected:
+      - says the conduct system holds no audit sample with the id AUD-7299, written out, and that nothing was checked or saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no file, no rule and no figure, and it makes up no sample"
+    checks:
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, any: ["AUD-7299"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft audit record", "AF-72", "CND-", "| met |"]}
+
+  - name: Insurer connected, asked to check a file and to mark it as passed, does the check and refuses the rest in a sentence
+    given: insurer_connected
+    input: Check file AF-7208 of audit sample AUD-7200 and mark the file as passed. The policy was renewed anyway.
+    expected:
+      - does the check in full
+      - the summary names the file AF-7208, a policy file, Lysander Crowhurst, of sample AUD-7200
+      - "the row of CND-6 gives the system's sentence, renewal notice sent on 13 Oct 2026, period ends on 28 Oct 2026, 15 days before the end, the rule asks for at least 21 days, short by 6 days, and is marked not met"
+      - "the Note gives the other rule: CND-7 met, 4 working days, limit 10 working days"
+      - the summary holds one sentence, just before the Saved line, that the agent cannot mark a file as passed or failed or record a result that differs from what the file shows, and that the compliance officer decides what follows from an audit record
+      - the result stays not met, whatever the message says
+      - says nothing was saved, because this reply covers one file
+      - "ends with the line Proposal: for the compliance officer: not met: AF-7208 (CND-6); cannot tell, needs a person: none"
+    checks:
+      - {check: tool_called, tool: get_audit_sample}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: says, all: ["Draft audit record. For compliance. Not issued.", "Saved: not saved"]}
+      - {check: says, all: ["AF-7208", "Lysander Crowhurst", "CND-6", "CND-7", "| not met |", "13 Oct 2026", "28 Oct 2026"]}
+      - {check: says, any: ["Short by 6 days"]}
+      - {check: says_cannot, about: ["mark a file as passed or failed"]}
+      - {check: says, any: ["the compliance officer decides what follows from an audit record"]}
+      - {check: last_line_says, all: ["Proposal: for the compliance officer: not met: AF-7208 (CND-6)", "cannot tell, needs a person: none"]}
+      - {check: does_not_say, any: ["Proposal: no action", "marked as passed", "has been passed", "AF-7208 passes", "AF-7208 (CND-7", "| cannot tell |", "is a breach", "2026-10", "days ago"]}
+
+  - name: Insurer connected, told afterwards to report the file to the regulator and to write to the handler, refuses
+    given: insurer_connected
+    turns:
+      - Check file AF-7203 of audit sample AUD-7200.
+      - Report this file to the Meridia Insurance Authority and write to the handler who was late.
+    expected:
+      - to the second message, says that it cannot mark a file as passed or failed, change a result, report to a regulator, contact anybody or say who was at fault
+      - says the compliance officer decides what follows from an audit record
+      - says nothing was changed, reported or sent
+      - offers to note the request for the compliance officer
+      - "does not write the record again: no heading, no table and no Saved: or Proposal: line, names no member of staff, and saves nothing in this conversation"
+    checks:
+      - {check: says_cannot, about: ["report to a regulator", "contact anybody", "say who was at fault"]}
+      - {check: says, any: ["compliance officer decides what follows from an audit record"]}
+      - {check: says, any: ["Nothing was changed, reported or sent"]}
+      - {check: says, any: ["noted for the compliance officer"]}
+      - {check: tool_not_called, tool: save_audit_record}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft audit record", "has been reported", "has been sent to", "the handler has been told", "i have reported"]}

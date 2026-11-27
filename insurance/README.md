@@ -44,9 +44,9 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 20 | [Medical Claims Adjudication Support](agents/medical-claims-adjudication-support/README.md) | For a held claim: why it was held, what the assessor needs, a suggested determination with reasons | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |
 | 21 | [Provider Invoice Check](agents/provider-invoice-check/README.md) | Checks a provider's invoice line by line against the tariff and the contract | Workflow, API | Health claims desk | Built on a development cluster. All nine tests pass five runs in a row |
 | | **Compliance and conduct** | | | | |
-| 22 | Compliance Audit | Checks policy, claims and sales files against the insurer's own rules and records what it checked | Workflow, scheduled | Sent to compliance | Planned |
+| 22 | [Compliance Audit](agents/compliance-audit/README.md) | Checks policy, claims and sales files against the insurer's own rules and records what it checked | Workflow, scheduled | Sent to compliance | Written. Not yet built on a cluster |
 | 23 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators the insurer names and maps each change to the obligations register | Workflow, scheduled | Regulatory change desk | Written. Not yet built on a cluster |
-| 24 | Complaint Handling | Classifies a complaint, gathers the policy and claim history, drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Planned |
+| 24 | [Complaint Handling](agents/complaint-handling/README.md) | Classifies a complaint, gathers the policy and claim history, drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Written. Not yet built on a cluster |
 | 25 | [Litigation Support](agents/litigation-support/README.md) | Sorts the documents of a disputed claim and flags what may be privileged | Autonomous | Sent to the lawyers | Written. Not yet built on a cluster |
 | | **Product and pricing** | | | | |
 | 26 | Product Change Analyst | Takes a proposed product change and returns what it touches and the questions it cannot answer | Conversational, answering | Chat | Planned |

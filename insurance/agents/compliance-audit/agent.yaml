@@ -1,0 +1,61 @@
+id: compliance-audit
+name: Compliance Audit
+pack: insurance
+area: Compliance and conduct
+summary: >
+  Checks each file of an audit sample against the insurer's own numbered
+  conduct rules and records what it checked, the rules that are met as well.
+  The system measures the rules that turn on dates. The agent reads the file
+  for the rules that need reading. Where a date is missing it says that it
+  cannot tell and that a person must look. The compliance officer decides what
+  follows. The agent marks no file as passed or failed, reports nothing and
+  names the rule and the file, never a member of staff.
+
+type: workflow
+form: scheduled
+started_by: A schedule. When an audit sample is drawn, its id is sent to the agent. Here a person sends the message
+
+# The output goes to compliance, not to a desk. In this pack the agent is
+# built as a chat agent and a person sends the message.
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message names one audit sample, or one file of a sample. One read of the
+# sample gives the conduct rules, every file whole and the system's measure of
+# each file, so the agent holds no second read of the rules or of one file's
+# measure. The list of samples finds the sample when the message names only a
+# file. The agent holds no read of saved records: a record is not part of a
+# sample.
+needs:
+  - id: conduct-system
+    kind: api
+    required: true
+    label: The insurer's conduct system, to list the audit samples, to read one sample with its conduct rules, every file and the system's measure of each file, and to save the audit record as a draft
+    operations:
+      - list_audit_samples
+      - get_audit_sample
+      - save_audit_record
+
+demo_insurer_systems: [conduct]
+
+stops_for_a_person:
+  - The compliance officer reads the audit record and decides what follows from each result. The agent calls nothing a breach and marks no file as passed or failed.
+  - Where a date a rule needs is not on the record, the agent says that it cannot tell and names what is missing. A person looks at the file. The agent never guesses.
+  - Whether anything is reported to a regulator is for a person. The agent reports nothing and contacts nobody.
+  - A result names the rule and the file, not a person. Whether anybody did wrong is for a person to judge, and the agent never says so.
+
+# Saving the audit record is a draft kept with its author, a time and a
+# version number. It changes no file, reports nothing and contacts nobody.
+changes:
+  - {tool: save_audit_record, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."

@@ -1,0 +1,59 @@
+id: complaint-handling
+name: Complaint Handling
+pack: insurance
+area: Compliance and conduct
+summary: >
+  On a new complaint, sorts it by the insurer's numbered complaint categories,
+  gathers the policy and the claim history it concerns, gives the deadlines as
+  the system worked them out, says who must handle it, links a repeat to the
+  first complaint, and drafts the response and the log entry. A complaints
+  officer decides and sends. The agent upholds nothing, rejects nothing,
+  offers no money, admits no fault and sends nothing.
+
+type: workflow
+form: event-triggered
+started_by: A new complaint arriving. Here the desk, or a person, sends the message with the complaint's id
+
+meets_people_through: application
+application: Complaints desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the complaint's id and reads the reply. One
+# read of the complaint gives the text, the customer care record, the policy,
+# every claim on it, the earlier complaints by the same customer and the
+# deadlines the system worked out. The agent holds no second read of the
+# deadlines and no read of saved drafts: a draft is not part of a complaint.
+needs:
+  - id: conduct-system
+    kind: api
+    required: true
+    label: The insurer's conduct system, to read a complaint with its policy, claims, earlier complaints and deadlines, to read the complaints procedure with its categories and handling rules, and to save the draft response and log entry
+    operations:
+      - get_complaint
+      - get_complaints_procedure
+      - save_complaint_response
+
+demo_insurer_systems: [conduct]
+
+stops_for_a_person:
+  - A complaints officer decides whether a complaint is upheld or rejected, writes that sentence into the response, and signs and sends every letter (rule CH-7). The agent decides nothing and sends nothing.
+  - A complaint that mentions the regulator, a lawyer or legal action goes to the senior complaints officer (rule CH-4).
+  - Whether money is offered, refunded or paid is for a person. The draft offers none and admits no fault.
+  - Where the records do not show whether something the customer describes happened, the agent says so and the officer finds out. It fills no gap.
+  - A message that is a question and not a complaint goes to the policy servicing team, who answer it (rule CH-6).
+
+# Saving the response and the log entry is a draft kept with its author, a
+# time and a version number. It sends nothing, acknowledges nothing and leaves
+# the complaint, the policy and the claims unchanged.
+changes:
+  - {tool: save_complaint_response, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."
