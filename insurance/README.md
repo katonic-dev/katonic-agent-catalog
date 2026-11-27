@@ -71,7 +71,7 @@ A desk is the shared case desk ([katonic-case-desk](https://github.com/katonic-d
 | [Policy servicing desk](desks/policy-servicing/README.md) | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Health claims desk](desks/health-claims/README.md) | Pre-authorisation Preparation, Medical Claims Adjudication Support, Provider Invoice Check | Clinician or assessor | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the clause of an invoice line is not drawn in the row |
 | [Complaints desk](desks/complaints/README.md) | Complaint Handling | Complaints officer | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the queue cannot sort by the deadline, so the cases are listed in deadline order by hand |
-| Reinsurance desk | Bordereaux Check, Treaty Recovery | Reinsurance accountant | Planned |
+| [Reinsurance desk](desks/reinsurance/README.md) | Bordereaux Check, Treaty Recovery | Reinsurance accountant | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the treaty term of a recovery row is not drawn |
 
 ## A short way in
 
