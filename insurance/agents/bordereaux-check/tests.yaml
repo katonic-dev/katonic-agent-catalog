@@ -97,7 +97,7 @@ tests:
     expected:
       - the summary names the bordereau BDX-8703, claims paid, the binder BND-8601, the sender Pellowmere Cover Agency, coverholder, and the day received, 9 Nov 2026
       - "the table row of Row 5 (PCA-C-2205, Sabine Lorrimer): term 9, Bordereaux, the mark measured, and the system's sentence, that indemnity 3,400.00 plus fees 250.00 is USD 3,650.00, that the row states USD 3,850.00, and that the row is USD 200.00 too high"
-      - "the table row of the Totals: term 9, the mark measured, and the system's sentence, that the total paid is stated as USD 48,800.00 and re-added as USD 48,600.00, a difference of USD 200.00"
+      - "the table row of the Totals: term 9, Bordereaux, as the system gives it with the totals, the mark measured, and the system's sentence, that the total paid is stated as USD 48,800.00 and re-added as USD 48,600.00, a difference of USD 200.00"
       - lists no other row. Row 4 (PCA-C-2204) is USD 10,000.00 in all, exactly on the claims authority, and row 7 (PCA-C-2207) is USD 23,400.00 with the agreement reference TMI-AGR-0417, so term 8 is met
       - "the closing row is marked within terms, gives the system's count, 8 of 9 rows are within every measured term, and names row 4 and row 7 with the system's sentences as within and not listed"
       - marks no row as read from the description, and the summary has no line on a premium, because the system gives none for claims paid
@@ -123,6 +123,7 @@ tests:
       - the summary names the bordereau BDX-8704, risks ceded to a treaty, the treaty TRY-8652 (Engineering quota share treaty), the sender, the reinsurance accounts team of Thornmere Mutual Insurance, and the day received, 9 Nov 2026
       - says every row is within the terms, and gives the system's sentence that the totals stated on the bordereau are the sum of its rows
       - "the table has one row only, the closing row, marked within terms: 8 of 8 rows are within every measured term, row 5 (TMI-EN-0305) cedes USD 2,000,000.00, exactly on the maximum line of USD 2,000,000.00, which is within it, and no description puts a risk in an excluded group"
+      - takes the age of the machinery from the system's check for each row (term 7, limit 25 years, every row within, the oldest row 5, installed 2012, 14 years) and works out no age itself
       - marks nothing as measured and nothing as read from the description
       - says there is nothing for the reinsurance accountant to decide
       - saves the draft with the finding that there are no differences, with no entries, and says it was saved, with the version the system gave, only because the system said it was applied

@@ -15,7 +15,8 @@ When a bordereau comes in, checks every row against the numbered terms of its bi
 
 - Reads the bordereau once. That one read gives the rows, the binder or treaty with its terms, and the system's measure.
 - Lists each difference the system measures, with the row, the number and heading of the term, and the system's sentence with its figures: a risk over the maximum line, outside the territory or the period, a class that is not allowed, commission at the wrong rate, the wrong share, a claim over the claims authority with no agreement, a row that does not add up, a row declared twice.
-- Gives the totals a row of their own where the system says they do not add up.
+- Gives the totals a row of their own where the system says they do not add up, under the term the system gives with the totals.
+- Takes the age of machinery from the system, which measures it from the year of installation on the row. The agent compares no years.
 - Reads the description of every risk against the excluded risks of the term, which the system does not measure. A row is listed only where the words of the description plainly put the risk in an excluded group. Where the description does not say, the row is not listed.
 - Marks each row of its table: measured, where the system measured the difference, or read from the description, where the agent read it. The reader can see which is which.
 - Does not list a row that is exactly on a limit, or a claim over the authority that carries the agreement the term asks for. It names them in the closing row as within.
@@ -55,8 +56,8 @@ Against the invented insurer at its starting data, started with `INSURER_TODAY=2
 
 - `BDX-8701`: risks bound under the household binder `BND-8601`, 12 rows. Row 5 is USD 75,000.00 over the maximum line (term 3). Row 7 is at Lake Sorrin, Veldmark, outside the territory (term 2). Row 8 is a cottage with a thatched roof, an excluded risk (term 7): the agent reads this one, the system does not measure it. Row 3 is exactly on USD 750,000.00 and is not listed. The totals add up.
 - `BDX-8702`: risks bound under the pleasure craft binder `BND-8602`, 10 rows. Row 5 took USD 270.00 of commission where 20.00 percent is USD 240.00 (term 5). Row 7 starts on 28 Mar 2026, 4 days before the period (term 4). Row 9 repeats row 4 (term 9). No description is an excluded risk.
-- `BDX-8703`: claims paid under `BND-8601`, 9 rows. Row 5 states USD 3,850.00 where the indemnity and the fees add to USD 3,650.00, and the total is USD 200.00 too high for the same reason (term 9). Row 4, exactly on the claims authority, and row 7, with an agreement reference, are not listed.
-- `BDX-8704`: cessions under the quota share treaty `TRY-8652`, 8 rows. No differences. Row 5 cedes USD 2,000,000.00, exactly on the maximum line. Proposal: no differences.
+- `BDX-8703`: claims paid under `BND-8601`, 9 rows. Row 5 states USD 3,850.00 where the indemnity and the fees add to USD 3,650.00, and the total is USD 200.00 too high for the same reason (term 9). It is one difference, seen in a row and in the total: the table and the saved draft show it twice, once for row 5 and once for the totals. Row 4, exactly on the claims authority, and row 7, with an agreement reference, are not listed.
+- `BDX-8704`: cessions under the quota share treaty `TRY-8652`, 8 rows. No differences. Row 5 cedes USD 2,000,000.00, exactly on the maximum line. The system measures the age of the machinery on every row against term 7 (25 years): all are within. Proposal: no differences.
 
 Everyone and everything in the invented insurer is invented.
 
