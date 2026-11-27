@@ -52,6 +52,7 @@ STANDARDS = {
              "text": "Nothing is paid on a loss dated outside the policy period, or on or after the date a policy was cancelled."},
 }
 
+STATUS_WORDS = {"new": "waiting for the fraud check", "flagged": "referred to the investigations desk", "closed": "closed"}
 RANK = {"handler": 0, "senior adjuster": 1, "claims manager": 2}
 
 
@@ -308,7 +309,8 @@ def leakage_check(claim: dict, policy: dict, guide: dict) -> dict:
     needed = next(level["approver"] for level in guide["settlement_authority"]["levels"] if level["up_to"] is None or paid <= level["up_to"])
     approvals = [record["approved_by"]] + ([record["second_approval"]] if record["second_approval"] else [])
     has_authority = any(RANK.get(a["role"], 0) >= RANK[needed] for a in approvals)
-    approval_words = "; ".join(f"{a['name']}, {a['role']}" for a in approvals)
+    approvals = [{"role": a["role"]} for a in approvals]  # the role only: a finding names no person
+    approval_words = " and ".join(f"a {a['role']}" for a in approvals)
 
     # recovery (LS-4) and cover (LS-6)
     other, recovery = claim["other_party_at_fault"], pf["recovery"]
@@ -608,7 +610,8 @@ def months_before(day: date, months: int) -> date:
 def claim_row(other: dict, party_id: str, parties: dict, this_loss: str | None = None) -> dict:
     """One claim as a row of a party's history."""
     row = {"claim_id": other["claim_id"], "role_of_the_party": role_on(other, party_id), "claimant_party_id": other["claimant_party_id"],
-           "claimant": other["claimant"], "claim_type": other["claim_type"], "status": other["status"], "loss_date": other["loss_date"],
+           "claimant": other["claimant"], "claim_type": other["claim_type"], "claim_type_label": other["claim_type_label"],
+           "status": other["status"], "status_in_words": STATUS_WORDS[other["status"]], "loss_date": other["loss_date"],
            "amount_paid": other["amount_paid"], "estimate": other["estimate"],
            "repairer": parties[other["repairer_party_id"]]["name"] if other["repairer_party_id"] else None,
            "repairer_party_id": other["repairer_party_id"], "bank_account_for_payment": other["bank_account_for_payment"],
@@ -819,7 +822,8 @@ def claim_links(claim: dict, claims: dict, parties: dict) -> dict:
                                 "through_party_name": row["other_party_name"], "value": row["value"], "sentence": row["sentence"]})
         if reasons:
             linked.append({"claim_id": other["claim_id"], "claimant": other["claimant"], "claimant_party_id": other["claimant_party_id"],
-                           "status": other["status"], "loss_date": other["loss_date"],
+                           "claim_type": other["claim_type"], "claim_type_label": other["claim_type_label"],
+                           "status": other["status"], "status_in_words": STATUS_WORDS[other["status"]], "loss_date": other["loss_date"],
                            "linked_by": sorted({r["link_type"] for r in reasons}), "links": reasons})
     nothing = not linked and not shared
     if nothing:
@@ -828,7 +832,15 @@ def claim_links(claim: dict, claims: dict, parties: dict) -> dict:
     else:
         sentence = (f"{claim['claim_id']} is linked to {plural(len(linked), 'claim')} by another claimant: "
                     + "; ".join(f"{x['claim_id']} ({x['claimant']}) by {', '.join(w.replace('_', ' ') for w in x['linked_by'])}" for x in linked) + ".")
+    own_repairer = [r["claim_id"] for r in own if claim["repairer_party_id"] and r["repairer_party_id"] == claim["repairer_party_id"]]
+    if own_repairer:
+        firm = parties[claim["repairer_party_id"]]
+        sentence += (f" {firm['name']} ({firm['party_id']}) is also the repairer on the claimant's own other "
+                     f"claim{'' if len(own_repairer) == 1 else 's'} {', '.join(own_repairer)}; no other claimant's claim names it"
+                     + (" apart from the linked claims above." if any("repairer" in x["linked_by"] for x in linked) else ".")
+                     + " A claimant's own other claims are not counted as links.")
     return {"claim_id": claim["claim_id"], "parties_on_this_claim": claim["parties"],
+            "same_repairer_on_the_claimants_own_other_claims": own_repairer,
             "other_claims_by_the_same_claimant": own, "other_claims_by_the_same_claimant_count": len(own),
             "linked_claims": linked, "linked_claim_count": len(linked), "shared_attributes": shared,
             "no_links_found": nothing, "sentence": sentence, "what_a_link_is": LINK_NOTE}

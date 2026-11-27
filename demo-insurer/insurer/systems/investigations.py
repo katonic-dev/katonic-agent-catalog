@@ -10,7 +10,7 @@ from fastapi import HTTPException, Path, Query
 from pydantic import Field
 
 from ..common import Ctx, conflict, ForgivingModel, listing, make_subapp, not_found, reg
-from ..seed_investigations import (INDICATORS_HOW_TO_APPLY, LINK_NOTE, STANDARDS_HOW_TO_APPLY, claim_links, earlier_claims, is_person,
+from ..seed_investigations import (STATUS_WORDS, INDICATORS_HOW_TO_APPLY, LINK_NOTE, STANDARDS_HOW_TO_APPLY, claim_links, earlier_claims, is_person,
                                    leakage_check, notices_for_party, party_view, run_indicators, shared_attributes)
 from ..seed_policy import cover_on, long_date
 
@@ -21,7 +21,6 @@ LINE = ("Closed claims for the leakage review with the handling standards, new c
 
 DRAFTED_BY = Field("agent", description="Who wrote the draft. Free text.")
 REVIEW_DAYS = 30
-STATUS_WORDS = {"new": "waiting for the fraud check", "flagged": "referred to the investigations desk", "closed": "closed"}
 
 
 def tidy_id(value: str) -> str:
@@ -217,7 +216,7 @@ def build(ctx: Ctx):
          "gives each invoice line with the amount invoiced, the limit of the wording that applies with its clause, the amount under "
          "the standards, what the handler allowed on the file and how much of that is over the limit; the deductible due with its "
          "clause, the deductible taken and the part not taken; what should have been paid, what was paid and the difference; each "
-         "payment that repeats an invoice already paid; the approval the amount paid needs and the approvals on the file; and "
+         "payment that repeats an invoice already paid; the approval the amount paid needs and the approvals on the file, by role only and never by name; and "
          "standards, one row for each of LS-1 to LS-6 with a result (met, not_met or cannot_tell), the figures it rests on in a "
          "sentence, and an amount where the standard has one. It also gives the standards not met, the standards that cannot be "
          "told, an outcome (paid_within_the_standards, paid_outside_the_standards or cannot_tell_needs_a_person) with a sentence, "
@@ -327,7 +326,7 @@ def build(ctx: Ctx):
     @reg(app, "get", "/claims/{claim_id}/earlier-claims", "get_parties_earlier_claims", "Get the earlier claims of the claimant and the other parties",
          "Read the earlier claims of every party on one claim: the claimant, a witness, the repairer. For each party it gives the "
          "party id, the name, the role on this claim, and every claim the insurer holds with a date of loss before this one on "
-         "which the party appears: the claim id, the party's role on it, the claimant, the claim type, the date of the loss with "
+         "which the party appears: the claim id, the party's role on it, the claimant, the claim type and the status as a code and in plain words, the date of the loss with "
          "the days before this loss worked out by the system, the amount paid, the repairer, the bank account, and whether the loss "
          "falls in the 24 months before this loss. For the claimant it counts the earlier claims as claimant, in all and in those 24 "
          "months, and says so in a sentence. other_people_with_the_claimants_name lists any other person on the insurer's records "
@@ -441,7 +440,9 @@ def build(ctx: Ctx):
 
     @reg(app, "get", "/claims/{claim_id}/links", "get_claim_links", "Get the links between one claim and other claims and parties",
          "Read everything one claim shares with other claims and parties the insurer holds, in one call. "
-         "other_claims_by_the_same_claimant lists the claimant's own other claims. linked_claims lists each claim by another "
+         "other_claims_by_the_same_claimant lists the claimant's own other claims; they are not counted as links, and "
+         "same_repairer_on_the_claimants_own_other_claims names those that used this claim's repairer. Every row for another claim "
+         "gives the claim type and the status as a code and in plain words. linked_claims lists each claim by another "
          "claimant that shares something with this one, with linked_by (repairer, witness, phone, address, bank_account, or "
          "party_on_both_claims) and one row for each link: the party the link runs through, the value shared and a sentence. "
          "shared_attributes lists each phone number, address or bank account that a person on this claim shares with another "

@@ -148,7 +148,8 @@ def test_clm_6102_was_paid_correctly_with_a_second_approval_and_a_recovery(clien
     assert set(results(k).values()) == {"met"}
     assert k["authority"]["approval_needed_from"] == "senior adjuster" and k["authority"]["approval_with_the_authority_is_on_the_file"] is True
     measured = {r["standard_id"]: r["measured"] for r in k["standards"]}
-    assert "Fenella Arkwright, senior adjuster" in measured["LS-3"]
+    assert measured["LS-3"].endswith("Approval on the file: a handler and a senior adjuster.")
+    assert k["authority"]["approvals_on_the_file"] == [{"role": "handler"}, {"role": "senior adjuster"}]
     assert measured["LS-4"] == "The file names Hollis Drummock as at fault. Recovery REC-0412 was raised on 7 Nov 2026."
     assert k["lines"][1]["limit"] == 304.0 and k["lines"][1]["allowed_over_the_limit"] == 0.0
 
@@ -194,7 +195,7 @@ def test_clm_6106_was_paid_above_authority_with_no_second_approval(client):
     assert k["authority"]["approval_needed_from"] == "senior adjuster" and k["authority"]["approval_with_the_authority_is_on_the_file"] is False
     row = next(r for r in k["standards"] if r["standard_id"] == "LS-3")
     assert row["measured"] == ("USD 6,850.00 was paid in all. That needs the approval of the senior adjuster (rule HG-5). Approval on "
-                               "the file: Ottilie Marsh, handler. No approval by a senior adjuster is on the file.")
+                               "the file: a handler. No approval by a senior adjuster is on the file.")
     assert k["outcome"] == "paid_outside_the_standards"
 
 
@@ -643,3 +644,34 @@ def test_every_id_in_the_investigations_section_of_the_scenarios_is_in_the_data(
     named = set(re.findall(r"\b(?:CLM-6\d{3}(?:-[PL]\d)?|POL-2\d{3}|PTY-3\d{3}|PN-9\d{2}|DOC-6\d{3}-\d|LS-\d|FI-\d)\b", section))
     assert len(named) > 80 and named <= held, sorted(named - held)
     assert chr(8212) not in section
+
+
+def test_a_claimants_own_earlier_claim_with_the_same_repairer_is_said_and_is_not_a_link(client):
+    k = links(client, 6304)
+    assert k["no_links_found"] is True and k["linked_claims"] == [] and k["same_repairer_on_the_claimants_own_other_claims"] == ["CLM-6041"]
+    assert k["sentence"] == ("CLM-6304 shares no repairer, witness, phone number, address or bank account with any other claim or party "
+                             "the insurer holds. Rope Walk Motors (PTY-3507) is also the repairer on the claimant's own other claim "
+                             "CLM-6041; no other claimant's claim names it. A claimant's own other claims are not counted as links.")
+    assert links(client, 6306)["same_repairer_on_the_claimants_own_other_claims"] == []
+    assert links(client, 6202)["same_repairer_on_the_claimants_own_other_claims"] == ["CLM-6012"]
+
+
+def test_rows_for_other_claims_give_the_type_and_the_status_in_plain_words(client):
+    own = links(client, 6304)["other_claims_by_the_same_claimant"][0]
+    assert (own["claim_type"], own["claim_type_label"], own["status"], own["status_in_words"]) == (
+        "motor_own_damage", "Motor: damage to the insured vehicle", "closed", "closed")
+    linked = links(client, 6301)["linked_claims"][0]
+    assert (linked["claim_type_label"], linked["status"], linked["status_in_words"]) == (
+        "Motor: damage to the insured vehicle", "flagged", "referred to the investigations desk")
+    for row in get(client, "/claims/CLM-6204/earlier-claims")["parties"][0]["earlier_claims"]:
+        assert row["claim_type_label"] in ("Home: escape of water", "Home: theft") and row["status_in_words"] == "closed"
+    assert all("claim_type_label" in c and "status_in_words" in c for c in get(client, "/parties?text=PTY-3028")["items"][0]["claims"])
+
+
+def test_the_result_of_the_authority_standard_names_a_role_and_no_person(client):
+    names = ("Ottilie Marsh", "Lucan Thirlby", "Fenella Arkwright")
+    for n in range(6101, 6109):
+        blob = json.dumps(paid(client, n))
+        assert not any(name in blob for name in names), n
+    post(client, "/closed-claims/CLM-6106/findings", {"outcome": "paid_outside_the_standards", "standards": [{"standard_id": "LS-3", "finding": "not_met"}]})
+    assert "Ottilie Marsh" not in json.dumps(get(client, "/closed-claims/CLM-6106/findings"))
