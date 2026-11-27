@@ -1,0 +1,170 @@
+{
+  "$comment": "The nineteen demo cases of the underwriting desk. The desk lists the newest case first, so the file is written last to first. Everything is invented: Thornmere Mutual Insurance, its brokers, its insureds, its submissions, its referrals, its policies and its claims. Every id, date and amount is what the invented insurer returns when it is started with the date 26 November 2026.",
+  "cases": [
+    {
+      "title": "Merrowdown Marine Stores: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6706",
+      "class_of_business": "Commercial property",
+      "broker": "Quillfeather & Roe Insurance Brokers, Port Ilvane",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6706\nPolicy: CPL-6806\nInsured: Merrowdown Marine Stores Ltd\nClass: Commercial property\nInsured item: Warehouse and shop for boat engines and marine paint.\nPeriod: 14 Jan 2026 to 13 Jan 2027\nPremium: USD 12,500.00\nSum insured: USD 1,000,000.00 in total\nDeductible: USD 2,500.00\nBroker: Quillfeather & Roe Insurance Brokers, Port Ilvane\nClaims: CCL-6905, CCL-6906\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Calloway & Finch Shopfitters: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6705",
+      "class_of_business": "Commercial property",
+      "broker": "Quillfeather & Roe Insurance Brokers, Port Ilvane",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6705\nPolicy: CPL-6805\nInsured: Calloway & Finch Shopfitters Ltd\nClass: Commercial property\nInsured item: Workshop making shop counters and shelving.\nPeriod: 6 Jan 2026 to 5 Jan 2027\nPremium: USD 14,000.00\nSum insured: USD 1,900,000.00 in total\nDeductible: USD 5,000.00\nBroker: Quillfeather & Roe Insurance Brokers, Port Ilvane\nClaims: none is recorded in the period\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Aldous Pennicott: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6704",
+      "class_of_business": "Home",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6704\nPolicy: POL-2007\nInsured: Aldous Pennicott\nClass: Home\nInsured item: Home at 9 Ferrymans Walk, Port Ilvane, Meridia: buildings USD 240,000.00, contents USD 30,000.00.\nPeriod: 31 Dec 2025 to 30 Dec 2026\nPremium: USD 1,240.00\nSum insured: USD 270,000.00 in total\nDeductible: USD 250.00\nClaims: CLM-4007\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Hartsease Garden Tools: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6703",
+      "class_of_business": "Commercial property",
+      "broker": "Tallowby Commercial Brokers, Tallowby",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6703\nPolicy: CPL-6803\nInsured: Hartsease Garden Tools Ltd\nClass: Commercial property\nInsured item: Warehouse for garden tools.\nPeriod: 30 Dec 2025 to 29 Dec 2026\nPremium: USD 7,500.00\nSum insured: USD 1,100,000.00 in total\nDeductible: USD 5,000.00\nBroker: Tallowby Commercial Brokers, Tallowby\nClaims: CCL-6904\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Dunmarrow Catering Supplies: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6702",
+      "class_of_business": "Commercial property",
+      "broker": "Tallowby Commercial Brokers, Tallowby",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6702\nPolicy: CPL-6802\nInsured: Dunmarrow Catering Supplies Ltd\nClass: Commercial property\nInsured item: Warehouse for catering equipment and tableware.\nPeriod: 25 Dec 2025 to 24 Dec 2026\nPremium: USD 10,000.00\nSum insured: USD 1,400,000.00 in total\nDeductible: USD 5,000.00\nBroker: Tallowby Commercial Brokers, Tallowby\nClaims: CCL-6902, CCL-6903\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Ivelet & Thorn Bookbinders: renewal",
+      "kind": "Renewal",
+      "reference": "RNW-6701",
+      "class_of_business": "Commercial property",
+      "broker": "Harbourlight Risk Brokers, Marlow Reach",
+      "received_on": "2026-11-26",
+      "text": "THE RENEWAL\nRenewal: RNW-6701\nPolicy: CPL-6801\nInsured: Ivelet & Thorn Bookbinders Ltd\nClass: Commercial property\nInsured item: Bookbinding workshop and office.\nPeriod: 18 Dec 2025 to 17 Dec 2026\nPremium: USD 6,000.00\nSum insured: USD 900,000.00 in total\nDeductible: USD 2,500.00\nBroker: Harbourlight Risk Brokers, Marlow Reach\nClaims: CCL-6901\nTHE AGENT'S TASK\nThe agent sets the expiring terms beside the claims of the period and the changes in the risk, and marks which renewal rule each finding touches. It renews nothing, quotes nothing and offers no terms. The underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. Everything here is as the underwriting system holds it. The agent reads the renewal itself from the underwriting system."
+    },
+    {
+      "title": "Wrenlow Tea Importers: referral",
+      "kind": "Referral",
+      "reference": "REF-6605",
+      "class_of_business": "Commercial property",
+      "received_on": "2026-11-23",
+      "text": "THE REFERRAL\nReferral: REF-6605\nInsured: Wrenlow Tea Importers Ltd\nClass: Commercial property\nAsked by: Benedick Morrow, underwriter\nRaised: 23 Nov 2026\nTHE RISK\nOccupancy: Warehouse for tea in chests and cartons.\nConstruction: Class A. Brick walls, concrete floors, steel roof.\nSum insured: USD 1,200,000.00 in total\nSprinklers: yes\nLocation: Bonded Store 2, Customs Quay, Port Ilvane, Meridia\nTHE TERMS PROPOSED\nTechnical: USD 8,000.00\nProposed: USD 6,560.00\nDeductible: USD 5,000.00\nConditions: None proposed.\nOutside: no guideline is recorded\nTHE UNDERWRITER'S NOTE\nWithin every guideline. The broker says the holding insurer will renew at USD 6,600.00 and asks us to go under it.\nTHE AGENT'S TASK\nThe agent drafts the referral memo: the risk, the terms proposed, each referral rule as the underwriting system's authority check gives it, and the earlier referred risks with how each one is alike or differs. It approves nothing, declines nothing, recommends no decision and sends no memo. An underwriter with the authority decides. Everything here is as the underwriting system holds it. The agent reads the referral itself from the underwriting system."
+    },
+    {
+      "title": "Quenby House Offices: referral",
+      "kind": "Referral",
+      "reference": "REF-6604",
+      "class_of_business": "Commercial property",
+      "received_on": "2026-11-25",
+      "text": "THE REFERRAL\nReferral: REF-6604\nInsured: Quenby House Offices Ltd\nClass: Commercial property\nAsked by: Isolde Varney, senior underwriter\nRaised: 25 Nov 2026\nTHE RISK\nOccupancy: Office building let to four firms of accountants and surveyors.\nConstruction: Class A. Concrete frame, brick cladding, concrete roof.\nSum insured: USD 3,200,000.00 in total\nSprinklers: yes\nLocation: Quenby House, Assembly Row, Marlow Reach, Meridia\nTHE TERMS PROPOSED\nTechnical: USD 21,000.00\nProposed: USD 17,850.00\nDeductible: USD 10,000.00\nConditions: None proposed.\nOutside: no guideline is recorded\nTHE UNDERWRITER'S NOTE\nWithin every guideline. The broker asks for a lower premium to move the account from the holding insurer.\nTHE AGENT'S TASK\nThe agent drafts the referral memo: the risk, the terms proposed, each referral rule as the underwriting system's authority check gives it, and the earlier referred risks with how each one is alike or differs. It approves nothing, declines nothing, recommends no decision and sends no memo. An underwriter with the authority decides. Everything here is as the underwriting system holds it. The agent reads the referral itself from the underwriting system."
+    },
+    {
+      "title": "Hollinsworth Builders' Merchants: referral",
+      "kind": "Referral",
+      "reference": "REF-6603",
+      "class_of_business": "Motor fleet",
+      "received_on": "2026-11-25",
+      "text": "THE REFERRAL\nReferral: REF-6603\nInsured: Hollinsworth Builders' Merchants Ltd\nClass: Motor fleet\nAsked by: Isolde Varney, senior underwriter\nRaised: 25 Nov 2026\nTHE RISK\nUse: Delivery of the company's own bricks, timber and plumbing goods to building sites.\nVehicles: 180 (150 light trucks and 30 vans)\nBase: Hollinsworth Depot, Marlow Reach, Meridia\nTHE TERMS PROPOSED\nTechnical: USD 96,000.00\nProposed: USD 96,000.00\nDeductible: USD 1,000.00\nConditions: None proposed.\nOutside: UG-7\nTHE UNDERWRITER'S NOTE\nOne depot, own goods only, a full-time fleet manager. The fleet has grown from 140 vehicles in two years.\nTHE AGENT'S TASK\nThe agent drafts the referral memo: the risk, the terms proposed, each referral rule as the underwriting system's authority check gives it, and the earlier referred risks with how each one is alike or differs. It approves nothing, declines nothing, recommends no decision and sends no memo. An underwriter with the authority decides. Everything here is as the underwriting system holds it. The agent reads the referral itself from the underwriting system."
+    },
+    {
+      "title": "Marrowgate Grain & Seed Stores: referral",
+      "kind": "Referral",
+      "reference": "REF-6602",
+      "class_of_business": "Commercial property",
+      "received_on": "2026-11-24",
+      "text": "THE REFERRAL\nReferral: REF-6602\nInsured: Marrowgate Grain & Seed Stores Ltd\nClass: Commercial property\nAsked by: Benedick Morrow, underwriter\nRaised: 24 Nov 2026\nTHE RISK\nOccupancy: Warehouse for bagged grain and seed.\nConstruction: Class B. Brick walls, timber roof.\nSum insured: USD 2,900,000.00 in total\nSprinklers: no\nLocation: Marrowgate Wharf, Port Ilvane, Meridia\nTHE TERMS PROPOSED\nTechnical: USD 22,000.00\nProposed: USD 22,000.00\nDeductible: USD 15,000.00\nConditions: None proposed.\nOutside: UG-1, UG-3\nTHE UNDERWRITER'S NOTE\nA long-standing client of the broker. The warehouse has no sprinklers and the insured does not plan to fit any.\nTHE AGENT'S TASK\nThe agent drafts the referral memo: the risk, the terms proposed, each referral rule as the underwriting system's authority check gives it, and the earlier referred risks with how each one is alike or differs. It approves nothing, declines nothing, recommends no decision and sends no memo. An underwriter with the authority decides. Everything here is as the underwriting system holds it. The agent reads the referral itself from the underwriting system."
+    },
+    {
+      "title": "Pellow & Strand Furniture Showrooms: referral",
+      "kind": "Referral",
+      "reference": "REF-6601",
+      "class_of_business": "Commercial property",
+      "received_on": "2026-11-25",
+      "text": "THE REFERRAL\nReferral: REF-6601\nInsured: Pellow & Strand Furniture Showrooms Ltd\nClass: Commercial property\nAsked by: Benedick Morrow, underwriter\nRaised: 25 Nov 2026\nSubmission: SBM-6503\nTHE RISK\nOccupancy: Furniture showroom with a stock room behind.\nConstruction: Class C. Timber frame with timber cladding, tiled roof.\nSum insured: USD 1,350,000.00 in total\nSprinklers: no\nLocation: 18 Drapers Meadow, Tallowby, Meridia\nTHE TERMS PROPOSED\nTechnical: USD 9,400.00\nProposed: USD 9,400.00\nDeductible: USD 10,000.00\nConditions: The alarm to be linked to a monitoring station before cover starts.\nOutside: UG-1\nTHE UNDERWRITER'S NOTE\nA tidy, well-run showroom with no claims in five years. I would like to write it with a higher deductible and a monitored alarm.\nTHE AGENT'S TASK\nThe agent drafts the referral memo: the risk, the terms proposed, each referral rule as the underwriting system's authority check gives it, and the earlier referred risks with how each one is alike or differs. It approves nothing, declines nothing, recommends no decision and sends no memo. An underwriter with the authority decides. Everything here is as the underwriting system holds it. The agent reads the referral itself from the underwriting system."
+    },
+    {
+      "title": "Thimbleby Wool Merchants: submission",
+      "kind": "Submission",
+      "reference": "SBM-6508",
+      "class_of_business": "Commercial property",
+      "broker": "Tallowby Commercial Brokers, Tallowby",
+      "received_on": "2026-11-24",
+      "text": "THE SUBMISSION\nSubmission: SBM-6508\nInsured: Thimbleby Wool Merchants Ltd\nClass: Commercial property\nBroker: Tallowby Commercial Brokers, Tallowby (Seraphine Oddy)\nReceived: 24 Nov 2026\nCover from: 10 Jan 2027\nTHE RISK, AS THE FORM GIVES IT\nLocation: The Wool Hall, Fleece Street, Tallowby, Meridia\nOccupancy: Warehouse and shop for knitting wool and yarn.\nConstruction: Class B. Stone and brick walls, timber roof.\nSums insured: buildings USD 1,600,000.00; contents USD 500,000.00; stock USD 400,000.00\nSprinklers: yes\nFlood zone: 1\nDeductible: USD 5,000.00\nClaims: 1 in five years, listed on the form\nDocuments: SBM-6508-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Saltmarsh Chandlery & Rope: submission",
+      "kind": "Submission",
+      "reference": "SBM-6507",
+      "class_of_business": "Commercial property",
+      "broker": "Quillfeather & Roe Insurance Brokers, Port Ilvane",
+      "received_on": "2026-11-20",
+      "text": "THE SUBMISSION\nSubmission: SBM-6507\nInsured: Saltmarsh Chandlery & Rope Ltd\nClass: Commercial property\nBroker: Quillfeather & Roe Insurance Brokers, Port Ilvane (Imelda Roe)\nReceived: 20 Nov 2026\nCover from: 21 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nLocation: Rope Walk, Saltmarsh Lane, Port Ilvane, Meridia\nOccupancy: Warehouse and trade counter for rope, sailcloth and boat fittings.\nConstruction: Class B. Brick walls, timber roof.\nSums insured: buildings USD 2,000,000.00; contents USD 600,000.00; stock USD 500,000.00\nSprinklers: yes\nFlood zone: 2\nDeductible: USD 10,000.00\nClaims: 4 in five years, listed on the form\nDocuments: SBM-6507-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Ottershaw Print Works: submission",
+      "kind": "Submission",
+      "reference": "SBM-6506",
+      "class_of_business": "Commercial property",
+      "broker": "Harbourlight Risk Brokers, Marlow Reach",
+      "received_on": "2026-11-23",
+      "text": "THE SUBMISSION\nSubmission: SBM-6506\nInsured: Ottershaw Print Works Ltd\nClass: Commercial property\nBroker: Harbourlight Risk Brokers, Marlow Reach (Cuthbert Wainfleet)\nReceived: 23 Nov 2026\nCover from: 26 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nLocation: Ottershaw Mill, Weir Lane, Marlow Reach, Meridia\nOccupancy: Commercial printer: presses, paper store and bindery.\nConstruction: Class B. Brick walls, timber upper floor, slate roof on timber trusses.\nSums insured: buildings USD 1,400,000.00; contents USD 500,000.00; stock USD 300,000.00\nSprinklers: yes\nFlood zone: 1\nDeductible: USD 10,000.00\nClaims: 2 in five years, listed on the form\nDocuments: SBM-6506-D1 broker's presentation; SBM-6506-D2 survey note, Marlow Reach Risk Surveys\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Tarnbeck Garden Centres: submission",
+      "kind": "Submission",
+      "reference": "SBM-6505",
+      "class_of_business": "Motor fleet",
+      "broker": "Tallowby Commercial Brokers, Tallowby",
+      "received_on": "2026-11-25",
+      "text": "THE SUBMISSION\nSubmission: SBM-6505\nInsured: Tarnbeck Garden Centres Ltd\nClass: Motor fleet\nBroker: Tallowby Commercial Brokers, Tallowby (Seraphine Oddy)\nReceived: 25 Nov 2026\nCover from: 5 Jan 2027\nTHE RISK, AS THE FORM GIVES IT\nBase: Tarnbeck Nursery, Tallowby, Meridia\nUse: Delivery of the company's own plants, compost and garden furniture to customers.\nVehicles: 40 (34 light vans and 6 light trucks)\nDrivers: 50 named, 6 under 25\nDeductible: USD 500.00\nClaims: none sent with the submission\nDocuments: SBM-6505-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Grindlow Metals & Recycling: submission",
+      "kind": "Submission",
+      "reference": "SBM-6504",
+      "class_of_business": "Commercial property",
+      "broker": "Quillfeather & Roe Insurance Brokers, Port Ilvane",
+      "received_on": "2026-11-21",
+      "text": "THE SUBMISSION\nSubmission: SBM-6504\nInsured: Grindlow Metals & Recycling Ltd\nClass: Commercial property\nBroker: Quillfeather & Roe Insurance Brokers, Port Ilvane (Imelda Roe)\nReceived: 21 Nov 2026\nCover from: 17 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nLocation: Yard 3, Coldharbour Sidings, Port Ilvane, Meridia\nOccupancy: Scrap metal yard and waste recycling: sorting, baling and storing metal, cardboard and mixed waste.\nConstruction: Class A. Steel portal frame, block walls, steel roof.\nSums insured: buildings USD 600,000.00; contents USD 200,000.00; stock USD 100,000.00\nSprinklers: no\nFlood zone: 2\nDeductible: USD 3,000.00\nClaims: 1 in five years, listed on the form\nDocuments: SBM-6504-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Pellow & Strand Furniture Showrooms: submission",
+      "kind": "Submission",
+      "reference": "SBM-6503",
+      "class_of_business": "Commercial property",
+      "broker": "Tallowby Commercial Brokers, Tallowby",
+      "received_on": "2026-11-22",
+      "text": "THE SUBMISSION\nSubmission: SBM-6503\nInsured: Pellow & Strand Furniture Showrooms Ltd\nClass: Commercial property\nBroker: Tallowby Commercial Brokers, Tallowby (Seraphine Oddy)\nReceived: 22 Nov 2026\nCover from: 24 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nLocation: 18 Drapers Meadow, Tallowby, Meridia\nOccupancy: Furniture showroom with a stock room behind.\nConstruction: Class C. Timber frame with timber cladding, tiled roof.\nSums insured: buildings USD 800,000.00; contents USD 150,000.00; stock USD 400,000.00\nSprinklers: no\nFlood zone: 1\nDeductible: USD 7,500.00\nClaims: 0 in five years, listed on the form\nDocuments: SBM-6503-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Wickerby Dairy Rounds: submission",
+      "kind": "Submission",
+      "reference": "SBM-6502",
+      "class_of_business": "Motor fleet",
+      "broker": "Harbourlight Risk Brokers, Marlow Reach",
+      "received_on": "2026-11-23",
+      "text": "THE SUBMISSION\nSubmission: SBM-6502\nInsured: Wickerby Dairy Rounds Ltd\nClass: Motor fleet\nBroker: Harbourlight Risk Brokers, Marlow Reach (Cuthbert Wainfleet)\nReceived: 23 Nov 2026\nCover from: 26 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nBase: Wickerby Yard, Marlow Reach, Meridia\nUse: Delivery of the company's own milk, cheese and butter to shops and homes.\nVehicles: 24 (24 light vans, none over 3.5 tonnes)\nDrivers: 32 named, 4 under 25\nDeductible: USD 500.00\nClaims: 5 in three years, listed on the form\nDocuments: SBM-6502-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    },
+    {
+      "title": "Larkspur Lane Stationers: submission",
+      "kind": "Submission",
+      "reference": "SBM-6501",
+      "class_of_business": "Commercial property",
+      "broker": "Quillfeather & Roe Insurance Brokers, Port Ilvane",
+      "received_on": "2026-11-24",
+      "text": "THE SUBMISSION\nSubmission: SBM-6501\nInsured: Larkspur Lane Stationers Ltd\nClass: Commercial property\nBroker: Quillfeather & Roe Insurance Brokers, Port Ilvane (Imelda Roe)\nReceived: 24 Nov 2026\nCover from: 31 Dec 2026\nTHE RISK, AS THE FORM GIVES IT\nLocation: 4 Chandlers Quay, Port Ilvane, Meridia\nOccupancy: Warehouse and office for paper, envelopes and office stationery.\nConstruction: Class A. Brick walls, concrete floors, steel deck roof.\nSums insured: buildings USD 1,200,000.00; contents USD 350,000.00; stock USD 250,000.00\nSprinklers: yes\nFlood zone: 1\nDeductible: USD 7,500.00\nClaims: 1 in five years, listed on the form\nDocuments: SBM-6501-D1 broker's presentation\nTHE AGENT'S TASK\nThe agent sets the submission against each guideline of its class of business and prepares the underwriting file: what is within, what is outside, what is missing, and where a document says something else than the form. It accepts nothing, declines nothing, quotes nothing and contacts no broker. The underwriter decides. Everything here is as the underwriting system holds it. The agent reads the submission itself from the underwriting system."
+    }
+  ]
+}

@@ -1,0 +1,401 @@
+{
+  "$comment": "What makes the generic case desk the underwriting desk of the insurance pack. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads a table by its own header row. The insurer (Thornmere Mutual Insurance), its brokers, its insureds, its submissions, its referrals, its precedents, its policies and its claims are invented.",
+  "desk": {
+    "id": "underwriting",
+    "name": "Underwriting desk",
+    "caseNoun": "underwriting case",
+    "caseNounPlural": "underwriting cases",
+    "draftNoun": "draft",
+    "deciderRole": "underwriter",
+    "tagline": "Broker submissions, referrals and renewals in one queue, a draft for each, a place to decide, and the register afterwards.",
+    "addLabel": "Add an underwriting case",
+    "arrivedVia": {
+      "feed": "the insurer's underwriting system",
+      "officer": "the underwriting team"
+    },
+    "issuedVerb": "Draft accepted by",
+    "documentLinkLabel": "Download the accepted draft"
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "class_of_business"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "broker"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the record from the insurer's underwriting system.",
+    "noTextNote": "No summary was supplied with this case. Work from the record the case names, read from the insurer's underwriting system.",
+    "askPlaceholder": "For example: which document speaks of the sprinklers?",
+    "searchPlaceholder": "Search by insured, broker, record id, class or kind",
+    "demoNote": "Demo data: the insurer, its brokers, its insureds, its submissions, its referrals, its policies and its claims are invented. Nothing here is a real decision on a risk.",
+    "listFields": [
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "What came in",
+    "replyLabel": "What came in (it is added to the case)",
+    "replyButton": "Add it and draft again",
+    "replyNote": "What was missing has been added at the end of the case. Read the record from the underwriting system again, as a document or a correction may have arrived, and draft again in the light of it.",
+    "replyEvent": "added what came in",
+    "jumpLabel": "The case",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Submission": {
+        "agentEnv": "UNDERWRITING_SUPPORT_AGENT_ID",
+        "instruction": "Prepare the underwriting file for the submission named in the case below. A broker's submission has arrived at the insurer's underwriting desk. Set it against each guideline of its class of business: what is within, what is outside, what is missing, and where a document contradicts a field of the form. You prepare and a person decides: the underwriter decides. You never accept, decline, quote or bind a risk, and you never contact a broker.\n\nRead the submission once from the insurer's underwriting system before you write anything. It comes whole: the broker, the insured, the class of business, the dates, the risk as the broker's form gives it, the requested terms, the claims history or none, every document as text with its id, the guidelines of the class, and the system's measure of the form against each guideline, with a result and a sentence for each. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Add up nothing, compare no two figures and work out no percentage: every total, measured value, limit and amount over a limit is the system's. The system's measure reads the fields of the form only. Reading the documents is your work. Never fill in a fact the submission does not state, and never choose between the form and a document.\n\nReply in this shape and in no other, with two exceptions that come first. If the underwriting system is not connected, or holds no submission with the id in the case, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 64,300.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 9 Feb 2027, never as 2027-02-09 and never as a number of days ago. Show no field name or code with an underscore: write the plain words. A fact the system gives as yes or no is written as words in a sentence, never as true or false.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the submission (its id, the insured, the class of business, the broker, the date received and the date cover is wanted from); what the file shows, in one or two sentences, with the id of every guideline marked outside, missing or cannot tell, or that every guideline is within; what a person must supply or decide, and who. The last of them starts \"Saved:\" and says whether the draft was saved to the underwriting system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft underwriting file. For the underwriter. Not issued.\"\n3. A Markdown table with exactly these six columns and one row for each guideline the system gives for the class, every guideline once, in the system's order. Every row carries its number and all six cells; a row is never left short. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. A cell with nothing to say holds only the character -.\n| # | Guideline | What the submission shows | Mark | Source | Note |\n# is 1, 2, 3 in order. Guideline is the guideline's id, then its heading as the system gives it. What the submission shows is, for a guideline the system measured or could not measure, the system's sentence for it, in full, word for word. For a guideline for reading it is the occupancy or the use as the form writes it, and what the documents say on it. Source is \"the system's measure\" for a guideline the system measured or could not measure. For a guideline for reading, and for any row that rests on a document, it names the form and each document read for it, by its id. Note holds: for the guideline that turns on the total sum insured, the system's working of the total, in full; for a row marked outside on reading, what on the list is named; for a row marked missing, what is missing and what the document says about it, with the document's id; for a row marked cannot tell, both accounts, each right after its source, for example \"form: alarm monitored; SBM-7301-D3: the alarm line was cut on 4 Mar 2026\". Otherwise it holds -.\nThe mark of a measured guideline is the system's: within where the system measured it as within (a value exactly on a limit is within), outside where it measured it as outside, missing where the submission lacks what the guideline needs. A guideline for reading is outside where the form or a document names something on the guideline's list, within where the form states the occupancy or the use and nothing on the list is named, and cannot tell where the form does not state it or the form and a document disagree on it. Where a document contradicts the field a guideline turns on, that guideline is marked cannot tell, whatever the system's measure says. A contradiction is two plain statements that cannot both be true. A document that says the same in other words, says less, or adds a detail is not one.\nMark is exactly one of these four, in lower case: within, outside, missing, cannot tell.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these three. Write no full stop at the end of that line and nothing after it.\n\"ready for the underwriter: within every guideline\"\n\"ready for the underwriter: outside\" followed by the id of each guideline marked outside, separated by commas, for example \"ready for the underwriter: outside UG-12, UG-14\"\n\"ask the broker:\" followed by the question, where any row is marked missing or cannot tell. The question asks for each thing that is missing, by its plain name, and for each contradiction asks which account is right, naming the document by its id; several questions are separated by semicolons\nA risk outside a guideline is never declined here and never held back: it goes to the underwriter with the rows that say so.",
+        "decisions": [
+          "approve",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The file shows",
+          "check": "Source"
+        },
+        "markHints": {
+          "within": "The system measured the guideline as within, or on reading nothing on the guideline's list is named",
+          "outside": "The system measured the guideline as outside, or on reading the form or a document names something on the list. The risk still goes to the underwriter, who decides"
+        }
+      },
+      "Referral": {
+        "agentEnv": "REFERRAL_MEMO_AGENT_ID",
+        "instruction": "Draft the referral memo for the referral named in the case below. An underwriter has raised a referral at the insurer's underwriting desk. Set out the risk, the terms proposed, the rule that forces the referral and the grade it goes to, and the earlier referred risks with how each one is alike or differs. Where no referral is needed, the memo says so. You prepare and a person decides: an underwriter with the authority decides. You never approve, decline, quote or bind a risk, you recommend no decision, and you never send a memo or contact a broker or an underwriter.\n\nRead the referral once from the insurer's underwriting system before you write anything. It gives the date raised, the underwriter who asks with name and grade, the class of business, the insured, the risk, the terms proposed, the guidelines the risk is outside, the underwriter's own note, and the system's authority check: one row for each referral rule with whether it applies and a sentence, then whether a referral is needed, the grade it goes to, the rules that force it, the discount as a percentage and a closing sentence. Use the authority check as it is: compare no figure with an authority, work out no discount and choose no grade. Where a referral is needed, search the earlier referred risks once for each referral rule that forces it and once for each guideline the risk is outside, each search with the class of business and one rule id. Where no referral is needed, search nothing. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds.\n\nReply in this shape and in no other, with two exceptions that come first. If the underwriting system is not connected, or holds no referral with the id in the case, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 64,300.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 9 Feb 2027, never as 2027-02-09 and never as a number of days ago. Show no field name or code with an underscore: write the plain words. A fact the system gives as yes or no is written as words in a sentence, never as true or false. The underwriter's note is given as what the underwriter notes, with the underwriter's name. Write a percentage as the system gives it, with two decimals. Write a grade, a class of business and a decision in plain words, for example head of underwriting and approved with conditions.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the referral (its id, the insured, the class of business, the underwriter who asks with name and grade, and the date raised); the system's closing sentence on the authority check, in full, word for word; the precedents in one sentence, each by its id with its mark, or that none was found, or that none was searched because no referral is needed; what a person must decide, and who. The last of them starts \"Saved:\" and says whether the draft was saved to the underwriting system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft referral memo. For the deciding underwriter. Not issued.\"\n3. A Markdown table with exactly these five columns. Every row carries its number and all five cells; a row is never left short. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. A cell with nothing to say holds only the character -.\n| # | Part | What the record gives | Mark | Note |\n# is 1, 2, 3 in order. The rows come in this order.\nThe risk, one row. Part is \"The risk\". What the record gives is the insured, the occupancy or the use, the construction class with the construction in words, the total sum insured or the number of vehicles, whether there are sprinklers, and the location or the base. Mark is stated. Note is what the underwriter notes, and the id of the submission where the referral names one.\nThe terms, one row. Part is \"The terms proposed\". What the record gives is the technical premium, the proposed premium, the discount as the percentage the system worked out, the deductible and the conditions. Mark is stated.\nThe referral rules, one row for each rule of the authority check, in the system's order. Part is the rule's id, then its heading. What the record gives is the system's sentence for that rule, in full, word for word. Mark is applies or does not apply, as the system says. Note is the grade the rule sends the risk to, where it applies.\nThe guidelines the risk is outside, one row for each that the referral records; none where it records none. Part is the guideline's id. What the record gives is the note the underwriter recorded for it. Mark is outside. Note says which precedents found were outside the same guideline, by id, or that no precedent is outside it.\nThe precedents, one row for each precedent the searches returned. Part is the precedent's id, then the insured. What the record gives is the occupancy, the construction class, the total sum insured, whether there were sprinklers, the terms proposed, the decision with its conditions, who decided with name and grade, and the date decided. Mark is agrees, differs, went against or not alike. Note sets the fact that matches or differs side by side, this risk first and then the precedent with its id, for example \"this risk: no night guard; PRC-7102: a night guard on site, on which its decision rests\".\nA precedent is not alike where the earlier risk is a different kind of premises or use, or of a different construction class. Otherwise read its summary for the fact its decision rested on: differs where that fact is not there in this referral, is the opposite here or is not stated here; agrees where the fact is there as well and the earlier risk was approved; went against where the fact is there as well and the earlier request was declined. Take no view on whether the earlier decision was right.\nWhere a referral is needed and no search returned a precedent, one row: Part is \"Precedents\", What the record gives is the system's note on the search, in full, Mark is none found. Where no referral is needed, the table ends after the referral rules and any guideline rows: it has no precedent row.\nMark is exactly one of these nine, in lower case: stated, applies, does not apply, outside, agrees, differs, went against, not alike, none found.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these two. Write no full stop at the end of that line and nothing after it.\n\"refer to the\" followed by the grade in plain words, then \": forced by\" and the id of each referral rule the system names as forcing the referral, joined by \"and\", for example \"refer to the underwriter: forced by RF-8 and RF-9\"\n\"no referral needed:\" followed by the name of the underwriter who asks and the words \"may decide it without a referral\"",
+        "decisions": [
+          "approve",
+          "refer",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The record gives",
+          "check": "Note"
+        },
+        "markHints": {
+          "applies": "The referral rule applies, as the underwriting system's authority check says. The Note names the grade it sends the risk to",
+          "does not apply": "The referral rule does not apply, as the underwriting system's authority check says",
+          "outside": "A guideline the referral records the risk as outside"
+        }
+      },
+      "Renewal": {
+        "agentEnv": "RENEWAL_REVIEW_AGENT_ID",
+        "instruction": "Review the renewal named in the case below. A policy's period is about to end and its renewal is due at the insurer's underwriting desk. Set the expiring terms beside the claims of the period and the changes in the risk, and mark which renewal rule each finding touches. You prepare and a person decides: the underwriter decides the terms, a senior underwriter where a rule asks for a referral, and the claims team settles a point on which two records disagree. You never renew, quote, offer or refuse terms.\n\nRead the renewal once from the insurer's underwriting system before you write anything. It comes whole: the expiring terms with a sentence on the period, the days until it ends and the premium; every claim booked to the policy; the totals, with the loss ratio on payments alone, the loss ratio with reserves and a sentence that shows the working; each place where the claims record and the policy record disagree, with both versions, and then the same totals leaving out the disputed claims; the changes in the risk reported since the period started; and one row for each of the five renewal rules, with whether it applies and a sentence. Every sum, every ratio, every count of days and every answer on whether a rule applies is the system's. Add up nothing, divide nothing, count no days, compare no figure with a limit and use no clock of your own. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Never choose between two records that disagree, and never leave a claim out of the figures yourself.\n\nReply in this shape and in no other, with two exceptions that come first. If the underwriting system is not connected, or holds no renewal with the id in the case, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 64,300.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 9 Feb 2027, never as 2027-02-09 and never as a number of days ago. Show no field name or code with an underscore: write the plain words. A fact the system gives as yes or no is written as words in a sentence, never as true or false. A count of days that the system gives may follow a date. Write every loss ratio with two decimals and the word percent, as the system's sentences write it, for example 41.20 percent.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the renewal (its id, the policy's id, the insured, and the system's sentence on the period and the premium); what the record shows, in one or two sentences: what the claims of the period cost, the loss ratio, and the changes reported or that none is reported; which rules apply, by id, or that no rule applies, and what a person must supply or decide, and who. Where a claim is open, the summary gives the loss ratio on payments alone and with the reserves, and says the reserve may move. Where two records disagree, the summary gives both loss ratios and says that neither is chosen. The last of them starts \"Saved:\" and says whether the draft was saved to the underwriting system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft renewal review. For the underwriter. Not issued.\"\n3. A Markdown table with exactly these six columns. Every row carries its number and all six cells; a row is never left short. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. A cell with nothing to say holds only the character -.\n| # | Finding | What the record shows | Rule | Mark | Note |\n# is 1, 2, 3 in order. The table has seven rows, always, in this order; Finding is, by row: \"Expiring terms\"; \"Claims of the period\"; \"Loss ratio\"; \"Change of occupancy\"; \"Change in protections\"; \"Open claim\"; \"Records that disagree\". An eighth row, \"Other change reported\", is written only where a change is reported that is neither a change of occupancy nor a change in the protections.\nWhat the record shows is, by row. Row 1: the policy's id, the insured, what is insured, the construction class and the sprinklers where the record gives them, the total sum insured, the deductible, and the system's sentence on the period and the premium, word for word. Row 2: every claim, each with its id, the date of loss, the cause, the status, the amount paid and the outstanding reserve; where the record holds no claim, the system's note that says so, word for word. Row 3: the system's sentence that shows the working of the totals, word for word, and then the system's sentence for the rule, word for word; where two records disagree, both workings, each after the words that say what it holds: \"With every claim:\" and then \"Leaving out\" with the id of each disputed claim and a colon. Rows 4, 5 and 6: the system's sentence for the rule, word for word. Row 7: where the rule does not apply, the system's sentence for the rule, word for word; where it applies, each account right after the id of the record that gives it (the claim's id, the words \"claims record\" and what the claims record says; then the policy's id, the words \"policy record\" and what the policy record says), then the system's sentence on the disagreement, with its count of days.\nRule is the id of the renewal rule the finding touches: RN-1 for row 3, RN-2 for row 4, RN-3 for row 5, RN-4 for row 6, RN-5 for row 7. Rows 1, 2 and 8 touch no rule and hold -. The mark of rows 1, 2 and 8 is noted. The mark of rows 3 to 7 is what the system says for that rule, and nothing else.\nNote says what the rule asks for where it applies: a referral to a senior underwriter before terms are offered; a survey before terms are offered; that the claims team is asked to settle the point before terms are offered. In rows 4 and 5 it first gives the change as reported: the date, who reported it and the text, word for word. Where the mark is depends on the disagreement, the Note says that the rule applies with every claim and does not apply leaving out the disputed claim, and that neither is chosen. Otherwise the Note holds -.\nMark is exactly one of these four, in lower case: noted, applies, does not apply, depends on the disagreement.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these four, the first that fits in this order: the rule on records that disagree applies; the rule on the loss ratio or on a change in protections applies; the rule on a change of occupancy applies; no rule applies and none depends on the disagreement. Write no full stop at the end of that line and nothing after it.\n\"ask the claims team:\" followed by the rule's id and the question, which names the claim by its id and gives both versions with their dates, for example \"RN-5, which is right for CCL-6999: the date of loss of 2 Feb 2026 on the claims record, or the start of the period on 9 Feb 2026 on the policy record\"\n\"refer to the senior underwriter:\" followed by each rule that asks for it, in this form: the rule's id, then the fact from the system's sentence, for example \"RN-1, loss ratio 91.40 percent, above the limit of 70.00 percent\" or \"RN-3, change in protections reported on 3 Mar 2026\"; several are separated by semicolons\n\"survey before terms:\" followed by the rule's id and the fact, for example \"RN-2, change of occupancy reported on 3 Mar 2026\"\n\"ready for the underwriter\"",
+        "decisions": [
+          "approve",
+          "ask_for_more",
+          "refer",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The record shows",
+          "policy": "Rule",
+          "citation": "Record",
+          "check": "Note"
+        },
+        "markHints": {
+          "applies": "The underwriting system says the renewal rule applies to this renewal. The Note says what the rule asks for",
+          "does not apply": "The underwriting system says the renewal rule does not apply to this renewal"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "refer",
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the underwriting team (the form at the top of the list)",
+      "Sent by the insurer's underwriting system when a broker's submission arrives, when an underwriter raises a referral, or when a renewal falls due (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The insured and the work, for example: Larkspur Lane Stationers: submission"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Submission",
+          "Referral",
+          "Renewal"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Record id",
+        "required": true,
+        "hint": "The submission, the referral or the renewal, for example SBM-6501, REF-6601 or RNW-6701"
+      },
+      {
+        "key": "class_of_business",
+        "label": "Class of business",
+        "required": true,
+        "hint": "As the underwriting system gives it",
+        "options": [
+          "Commercial property",
+          "Motor fleet",
+          "Home"
+        ]
+      },
+      {
+        "key": "broker",
+        "label": "Broker",
+        "required": false,
+        "hint": "Leave empty where the record names no broker"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "The record, the insured, the risk in a few lines and the documents on file with their ids"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "An underwriting case has arrived whose kind of work is not one this desk knows. The kinds are Submission, Referral and Renewal. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the underwriting system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft"
+    ],
+    "marks": {
+      "within": "Within",
+      "outside": "Outside",
+      "missing": "Missing",
+      "cannot tell": "Cannot tell",
+      "applies": "Applies",
+      "does not apply": "Does not apply",
+      "depends on the disagreement": "Depends on the disagreement",
+      "agrees": "Agrees",
+      "differs": "Differs",
+      "went against": "Went against",
+      "not alike": "Not alike",
+      "none found": "None found",
+      "stated": "Stated",
+      "noted": "Noted"
+    },
+    "markTones": {
+      "within": "ok",
+      "outside": "err",
+      "missing": "warn",
+      "cannot tell": "warn",
+      "applies": "person",
+      "does not apply": "plain",
+      "depends on the disagreement": "warn",
+      "agrees": "info",
+      "differs": "warn",
+      "went against": "warn",
+      "not alike": "plain",
+      "none found": "plain",
+      "stated": "plain",
+      "noted": "plain"
+    },
+    "markIcons": {
+      "missing": "?",
+      "cannot tell": "?",
+      "depends on the disagreement": "?",
+      "agrees": "=",
+      "differs": "≠",
+      "went against": "–",
+      "stated": "•",
+      "noted": "•"
+    },
+    "tallyLabels": {
+      "applies": "applying",
+      "does not apply": "not applying",
+      "agrees": "agreeing",
+      "differs": "differing"
+    },
+    "quietMarks": [
+      "does not apply",
+      "not alike",
+      "stated",
+      "noted"
+    ],
+    "markHints": {
+      "within": "The guideline is met: by the system's measure, or on reading",
+      "outside": "The risk is outside the guideline. It is not declined here: an underwriter with the authority decides",
+      "missing": "The submission lacks what the guideline needs, so the system could not measure it. Nothing is assumed: the broker is asked",
+      "cannot tell": "The form and a document disagree on the fact the guideline turns on, or the form does not state it. Neither is chosen: the broker is asked",
+      "applies": "The rule applies, as the underwriting system says",
+      "does not apply": "The rule does not apply, as the underwriting system says",
+      "depends on the disagreement": "Whether the rule applies depends on how two records that disagree are settled. Both figures are shown and neither is chosen",
+      "agrees": "The earlier risk matches this one on the fact its decision rested on, and was approved. It is a past decision, not a rule",
+      "differs": "The earlier risk looks alike, and the fact its decision rested on is not there in this referral. It does not support this risk",
+      "went against": "The earlier risk matches this one on the fact its decision rested on, and the request was declined. It is a past decision, not a rule",
+      "not alike": "The earlier risk is a different kind of premises or use, or a different construction class",
+      "none found": "A referral is needed and no search returned an earlier referred risk",
+      "stated": "The risk or the terms, as the referral gives them",
+      "noted": "A row that touches no renewal rule: the expiring terms, the claims of the period or another change reported"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft",
+    "rowLabels": {
+      "source": "The record shows",
+      "policy": "Rule",
+      "citation": "Record",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "summaryAboveRows": true
+  },
+  "decisions": [
+    {
+      "id": "approve",
+      "label": "Accept the draft",
+      "outcome": "issued",
+      "needsNote": false,
+      "hint": "Records that you accept version {version}{edited} of the draft as the file note, in your name. It accepts, declines, quotes and binds no risk, refers nothing and offers no renewal terms, and it changes nothing in the insurer's underwriting system.",
+      "proposalPrefix": [
+        "ready for the underwriter",
+        "no referral needed"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Wait for what is missing",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What is missing, one item to a line",
+      "noteHint": "The case waits here until what is missing is added. This sends nothing to anyone: the underwriting team asks the broker or the claims team, outside this desk.",
+      "proposalPrefix": [
+        "ask the broker",
+        "ask the claims team"
+      ]
+    },
+    {
+      "id": "refer",
+      "label": "Refer on",
+      "outcome": "referred",
+      "needsNote": true,
+      "noteLabel": "Who it goes to, and why",
+      "noteHint": "For a person with the authority: a senior underwriter, the head of underwriting, or the grade the memo names. Name them and give the reason. This sends nothing to anyone: the referral is made in the insurer's underwriting system.",
+      "proposalPrefix": [
+        "refer to the"
+      ]
+    },
+    {
+      "id": "send_back",
+      "label": "Ask the agent to redo the draft",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being redone",
+    "issued": "Draft accepted",
+    "info_requested": "Waiting",
+    "referred": "Referred on",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "issued",
+    "referred",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. The desk accepts, declines, quotes and binds no risk, and offers no renewal terms: an underwriter with the authority does that, in the insurer's underwriting system.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "class_of_business",
+      "broker",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "reference",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "reference": "Record",
+      "class_of_business": "Class of business",
+      "broker": "Broker",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Draft versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other underwriter can. You can still ask the agent to redo the draft.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "issued": "Recorded as accepted. Nothing further happens on this desk. A risk is accepted, declined or quoted by the underwriter, a referral is decided by an underwriter with the authority, and renewal terms are decided by the underwriter, each in the insurer's underwriting system.",
+    "info_requested": "When what is missing has come in, add it here. The agent reads the record again and the draft comes back for review.",
+    "referred": "Recorded as referred on, with the name and the reason you gave. The decision is theirs."
+  },
+  "decisionLabels": {
+    "issued": "Accepted the draft",
+    "info_requested": "Put on hold for what is missing",
+    "referred": "Referred on",
+    "sent_back": "Asked the agent to redo the draft",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}
