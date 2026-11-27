@@ -1,0 +1,155 @@
+{
+  "$comment": "The fifteen demo cases of the investigations desk. The desk lists the newest case first, so the file is written last to first. Everything is invented: Thornmere Mutual Insurance, its claimants, its claims, its parties and its public notices. Every id, date, amount and sentence is what the invented insurer returns when it is started with the date 26 November 2026.",
+  "cases": [
+    {
+      "title": "Lyle, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6307",
+      "claimant": "Cuthbert Lyle",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 10,560.00",
+      "received_on": "2026-11-15",
+      "text": "THE CLAIM\nClaim: CLM-6307\nClaimant: Cuthbert Lyle (PTY-3027)\nPolicy: POL-2727\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 13 Nov 2026, reported 14 Nov 2026\nEstimate: USD 10,560.00\nOther parties: Hester Quarmby (PTY-3028), witness; Lower Wharf Coachworks (PTY-3510), repairer\nDocuments: DOC-6307-1 claim form, dated 14 Nov 2026; DOC-6307-2 repair estimate, dated 15 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 15 Nov 2026\nIndicators met: FI-6 Estimate close to the limit\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nThe car left the road on a bend and rolled onto its side. A passer-by saw it happen.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Orrell, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6306",
+      "claimant": "Wilhelmina Orrell",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 2,640.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: CLM-6306\nClaimant: Wilhelmina Orrell (PTY-3026)\nPolicy: POL-2726\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 18 Nov 2026, reported 19 Nov 2026\nEstimate: USD 2,640.00\nOther parties: Foxglove Garage Services (PTY-3509), repairer\nDocuments: DOC-6306-1 claim form, dated 19 Nov 2026; DOC-6306-2 repair estimate, dated 16 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 20 Nov 2026\nIndicators met: FI-5 Invoice dated before the loss\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nA gate swung shut on the car in the wind. The right rear wing and the bumper are dented.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Tansley, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6305",
+      "claimant": "Leofric Tansley",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 3,900.00",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: CLM-6305\nClaimant: Leofric Tansley (PTY-3025)\nPolicy: POL-2725\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 20 Nov 2026, reported 21 Nov 2026\nEstimate: USD 3,900.00\nOther parties: Mariners Body Shop (PTY-3508), repairer\nDocuments: DOC-6305-1 claim form, dated 21 Nov 2026; DOC-6305-2 repair estimate, dated 22 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 22 Nov 2026\nIndicators met: FI-1 Early loss\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nI clipped a parked skip. The left side of the car is scraped and a door is dented.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Pryce, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6304",
+      "claimant": "Evander Pryce",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 12,125.00",
+      "received_on": "2026-11-17",
+      "text": "THE CLAIM\nClaim: CLM-6304\nClaimant: Evander Pryce (PTY-3024)\nPolicy: POL-2724\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 15 Nov 2026, reported 16 Nov 2026\nEstimate: USD 12,125.00\nOther parties: Rope Walk Motors (PTY-3507), repairer\nDocuments: DOC-6304-1 claim form, dated 16 Nov 2026; DOC-6304-2 repair estimate, dated 17 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 17 Nov 2026\nIndicators met: FI-6 Estimate close to the limit\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nThe car caught fire while parked. The engine bay and the dashboard are burnt out.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Staveley, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6303",
+      "claimant": "Ulric Staveley",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 6,800.00",
+      "received_on": "2026-11-19",
+      "text": "THE CLAIM\nClaim: CLM-6303\nClaimant: Ulric Staveley (PTY-3023)\nPolicy: POL-2723\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 17 Nov 2026, reported 18 Nov 2026\nEstimate: USD 6,800.00\nOther parties: Brackenfold Motor Works (PTY-3501), repairer\nDocuments: DOC-6303-1 claim form, dated 18 Nov 2026; DOC-6303-2 repair estimate, dated 19 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 19 Nov 2026\nIndicators met: FI-1 Early loss\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nI reversed into a parked trailer. The rear of the car is badly dented.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Rookhope, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6302",
+      "claimant": "Dagny Rookhope",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 14,400.00",
+      "received_on": "2026-11-13",
+      "text": "THE CLAIM\nClaim: CLM-6302\nClaimant: Dagny Rookhope (PTY-3022)\nPolicy: POL-2722\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 11 Nov 2026, reported 12 Nov 2026\nEstimate: USD 14,400.00\nOther parties: Brackenfold Motor Works (PTY-3501), repairer\nDocuments: DOC-6302-1 claim form, dated 12 Nov 2026; DOC-6302-2 repair estimate, dated 14 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 13 Nov 2026\nIndicators met: FI-6 Estimate close to the limit\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nThe car slid on wet leaves into a stone gatepost. The front of the car is crushed.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Fenn, damage to the vehicle: case file",
+      "kind": "Case file",
+      "reference": "CLM-6301",
+      "claimant": "Osric Fenn",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 5,200.00",
+      "received_on": "2026-11-16",
+      "text": "THE CLAIM\nClaim: CLM-6301\nClaimant: Osric Fenn (PTY-3021)\nPolicy: POL-2721\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 14 Nov 2026, reported 15 Nov 2026\nEstimate: USD 5,200.00\nOther parties: Brackenfold Motor Works (PTY-3501), repairer\nDocuments: DOC-6301-1 claim form, dated 15 Nov 2026; DOC-6301-2 repair estimate, dated 16 Nov 2026\nTHE REFERRAL\nReferred by: Lucan Thirlby, claims handler\nReferred on: 16 Nov 2026\nIndicators met: FI-1 Early loss\nHandler's note: Passed to the investigations desk for a case file. Payment is on hold until the investigator has read it.\nWHAT THE CLAIMANT REPORTED\nI hit a low wall while turning. The front bumper, a wing and a headlamp are damaged.\nTHE AGENT'S TASK\nThe agent builds the case file: the parties on the claim, their earlier claims, the links between this claim and other claims and parties, and the public notices that name a person on the claim, each with its source. It states what the records show. A link or a notice is not a finding about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides what a link or a notice means. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Marlowe, damage to the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6208",
+      "claimant": "Gideon Marlowe",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 2,480.00",
+      "received_on": "2026-11-23",
+      "text": "THE CLAIM\nClaim: CLM-6208\nClaimant: Gideon Marlowe (PTY-3010)\nPolicy: POL-2718\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 22 Nov 2026, reported 23 Nov 2026\nEstimate: USD 2,480.00\nOther parties: Hazel Bank Autos (PTY-3504), repairer\nDocuments: DOC-6208-1 claim form, dated 23 Nov 2026; DOC-6208-2 repair estimate, dated 24 Nov 2026\nWHAT THE CLAIMANT REPORTED\nA deer ran into the side of the car. The right front door and wing are dented.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Wren, damage to the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6207",
+      "claimant": "Thaddeus Wren",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 17,640.00",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: CLM-6207\nClaimant: Thaddeus Wren (PTY-3009)\nPolicy: POL-2717\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 21 Nov 2026, reported 22 Nov 2026\nEstimate: USD 17,640.00\nOther parties: Quayside Accident Repair (PTY-3506), repairer\nDocuments: DOC-6207-1 claim form, dated 22 Nov 2026; DOC-6207-2 repair estimate, dated 23 Nov 2026\nWHAT THE CLAIMANT REPORTED\nThe car rolled down the slipway into the harbour at high water. It was under water for some hours.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Ashdown, escape of water: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6206",
+      "claimant": "Marguerite Ashdown",
+      "claim_type": "Home: escape of water",
+      "amount": "USD 4,200.00",
+      "received_on": "2026-11-17",
+      "text": "THE CLAIM\nClaim: CLM-6206\nClaimant: Marguerite Ashdown (PTY-3008)\nPolicy: POL-2716\nClaim type: Home: escape of water\nDate of the loss: 16 Nov 2026, reported 17 Nov 2026\nEstimate: USD 4,200.00\nOther parties: none named\nDocuments: DOC-6206-1 claim form, dated 17 Nov 2026; DOC-6206-2 repair invoice, dated 10 Nov 2026\nWHAT THE CLAIMANT REPORTED\nA pipe behind the dishwasher failed and the kitchen and hall floors are damaged.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Coombe, damage to the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6205",
+      "claimant": "Rafferty Coombe",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 2,900.00",
+      "received_on": "2026-11-22",
+      "text": "THE CLAIM\nClaim: CLM-6205\nClaimant: Rafferty Coombe (PTY-3006)\nPolicy: POL-2715\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 21 Nov 2026, reported 22 Nov 2026\nEstimate: USD 2,900.00\nOther parties: Netmakers Garage (PTY-3505), repairer\nDocuments: DOC-6205-1 claim form, dated 22 Nov 2026; DOC-6205-2 repair estimate, dated 23 Nov 2026\nWHAT THE CLAIMANT REPORTED\nI reversed into a bollard. The rear bumper and the tailgate are dented.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Durrow, escape of water: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6204",
+      "claimant": "Clementine Durrow",
+      "claim_type": "Home: escape of water",
+      "amount": "USD 3,360.00",
+      "received_on": "2026-11-18",
+      "text": "THE CLAIM\nClaim: CLM-6204\nClaimant: Clementine Durrow (PTY-3005)\nPolicy: POL-2714\nClaim type: Home: escape of water\nDate of the loss: 17 Nov 2026, reported 18 Nov 2026\nEstimate: USD 3,360.00\nOther parties: none named\nDocuments: DOC-6204-1 claim form, dated 18 Nov 2026; DOC-6204-2 repair estimate, dated 20 Nov 2026\nWHAT THE CLAIMANT REPORTED\nA pipe joint under the kitchen sink failed and the kitchen floor is damaged.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Farrowdale, theft of the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6203",
+      "claimant": "Benedikt Farrowdale",
+      "claim_type": "Motor: theft of the insured vehicle",
+      "amount": "USD 9,600.00",
+      "received_on": "2026-11-18",
+      "text": "THE CLAIM\nClaim: CLM-6203\nClaimant: Benedikt Farrowdale (PTY-3004)\nPolicy: POL-2713\nClaim type: Motor: theft of the insured vehicle\nDate of the loss: 18 Nov 2026, reported 18 Nov 2026\nEstimate: USD 9,600.00\nOther parties: none named\nDocuments: DOC-6203-1 claim form, dated 18 Nov 2026; DOC-6203-2 valuation, dated 21 Nov 2026\nWHAT THE CLAIMANT REPORTED\nThe car was taken overnight from outside my home. I have both keys.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Whitmarsh, damage to the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6202",
+      "claimant": "Lorcan Whitmarsh",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 10,920.00",
+      "received_on": "2026-11-20",
+      "text": "THE CLAIM\nClaim: CLM-6202\nClaimant: Lorcan Whitmarsh (PTY-3002)\nPolicy: POL-2712\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 19 Nov 2026, reported 20 Nov 2026\nEstimate: USD 10,920.00\nOther parties: Ferry Road Motors (PTY-3503), repairer\nDocuments: DOC-6202-1 claim form, dated 20 Nov 2026; DOC-6202-2 repair estimate, dated 19 Nov 2026\nWHAT THE CLAIMANT REPORTED\nThe car left the road in heavy rain and went into a ditch. The front and the underside are badly damaged.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    },
+    {
+      "title": "Hollowell, damage to the vehicle: indicator check",
+      "kind": "Indicator check",
+      "reference": "CLM-6201",
+      "claimant": "Perpetua Hollowell",
+      "claim_type": "Motor: damage to the insured vehicle",
+      "amount": "USD 1,820.00",
+      "received_on": "2026-11-21",
+      "text": "THE CLAIM\nClaim: CLM-6201\nClaimant: Perpetua Hollowell (PTY-3001)\nPolicy: POL-2711\nClaim type: Motor: damage to the insured vehicle\nDate of the loss: 20 Nov 2026, reported 21 Nov 2026\nEstimate: USD 1,820.00\nOther parties: Tallowby Panel and Paint (PTY-3502), repairer\nDocuments: DOC-6201-1 claim form, dated 21 Nov 2026; DOC-6201-2 repair estimate, dated 22 Nov 2026\nWHAT THE CLAIMANT REPORTED\nI misjudged a gateway and dented the left rear door and wing.\nTHE AGENT'S TASK\nThe agent has the investigations system measure the insurer's six indicators on the claim, reads the parties' earlier claims, and prepares a referral with its reasons. It says which indicators are met and what each one rests on. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person. The agent declines nothing, holds no payment and contacts nobody. The investigator decides. Everything here is as the investigations system holds it. The agent reads the claim itself from the investigations system."
+    }
+  ]
+}

@@ -66,7 +66,7 @@ A desk is the shared case desk ([katonic-case-desk](https://github.com/katonic-d
 |---|---|---|---|
 | [Claims intake desk](desks/claims-intake/README.md) | First Notice of Loss Intake, Claims Processing, Claim Pack Completeness, Claim Summary | Claims handler | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Claims assessment desk](desks/claims-assessment/README.md) | Coverage Check, Settlement Calculation, Claims Correspondence | Adjuster | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
-| Investigations desk | Fraud Detection, Investigation Case File | Investigator | Planned |
+| [Investigations desk](desks/investigations/README.md) | Fraud Detection, Investigation Case File | Investigator | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Underwriting desk](desks/underwriting/README.md) | Underwriting Support, Underwriting Referral Memo, Renewal Review | Underwriter | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the note of a submission row is not drawn |
 | Policy servicing desk | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Planned |
 | [Health claims desk](desks/health-claims/README.md) | Pre-authorisation Preparation, Medical Claims Adjudication Support, Provider Invoice Check | Clinician or assessor | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the clause of an invoice line is not drawn in the row |

@@ -1,0 +1,345 @@
+{
+  "$comment": "What makes the generic case desk the investigations desk of the insurance pack. Start it with DESK_CONFIG pointing at this file. Needs the case desk engine that reads a table by its own header row. The insurer (Thornmere Mutual Insurance), its claimants, its claims, its parties and its public notices are invented.",
+  "desk": {
+    "id": "investigations",
+    "name": "Investigations desk",
+    "caseNoun": "case",
+    "caseNounPlural": "cases",
+    "draftNoun": "draft",
+    "deciderRole": "investigator",
+    "tagline": "New claims set against the insurer's indicators and case files for claims referred to the desk, in one queue: a draft for each, a place for the investigator to decide, and the register afterwards.",
+    "addLabel": "Add a case",
+    "arrivedVia": {
+      "feed": "the insurer's investigations system",
+      "officer": "the investigations team"
+    }
+  },
+  "case": {
+    "heading": "THE CASE",
+    "metaFields": [
+      "reference",
+      "claimant"
+    ],
+    "queryFields": [
+      "title"
+    ],
+    "detailFields": [
+      "claim_type",
+      "amount"
+    ],
+    "showText": "text",
+    "textHeading": "The case, as the desk holds it",
+    "noTextShown": "The desk holds no summary for this case. The agent reads the claim from the insurer's investigations system.",
+    "noTextNote": "No summary was supplied with this case. Work from the claim the case names, read from the insurer's investigations system.",
+    "askPlaceholder": "For example: which record gives the date of the estimate?",
+    "searchPlaceholder": "Search by claimant, claim id or kind",
+    "demoNote": "Demo data: the insurer, its claimants, its claims, its parties and its public notices are invented. Nothing here is a finding about a claim or about any person.",
+    "listFields": [
+      "reference"
+    ],
+    "chipFields": [
+      "kind"
+    ],
+    "listTitleLines": 2,
+    "replyHeading": "What came in",
+    "replyLabel": "What came in (it is added to the case)",
+    "replyButton": "Add it and draft again",
+    "replyNote": "What was missing has been added at the end of the case. Read the claim from the investigations system again, as a record may have changed, and draft again in the light of it.",
+    "replyEvent": "added what came in",
+    "jumpLabel": "The case",
+    "foldOnPhone": true
+  },
+  "demo": {
+    "file": "cases.json",
+    "key": "cases"
+  },
+  "routing": {
+    "field": "kind",
+    "kinds": {
+      "Indicator check": {
+        "agentEnv": "INDICATOR_CHECK_AGENT_ID",
+        "instruction": "Check the claim named in the case below against the fraud indicators. The claim is new and waits at the insurer's investigations desk, before anything is paid. Set it against the insurer's own numbered indicators and the parties' earlier claims, and prepare a referral with its reasons for the investigator. The system measures every indicator. You say which indicators are met and what each one rests on. You prepare and a person decides: the investigator decides what an indicator means. You never say that a claim is false or that a person did wrong, and you never decline, delay or pay a claim.\n\nRead the claim once from the insurer's investigations system before you write anything. Then have the system measure every indicator on the claim, and read the earlier claims of the parties: both, every time, also when the case says the claim looks clean. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Add up nothing, count no days, count no claims, work out no percentage and use no clock of your own: every day count, every count of claims and every percentage is the system's. Whether an indicator is met is what the system says, and you never mark it otherwise. Where the system gives a sentence for a fact, use the system's sentence in full, with its dates, ids and amounts. Two people are the same person only when the name and the date of birth are both the same. Where the system lists another person with the claimant's name and another date of birth, say that this is another person, with that person's party id and both dates of birth, and never count, list or describe that person's claims as the claimant's.\n\nThe words you use hold for every line. Say what was measured or what the records show, and stop. Never say or imply that fraud took place, that a claim is false, staged, inflated or invented, or that anyone lied, worked with anyone else or did wrong. Never call a person a fraudster, a suspect, dishonest, guilty or an organiser, never call people a ring, a gang or a network, and never call a claim, a link or a person suspicious or a red flag. Never say what a shared bank account, a repairer, a date, a figure, an earlier claim, a link or a notice means about a person. Never say that the claim will be declined, delayed, held or paid, and never advise that it should be. An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person.\n\nReply in this shape and in no other, with these exceptions that come first. If the investigations system is not connected, or holds no claim with the id in the case, or the claim does not wait for the fraud check, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 1,250.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 3 Feb 2026, never as 2026-02-03 and never as a number of days ago. A count of days that the system gives may follow a date. Inside a sentence of the system or of a notice that you give in full, leave the amounts and the dates as they are written there. Show no field name or code with an underscore: write the plain words. A fact the system gives as yes or no is written as words in a sentence, never as true or false. Write the claim type as the plain label the system gives.\n1. The heading \"Summary\", then at most six lines with no blank line between them and no count of marks (the desk counts the marks from the table): the claim (its id, the claimant by name with the party id and the date of birth, the claim type, the date of the loss and the estimate); what the measurement shows: for each indicator that is met one sentence in this form, \"Indicator FI-9 is met: 41 days against 30 days or fewer\", with the indicator's own id and figures, and when none is met the exact words \"No indicator is met.\"; the system's sentence on the claimant's earlier claims, any earlier claim outside the 24 months named by its id with its date of loss and said to be not counted, and any other person with the claimant's name; when an indicator is met, these two sentences: \"An indicator that is met is a reason for the investigator to look. It is not a finding about the claim or about any person.\" and when none is met this sentence: \"That is the result of the check, and the claim stays with its handler.\" The last of them starts \"Saved:\" and says whether the draft was saved to the investigations system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft fraud referral. For the investigator. Not issued.\"\n3. A Markdown table with exactly these six columns and six rows, one for each indicator, in the system's order, met or not. Every row carries its number and all six cells; a row is never left short. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. A cell with nothing to say holds only the character -.\n| # | Indicator | Measured against threshold | What it rests on | Mark | Note |\n# is 1, 2, 3 in order. Indicator is the indicator's id and its name. Measured against threshold is the measured value with its unit, the word \"against\", and the threshold in the words of the system's sentence, for example \"41 days against 30 days or fewer\" or \"88.5 percent against 95 percent or more\". A count of 1 takes the unit in the singular. A percentage keeps the one decimal the system gives. What it rests on is the system's sentence on that indicator, in full. Note holds, for an indicator that is met, the words \"A reason to look, not a finding\"; for the indicator on earlier claims, also any other person with the claimant's name, with the party id and the date of birth, said to be another person whose claims are not counted; and otherwise only the character -.\nMark is exactly one of these two, in lower case: met, not met. It is the one the system gives. A measured value that is close to the threshold and does not reach it is not met.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these two. Write no full stop at the end of that line and nothing after it.\nOne or more indicators are met: \"refer to the investigations desk on <ids>, for the investigator to decide\", with the ids of the indicators met, separated by commas, in place of <ids>.\nNo indicator is met: \"no referral: no indicator is met, the claim stays with its handler\"",
+        "decisions": [
+          "open_investigation",
+          "no_action",
+          "ask_for_more",
+          "send_back"
+        ],
+        "marks": [
+          "met",
+          "not met"
+        ],
+        "rowLabels": {
+          "source": "Measured",
+          "policy": "Rests on",
+          "check": "Note"
+        }
+      },
+      "Case file": {
+        "agentEnv": "CASE_FILE_AGENT_ID",
+        "instruction": "Build the case file for the claim named in the case below. The claim has been referred to the insurer's investigations desk. Set out for the investigator the parties on the claim, their earlier claims, the links between this claim and other claims and parties (a shared phone number, address, bank account, repairer or witness), and the public notices that name a person on the claim, each with its source. You state what the records show. You prepare and a person decides: the investigator decides what any of it means. You never say that a claim is false or that a person did wrong, and you never decline, delay or pay a claim.\n\nRead the claim first from the insurer's investigations system. Then read, every time: the measurement of the indicators on the claim; the earlier claims of every party; the links of the claim; and the public notices, once for each person on the claim. Use only ids the system returns. The case below is the desk's own short account: what you rely on is what the system holds. Add up nothing, count no days, match no names or numbers yourself and use no clock of your own: every day count, every link and every comparison of a notice with a party is the system's. Where the system gives a sentence for a fact, use the system's sentence in full, with its dates, ids and amounts. Two people are the same person only when the name and the date of birth are both the same.\n\nThe words you use hold for every line. Say what was measured or what the records show, and stop. Never say or imply that fraud took place, that a claim is false, staged, inflated or invented, or that anyone lied, worked with anyone else or did wrong. Never call a person a fraudster, a suspect, dishonest, guilty or an organiser, never call people a ring, a gang or a network, and never call a claim, a link or a person suspicious or a red flag. Never say what a shared bank account, a repairer, a date, a figure, an earlier claim, a link or a notice means about a person. Never say that the claim will be declined, delayed, held or paid, and never advise that it should be. State a link as a fact two records share: \"Linked through\" and what is shared, with the ids. A party a link runs through, such as a witness or a repairer, is named as a fact of the records, and nothing more is said about that party. A public notice about the party is a public record of what it says: draw nothing from it about this claim. A notice about another person says nothing about the party: never attach what it says to the party. A row for a person other than the claimant gives no phone number, address or bank account from that person's record, except a value the system's own sentence on a link states.\n\nReply in this shape and in no other, with these exceptions that come first. If the investigations system is not connected, or holds no claim with the id in the case, or the claim is not referred to the investigations desk, the reply is only the short sentences your instructions give for that, with no heading, no table and no \"Saved:\" or \"Proposal:\" line.\nWrite plain statements. Do not write in the first person. Write every amount with the currency first, two decimals and a comma between thousands, for example USD 1,250.00, without changing a digit of what the system gives. Write every date as day, short month and year, for example 3 Feb 2026, never as 2026-02-03 and never as a number of days ago. A count of days that the system gives may follow a date. Inside a sentence of the system or of a notice that you give in full, leave the amounts and the dates as they are written there. Show no field name or code with an underscore: write the plain words. A fact the system gives as yes or no is written as words in a sentence, never as true or false. Write the claim type as the plain label the system gives.\n1. The heading \"Summary\", then at most seven lines with no blank line between them and no count of marks (the desk counts the marks from the table): the claim (its id, the claimant by name with the party id, the claim type, the date of the loss and the estimate); the referral (who referred it, on which date, and each indicator the referral names in the form \"Indicator FI-9 is met: 41 days against 30 days or fewer\", with the indicator's own id and figures); the earlier claims of the parties by id, each with the party it belongs to, or that no party is on an earlier claim; the system's sentence on the links of the claim, in full, then each public notice by its id with whether it is about the party, or that no public notice names a person on the claim; these two sentences: \"The file states what the records show. It is not a finding about any person, and the investigator decides what a link or a notice means.\" The last of them starts \"Saved:\" and says whether the draft was saved to the investigations system, and as which version, using only what the system's reply said. If the system refused, give what it said. If you did not try to save, say so.\n2. A blank line, then the heading \"Draft case file. For the investigator. Not issued.\"\n3. A Markdown table with exactly these six columns and one row for each finding. Every row carries its number and all six cells; a row is never left short. A cell is one line of plain text with no line break, no HTML and no vertical bar; several items in one cell are separated by semicolons. A cell with nothing to say holds only the character -.\n| # | Section | What the records show | Source | Mark | Note |\n# is 1, 2, 3 in order. Section is one of: \"Referral\"; \"Party\" with the role; \"Earlier claim\" with the earlier claim's id; \"Link to\" with the linked claim's id; \"Public notice\" with the notice's id; or, for a row that says nothing was found, \"Earlier claims\", \"Links\" or \"Public notices\". Source is the id of the record that gives the fact: the claim, the party, the other claim or the notice.\nRows, in this order. First the referral, one row: who referred the claim and on which date, and for each indicator the referral names its id and name, the measured value against the threshold, and the system's sentence on it in full. Then one row for each party on the claim, the claimant first: for the claimant the name, party id, role, date of birth, phone number, address and the bank account given for payment; for any other person the name, party id, role and date of birth, and nothing else; for a firm the name, party id and role. Then one row for each earlier claim the system lists for any party on this claim (a claim two parties are on gets one row that names both): its id, each party of this claim that is on it with the role, the claimant of the earlier claim, the description, the date of the loss with the days before this loss that the system gives, and the amount paid, or where nothing is paid yet the estimate and where the claim stands; where there is none, one row that says so. Then one row for each link the system gives under each linked claim: \"What the records show\" starts with the words \"Linked through\" and what is shared (the repairer, the witness, the phone number, the address, the bank account, or a party on both claims), then a colon and the system's sentence on that link in full, and Source gives the id of the linked claim and the id of the party the link runs through; where the system says that no link was found, one row with the system's sentence in full. Last, one row for each public notice the system gives for a person on the claim. About the party: the notice's id, its source, the date it was published and what the notice says, in the notice's own words, then the system's sentence on the comparison in full, with the Note \"A public record of what it says. Not a finding about this claim.\" Not about the party: the notice's id, its source and the date it was published, then the system's sentence on the comparison in full, and not what that notice says, with the Note \"About another person of the same name. Says nothing about the party.\" Cannot tell: the notice's id, its source and date and the system's sentence in full, with a Note that a person checks. Where no notice names any person on the claim, one row that says so.\nMark is exactly one of these six, in lower case: recorded, linked, about the party, not about the party, cannot tell, none found. recorded is the referral, a party or an earlier claim, as the records give it. linked is a link the system gives. The mark of a notice is what the system says on whether the notice is about the party. none found is a row that says no earlier claim, no link or no public notice was found.\n4. A blank line, then the last line, which starts \"Proposal:\" and is exactly one of these two. Write no full stop at the end of that line and nothing after it.\nThe system gives one or more links: \"case file with links to <ids>, for the investigator to read\", with the ids of the linked claims, separated by commas, in place of <ids>.\nThe system says that no link was found: \"case file with no links found, for the investigator to read\"",
+        "decisions": [
+          "open_investigation",
+          "no_action",
+          "ask_for_more",
+          "send_back"
+        ],
+        "rowLabels": {
+          "source": "The records show",
+          "policy": "Record",
+          "check": "Note"
+        }
+      }
+    },
+    "other": {
+      "decisions": [
+        "send_back"
+      ]
+    }
+  },
+  "intake": {
+    "ways": [
+      "Entered by a member of the investigations team (the form at the top of the list)",
+      "Sent by the insurer's investigations system when a new claim reaches the check against the indicators, or when a handler refers a claim to the desk (POST /api/intake with X-Intake-Token)"
+    ],
+    "fields": [
+      {
+        "key": "title",
+        "label": "Case title",
+        "required": true,
+        "hint": "The claimant's family name, the loss and the work, for example: Wren, damage to the vehicle: indicator check"
+      },
+      {
+        "key": "kind",
+        "label": "Kind of work",
+        "required": true,
+        "hint": "Choose the kind of work. Each kind goes to its own agent",
+        "options": [
+          "Indicator check",
+          "Case file"
+        ]
+      },
+      {
+        "key": "reference",
+        "label": "Claim id",
+        "required": true,
+        "hint": "For example CLM-6203"
+      },
+      {
+        "key": "claimant",
+        "label": "Claimant",
+        "required": true,
+        "hint": "The claimant's name, as the investigations system gives it"
+      },
+      {
+        "key": "claim_type",
+        "label": "Claim type",
+        "required": false,
+        "hint": "For example Motor: damage to the insured vehicle"
+      },
+      {
+        "key": "amount",
+        "label": "Estimate",
+        "required": false,
+        "hint": "With the currency, for example USD 2,900.00"
+      },
+      {
+        "key": "received_on",
+        "label": "Reached the desk on",
+        "required": true,
+        "type": "date"
+      },
+      {
+        "key": "text",
+        "label": "What the desk knows of the case",
+        "required": false,
+        "type": "textarea",
+        "hint": "The claim, who is on it and the documents on file with their ids. Facts of the records only"
+      }
+    ]
+  },
+  "draft": {
+    "instruction": "A case has arrived whose kind of work is not one this desk knows. The kinds are Indicator check and Case file. Under the heading \"Summary\", say in one or two lines that the kind is not recognised. Write no table and read nothing from the investigations system. Last, write one line that starts \"Proposal:\" and says to correct the kind of work and add the case again.",
+    "sections": [
+      "Summary",
+      "Draft"
+    ],
+    "marks": {
+      "met": "Indicator met",
+      "not met": "Indicator not met",
+      "recorded": "Recorded",
+      "linked": "Linked",
+      "about the party": "About the party",
+      "not about the party": "Not about the party",
+      "cannot tell": "Cannot tell",
+      "none found": "None found"
+    },
+    "tallyLabels": {
+      "met": "met",
+      "not met": "not met"
+    },
+    "markTones": {
+      "met": "person",
+      "not met": "plain",
+      "recorded": "plain",
+      "linked": "person",
+      "about the party": "info",
+      "not about the party": "plain",
+      "cannot tell": "warn",
+      "none found": "plain"
+    },
+    "markIcons": {
+      "recorded": "•",
+      "about the party": "•",
+      "cannot tell": "?"
+    },
+    "quietMarks": [
+      "not met",
+      "recorded",
+      "not about the party",
+      "none found"
+    ],
+    "markHints": {
+      "met": "The investigations system gives the indicator as met. A reason for the investigator to look. Not a finding about the claim or about any person",
+      "not met": "The investigations system gives the indicator as not met. A figure close to the threshold that does not reach it is not met",
+      "recorded": "The referral, a party or an earlier claim, as the records give it",
+      "linked": "A fact this claim and another record share, as the investigations system matched it. Not a finding about any person: the investigator decides what a link means",
+      "about the party": "The name, the date of birth and the address agree, so the notice is about the party. A public record of what it says. Not a finding about this claim",
+      "not about the party": "The date of birth differs, so the notice is about another person of the same name. It says nothing about the party",
+      "cannot tell": "The identifiers do not settle whether the notice is about the party. A person checks",
+      "none found": "No earlier claim, no link or no public notice was found"
+    },
+    "proposalPrefix": "Proposal:",
+    "reviewHeading": "Draft",
+    "rowLabels": {
+      "source": "The records show",
+      "policy": "Record",
+      "citation": "Source",
+      "check": "Note"
+    },
+    "plainSource": true,
+    "summaryAboveRows": true
+  },
+  "decisions": [
+    {
+      "id": "open_investigation",
+      "label": "Open an investigation",
+      "outcome": "investigation_opened",
+      "needsNote": true,
+      "noteLabel": "What is to be looked at, and why",
+      "noteHint": "Records, in your name, that an investigation is opened on this claim. It is the investigator's own decision. It is not a finding about the claim or about any person. It declines no claim, holds no payment and contacts nobody, and it changes nothing in the insurer's investigations system."
+    },
+    {
+      "id": "no_action",
+      "label": "No further action",
+      "outcome": "no_action",
+      "needsNote": true,
+      "noteLabel": "Why nothing further is needed",
+      "noteHint": "Records, in your name, that you have read the draft and that nothing further is needed from this desk. The claim stays with its handler. It declines no claim, holds no payment and contacts nobody, and it changes nothing in the insurer's investigations system.",
+      "proposalPrefix": [
+        "no referral"
+      ]
+    },
+    {
+      "id": "ask_for_more",
+      "label": "Wait for what is missing",
+      "outcome": "info_requested",
+      "needsNote": true,
+      "noteLabel": "What is missing, one item to a line",
+      "noteHint": "The case waits here until what is missing is added. This sends nothing to anyone: the investigator asks the claim's handler, outside this desk."
+    },
+    {
+      "id": "send_back",
+      "label": "Send back to the agent",
+      "outcome": "sent_back",
+      "needsNote": true,
+      "noteLabel": "What the agent got wrong or missed (it sees this note)"
+    }
+  ],
+  "statuses": {
+    "new": "New",
+    "drafting": "Drafting",
+    "for_review": "For review",
+    "sent_back": "Being redone",
+    "investigation_opened": "Opened",
+    "no_action": "No action",
+    "info_requested": "Waiting",
+    "removed": "Removed"
+  },
+  "closedStatuses": [
+    "investigation_opened",
+    "no_action",
+    "removed"
+  ],
+  "waitingStatuses": [
+    "info_requested"
+  ],
+  "register": {
+    "heading": "Every decision and every removal, in the order it was taken. A decision here is the investigator's own. It is not a finding about a claim or about any person, and the desk declines no claim, holds no payment and contacts nobody.",
+    "columns": [
+      "case_id",
+      "title",
+      "kind",
+      "reference",
+      "claimant",
+      "claim_type",
+      "amount",
+      "received_on",
+      "arrived_via",
+      "requested_by",
+      "draft_versions",
+      "decision",
+      "decided_by",
+      "identity_source",
+      "decided_at",
+      "note",
+      "agent_id",
+      "run_ids",
+      "tool_calls",
+      "platform_warning",
+      "agent_session_id"
+    ],
+    "screenColumns": [
+      "title",
+      "reference",
+      "decision",
+      "decided_by",
+      "decided_at",
+      "note",
+      "draft_versions"
+    ],
+    "labels": {
+      "title": "Case",
+      "kind": "Kind",
+      "reference": "Claim",
+      "claimant": "Claimant",
+      "decision": "Decision",
+      "decided_by": "Decided by",
+      "decided_at": "Decided at",
+      "note": "Note",
+      "draft_versions": "Draft versions"
+    },
+    "recordRemovals": true
+  },
+  "rules": {
+    "fourEyes": true,
+    "fourEyesText": "The person who entered a case cannot decide it. Any other investigator can. You can still send the draft back to the agent.",
+    "redraftOnSendBack": true,
+    "fourEyesAllowsRedo": true
+  },
+  "next": {
+    "investigation_opened": "Recorded as an investigation opened, with the note you gave. It is not a finding about the claim or about any person. Nothing further happens on this desk: the investigation is run by the investigator and the claim is dealt with by its handler, in the insurer's own systems.",
+    "no_action": "Recorded as no further action, with the reason you gave. The claim stays with its handler. Nothing further happens on this desk.",
+    "info_requested": "When what is missing has come in, add it here. The agent reads the claim again and the draft comes back for review."
+  },
+  "decisionLabels": {
+    "investigation_opened": "Opened an investigation",
+    "no_action": "No further action",
+    "info_requested": "Waiting for what is missing",
+    "sent_back": "Sent back to the agent",
+    "removed": "Removed from the desk"
+  },
+  "filterLabels": {
+    "info_requested": "Waiting"
+  }
+}
