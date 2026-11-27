@@ -53,8 +53,8 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 27 | Pricing Analyst | Works out the premium that holds a target loss ratio and shows the calculation | Conversational, answering | Chat | Planned |
 | 28 | Risk Profiling | Answers questions on portfolio exposure from the warehouse and shows the query it ran | Conversational, answering | Chat | Planned |
 | | **Reinsurance and finance** | | | | |
-| 29 | Bordereaux Check | Checks a bordereau against the treaty or binder terms | Workflow, event-triggered | Reinsurance desk | Planned |
-| 30 | Treaty Recovery | Lists paid claims that reach a treaty's attachment point with no recovery raised | Workflow, scheduled | Reinsurance desk | Planned |
+| 29 | [Bordereaux Check](agents/bordereaux-check/README.md) | Checks a bordereau against the treaty or binder terms | Workflow, event-triggered | Reinsurance desk | Written. Not yet built on a cluster |
+| 30 | [Treaty Recovery](agents/treaty-recovery/README.md) | Lists paid claims that reach a treaty's attachment point with no recovery raised | Workflow, scheduled | Reinsurance desk | Written. Not yet built on a cluster |
 | | **Partners** | | | | |
 | 31 | [Partner Quality](agents/partner-quality/README.md) | Checks administrators, repair networks and suppliers against service levels and credentials | Workflow, scheduled | Sent to the supplier manager | Written. Not yet built on a cluster |
 

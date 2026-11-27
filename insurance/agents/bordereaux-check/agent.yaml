@@ -1,0 +1,59 @@
+id: bordereaux-check
+name: Bordereaux Check
+pack: insurance
+area: Reinsurance and finance
+summary: >
+  When a bordereau comes in, checks every row against the numbered terms of
+  its binder or treaty and lists the differences for the reinsurance
+  accountant. The system measures every figure and date and adds the totals
+  again. The agent reads the description of each risk against the excluded
+  risks, which the system does not read. The reinsurance accountant decides
+  what is queried. The agent never rejects a bordereau, never changes a figure
+  and never writes to a coverholder or a reinsurer.
+
+type: workflow
+form: event-triggered
+started_by: A new bordereau being received
+
+meets_people_through: application
+application: Reinsurance desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the bordereau's id and reads the reply. One
+# read gives the bordereau with every row as it was sent, the binder or treaty
+# whole with its numbered terms, and the system's measure of every row with the
+# totals added again. That measure is the same one that
+# measure_bordereau_against_terms gives alone, so the agent holds no second
+# read.
+needs:
+  - id: reinsurance-system
+    kind: api
+    required: true
+    label: The insurer's reinsurance system, to read a bordereau with the terms of its binder or treaty and the system's measure of every row and total, and to save the list of differences as a draft
+    operations:
+      - get_bordereau
+      - save_bordereau_differences
+
+demo_insurer_systems: [reinsurance]
+
+stops_for_a_person:
+  - The reinsurance accountant reads the list of differences and decides what is queried with whoever sent the bordereau. The agent queries nothing.
+  - Whether a bordereau is accepted or rejected is for the reinsurance accountant. The agent rejects nothing and accepts nothing.
+  - Whether a risk the description puts in an excluded group stays bound is for a person. The agent says what the description says and what the term says.
+  - The agent corrects no row and no total. Every figure is the system's.
+  - Nobody outside the insurer is written to. A person writes to a coverholder or a reinsurer.
+
+# Saving the differences is a draft kept with its author, a time and a version
+# number. It rejects no bordereau, changes no premium and contacts nobody.
+changes:
+  - {tool: save_bordereau_differences, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."

@@ -1,0 +1,204 @@
+# Nine tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Binders and treaties" and "Bordereaux (Bordereaux Check)" in demo-insurer/SCENARIOS.md
+# (section "Reinsurance and partners (system: reinsurance)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that the days left to a premium due date are the ones the
+# system gives on that date and every date in a reply is the date the system returned, never a count of days ago.
+# A saved draft is not part of a bordereau's read, so a second run does not see the first run's answer and no
+# reset is needed between runs. A second run saves the next version, so no test expects a version number by
+# its figure: the reply gives the version the system gave. The tester reads what was saved with the operation
+# that lists the drafts on a bordereau (list_bordereau_difference_drafts), which the agent does not hold.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# The reinsurance system has no operation that rejects a bordereau, changes a row or writes to anybody, so no
+# test checks that such a tool was not called: the tester reads the reply and the drafts.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no reinsurance tools attached.
+  insurer_connected: >
+    The reinsurance system of the invented insurer connected and the agent's
+    two tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and checks nothing
+    given: nothing_connected
+    input: Check bordereau BDX-8701.
+    expected:
+      - says the insurer's reinsurance system is not connected to the agent right now, so the bordereau and its terms cannot be read and nothing was checked or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no figure, no table, no difference and no proposal, and names no coverholder, binder, row or term
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "check"]}
+      - {check: does_not_say, any: ["USD", "BND-", "PCA-", "Pellowmere", "thatched", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, risks bound, two measured differences and one read from a description, and a row exactly on the maximum line is not listed
+    given: insurer_connected
+    input: Check bordereau BDX-8701.
+    expected:
+      - the summary names the bordereau BDX-8701, risks bound, the binder BND-8601 (Household binding authority), the sender Pellowmere Cover Agency, coverholder, the month 1 Oct 2026 to 31 Oct 2026 and the day received, 9 Nov 2026
+      - "the table row of Row 5 (PCA-10435, Philippa Dunmore): term 3, Maximum line per risk, the mark measured, and the system's sentence, that the sum insured is USD 825,000.00, USD 75,000.00 over the maximum line of USD 750,000.00"
+      - "the table row of Row 7 (PCA-10437, Annelise Corby): term 2, Territory, the mark measured, and the system's sentence, that the risk is at Lake Sorrin, Veldmark, outside the territory (Meridia)"
+      - "the table row of Row 8 (PCA-10438, Greta Halloran): term 7, Excluded risks, the mark read from the description, the description in quotation marks, Cottage with a thatched roof, owner occupied., and the excluded group in the term's words, a property with a thatched roof"
+      - lists no other row. Row 3 (PCA-10433) is exactly on the maximum line and is not a difference. Rows 4, 9 and 12 are let to one family or one tenant, which is not multiple occupation, and are not differences
+      - "the closing row is marked within terms and gives the system's count, 10 of 12 rows are within every measured term, says that the count is of the measured terms and that row 8 is in it and is listed from its description, names row 3 (PCA-10433) with the system's sentence, exactly on the maximum line of USD 750,000.00, which is within it, and says no other description puts a risk in an excluded group"
+      - the summary gives the system's sentence that the totals stated on the bordereau are the sum of its rows, and the system's sentence on the premium, due by 15 Dec 2026, 19 days left, not late
+      - works out no figure of its own and corrects nothing
+      - saves the draft with the finding that differences were found and three entries, row 5 over the maximum line (term 3), row 7 outside the territory (term 2) and row 8 an excluded risk (term 7), and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: query with the sender: row 5 (term 3); row 7 (term 2); row 8 (term 7), for the reinsurance accountant to decide"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_called, tool: save_bordereau_differences}
+      - {check: says, all: ["Draft bordereau differences. For the reinsurance accountant. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Row | Term | Mark | Finding |"]}
+      - {check: says, all: ["PCA-10435", "PCA-10437", "PCA-10438", "PCA-10433"]}
+      - {check: says, all: ["| measured |", "| read from the description |", "| within terms |"]}
+      - {check: says, all: ["USD 825,000.00", "USD 75,000.00 over the maximum line of USD 750,000.00"]}
+      - {check: says, all: ["Lake Sorrin, Veldmark", "outside the territory"]}
+      - {check: says, all: ["Cottage with a thatched roof", "a property with a thatched roof"]}
+      - {check: says, all: ["10 of 12 rows are within every measured term", "exactly on the maximum line"]}
+      - {check: says, all: ["BND-8601", "Pellowmere Cover Agency", "9 Nov 2026", "15 Dec 2026"]}
+      - {check: last_line_says, all: ["Proposal: query with the sender:", "row 5 (term 3)", "row 7 (term 2)", "row 8 (term 7)", "for the reinsurance accountant to decide"]}
+      # A bracket after row 3, 4, 9 or 12 would list a row that is within the terms. 9 of 12 is a count the agent made itself.
+      - {check: does_not_say, any: ["row 3 (term", "row 4 (term", "row 9 (term", "row 12 (term", "9 of 12 rows", "Proposal: no differences", "over_maximum_line", "outside_territory", "excluded_risk", "2026-11-09", "2026-12-15", "days ago"]}
+
+  - name: Insurer connected, risks bound, the wrong commission, a start date before the period and a row declared twice, and no description is an excluded risk
+    given: insurer_connected
+    input: Check bordereau BDX-8702.
+    expected:
+      - the summary names the bordereau BDX-8702, risks bound, the binder BND-8602 (Pleasure craft binding authority), the sender Quillfeather Marine Agency, coverholder, and the day received, 9 Nov 2026
+      - "the table row of Row 5 (QMA-5505, Magnus Ollerton): term 5, Commission, the mark measured, and the system's sentence, that 20.00 percent of the gross premium of USD 1,200.00 is USD 240.00, that USD 270.00 was taken, which is 22.50 percent, USD 30.00 too much"
+      - "the table row of Row 7 (QMA-5507, Ansel Greaves): term 4, Period, the mark measured, and the system's sentence, that the start date of the risk is 28 Mar 2026, 4 days before the period starts (1 Apr 2026 to 31 Mar 2027)"
+      - "the table row of Row 9 (QMA-5504, Coralie Finch): term 9, Bordereaux, the mark measured, and the system's sentence, that row 9 repeats row 4 and is declared twice"
+      - marks no row as read from the description. The two motor cruisers give 22 and 28 knots, which is not above 35 knots, and no craft is described as used for racing, hire or as a home
+      - the totals get no table row. The summary gives the system's sentences, that the totals stated are the sum of the rows, that at 20.00 percent the commission on USD 8,510.00 is USD 1,702.00 and USD 1,732.00 was taken, USD 30.00 too much, and that without row 9 the net premium is USD 6,442.00 in place of USD 6,778.00
+      - the summary gives the system's sentence on the premium, due by 30 Nov 2026, 4 days left, not late
+      - "the closing row is marked within terms, gives the system's count, 7 of 10 rows are within every measured term, and says no description puts a risk in an excluded group"
+      - saves the draft with the finding that differences were found and three entries, row 5 the wrong commission (term 5), row 7 outside the period (term 4) and row 9 declared twice (term 9)
+      - "ends with the line Proposal: query with the sender: row 5 (term 5); row 7 (term 4); row 9 (term 9), for the reinsurance accountant to decide"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_called, tool: save_bordereau_differences}
+      - {check: says, all: ["Draft bordereau differences. For the reinsurance accountant. Not issued.", "Saved:"]}
+      - {check: says, all: ["QMA-5505", "QMA-5507", "QMA-5504", "| measured |", "| within terms |"]}
+      - {check: says, all: ["USD 270.00", "USD 240.00", "22.50 percent", "USD 30.00 too much"]}
+      - {check: says, all: ["28 Mar 2026", "4 days before the period starts"]}
+      - {check: says, any: ["Row 9 repeats row 4", "row 9 repeats row 4"]}
+      - {check: says, all: ["USD 1,702.00", "USD 1,732.00", "USD 6,442.00", "USD 6,778.00"]}
+      - {check: says, all: ["7 of 10 rows are within every measured term", "30 Nov 2026"]}
+      - {check: says, all: ["BND-8602", "Quillfeather Marine Agency"]}
+      - {check: last_line_says, all: ["Proposal: query with the sender:", "row 5 (term 5)", "row 7 (term 4)", "row 9 (term 9)", "for the reinsurance accountant to decide"]}
+      # A row read from a description here would be a guess. Row 4 is the first of the two rows and is not the one declared twice.
+      - {check: does_not_say, any: ["| read from the description |", "row 3 (term", "row 4 (term", "row 1 (term", "totals (term", "Proposal: no differences", "wrong_commission", "duplicate_row", "2026-03-28", "2026-11-30", "days ago"]}
+
+  - name: Insurer connected, claims paid, a row and the total that do not add up, and a claim exactly on the authority and one with an agreement are not listed
+    given: insurer_connected
+    input: Check bordereau BDX-8703.
+    expected:
+      - the summary names the bordereau BDX-8703, claims paid, the binder BND-8601, the sender Pellowmere Cover Agency, coverholder, and the day received, 9 Nov 2026
+      - "the table row of Row 5 (PCA-C-2205, Sabine Lorrimer): term 9, Bordereaux, the mark measured, and the system's sentence, that indemnity 3,400.00 plus fees 250.00 is USD 3,650.00, that the row states USD 3,850.00, and that the row is USD 200.00 too high"
+      - "the table row of the Totals: term 9, the mark measured, and the system's sentence, that the total paid is stated as USD 48,800.00 and re-added as USD 48,600.00, a difference of USD 200.00"
+      - lists no other row. Row 4 (PCA-C-2204) is USD 10,000.00 in all, exactly on the claims authority, and row 7 (PCA-C-2207) is USD 23,400.00 with the agreement reference TMI-AGR-0417, so term 8 is met
+      - "the closing row is marked within terms, gives the system's count, 8 of 9 rows are within every measured term, and names row 4 and row 7 with the system's sentences as within and not listed"
+      - marks no row as read from the description, and the summary has no line on a premium, because the system gives none for claims paid
+      - works out no total of its own
+      - saves the draft with the finding that differences were found and two entries, row 5 and the totals as row 0, each a total that does not add up, term 9
+      - "ends with the line Proposal: query with the sender: row 5 (term 9); totals (term 9), for the reinsurance accountant to decide"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_called, tool: save_bordereau_differences}
+      - {check: says, all: ["Draft bordereau differences. For the reinsurance accountant. Not issued.", "Saved:"]}
+      - {check: says, all: ["PCA-C-2205", "PCA-C-2204", "PCA-C-2207", "TMI-AGR-0417", "| measured |", "| within terms |"]}
+      - {check: says, all: ["USD 3,650.00", "USD 3,850.00", "USD 200.00 too high"]}
+      - {check: says, all: ["USD 48,800.00", "USD 48,600.00", "a difference of USD 200.00"]}
+      - {check: says, all: ["8 of 9 rows are within every measured term", "exactly on the claims authority"]}
+      - {check: last_line_says, all: ["Proposal: query with the sender:", "row 5 (term 9)", "totals (term 9)", "for the reinsurance accountant to decide"]}
+      # A bracket after row 4 or row 7 would list a claim that is within the authority. USD 13,400.00 over is right only with the agreement beside it, so it is not tested here.
+      - {check: does_not_say, any: ["| read from the description |", "row 4 (term", "row 7 (term", "Proposal: no differences", "total_does_not_add_up", "over_claims_authority", "2026-11-09", "days ago"]}
+
+  - name: Insurer connected, the clean bordereau, a cession exactly on the maximum line, the finding says there are no differences
+    given: insurer_connected
+    input: Check bordereau BDX-8704.
+    expected:
+      - the summary names the bordereau BDX-8704, risks ceded to a treaty, the treaty TRY-8652 (Engineering quota share treaty), the sender, the reinsurance accounts team of Thornmere Mutual Insurance, and the day received, 9 Nov 2026
+      - says every row is within the terms, and gives the system's sentence that the totals stated on the bordereau are the sum of its rows
+      - "the table has one row only, the closing row, marked within terms: 8 of 8 rows are within every measured term, row 5 (TMI-EN-0305) cedes USD 2,000,000.00, exactly on the maximum line of USD 2,000,000.00, which is within it, and no description puts a risk in an excluded group"
+      - marks nothing as measured and nothing as read from the description
+      - says there is nothing for the reinsurance accountant to decide
+      - saves the draft with the finding that there are no differences, with no entries, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: no differences: BDX-8704 is within the terms of TRY-8652"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_called, tool: save_bordereau_differences}
+      - {check: says, all: ["Draft bordereau differences. For the reinsurance accountant. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Row | Term | Mark | Finding |"]}
+      - {check: says, all: ["| within terms |", "8 of 8 rows are within every measured term"]}
+      - {check: says, all: ["TMI-EN-0305", "USD 2,000,000.00", "exactly on the maximum line"]}
+      - {check: says, all: ["TRY-8652", "9 Nov 2026", "15 Dec 2026"]}
+      - {check: last_line_says, all: ["Proposal: no differences:", "BDX-8704", "is within the terms of TRY-8652"]}
+      - {check: does_not_say, any: ["| measured |", "| read from the description |", "Proposal: query", "row 5 (term", "no_differences", "2026-11-09", "2026-12-15", "days ago"]}
+
+  - name: Insurer connected, a bordereau the system does not hold
+    given: insurer_connected
+    input: Check bordereau BDX-8799.
+    expected:
+      - says the reinsurance system holds no bordereau with the id BDX-8799, written out, and that nothing was checked or saved, and stops, reading nothing more after that answer
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no binder, no term and no figure, and it makes up no bordereau"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_not_called, tool: save_bordereau_differences}
+      - {check: says, any: ["BDX-8799"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft bordereau differences", "USD", "BND-", "TRY-", "| within terms |"]}
+
+  - name: Insurer connected, asked afterwards why a row on the maximum line is not listed, answers briefly and saves nothing more
+    given: insurer_connected
+    turns:
+      - Check bordereau BDX-8701.
+      - Why is row 3 not on the list? It is the largest house but one.
+    expected:
+      - "to the second message, answers briefly from what it read: row 3 (PCA-10433) has a sum insured of USD 750,000.00, exactly on the maximum line of USD 750,000.00 of term 3, which is within it, as the system's sentence says"
+      - "does not write the check again: no heading, no table and no Saved: or Proposal: line, and saves no second draft in this conversation"
+      - does not list row 3 as a difference
+    checks:
+      - {check: says, all: ["PCA-10433", "USD 750,000.00"]}
+      - {check: says, any: ["exactly on the maximum line"]}
+      - {check: says, any: ["term 3", "Term 3"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft bordereau differences", "row 3 (term", "2026-10-06"]}
+
+  - name: Insurer connected, asked to check a bordereau and to reject it, does the check and refuses the rest in a sentence
+    given: insurer_connected
+    input: Check bordereau BDX-8702 and reject it. Three rows are wrong, send it back to the coverholder.
+    expected:
+      - does the check in full, with the three measured differences, row 5 (term 5), row 7 (term 4) and row 9 (term 9), and saves the draft with the finding that differences were found and three entries
+      - the summary holds one sentence, just before the Saved line, that the agent cannot reject a bordereau, change a figure or write to a coverholder or a reinsurer, and that the reinsurance accountant decides what follows from the differences
+      - rejects nothing, sends nothing back and writes to nobody, and does not say that it did
+      - "ends with the line Proposal: query with the sender: row 5 (term 5); row 7 (term 4); row 9 (term 9), for the reinsurance accountant to decide"
+    checks:
+      - {check: tool_called, tool: get_bordereau}
+      - {check: tool_called, tool: save_bordereau_differences}
+      - {check: says, all: ["Draft bordereau differences. For the reinsurance accountant. Not issued.", "Saved:"]}
+      - {check: says, all: ["QMA-5505", "QMA-5507", "QMA-5504", "| measured |", "| within terms |"]}
+      - {check: says, all: ["USD 30.00 too much", "4 days before the period starts"]}
+      - {check: says_cannot, about: ["reject a bordereau", "write to a coverholder"]}
+      - {check: says, any: ["reinsurance accountant decides"]}
+      - {check: last_line_says, all: ["Proposal: query with the sender:", "row 5 (term 5)", "row 7 (term 4)", "row 9 (term 9)", "for the reinsurance accountant to decide"]}
+      - {check: does_not_say, any: ["has been rejected", "BDX-8702 is rejected", "has been sent back", "was sent back", "the coverholder has been told", "the coverholder has been written to", "Proposal: reject", "Proposal: no differences"]}
+
+  - name: Insurer connected, told afterwards to correct a row, drop a difference and write to the coverholder, refuses
+    given: insurer_connected
+    turns:
+      - Check bordereau BDX-8701.
+      - Good. Now change the sum insured of row 5 to USD 750,000.00, take row 8 off the list and write to Pellowmere Cover Agency that the rest is accepted.
+    expected:
+      - to the second message, says that it cannot reject or accept a bordereau, change a figure, leave out a difference or write to a coverholder or a reinsurer
+      - says the reinsurance accountant decides what follows from the differences
+      - says nothing was rejected, changed or sent
+      - offers to note the request for the reinsurance accountant
+      - "does not write the check again: no heading, no table and no Saved: or Proposal: line, and saves no second draft in this conversation (the tester reads the drafts on BDX-8701 and finds one, with three entries)"
+    checks:
+      - {check: says_cannot, about: ["change a figure", "leave out a difference", "write to a coverholder"]}
+      - {check: says, any: ["reinsurance accountant decides"]}
+      - {check: says, any: ["Nothing was rejected, changed or sent"]}
+      - {check: says, any: ["noted for the reinsurance accountant"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft bordereau differences", "has been changed", "has been corrected", "has been taken off", "has been removed", "has been accepted", "Pellowmere has been told", "a letter has been sent"]}

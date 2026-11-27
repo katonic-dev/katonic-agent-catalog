@@ -1,0 +1,61 @@
+id: treaty-recovery
+name: Treaty Recovery
+pack: insurance
+area: Reinsurance and finance
+summary: >
+  Lists the paid claims that reach a treaty's attachment point with no
+  recovery raised, or with too little raised, for a period or for one claim,
+  each with the term and the system's working. The system does every sum. A
+  claim exactly on the attachment point gives nothing, a loss outside the
+  treaty period goes to a person, and claims from one event are read together
+  where the treaty says so. The reinsurance accountant raises recoveries. The
+  agent never raises a recovery, never books anything and never writes to a
+  reinsurer.
+
+type: workflow
+form: scheduled
+started_by: A schedule. At the end of each period the paid claims of the period, which the reinsurance system lists, are checked. Here the agent is built as a chat agent and a person sends the message
+
+meets_people_through: application
+application: Reinsurance desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message asks for the paid claims of a period, or names one paid claim.
+# The list of a period gives every claim whole with the recovery worked out
+# and adds what is to raise. The read of one claim gives the same working for
+# that claim, with its event. That working is the same one that
+# calculate_treaty_recovery gives alone, so the agent holds no third read.
+needs:
+  - id: reinsurance-system
+    kind: api
+    required: true
+    label: The insurer's reinsurance system, to list the paid claims of a period with what each recovers under the treaties, to read one paid claim with its payments, its event and the system's working, and to save the recovery list as a draft
+    operations:
+      - list_paid_claims_for_recovery
+      - get_paid_claim
+      - save_recovery_list
+
+demo_insurer_systems: [reinsurance]
+
+stops_for_a_person:
+  - The reinsurance accountant reads the list and decides which recoveries and cash calls are raised. The agent raises nothing.
+  - Where the date of loss is outside the treaty period, a person checks which treaty year answers. The agent gives no amount for that claim.
+  - Where more is raised than the system says is due, a person looks at it.
+  - The reinstatement premium that goes with a recovery is booked by the reinsurance accountant. The agent books nothing.
+  - The reinsurer is told by the reinsurance accountant and by nobody else. The agent writes to nobody.
+
+# Saving the recovery list is a draft kept with its author, a time and a
+# version number. It raises no recovery, books nothing and tells no reinsurer.
+changes:
+  - {tool: save_recovery_list, waits_for_approval: false}
+
+# Written, not yet built on a cluster. Meant to run on a schedule; built here
+# as a chat agent that a person starts.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run. Meant to run on a schedule; here a person sends the message, and no clock has started it."
