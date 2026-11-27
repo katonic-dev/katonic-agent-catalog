@@ -68,7 +68,7 @@ A desk is the shared case desk ([katonic-case-desk](https://github.com/katonic-d
 | [Claims assessment desk](desks/claims-assessment/README.md) | Coverage Check, Settlement Calculation, Claims Correspondence | Adjuster | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Investigations desk](desks/investigations/README.md) | Fraud Detection, Investigation Case File | Investigator | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Underwriting desk](desks/underwriting/README.md) | Underwriting Support, Underwriting Referral Memo, Renewal Review | Underwriter | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the note of a submission row is not drawn |
-| Policy servicing desk | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Planned |
+| [Policy servicing desk](desks/policy-servicing/README.md) | Policy Servicing, Certificate and Endorsement Preparation | Servicing officer | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main` |
 | [Health claims desk](desks/health-claims/README.md) | Pre-authorisation Preparation, Medical Claims Adjudication Support, Provider Invoice Check | Clinician or assessor | Settings written and tested end to end against a stand-in agent. Runs on the engine's `main`. One gap: the clause of an invoice line is not drawn in the row |
 | Complaints desk | Complaint Handling | Complaints officer | Planned |
 | Reinsurance desk | Bordereaux Check, Treaty Recovery | Reinsurance accountant | Planned |

@@ -1,0 +1,140 @@
+{
+  "$comment": "The fifteen demo cases of the policy servicing desk: eight change requests and seven certificate requests. The desk lists the newest case first, so the file is written last to first. Everything is invented: Thornmere Mutual Insurance, its policyholders, its policies and the certificate holders. Every id, date and amount is what the invented insurer returns when it is started with the date 26 November 2026.",
+  "cases": [
+    {
+      "title": "Venn, sum insured for the vehicle and a waiver: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7407",
+      "policy": "POL-2011",
+      "holder": "Isaura Venn",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CRQ-7407\nPolicy: POL-2011, private motor\nHolder: Isaura Venn\nAsked by: Isaura Venn, policyholder\nReceived: 25 Nov 2026\nFor: Candlewick Parking Company Ltd, Candlewick Street Car Park, Marlow Reach, Meridia\nDated: 26 Nov 2026\nMust show: sum insured for the vehicle; a waiver of rights of recovery against Candlewick Parking Company Ltd\nIN THE REQUESTER'S WORDS\nThe car park I use asks for a certificate dated 26 Nov 2026 that shows the sum insured for my car and says that Thornmere waives its rights of recovery against Candlewick Parking Company Ltd. Isaura Venn\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Thrupp, contents sum insured on 12 Oct 2026: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7406",
+      "policy": "POL-2822",
+      "holder": "Barnabas Thrupp",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: CRQ-7406\nPolicy: POL-2822, home\nHolder: Barnabas Thrupp\nAsked by: Barnabas Thrupp, policyholder\nReceived: 24 Nov 2026\nFor: Kittiwake Lettings Ltd, 19 Gannet Street, Tallowby, Meridia\nDated: 12 Oct 2026\nMust show: contents sum insured\nIN THE REQUESTER'S WORDS\nMy letting agent asks for proof of the contents cover I held on 12 Oct 2026, the date of the inventory. Please send a certificate as at 12 Oct 2026 that shows the contents sum insured, to Kittiwake Lettings Ltd, 19 Gannet Street, Tallowby. Barnabas Thrupp\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Stannaway, buildings sum insured on 25 May 2027: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7405",
+      "policy": "POL-2012",
+      "holder": "Elric Stannaway",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CRQ-7405\nPolicy: POL-2012, home\nHolder: Elric Stannaway\nAsked by: Elric Stannaway, policyholder\nReceived: 25 Nov 2026\nFor: Otterburn Residents Company Ltd, 1 Otterburn Gardens, Tallowby, Meridia\nDated: 25 May 2027\nMust show: buildings sum insured\nIN THE REQUESTER'S WORDS\nThe residents company asks for a certificate that shows my home is insured on 25 May 2027, with the buildings sum insured. Please address it to Otterburn Residents Company Ltd, 1 Otterburn Gardens, Tallowby. Elric Stannaway\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Dunmallow, buildings sum insured and a named party: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7404",
+      "policy": "POL-2821",
+      "holder": "Seraphina Dunmallow",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CRQ-7404\nPolicy: POL-2821, home\nHolder: Seraphina Dunmallow\nAsked by: Seraphina Dunmallow, policyholder\nReceived: 25 Nov 2026\nFor: Saltcombe Property Management Ltd, 40 Tithe Barn Road, Tallowby, Meridia\nDated: 26 Nov 2026\nMust show: buildings sum insured; Saltcombe Property Management Ltd named as an additional insured\nIN THE REQUESTER'S WORDS\nPlease send a certificate dated 26 Nov 2026 to Saltcombe Property Management Ltd, 40 Tithe Barn Road, Tallowby. It must show the buildings sum insured and name Saltcombe Property Management Ltd as an additional insured. Seraphina Dunmallow\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Ashgrove, third party property limit: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7403",
+      "policy": "POL-2001",
+      "holder": "Corwin Ashgrove",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: CRQ-7403\nPolicy: POL-2001, private motor\nHolder: Corwin Ashgrove\nAsked by: Corwin Ashgrove, policyholder\nReceived: 24 Nov 2026\nFor: Larchfield Quarry Company Ltd, Quarry Gate, Marlow Reach, Meridia\nDated: 26 Nov 2026\nMust show: third party property limit of USD 2,000,000.00\nIN THE REQUESTER'S WORDS\nThe quarry I deliver to needs a certificate dated 26 Nov 2026 that shows a third party property limit of 2,000,000.00. Please address it to Larchfield Quarry Company Ltd, Quarry Gate, Marlow Reach. Corwin Ashgrove\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Whitlocke, third party property limit: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7402",
+      "policy": "POL-2014",
+      "holder": "Ansel Whitlocke",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CRQ-7402\nPolicy: POL-2014, private motor\nHolder: Ansel Whitlocke\nAsked by: Ansel Whitlocke, policyholder\nReceived: 25 Nov 2026\nFor: Beaconside Parcel Depot Ltd, Unit 3, Signal Yard, Marlow Reach, Meridia\nDated: 26 Nov 2026\nMust show: third party property limit of USD 1,000,000.00\nIN THE REQUESTER'S WORDS\nThe depot where I park for work asks for a certificate dated 26 Nov 2026 that shows a third party property limit of 1,000,000.00. Please address it to Beaconside Parcel Depot Ltd, Unit 3, Signal Yard, Marlow Reach. Ansel Whitlocke\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Marrowdene, buildings sum insured: certificate",
+      "kind": "Certificate",
+      "reference": "CRQ-7401",
+      "policy": "POL-2002",
+      "holder": "Elspeth Marrowdene",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CRQ-7401\nPolicy: POL-2002, home\nHolder: Elspeth Marrowdene\nAsked by: Elspeth Marrowdene, policyholder\nReceived: 25 Nov 2026\nFor: Weavers Yard Mutual Loan Society, 5 Shuttle Lane, Tallowby, Meridia\nDated: 26 Nov 2026\nMust show: buildings sum insured\nIN THE REQUESTER'S WORDS\nMy lender asks for a certificate of my home insurance, dated 26 Nov 2026, that shows the buildings sum insured and the period. Please address it to Weavers Yard Mutual Loan Society, 5 Shuttle Lane, Tallowby. Elspeth Marrowdene\nTHE AGENT'S TASK\nThe agent prepares the certificate from the insurer's template and from the policy as it stands on the certificate date, and says where the request asks for something the policy does not hold. It issues nothing, changes no policy and contacts nobody. The servicing officer reads every draft and issues the document. Everything here is as the servicing system holds it. The agent reads the certificate request itself from the servicing system."
+    },
+    {
+      "title": "Venn, sum insured for the vehicle: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7308",
+      "policy": "POL-2011",
+      "holder": "Isaura Venn",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7308\nPolicy: POL-2011, private motor\nHolder: Isaura Venn\nAsked by: Isaura Venn, policyholder, by email\nReceived: 25 Nov 2026\nChange: Change of sum insured, from 29 Nov 2026\nIN THE REQUESTER'S WORDS\nPlease raise the sum insured on my car from 19,500.00 to 23,400.00 from 29 Nov 2026. A valuation came in higher. Isaura Venn\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Tredwell, change of vehicle: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7307",
+      "policy": "POL-2803",
+      "holder": "Florian Tredwell",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7307\nPolicy: POL-2803, private motor\nHolder: Florian Tredwell\nAsked by: Florian Tredwell, policyholder, by web form\nReceived: 25 Nov 2026\nChange: Change of vehicle, from 1 Dec 2026\nIN THE REQUESTER'S WORDS\nI have changed my car. Please move the policy from the Vesper Lane 1.4 hatchback, registration MR-2291-C, to a Halden Crest 2.0 estate, 2025, registration MR-5068-N, from 1 Dec 2026. Florian Tredwell\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Ravenscar, cancellation: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7306",
+      "policy": "POL-2802",
+      "holder": "Cordelia Ravenscar",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7306\nPolicy: POL-2802, home\nHolder: Cordelia Ravenscar\nAsked by: Cordelia Ravenscar, policyholder, by email\nReceived: 25 Nov 2026\nChange: Cancellation, from 6 Dec 2026\nIN THE REQUESTER'S WORDS\nPlease cancel my home policy POL-2802 on 6 Dec 2026. My new policy with another insurer starts on 11 Dec 2026. Cordelia Ravenscar\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Tollermoor, cancellation: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7305",
+      "policy": "POL-2005",
+      "holder": "Bram Tollermoor",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7305\nPolicy: POL-2005, private motor\nHolder: Bram Tollermoor\nAsked by: Bram Tollermoor, policyholder, by web form\nReceived: 25 Nov 2026\nChange: Cancellation, from 30 Nov 2026\nIN THE REQUESTER'S WORDS\nPlease cancel my motor policy POL-2005 on 30 Nov 2026. I am selling the car. Bram Tollermoor\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Merrivale, added driver: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7304",
+      "policy": "POL-2801",
+      "holder": "Ottoline Merrivale",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: CHG-7304\nPolicy: POL-2801, private motor\nHolder: Ottoline Merrivale\nAsked by: Ottoline Merrivale, policyholder, by telephone note\nReceived: 24 Nov 2026\nChange: Added driver, from 4 Nov 2026\nIN THE REQUESTER'S WORDS\nCall taken by the servicing desk. Mrs Merrivale asks to add her husband, Corvin Merrivale, born 9 Mar 1981, as a named driver from 4 Nov 2026. She says he has driven the car since that date.\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Stannaway, contents sum insured: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7303",
+      "policy": "POL-2012",
+      "holder": "Elric Stannaway",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7303\nPolicy: POL-2012, home\nHolder: Elric Stannaway\nAsked by: Elric Stannaway, policyholder, by email\nReceived: 25 Nov 2026\nChange: Change of sum insured, from 3 Dec 2026\nIN THE REQUESTER'S WORDS\nPlease raise my contents sum insured from 40,000.00 to 50,000.00 from 3 Dec 2026. We have bought new furniture. Elric Stannaway\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Quillby, change of address: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7302",
+      "policy": "POL-2006",
+      "holder": "Henrietta Quillby",
+      "received_on": "2026-11-24",
+      "text": "THE REQUEST\nRequest: CHG-7302\nPolicy: POL-2006, home\nHolder: Henrietta Quillby\nAsked by: Henrietta Quillby, policyholder, by email\nReceived: 24 Nov 2026\nChange: Change of address, from 10 Dec 2026\nIN THE REQUESTER'S WORDS\nI am moving from 61 Thistledown Close, Tallowby to 8 Capstan Yard, Port Ilvane on 10 Dec 2026. Please move my home policy to the new address from that date. Henrietta Quillby\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    },
+    {
+      "title": "Ashgrove, change of address: policy change",
+      "kind": "Policy change",
+      "reference": "CHG-7301",
+      "policy": "POL-2001",
+      "holder": "Corwin Ashgrove",
+      "received_on": "2026-11-25",
+      "text": "THE REQUEST\nRequest: CHG-7301\nPolicy: POL-2001, private motor\nHolder: Corwin Ashgrove\nAsked by: Corwin Ashgrove, policyholder, by web form\nReceived: 25 Nov 2026\nChange: Change of address, from 3 Dec 2026\nIN THE REQUESTER'S WORDS\nPlease change my address from 14 Larchfield Row to 22 Larchfield Row, Marlow Reach, from 3 Dec 2026. The car is kept on the drive as before. Corwin Ashgrove\nTHE AGENT'S TASK\nThe agent sets out what is asked, which numbered servicing rule it touches, the premium adjustment as the servicing system worked it out, and any gap in cover. It changes no policy, charges and returns no premium, cancels nothing and contacts nobody. The servicing officer decides and makes the change. Where a rule asks for a referral, underwriting or the servicing team leader reads the request first. Everything here is as the servicing system holds it. The agent reads the change request itself from the servicing system."
+    }
+  ]
+}
