@@ -2,7 +2,7 @@
 
 31 agents an insurer can build on the Katonic platform, and the desks people use them through. They are written against one invented company, Thornmere Mutual Insurance: motor, home, commercial property and group medical cover in the invented country Meridia.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet. Nine agents are built on a development cluster and pass every test five runs in a row: six of the seven claims agents and the three health claims agents. The seventh claims agent is built and one of its tests is not finished.
+**Status: work in progress.** The State column says where each one stands. All 31 folders are written, and all eight desks are built and tested against a stand-in agent. Ten agents are built on a development cluster and pass every test five runs in a row: six of the seven claims agents, the three health claims agents and Member Policy Q&A. The seventh claims agent is built and one of its tests is not finished. The other twenty are written and not yet built on a cluster.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. A tool that changes something waits for approval unless the insurer has decided otherwise for that tool.
 
@@ -38,7 +38,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 15 | [Policy Servicing](agents/policy-servicing/README.md) | Prepares a mid-term change for staff: the rule it touches, the premium adjustment and any gap in cover | Conversational, acting | Policy servicing desk | Written. Not yet built on a cluster |
 | 16 | [Certificate and Endorsement Preparation](agents/certificate-and-endorsement-preparation/README.md) | Prepares the certificate or endorsement from the policy as it stands, and says where the request asks for something the policy does not give | Workflow, event-triggered | Policy servicing desk | Written. Not yet built on a cluster |
 | 17 | [Broker Query](agents/broker-query/README.md) | Answers a broker's question on a policy or a claim, with the source | Conversational, acting | Chat | Written. Not yet built on a cluster |
-| 18 | [Member Policy Q&A](agents/member-policy-qa/README.md) | Answers a member's question on their own cover: covered, covered with conditions, not covered, needs a person | Conversational, answering | Chat | Built on a development cluster. Thirteen of fourteen tests pass five runs in a row; the fourteenth has four passing runs and one run still to make |
+| 18 | [Member Policy Q&A](agents/member-policy-qa/README.md) | Answers a member's question on their own cover: covered, covered with conditions, not covered, needs a person | Conversational, answering | Chat | Built on a development cluster. All fourteen tests pass five runs in a row |
 | | **Health claims** | | | | |
 | 19 | [Pre-authorisation Preparation](agents/pre-authorisation-preparation/README.md) | Sets a request against the member's benefits and the medical policy: met, not met, missing | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |
 | 20 | [Medical Claims Adjudication Support](agents/medical-claims-adjudication-support/README.md) | For a held claim: why it was held, what the assessor needs, a suggested determination with reasons | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |

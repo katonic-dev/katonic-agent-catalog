@@ -9,7 +9,7 @@ Answers a member's question about their own cover from the table of benefits of 
 | How people meet it | Chat |
 | Reads from | The insurer's health system: one member with the benefits of the member's own plan and what has been used, the member's own scheme with its exclusions, cover on a date, and the system's calculation on a bill |
 | Changes | Saves a call-back request as a draft for the member services team. The draft books no call, promises no time and tells nobody |
-| State | Written. Not yet built on a cluster |
+| State | Built on a development cluster. All fourteen tests pass five runs in a row |
 
 ## Where the table of benefits comes from
 

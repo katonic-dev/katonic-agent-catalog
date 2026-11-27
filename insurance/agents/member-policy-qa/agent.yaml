@@ -53,7 +53,8 @@ changes:
   - {tool: save_call_back_request, waits_for_approval: false}
 
 state:
-  built_on_a_cluster: false
-  tests_passed: false
+  built_on_a_cluster: true
+  tests_passed: true
   on_the_catalog_shelf: false
-  notes: ""
+  notes: >
+    Built on a development cluster on 26 and 27 November 2026 exactly as this folder says, version 1, published to the Work Room, with the five tools above from an imported API of the invented insurer. All fourteen tests pass five runs in a row, each run in a new conversation, judged strictly against the test's own words. The last test was run five more times on 27 November after one run of the night before could not be read. In runs with more than one tool call the Work Room shows the number of calls and not their names, so for those runs the count was checked and the save was checked in the insurer.
