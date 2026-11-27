@@ -223,13 +223,20 @@ def test_an_underwriting_file_is_refused_with_a_reason_and_nothing_is_saved(clie
 # ---------------------------------------------------------------- appetite
 def test_the_appetite_statement_reads_whole_and_by_class(client):
     doc = get(client, "/appetite")
-    assert doc["count"] == 13 and "silent" in doc["how_to_read"]
+    assert doc["count"] == 14 and "silent" in doc["how_to_read"] and "stricter position wins" in doc["how_to_read"]
+    assert "brick or concrete walls" in doc["construction_classes"]["A"] and "brick or block walls" in doc["construction_classes"]["B"]
+    assert doc["construction_classes"] == get(client, "/guidelines")["construction_classes"]
+    assert all(doc["construction_classes"][k].startswith(f"Class {k} is ") and doc["construction_classes"][k].endswith(".") for k in "ABC")
+    general = doc["items"][-1]
+    assert (general["rule_id"], general["position"], general["class_of_business"]) == ("AP-G1", "general", "all_classes")
+    assert "outside over refer, and refer over within" in general["text"] and "names both rules" in general["text"]
     assert [(r["rule_id"], r["position"]) for r in get(client, "/appetite?class_of_business=commercial_property")["items"]] == [
-        ("AP-P1", "within"), ("AP-P2", "within"), ("AP-P3", "outside"), ("AP-P4", "within"), ("AP-P5", "refer"), ("AP-P6", "refer")]
+        ("AP-P1", "within"), ("AP-P2", "within"), ("AP-P3", "outside"), ("AP-P4", "within"), ("AP-P5", "refer"), ("AP-P6", "refer"),
+        ("AP-G1", "general")]
     assert [(r["rule_id"], r["position"]) for r in get(client, "/appetite?class_of_business=motor_fleet")["items"]] == [
-        ("AP-M1", "within"), ("AP-M2", "outside"), ("AP-M3", "refer"), ("AP-M4", "within")]
+        ("AP-M1", "within"), ("AP-M2", "outside"), ("AP-M3", "refer"), ("AP-M4", "within"), ("AP-G1", "general")]
     assert [(r["rule_id"], r["position"]) for r in get(client, "/appetite?class_of_business=public_liability")["items"]] == [
-        ("AP-L1", "within"), ("AP-L2", "outside"), ("AP-L3", "refer")]
+        ("AP-L1", "within"), ("AP-L2", "outside"), ("AP-L3", "refer"), ("AP-G1", "general")]
 
 
 def test_the_eight_appetite_questions_have_their_rule(client):
@@ -252,7 +259,9 @@ def test_the_eight_appetite_questions_have_their_rule(client):
 
 
 def test_the_appetite_search_matches_any_word_and_lists_all_when_empty(client):
-    assert get(client, "/appetite/search")["count"] == 13
+    everything = get(client, "/appetite/search")
+    assert everything["count"] == 14 and sorted(everything["construction_classes"]) == ["A", "B", "C"]
+    assert "stricter position wins" in everything["when_two_rules_match"]
     rows = get(client, "/appetite/search?text=nightclubs zebra")["items"]
     assert [r["rule_id"] for r in rows] == ["AP-P3"] and rows[0]["matched_words"] == ["nightclubs"]
     assert get(client, "/appetite/search?text=taxis&class_of_business=commercial_property")["count"] == 0
@@ -369,7 +378,32 @@ def test_a_referral_memo_is_refused_with_a_reason_and_nothing_is_saved(client):
     assert ref(client, 6601)["drafts_on_file"] == 0
 
 
+def test_an_empty_text_or_none_for_an_optional_fixed_choice_is_read_as_no_value(client):
+    for n, word in enumerate(("", "none", "None", "not needed", "N/A", "not_applicable", "null"), start=1):
+        saved = post(client, "/referrals/REF-6604/memo", {"referral_needed": "no", "refer_to_grade": word, "memo": "No referral is needed."})
+        assert saved["draft"]["version"] == n and saved["draft"]["refer_to_grade"] is None, word
+    assert post(client, "/referrals/REF-6604/memo", {"referral_needed": "no", "refer_to_grade": "the committee", "memo": "x"}, 422)["applied"] is False
+    assert post(client, "/referrals/REF-6601/memo", {**MEMO, "refer_to_grade": "senior underwriter"})["draft"]["refer_to_grade"] == "senior_underwriter"
+    assert post(client, "/referrals/REF-6601/memo", {**MEMO, "referral_needed": ""}, 422)["applied"] is False
+
+
+def test_a_precedent_that_is_not_alike_is_saved_with_its_reason(client):
+    rows = [{"precedent_id": "PRC-6401", "bearing": "agrees"}, {"precedent_id": "PRC-6402", "bearing": "agrees"},
+            {"precedent_id": "PRC-6403", "bearing": "Not alike", "note": "A class B grain warehouse, not a class C showroom."}]
+    saved = post(client, "/referrals/REF-6601/memo", {**MEMO, "precedents": rows})["draft"]
+    assert [p["bearing"] for p in saved["precedents"]] == ["agrees", "agrees", "not_alike"]
+    assert saved["precedents"][2]["note"].startswith("A class B grain warehouse")
+    assert post(client, "/referrals/REF-6601/memo", {**MEMO, "precedents": [{"precedent_id": "PRC-6403", "bearing": "irrelevant"}]}, 422)["applied"] is False
+
+
 # ---------------------------------------------------------------- renewals
+def test_the_renewal_rules_say_the_order_of_the_next_step(client):
+    how = get(client, "/renewal-rules")["how_to_read"]
+    assert how.index("claims team first") < how.index("then a referral to the senior underwriter") < how.index("then a survey")
+    for n, rules in ((6701, []), (6702, ["RN-1"]), (6703, ["RN-2"]), (6704, ["RN-1", "RN-4"]), (6705, ["RN-3"]), (6706, ["RN-5"])):
+        assert rnw(client, n)["rules_that_apply"] == rules
+
+
 def test_the_renewal_rules_are_five(client):
     doc = get(client, "/renewal-rules")
     assert [r["rule_id"] for r in doc["items"]] == ["RN-1", "RN-2", "RN-3", "RN-4", "RN-5"] and "70 percent" in doc["items"][0]["text"]

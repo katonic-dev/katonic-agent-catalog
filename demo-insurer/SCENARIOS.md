@@ -274,7 +274,7 @@ The agent lists the differences as a draft with `save_invoice_differences`. A cl
 
 ## Underwriting (system: underwriting)
 
-Ten underwriting guidelines (UG-1 to UG-10), an appetite statement of thirteen rules (AP-..), eight submissions from brokers (SBM-6501 to SBM-6508), four underwriter grades with three referral rules (RF-1 to RF-3), five referrals (REF-6601 to REF-6605), five precedents (PRC-6401 to PRC-6405), five renewal rules (RN-1 to RN-5) and six renewals (RNW-6701 to RNW-6706). Five commercial policies (CPL-6801, 6802, 6803, 6805, 6806) and their claims (CCL-6901 to CCL-6906) are held in this system; RNW-6704 reads the home policy POL-2007 and its claim CLM-4007 from the policy and claims systems.
+Ten underwriting guidelines (UG-1 to UG-10), an appetite statement of fourteen rules (AP-.., one of them general), eight submissions from brokers (SBM-6501 to SBM-6508), four underwriter grades with three referral rules (RF-1 to RF-3), five referrals (REF-6601 to REF-6605), five precedents (PRC-6401 to PRC-6405), five renewal rules (RN-1 to RN-5) and six renewals (RNW-6701 to RNW-6706). Five commercial policies (CPL-6801, 6802, 6803, 6805, 6806) and their claims (CCL-6901 to CCL-6906) are held in this system; RNW-6704 reads the home policy POL-2007 and its claim CLM-4007 from the policy and claims systems.
 
 The system does every sum, ratio and comparison. Every save is a draft with a version number, and changes nothing else. No operation accepts, declines, quotes, binds, refers or offers terms: an underwriter decides. A read never returns saved drafts: it gives `drafts_on_file`, and `list_underwriting_file_drafts`, `list_referral_memo_drafts` and `list_renewal_review_drafts` read them.
 
@@ -295,7 +295,7 @@ The system does every sum, ratio and comparison. Every save is a draft with a ve
 | UG-9 | motor fleet | For reading. Not written: hazardous goods; taxis or private hire. |
 | UG-10 | motor fleet | Three-year claims history in the submission; no more than one claim for every 4 vehicles, rounded down. |
 
-Construction classes: A non-combustible, B mixed (brick or block walls with a timber roof or floors), C combustible (timber frame or composite panels).
+Construction classes, given in words by `get_underwriting_guidelines`, `get_appetite_statement` and `search_appetite_rules` under `construction_classes`: class A is non-combustible construction (brick or concrete walls with a concrete or steel roof), class B is mixed construction (brick or block walls with a timber roof or timber floors), class C is combustible construction (a timber frame or composite panel walls).
 
 ### Submissions
 
@@ -335,6 +335,9 @@ The right underwriting file (`save_underwriting_file`) has one finding for each 
 | AP-L1 | within | Offices, shops, cafes and restaurants. |
 | AP-L2 | outside | Demolition, asbestos removal, and work offshore. |
 | AP-L3 | refer | Roofing and scaffolding contractors, and events open to the public. |
+| AP-G1 | general | Where two rules of this statement name one risk, the stricter position wins: outside over refer, and refer over within. The answer names both rules. |
+
+AP-G1 is read with every class of business. It changes none of the eight answers below: each of those risks is named by one rule only.
 
 | Question | Right answer |
 |---|---|
@@ -374,13 +377,15 @@ Precedents: PRC-6401 Dovecote Beds & Bedding Ltd (showroom, class C, 1,280,000.0
 | REF-6604 | The asking grade's authority is enough. Quenby House Offices Ltd, asked by Isolde Varney, senior underwriter, raised 25 Nov 2026. | Class A offices, total 3,200,000.00 (within 5,000,000.00), within every guideline. Technical premium 21,000.00, proposed 17,850.00: 15.00 percent (within 20 percent). | No referral needed: no rule applies and Isolde Varney may decide it herself. The memo says so, names no grade and cites no forcing rule. |
 | REF-6605 | A discount above authority, with a precedent that went against. Wrenlow Tea Importers Ltd, asked by Benedick Morrow, raised 23 Nov 2026. | Class A warehouse, total 1,200,000.00, within every guideline. Technical premium 8,000.00, proposed 6,560.00: 18.00 percent, above his 10 percent. The reason given: to go under the holding insurer. | Referral needed, forced by RF-3, to the senior underwriter (20 percent). PRC-6404 went against: the same 18 percent to match another insurer was declined. PRC-6405 differs on a material fact: its 15 percent was approved for a three-year agreement, which this risk does not offer. |
 
-`save_referral_memo` is refused with 409, and nothing is saved, when a forcing rule is not a referral rule or a guideline, when a precedent id is not one the insurer holds, or when no referral is needed and a grade to refer to is given. The saved draft carries the system's own authority check.
+`save_referral_memo` is refused with 409, and nothing is saved, when a forcing rule is not a referral rule or a guideline, when a precedent id is not one the insurer holds, or when no referral is needed and a grade to refer to is given. An empty text, "none" or "not needed" for the grade is read as no grade. A precedent row has one of four bearings: `agrees`, `differs_on_a_material_fact`, `went_against`, or `not_alike` for a precedent the search returned that is another kind of risk (PRC-6403 on REF-6601). The saved draft carries the system's own authority check.
 
 ### Renewals
 
 `list_renewals_due` lists the renewals whose period ends within a number of days (60 when none is given), soonest first: within 30 days it gives RNW-6701 and RNW-6702; within 60 all six. `get_renewal_rules` gives the rules. `get_renewal` gives the expiring terms, the claims of the period, the totals with the loss ratio on payments alone and with reserves, the changes reported, any disagreement between records, and each rule with whether it applies.
 
 RN-1: a loss ratio (paid plus reserves, over the period's premium) above 70 percent needs a referral to a senior underwriter; exactly 70 percent does not. RN-2: a change of occupancy needs a survey before terms. RN-3: a change in protections needs a referral to a senior underwriter. RN-4: for an open claim the review gives the ratio on payments alone and with reserves. RN-5: where two records disagree, both are shown, neither is chosen, and the claims team is asked.
+
+When more than one rule applies, the next step follows this order: a disagreement between records (RN-5) goes to the claims team first; then a referral to the senior underwriter (RN-1 or RN-3); then a survey (RN-2). The review still names every rule that applies. In the six cases below no two of these steps meet: RNW-6704 has RN-1 with RN-4, which asks for no step of its own, and RNW-6706 has RN-5, so the claims team comes first.
 
 | Renewal | For | Facts | Right answer |
 |---|---|---|---|

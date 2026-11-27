@@ -29,9 +29,9 @@ def plural(n: int, word: str) -> str:
 CLASSES = {"commercial_property": "Commercial property", "motor_fleet": "Motor fleet", "public_liability": "Public liability"}
 
 CONSTRUCTION_CLASSES = {
-    "A": "non-combustible: brick or concrete walls with a concrete or steel roof",
-    "B": "mixed: brick or block walls with a timber roof or timber floors",
-    "C": "combustible: a timber frame or composite panel walls",
+    "A": "Class A is non-combustible construction: brick or concrete walls with a concrete or steel roof.",
+    "B": "Class B is mixed construction: brick or block walls with a timber roof or timber floors.",
+    "C": "Class C is combustible construction: a timber frame or composite panel walls.",
 }
 
 # The figures the numeric guidelines turn on.
@@ -97,8 +97,11 @@ GUIDELINES_HOW_TO_READ = ("Each rule has an id, the class of business it is for,
 # ---------------------------------------------------------------- appetite statement
 
 def _appetite(rule_id, class_of_business, position, text):
-    return {"rule_id": rule_id, "class_of_business": class_of_business, "class_name": CLASSES[class_of_business],
-            "position": position, "text": text}
+    return {"rule_id": rule_id, "class_of_business": class_of_business,
+            "class_name": CLASSES.get(class_of_business, "Every class of business"), "position": position, "text": text}
+
+
+ALL_CLASSES = "all_classes"  # a general rule of the appetite statement: it is read with every class of business
 
 
 APPETITE = {r["rule_id"]: r for r in [
@@ -119,13 +122,19 @@ APPETITE = {r["rule_id"]: r for r in [
     _appetite("AP-L1", "public_liability", "within", "Offices, shops, cafes and restaurants."),
     _appetite("AP-L2", "public_liability", "outside", "Demolition, asbestos removal, and work offshore."),
     _appetite("AP-L3", "public_liability", "refer", "Roofing and scaffolding contractors, and events open to the public."),
+    _appetite("AP-G1", ALL_CLASSES, "general",
+              "Where two rules of this statement name one risk, the stricter position wins: outside over refer, and refer over "
+              "within. The answer names both rules."),
 ]}
 
 APPETITE_HOW_TO_READ = ("The appetite statement has numbered rules by class of business. Each rule has one position: within (we "
                         "want this kind of risk), outside (we do not write it) or refer (an underwriter of senior grade decides). "
                         "A rule speaks only of what it names. A risk that no rule names is not within and not outside: the "
-                        "statement is silent on it, and an underwriter answers. The statement says nothing about price, limits or "
-                        "terms: the underwriting guidelines hold the figures.")
+                        "statement is silent on it, and an underwriter answers. Rule AP-G1 is general and is read with every "
+                        "class: where two rules name one risk, the stricter position wins (outside over refer over within) and "
+                        "the answer names both rules. Where a rule speaks of a construction class, construction_classes says what "
+                        "each class is. The statement says nothing about price, limits or terms: the underwriting guidelines hold "
+                        "the figures.")
 
 SEARCH_STOP_WORDS = {"the", "and", "for", "with", "within", "outside", "refer", "appetite", "risk", "risks", "can", "write", "are",
                      "that", "this", "does", "our", "any", "insure", "cover", "would", "could", "about", "what", "say", "says",
@@ -614,8 +623,10 @@ RENEWAL_RULES = {r["rule_id"]: r for r in [
 
 RENEWAL_RULES_HOW_TO_READ = ("The renewal rules RN-1 to RN-5 say what a renewal review must look at. The system measures each "
                              "renewal against them: it adds up the claims, works out the loss ratios, and says which rules apply. "
-                             "A renewal to which no rule applies is ready for the underwriter, who decides the terms. No rule "
-                             "offers, changes or refuses terms.")
+                             "A renewal to which no rule applies is ready for the underwriter, who decides the terms. When more "
+                             "than one rule applies, the next step follows this order: a disagreement between records (RN-5) goes "
+                             "to the claims team first; then a referral to the senior underwriter (RN-1 or RN-3); then a survey "
+                             "(RN-2). The review still names every rule that applies. No rule offers, changes or refuses terms.")
 
 
 def _commercial(pid, insured, address, broker, days_to_end, occupancy, cls, total, deductible, sprinklers, premium, claims, today):

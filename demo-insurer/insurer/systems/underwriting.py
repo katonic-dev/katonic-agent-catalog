@@ -3,13 +3,13 @@ rules, referrals with precedents, the renewal rules and renewals. Every save is 
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import Path, Query
-from pydantic import Field
+from pydantic import Field, model_validator
 
-from ..common import Ctx, conflict, ForgivingModel, listing, make_subapp, not_found, reg
-from ..seed_underwriting import (APPETITE_HOW_TO_READ, AUTHORITY_HOW_TO_READ, CLASSES, CONSTRUCTION_CLASSES, GRADE_ORDER,
+from ..common import Ctx, conflict, ForgivingModel, listing, make_subapp, not_found, reg, _choices_of
+from ..seed_underwriting import (ALL_CLASSES, APPETITE_HOW_TO_READ, AUTHORITY_HOW_TO_READ, CLASSES, CONSTRUCTION_CLASSES, GRADE_ORDER,
                                  GUIDELINES_HOW_TO_READ, RENEWAL_RULES_HOW_TO_READ, SEARCH_STOP_WORDS, check_authority,
                                  measure_submission, renewal_expiry, renewal_pack)
 
@@ -20,6 +20,26 @@ LINE = ("The underwriting guidelines, the appetite statement, broker submissions
 
 DRAFTED_BY = Field("agent", description="Who wrote the draft. Free text.")
 CLASS_Q = "One of commercial_property, motor_fleet or public_liability."
+NO_VALUE_WORDS = {"", "none", "no", "null", "nil", "na", "n a", "not needed", "not applicable", "nobody", "no one", "no grade",
+                  "no referral", "no referral needed", "empty"}
+
+
+class ForgivingModel(ForgivingModel):  # noqa: F811
+    """As the shared model, and an optional fixed choice sent as an empty text, "none", "not needed" and the like is no value."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def _read_empty_words_as_no_value(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        out = dict(data)
+        for name, field in cls.model_fields.items():
+            value = out.get(name)
+            if isinstance(value, str) and not field.is_required() and field.default is None and _choices_of(field.annotation):
+                plain = " ".join(value.strip().lower().replace("/", " ").replace("-", " ").replace("_", " ").replace(".", " ").split())
+                if plain in NO_VALUE_WORDS:
+                    out[name] = None
+        return out
 
 
 class GuidelineFinding(ForgivingModel):
@@ -54,11 +74,14 @@ class UnderwritingFile(ForgivingModel):
 
 class PrecedentRow(ForgivingModel):
     precedent_id: str = Field(..., description="The id of the precedent, for example PRC-6401.")
-    bearing: Literal["agrees", "differs_on_a_material_fact", "went_against"] = Field(
+    bearing: Literal["agrees", "differs_on_a_material_fact", "went_against", "not_alike"] = Field(
         ..., description="agrees when the earlier risk matches this one on the facts that matter and was approved; "
                          "differs_on_a_material_fact when it looks alike but a fact the earlier decision rested on is different "
-                         "here; went_against when the earlier risk matches and the request was declined.")
-    note: str = Field("", description="The decision taken, by whom, and the fact that matches or differs, in a sentence.")
+                         "here; went_against when the earlier risk matches and the request was declined; not_alike when the "
+                         "search returned it but it is another kind of risk, for example another occupancy and construction "
+                         "class, so it does not bear on this one.")
+    note: str = Field("", description="The decision taken, by whom, and the fact that matches or differs, in a sentence. For "
+                                      "not_alike, say why it is not alike.")
 
 
 class ReferralMemo(ForgivingModel):
@@ -66,7 +89,8 @@ class ReferralMemo(ForgivingModel):
         ..., description="What the system's authority check says: yes when a referral rule applies, no when the authority of the "
                          "asking grade covers the risk. For no, the memo says so and names nobody to refer to.")
     refer_to_grade: Literal["assistant_underwriter", "underwriter", "senior_underwriter", "head_of_underwriting"] | None = Field(
-        None, description="The grade the referral goes to, as the authority check gives it. Leave empty when no referral is needed.")
+        None, description="The grade the referral goes to, as the authority check gives it. Leave empty when no referral is "
+                          "needed: an empty text, none or not needed is read as no grade.")
     forcing_rules: list[str] = Field(default_factory=list, description="The rules that force the referral, by id: the referral rules "
                                      "(for example RF-2) and the guidelines the risk is outside (for example UG-1). Leave empty when "
                                      "no referral is needed.")
@@ -82,7 +106,9 @@ class RenewalReview(ForgivingModel):
     next_step: Literal["ready_for_the_underwriter", "refer_to_the_senior_underwriter", "survey_before_terms", "ask_the_claims_team"] = Field(
         ..., description="ready_for_the_underwriter when no renewal rule applies; refer_to_the_senior_underwriter when the loss "
                          "ratio is above the limit or a change in protections is reported; survey_before_terms when a change of "
-                         "occupancy is reported; ask_the_claims_team when two records disagree. No value offers or refuses terms.")
+                         "occupancy is reported; ask_the_claims_team when two records disagree. When more than one rule applies, the "
+                         "order is: ask_the_claims_team first, then refer_to_the_senior_underwriter, then survey_before_terms. "
+                         "No value offers or refuses terms.")
     rules_that_apply: list[str] = Field(default_factory=list, description="The renewal rules that apply, by id, for example RN-1. "
                                                                           "Leave empty when none applies.")
     points_to_raise: list[str] = Field(default_factory=list, description="The points the underwriter should raise, one each, with "
@@ -144,15 +170,19 @@ def build(ctx: Ctx):
     @reg(app, "get", "/appetite", "get_appetite_statement", "Get the appetite statement, whole or for one class of business",
          "Read the appetite statement: a note on how to read it and its numbered rules. Each rule has an id (for example AP-P3), the "
          "class of business, one position (within, outside or refer) and its text. With a class of business only the rules of that "
-         "class are returned, which is the usual way to answer a question about one risk. A rule speaks only of what it names. A "
+         "class are returned, with the general rule AP-G1, which is the usual way to answer a question about one risk. AP-G1 says "
+         "which position wins when two rules name one risk: the stricter one (outside over refer over within), and the answer "
+         "names both rules. construction_classes says in a sentence what construction class A, B and C each is, for a rule that "
+         "speaks of a class. A rule speaks only of what it names. A "
          "risk that no rule names is not within and not outside: the statement is silent on it and an underwriter answers. It "
          "saves nothing and decides nothing.")
     def get_appetite_statement(class_of_business: str | None = Query(None, description=f"Only rules of this class. {CLASS_Q} Leave "
                                                                                       "empty for the whole statement.")):
         class_or_422(class_of_business)
-        rules = [r for r in d()["uw_appetite"].values() if not class_of_business or r["class_of_business"] == class_of_business]
+        rules = [r for r in d()["uw_appetite"].values()
+                 if not class_of_business or r["class_of_business"] in (class_of_business, ALL_CLASSES)]
         return listing(rules, document="Appetite statement", version="3", how_to_read=APPETITE_HOW_TO_READ,
-                       classes_of_business=CLASSES, class_of_business=class_of_business or "all")
+                       classes_of_business=CLASSES, construction_classes=CONSTRUCTION_CLASSES, class_of_business=class_of_business or "all")
 
     @reg(app, "get", "/appetite/search", "search_appetite_rules", "Search the appetite statement by words",
          "Find the rules of the appetite statement that name any word of the text, for example fireworks or joinery. Any word may "
@@ -167,7 +197,7 @@ def build(ctx: Ctx):
         words = words_of(text)
         rows = []
         for r in d()["uw_appetite"].values():
-            if class_of_business and r["class_of_business"] != class_of_business:
+            if class_of_business and r["class_of_business"] not in (class_of_business, ALL_CLASSES):
                 continue
             hay = f"{r['rule_id']} {r['text']}".lower()
             hits = [w for w in words if w in hay]
@@ -178,7 +208,8 @@ def build(ctx: Ctx):
         if words and not rows:
             note = ("No rule of the appetite statement names any of these words. That does not make the risk within or outside: "
                     "the statement is silent on it, and an underwriter answers.")
-        return listing(rows, searched_for=text or "", words_used=words, note=note)
+        return listing(rows, searched_for=text or "", words_used=words, note=note, construction_classes=CONSTRUCTION_CLASSES,
+                       when_two_rules_match=d()["uw_appetite"]["AP-G1"]["text"])
 
     # ------------------------------------------------------------ submissions
     def sub_view(s):
