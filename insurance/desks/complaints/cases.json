@@ -1,0 +1,94 @@
+{
+  "$comment": "The eight demo complaints of the insurance complaints desk, CMP-7101 to CMP-7108. The desk lists the newest case first, so the file is written last to first: the queue reads the nearest deadline first. Everything is invented: Thornmere Mutual Insurance, its customers, their policies, claims and complaints. Every id, date and sentence on a deadline is what the invented insurer returns when it is started with the date 26 November 2026.",
+  "cases": [
+    {
+      "title": "Odalys Fenwright (CMP-7103)",
+      "reference": "CMP-7103",
+      "customer": "Odalys Fenwright",
+      "about": "No news on a claim for a stolen car",
+      "channel": "web form",
+      "received_on": "2026-11-24",
+      "deadline": "Respond by 24 Dec 2026",
+      "deadline_state": "Not yet due",
+      "text": "THE ITEM\nComplaint id: CMP-7103\nCustomer: Odalys Fenwright\nChannel: web form\nReceived: 24 Nov 2026\nPolicy: POL-2004, private motor\nClaim named: CLM-4004\nEarlier: none\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 24 Nov 2026. The acknowledgement is due within 3 working days, by 27 Nov 2026. It was acknowledged on 25 Nov 2026, 1 working day after the day received: in time.\nFinal response: The limit is 30 days (CH-2). The final response is due by 24 Dec 2026. 26 Nov 2026 is 2 days after the day received: 28 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nI reported the theft of my car on 19 Nov 2026 (claim CLM-4004). Since then nobody has told me what is happening or when I will hear. I am paying for a hire car every day. If I do not get a proper answer I will take this to the Meridia Insurance Authority.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Henrietta Quillby (CMP-7105)",
+      "reference": "CMP-7105",
+      "customer": "Henrietta Quillby",
+      "about": "A premium collected twice, not refunded",
+      "channel": "email",
+      "received_on": "2026-11-23",
+      "deadline": "Respond by 23 Dec 2026",
+      "deadline_state": "Not yet due",
+      "text": "THE ITEM\nComplaint id: CMP-7105\nCustomer: Henrietta Quillby\nChannel: email\nReceived: 23 Nov 2026\nPolicy: POL-2006, home\nClaim named: none\nEarlier: CMP-7051\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 23 Nov 2026. The acknowledgement is due within 3 working days, by 26 Nov 2026. It was acknowledged on 24 Nov 2026, 1 working day after the day received: in time.\nFinal response: The limit is 30 days (CH-2). The final response is due by 23 Dec 2026. 26 Nov 2026 is 3 days after the day received: 27 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nOn 13 Oct 2026 I complained that you had taken my premium of USD 31.50 twice. Your letter of 27 Oct 2026 said the second payment would be refunded within 10 working days. It has not been refunded. I am complaining again and I want my money back.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Isaura Venn (CMP-7106)",
+      "reference": "CMP-7106",
+      "customer": "Isaura Venn",
+      "about": "A courtesy car and a named driver",
+      "channel": "email",
+      "received_on": "2026-11-25",
+      "deadline": "Acknowledge by 30 Nov 2026",
+      "deadline_state": "Not yet due",
+      "text": "THE ITEM\nComplaint id: CMP-7106\nCustomer: Isaura Venn\nChannel: email\nReceived: 25 Nov 2026\nPolicy: POL-2011, private motor\nClaim named: none\nEarlier: none\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 25 Nov 2026. The acknowledgement is due within 3 working days, by 30 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 1 working day after the day received: 2 working days left, not late.\nFinal response: The limit is 30 days (CH-2). The final response is due by 25 Dec 2026. 26 Nov 2026 is 1 day after the day received: 29 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nCould you tell me whether my motor policy gives me a courtesy car while mine is being repaired? I would also like to add my daughter as a named driver from 1 Dec 2026. What do you need from me?\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Yvaine Corrimond (CMP-7102)",
+      "reference": "CMP-7102",
+      "customer": "Yvaine Corrimond",
+      "about": "A declined claim for a burst pipe",
+      "channel": "letter",
+      "received_on": "2026-11-25",
+      "deadline": "Acknowledge by 30 Nov 2026",
+      "deadline_state": "Not yet due",
+      "text": "THE ITEM\nComplaint id: CMP-7102\nCustomer: Yvaine Corrimond\nChannel: letter\nReceived: 25 Nov 2026\nPolicy: POL-2010, home\nClaim named: CLM-4010\nEarlier: none\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 25 Nov 2026. The acknowledgement is due within 3 working days, by 30 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 1 working day after the day received: 2 working days left, not late.\nFinal response: The limit is 30 days (CH-2). The final response is due by 25 Dec 2026. 26 Nov 2026 is 1 day after the day received: 29 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nYou have refused my claim CLM-4010 for the burst pipe at 2 Heron Wharf because the house was empty. I was abroad for my work and a neighbour looked in on the house. I think your decision is wrong and I want it looked at again.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Aldous Pennicott (CMP-7104)",
+      "reference": "CMP-7104",
+      "customer": "Aldous Pennicott",
+      "about": "No word on somewhere to stay after a fire",
+      "channel": "telephone",
+      "received_on": "2026-11-25",
+      "deadline": "Acknowledge by 30 Nov 2026",
+      "deadline_state": "Not yet due",
+      "care_record": "Marked vulnerable on 23 Nov 2026. Prefers the telephone",
+      "text": "THE ITEM\nComplaint id: CMP-7104\nCustomer: Aldous Pennicott\nChannel: telephone\nReceived: 25 Nov 2026\nPolicy: POL-2007, home\nClaim named: CLM-4007\nEarlier: none\nCare record: marked vulnerable on 23 Nov 2026, prefers the telephone\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 25 Nov 2026. The acknowledgement is due within 3 working days, by 30 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 1 working day after the day received: 2 working days left, not late.\nFinal response: The customer care record marks the customer as vulnerable, so the limit is 15 days in place of 30 (CH-3). The final response is due by 10 Dec 2026. 26 Nov 2026 is 1 day after the day received: 14 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nNote of a telephone call, in the customer's words. 'I have been out of my house since the fire on 23 Nov 2026. I am staying with a neighbour and sleeping on a settee. Nobody from your company has told me whether you will pay for somewhere for me to stay. I am 81 and I cannot go on like this. I want to complain.'\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Corwin Ashgrove (CMP-7101)",
+      "reference": "CMP-7101",
+      "customer": "Corwin Ashgrove",
+      "about": "Long waits on the service line and no call back",
+      "channel": "email",
+      "received_on": "2026-11-24",
+      "deadline": "Acknowledge by 27 Nov 2026",
+      "deadline_state": "Not yet due",
+      "text": "THE ITEM\nComplaint id: CMP-7101\nCustomer: Corwin Ashgrove\nChannel: email\nReceived: 24 Nov 2026\nPolicy: POL-2001, private motor\nClaim named: none\nEarlier: none\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 24 Nov 2026. The acknowledgement is due within 3 working days, by 27 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 2 working days after the day received: 1 working day left, not late.\nFinal response: The limit is 30 days (CH-2). The final response is due by 24 Dec 2026. 26 Nov 2026 is 2 days after the day received: 28 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nI rang your service line on 17 Nov 2026 and again on 19 Nov 2026 with a simple question about my policy. Both times I waited more than 30 minutes, and both times I was promised a call back that never came. This is poor service and I want it looked into.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Teodor Brackwell (CMP-7108)",
+      "reference": "CMP-7108",
+      "customer": "Teodor Brackwell",
+      "about": "A charge for moving a payment date",
+      "channel": "email",
+      "received_on": "2026-11-23",
+      "deadline": "Acknowledge by 26 Nov 2026",
+      "deadline_state": "Due today",
+      "text": "THE ITEM\nComplaint id: CMP-7108\nCustomer: Teodor Brackwell\nChannel: email\nReceived: 23 Nov 2026\nPolicy: POL-2009, home\nClaim named: none\nEarlier: none\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 23 Nov 2026. The acknowledgement is due within 3 working days, by 26 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 3 working days after the day received, which is the last day allowed: the acknowledgement is due on this day and is not late.\nFinal response: The limit is 30 days (CH-2). The final response is due by 23 Dec 2026. 26 Nov 2026 is 3 days after the day received: 27 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nMy bank statement shows a charge of USD 25.00 from you on 20 Nov 2026 for moving my payment date. Nobody told me there would be a charge when I asked for the change. I want it refunded.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    },
+    {
+      "title": "Bram Tollermoor (CMP-7107)",
+      "reference": "CMP-7107",
+      "customer": "Bram Tollermoor",
+      "about": "A certificate of motor insurance not sent",
+      "channel": "web form",
+      "received_on": "2026-11-13",
+      "deadline": "Acknowledge by 19 Nov 2026",
+      "deadline_state": "Late",
+      "text": "THE ITEM\nComplaint id: CMP-7107\nCustomer: Bram Tollermoor\nChannel: web form\nReceived: 13 Nov 2026\nPolicy: POL-2005, private motor\nClaim named: none\nEarlier: CMP-7052\nCare record: no mark\nTHE DEADLINES, AS THE CONDUCT SYSTEM COUNTED THEM ON 26 NOV 2026\nAcknowledge: Received on 13 Nov 2026. The acknowledgement is due within 3 working days, by 19 Nov 2026. No acknowledgement is recorded. 26 Nov 2026 is 8 working days after the day received: the acknowledgement is late by 5 working days.\nFinal response: The limit is 30 days (CH-2). The final response is due by 11 Dec 2026. Day 30 is 13 Dec 2026, which is not a working day, so the response is due on the last working day before it. 26 Nov 2026 is 13 days after the day received: 15 days left.\nThese dates apply to a complaint. The system does not read the words: whether the item is a complaint is for the agent to read and the officer to confirm.\nTHE CUSTOMER'S OWN WORDS\nI asked for my certificate of motor insurance on 2 Nov 2026 and again on 9 Nov 2026. It has still not been sent and I need it for the vehicle licence. Please treat this as a formal complaint.\nTHE AGENT'S TASK\nThe agent sorts the item by the complaint categories, gives the deadlines as the conduct system counted them, says who handles it, links a repeat complaint to the first, and drafts the response and the log entry. It upholds nothing, rejects nothing, offers no money, admits no fault and sends nothing. A complaints officer decides and sends. The agent reads the complaint itself from the conduct system."
+    }
+  ]
+}
