@@ -6,9 +6,11 @@ import copy
 from datetime import date
 
 from .seed_claims import CHECKLISTS, HANDLING_GUIDE, LETTER_TEMPLATES, build_claims, build_loss_reports
+from .seed_conduct import build_conduct
 from .seed_health import build_health
 from .seed_investigations import build_investigations
 from .seed_policy import WORDINGS, build_policies
+from .seed_servicing import build_servicing
 from .seed_underwriting import build_underwriting
 
 
@@ -24,4 +26,6 @@ def build_all(today: date) -> dict:
         **build_health(today),
         **build_underwriting(today),
         **build_investigations(today),
+        **build_servicing(today),
+        **build_conduct(today),
     }

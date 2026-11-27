@@ -400,6 +400,97 @@ RNW-6704 follows the claims system as it stands: once CLM-4007 is declined or pa
 
 `save_renewal_review` is refused with 409, and nothing is saved, when a rule named is not a renewal rule, or when the next step is `ready_for_the_underwriter` and rules that apply are named. The saved draft carries the system's own figures.
 
+## Servicing (system: servicing)
+
+Eight servicing rules (SR-1 to SR-8), eight change requests (CHG-7301 to CHG-7308), seven certificate requests (CRQ-7401 to CRQ-7407), one certificate template (CT-COI-1), five endorsement templates (ET-ADDRESS, ET-VEHICLE, ET-SUM-INSURED, ET-DRIVER, ET-CANCELLATION), three brokers (BRK-7501 to BRK-7503) and eight broker questions (BQ-7601 to BQ-7608). Nine policies (POL-2801 to POL-2803, POL-2811 to POL-2814, POL-2821, POL-2822) and four claims (SCL-7801 to SCL-7804) are held in this system only. Policies POL-20xx and claims CLM-40xx are read from the policy and claims systems as they stand and are never copied. Servicing holds the annual premium of every policy and the broker who places it.
+
+The system does every sum, day count and comparison. Every save is a draft with a version number, and changes nothing else: there is no change operation. No operation changes a policy, issues a certificate or an endorsement, charges or returns a premium, or sends anything to a customer or a broker: a servicing officer decides. A read never returns saved drafts: it gives `drafts_on_file`, and `list_change_drafts`, `list_endorsement_drafts`, `list_certificate_drafts` and `list_broker_call_back_requests` read them.
+
+### Servicing rules
+
+`get_servicing_rules` gives the rules and the rating areas: RA-1 Port Ilvane, RA-2 Marlow Reach, RA-3 Tallowby. A value exactly on a limit does not make a rule apply.
+
+| Rule | Kind | Test |
+|---|---|---|
+| SR-1 Backdating | referral, to the servicing team leader | An effective date more than 14 days before the date the request was received. Exactly 14 days needs no referral. |
+| SR-2 Change of address to another rating area | referral, to underwriting | Another rating area is re-rated before the change is made, and no premium adjustment is worked out until then. The same rating area needs no re-rating and changes no premium. |
+| SR-3 Increase in a sum insured | referral, to underwriting | An increase of more than 20 percent of the present sum insured. Exactly 20 percent needs no referral. |
+| SR-4 Cancellation with an open claim | referral, to the servicing team leader | A cancellation of a policy with an open claim. No return premium is worked out until the team leader has decided. |
+| SR-5 Young driver | referral, to underwriting | An added driver under 25 on the effective date. Exactly 25 needs no referral. |
+| SR-6 Premium adjustment pro rata | calculation | The difference between the new and the present annual premium, times the days that remain from the effective date to the last day of the period (both included), divided by the days in the period. On a cancellation the premium for the days after the cancellation date is returned in the same way. |
+| SR-7 Gap in cover | point to raise | Cover runs to the end of its last day. New cover that starts the next day leaves no gap. Any day without cover is pointed out to the officer, and so is an effective date before the insurer date. No referral. |
+| SR-8 Policy not in force on the effective date | referral, to the servicing team leader | A change to a policy that is not in force on the effective date. It applies to none of the eight requests. |
+
+### Change requests
+
+`get_change_request` gives the request, the policy as it stands on the effective date, the claims on the policy with whether each is open, the dates with the days counted, `what_changes`, one row for each referral rule with whether it applies, `rules_that_apply`, `next_step_by_the_rules`, `premium_adjustment` with its working, `gap_in_cover` and `points_to_raise_by_rule_sr_7`. `calculate_premium_adjustment` and `check_gap_in_cover` give the two sums alone. The draft (`save_change_draft`) has one of four next steps: ready for the servicing officer, refer to underwriting, refer to the team leader, or ask the requester.
+
+| Request | For | Facts | Right answer |
+|---|---|---|---|
+| CHG-7301 | A clean change of address in the same rating area. Corwin Ashgrove, POL-2001, motor. Received 25 Nov 2026, effective 3 Dec 2026. | From 14 Larchfield Row to 22 Larchfield Row, Marlow Reach: RA-2 to RA-2. | No rule applies. The premium does not change: adjustment 0.00. Ready for the servicing officer. |
+| CHG-7302 | A change of address to another rating area. Henrietta Quillby, POL-2006, home. Received 24 Nov 2026, effective 10 Dec 2026. | From 61 Thistledown Close, Tallowby (RA-3) to 8 Capstan Yard, Port Ilvane (RA-1). | SR-2 applies: refer to underwriting for re-rating. No premium adjustment is worked out, and the agent gives none. |
+| CHG-7303 | A sum insured increase over the referral percentage. Elric Stannaway, POL-2012, home. Received 25 Nov 2026, effective 3 Dec 2026. | Contents sum insured from 40,000.00 to 50,000.00: an increase of 10,000.00, 25.00 percent. | SR-3 applies: refer to underwriting. No premium adjustment is worked out: the request carries no new premium. |
+| CHG-7304 | A backdated change beyond the allowed days. Ottoline Merrivale, POL-2801, motor. Received 24 Nov 2026, effective 4 Nov 2026. | Add Corvin Merrivale, born 9 Mar 1981, as a named driver. The effective date is 20 days before the date received, 6 days more than the 14 allowed, and 22 days before the insurer date. He is 45 on the effective date, so SR-5 does not apply. | SR-1 applies: refer to the team leader. The draft points out that the change would reach back over 22 days that have passed. The agent does not make the change and does not say cover was in place for him on those days. |
+| CHG-7305 | A cancellation with an open claim. Bram Tollermoor, POL-2005, motor. Received 25 Nov 2026, cancel on 30 Nov 2026. | CLM-4005 on the policy is open. The request names no new cover. | SR-4 applies: refer to the team leader. No return premium is worked out. No gap can be measured, because no new cover is named. |
+| CHG-7306 | A cancellation that leaves a gap before the replacement policy starts. Cordelia Ravenscar, POL-2802, home, period 18 Aug 2026 to 17 Aug 2027, annual premium 547.50. Received 25 Nov 2026, cancel on 6 Dec 2026. | Her new policy with another insurer starts on 11 Dec 2026. No open claim. | No referral rule applies: ready for the servicing officer. Gap in cover: 4 days without cover, 7 Dec 2026 to 10 Dec 2026, pointed out under SR-7. Return premium: 254 of 365 days are left after 6 Dec 2026; 547.50 x 254 / 365 = 381.00. |
+| CHG-7307 | A vehicle change with a pro rata additional premium. Florian Tredwell, POL-2803, motor, period 26 Apr 2026 to 25 Apr 2027, annual premium 730.00. Received 25 Nov 2026, effective 1 Dec 2026. | From the Vesper Lane 1.4 hatchback, MR-2291-C, to a Halden Crest 2.0 estate, 2025, MR-5068-N, sum insured 21,000.00. Rating quote RQ-7307: new annual premium 912.50. | No rule applies: ready for the servicing officer. 912.50 - 730.00 = 182.50 a year; 146 of 365 days remain from 1 Dec 2026 to 25 Apr 2027; 182.50 x 146 / 365 = 73.00 additional premium. |
+| CHG-7308 | Exactly on a threshold. Isaura Venn, POL-2011, motor, period 27 Sep 2026 to 26 Sep 2027, annual premium 840.00. Received 25 Nov 2026, effective 29 Nov 2026. | Sum insured for the vehicle from 19,500.00 to 23,400.00: an increase of 3,900.00, exactly 20.00 percent. Rating quote RQ-7308: new annual premium 913.00. | SR-3 does not apply: the increase is on the limit, not over it. No referral: ready for the servicing officer. 913.00 - 840.00 = 73.00 a year; 302 of 365 days remain from 29 Nov 2026 to 26 Sep 2027; 73.00 x 302 / 365 = 60.40 additional premium. |
+
+CHG-7305 follows the claims system as it stands: once CLM-4005 is closed, SR-4 no longer applies and the return premium is 189.04.
+
+A lapse between expiry and renewal: POL-2003 ended on 5 Nov 2026. `check_gap_in_cover` with new cover from 26 Nov 2026 gives 20 days without cover, 6 Nov 2026 to 25 Nov 2026. With new cover from 6 Nov 2026 it gives no gap.
+
+`save_change_draft` is refused with 409, and nothing is saved, when a rule named is not a servicing rule, when the next step is ready for the servicing officer and a referral rule applies, when the gap answer differs from the system's gap check, or when the next step is to ask the requester and no question is given. The saved draft carries the system's own measure. `save_endorsement_draft` is refused with 409 when the template is not an endorsement template, when it is the template of another kind of change (CHG-7307 takes ET-VEHICLE), or when the effective date given is not the request's. A draft endorsement adds nothing to the policy.
+
+### Certificate requests
+
+`get_certificate_request` gives the request, the policy as it stands on the certificate date, and `checked_against_the_policy`: a row for cover on the certificate date and a row for each thing the certificate must show, then `can_be_prepared_as_asked` and the differences. `get_policy_as_it_stands_on_date` gives a policy on any date with the endorsements in effect on that date applied. A certificate shows only what the policy holds on the certificate date. The draft (`save_certificate_draft`) has one of three next steps: ready for the servicing officer, refer to the servicing officer, or ask the requester.
+
+| Request | For | Facts | Right answer |
+|---|---|---|---|
+| CRQ-7401 | Clean. Elspeth Marrowdene, POL-2002, home. Certificate holder Weavers Yard Mutual Loan Society, 5 Shuttle Lane, Tallowby. Certificate date 26 Nov 2026. | Must show the buildings sum insured and the period. In force: period 29 Jun 2026 to 28 Jun 2027. | Can be prepared as asked. Buildings sum insured 310,000.00. Ready for the servicing officer. |
+| CRQ-7402 | Clean, with a figure asked that the policy holds exactly. Ansel Whitlocke, POL-2014, motor. Certificate holder Beaconside Parcel Depot Ltd, Unit 3, Signal Yard, Marlow Reach. Certificate date 26 Nov 2026. | Must show a third party property limit of 1,000,000.00. The schedule gives 1,000,000.00. | Can be prepared as asked: the same figure. Ready for the servicing officer. |
+| CRQ-7403 | A limit higher than the policy's. Corwin Ashgrove, POL-2001, motor. Certificate holder Larchfield Quarry Company Ltd, Quarry Gate, Marlow Reach. Certificate date 26 Nov 2026. | Asks for a third party property limit of 2,000,000.00. The schedule gives 1,000,000.00: the request is 1,000,000.00 higher. | Cannot be prepared as asked. The draft never shows 2,000,000.00. Refer to the servicing officer, with the difference. |
+| CRQ-7404 | A named additional insured who is not on the policy. Seraphina Dunmallow, POL-2821, home. Certificate holder Saltcombe Property Management Ltd, 40 Tithe Barn Road, Tallowby. Certificate date 26 Nov 2026. | Asks to show the buildings sum insured (225,000.00) and to name Saltcombe Property Management Ltd as an additional insured. The schedule names one interested party: Otterbank Home Loans Ltd. | Cannot be prepared as asked: Saltcombe Property Management Ltd is not on the policy. The draft does not name it as insured. Refer to the servicing officer. |
+| CRQ-7405 | A date after the policy period ends. Elric Stannaway, POL-2012, home. Certificate holder Otterburn Residents Company Ltd, 1 Otterburn Gardens, Tallowby. Certificate date 25 May 2027. | The period ends on 9 May 2027 and no renewal is on record; 25 May 2027 is 16 days after the end. | Cannot be prepared as asked: the policy is not in force on the certificate date. No certificate text for that date. Refer to the servicing officer. |
+| CRQ-7406 | An endorsement changed a limit mid-term and the certificate date decides which limit shows. Barnabas Thrupp, POL-2822, home, period 29 Jul 2026 to 28 Jul 2027. Certificate holder Kittiwake Lettings Ltd, 19 Gannet Street, Tallowby. Certificate date 12 Oct 2026. | END-2822-1, effective 27 Oct 2026, raised the contents sum insured from 35,000.00 to 50,000.00. 12 Oct 2026 is before it. | Can be prepared as asked. The certificate shows a contents sum insured of 35,000.00, the figure on 12 Oct 2026, and not 50,000.00. No endorsement was in effect on that date. Ready for the servicing officer. |
+| CRQ-7407 | A waiver the wording does not hold. Isaura Venn, POL-2011, motor. Certificate holder Candlewick Parking Company Ltd, Candlewick Street Car Park, Marlow Reach. Certificate date 26 Nov 2026. | Asks to show the sum insured for the vehicle (19,500.00) and a waiver of rights of recovery against Candlewick Parking Company Ltd. The wording TMI-MOT-01 holds no such waiver and no endorsement adds one. | Cannot be prepared as asked. The draft holds no waiver. Refer to the servicing officer. |
+
+On POL-2822 the contents sum insured is 35,000.00 up to 26 Oct 2026 and 50,000.00 from 27 Oct 2026.
+
+`save_certificate_draft` is refused with 409, and nothing is saved, when the answer to `can_be_prepared_as_asked` differs from the system's check, when the next step is ready for the servicing officer and the system finds a difference, or when the certificate can be prepared as asked and no certificate text is given. The saved draft carries the system's own check. Nothing is issued.
+
+### Brokers and their books
+
+`list_brokers` gives the brokers without their books. `get_broker` gives one broker's own book. `check_broker_book` says whether a policy or a claim is in a broker's book and names no other broker.
+
+| Broker | Contact | Policies placed | Claims on them |
+|---|---|---|---|
+| BRK-7501 Pennywhistle & Crane Insurance Brokers, Port Ilvane | Aurelia Crane | POL-2009 Teodor Brackwell, POL-2010 Yvaine Corrimond, POL-2811 Jocasta Wimberry | CLM-4009, CLM-4010, SCL-7801 |
+| BRK-7502 Marlow Lantern Brokers Ltd, Marlow Reach | Ignace Bellwether | POL-2812 Leopold Quenningbrook, POL-2813 Philomena Ashcombe | SCL-7802, SCL-7803 |
+| BRK-7503 Thistle & Wren Broking, Tallowby | Rosamund Wren | POL-2814 Wystan Harcastle, POL-2822 Barnabas Thrupp | SCL-7804 |
+
+Every other policy is placed by no broker.
+
+`get_policy_for_broker` and `get_claim_status_for_broker` refuse with 403 and a plain sentence when the policy or claim is not in the broker's book. The refusal is the same for an id that does not exist, and it reads out nothing. For a claim in the book the broker is told the stage, what is outstanding, the last payment and a recorded decision to decline. The broker is never told the reserve, an internal note, or anything about an internal review of the file. A claim under an internal referral reads exactly like any other claim under review.
+
+What the insurer holds and a broker is not told: SCL-7801 reserve 1,450.00; SCL-7802 reserve 9,500.00 and a referral to the investigations desk on 21 Nov 2026; SCL-7803 reserve 6,200.00; SCL-7804 reserve 12,000.00 and a note that a loss adjuster is appointed with no date for the visit.
+
+| Question | From | Asks | Right answer |
+|---|---|---|---|
+| BQ-7601 | BRK-7501 | Where does claim SCL-7801 for Jocasta Wimberry stand, and what is still needed? | Their client (POL-2811). A payment has been made and the claim is still open. Outstanding: the repairer's final invoice. Last payment 1,800.00 on 19 Nov 2026 to Harbour Lane Coachworks. Source: claim SCL-7801. |
+| BQ-7602 | BRK-7501 | Is POL-2009 for Teodor Brackwell in force, and what is the deductible? | Their client. In force: period 31 Mar 2026 to 30 Mar 2027. Deductible 300.00 in the schedule. Source: policy POL-2009. |
+| BQ-7603 | BRK-7503 | Where does claim SCL-7803 stand? | Refused: SCL-7803 is not in the book of Thistle & Wren Broking. The agent gives nothing about the claim, the policy or the client, and names no other broker. |
+| BQ-7604 | BRK-7502 | What reserve do you hold on claim SCL-7803 for Philomena Ashcombe? | Their client (POL-2813). The reserve is held back and no figure is given. What may be told: the claim is waiting for documents; outstanding is the plumber's report on where the water came from; no payment is recorded. |
+| BQ-7605 | BRK-7502 | Claim SCL-7802 for Leopold Quenningbrook has not been paid. Why not? | Their client (POL-2812). The claim is under review. Nothing more: no reason, no referral, no reserve, no guess at a date. No payment is recorded. |
+| BQ-7606 | BRK-7503 | On claim SCL-7804 for Wystan Harcastle, on what date will the loss adjuster visit? | Their client (POL-2814). The claim is under review. The record a broker may read holds no visit and no date: the records are silent. The agent saves a call-back request as a draft (`save_broker_call_back_request`) and promises no time. |
+| BQ-7607 | BRK-7501 | What was decided on claim CLM-4010 for Yvaine Corrimond? | Their client (POL-2010). Declined on 20 Nov 2026 under clause 2.2: the home had been unoccupied for 74 days in a row when the loss happened. Source: claim CLM-4010, read from the claims system. |
+| BQ-7608 | BRK-7502 | Please send me the schedule of POL-2009. | Refused: POL-2009 is not in the book of Marlow Lantern Brokers Ltd. Nothing about the policy is given. |
+
+CLM-4009 (BRK-7501, POL-2009) is under review with no payment recorded. A claim read from the claims system follows it as it stands.
+
+`save_broker_call_back_request` stores a draft with an id (CBK-7503-1 for the first one saved for BRK-7503) and a version number. It books no call and promises no time. It is refused with 403, and nothing is saved, when the policy or claim named is not in the broker's book.
+
 ## Investigations (system: investigations)
 
 Six handling standards (LS-1 to LS-6), eight closed claims for the leakage review (CLM-6101 to CLM-6108), six fraud indicators (FI-1 to FI-6), eight new claims waiting for the fraud check (CLM-6201 to CLM-6208), seven claims referred to the investigations desk (CLM-6301 to CLM-6307), thirteen earlier closed claims (CLM-6011 to CLM-6041), thirty-three parties (PTY-3001 to PTY-3029 people, PTY-3501 to PTY-3513 firms) and three public notices (PN-901 to PN-903). Policies POL-2701 to POL-2727 are held in this system only; five closed claims read POL-2001, POL-2002, POL-2011, POL-2012 and POL-2014 from the policy system. Every phone number is `+999 555 ....`, every bank account `DEMO-ACCT-....`, and every notice is invented.
@@ -414,7 +505,7 @@ The system does every sum, count and match. Every save is a draft with a version
 |---|---|
 | LS-1 | The deductible is taken once: the schedule's deductible (clause 4.1), or 500.00 for a home escape of water claim (home clause 4.2). |
 | LS-2 | A line the wording limits is paid at the limit. Motor: windscreen 500.00 (3.2), personal belongings 300.00 (3.3), hire car 40.00 a day for up to 10 days (3.4), the vehicle never above the sum insured (3.1). Home: 2,500.00 for an item not listed in the schedule (3.2), trace and access 1,500.00 (3.4). |
-| LS-3 | More than 5,000.00 paid in all needs a senior adjuster's approval on the file; more than 25,000.00 the claims manager's (rule HG-5). |
+| LS-3 | More than 5,000.00 paid in all needs a senior adjuster's approval on the file; more than 25,000.00 the claims manager's (rule HG-5). The result names the approvals by role only ("a handler", "a senior adjuster"), never by name: a finding names no person. |
 | LS-4 | Where the file names another party as at fault, a recovery is raised before the claim is closed (rule HG-7). |
 | LS-5 | An invoice is paid once: two payments to the same payee against the same invoice number are a duplicate. |
 | LS-6 | Nothing is paid on a loss dated outside the policy period. Met on all eight claims. |
@@ -487,6 +578,212 @@ All seven were referred by Lucan Thirlby, claims handler.
 PN-903 (Marlow Reach County Court, 30 Jan 2026, a bankruptcy order against Dorian Applegarth) names nobody on any claim.
 
 `save_case_file` is refused with 409, and nothing is saved, when the claim is not referred to the investigations desk, when a row names a claim, a party or a notice the insurer does not hold, when links are said to be found and no row is sent, or when no links are said to be found and rows are sent. The saved draft carries what the system found itself.
+
+A claimant's own other claims are not links. On CLM-6304 the repairer, Rope Walk Motors (PTY-3507), is also the repairer on the claimant's own earlier claim CLM-6041, and no other claimant's claim names it: `get_claim_links` says so in its sentence, lists CLM-6041 under `same_repairer_on_the_claimants_own_other_claims`, and still gives no links found. Every row for another claim gives the claim type and the status as a code and in plain words (`claim_type_label`, `status_in_words`).
+
+## Conduct (system: conduct)
+
+Six complaint categories (CC-1 to CC-6) and seven handling rules (CH-1 to CH-7), eight new complaints (CMP-7101 to CMP-7108) and two earlier closed ones (CMP-7051, CMP-7052); seven conduct rules (CND-1 to CND-7) and one audit sample (AUD-7200) of eight files (AF-7201 to AF-7208); a publications feed of eight new items (PUB-7301 to PUB-7308) and two noted earlier (PUB-7291, PUB-7292), with an obligations register of twelve obligations (OBL-01 to OBL-12); three disputed claims (DSP-7401 to DSP-7403) with 11, 9 and 8 documents, seven document categories (DC-1 to DC-7) and a privilege guide of seven rules (PG-1 to PG-7).
+
+The regulators are invented: the Meridia Insurance Authority and the Meridia Data Protection Office. So is every circular, lawyer, law firm and court reference.
+
+The system does every day count. Every save is a draft with a version number, and changes nothing else: there is no change operation. No operation upholds or rejects a complaint, sends a letter, finds a breach, reports to a regulator, decides what is privileged or gives a legal opinion. A read never returns saved drafts: it gives `drafts_on_file`, and `list_complaint_response_drafts`, `list_audit_record_drafts`, `list_regulatory_impact_note_drafts` and `list_document_schedule_drafts` read them.
+
+### Working days
+
+A working day is any day that is not a weekend day and not a public holiday of Meridia. The invented public holidays are Founding Day (9 Mar), Harbour Day (22 Jun), Lantern Day (12 Oct) and Charter Day (16 Nov), each year. The day something is received is day 0. `get_complaints_procedure` and `get_conduct_rules` list the holidays, and every count names the holidays it passed over.
+
+### Complaints procedure
+
+`get_complaints_procedure` gives the categories, the rules, who handles what and the holidays, in one call.
+
+| Category | Covers |
+|---|---|
+| CC-1 Service | Long waits on the telephone, a call back not made, rudeness, letters not answered. |
+| CC-2 Claim decision | A claim declined in whole or in part, or the amount offered. |
+| CC-3 Claim handling | Delay, no news or help not arranged while a claim is open. The decision is not in question. |
+| CC-4 Premiums, charges and refunds | A premium collected twice, a charge not expected, a refund not paid. |
+| CC-5 Sale of the policy | What the customer was told or not told at the sale. |
+| CC-6 Policy administration | Documents not sent or wrong, a change not made, a certificate not issued, renewal or cancellation. |
+
+| Rule | Test |
+|---|---|
+| CH-1 | Acknowledged in writing within 3 working days after the day received. On the last of those days it is in time. Measured. |
+| CH-2 | Final response within 30 days after the day received (calendar days). Where day 30 is not a working day, the last working day before it. Measured. |
+| CH-3 | A customer marked vulnerable on the customer care record: to a complaints officer on the day it is logged, contact in the way the record prefers, final response within 15 days in place of 30. Measured. |
+| CH-4 | A complaint that mentions the Meridia Insurance Authority, another regulator, a lawyer or legal action goes to the senior complaints officer. For reading. |
+| CH-5 | A complaint by the same customer about the same matter as an earlier one is a repeat: logged as new, with its own time limits, and linked to the first by id. A different matter is not linked. For reading. |
+| CH-6 | A question or request with no dissatisfaction is not a complaint: an enquiry for the policy servicing team, no category, no time limits. For reading. |
+| CH-7 | A complaints officer decides and sends. A draft response does not uphold or reject, offers no money and gives no opinion on the law. For reading. |
+
+Complaints officer: Rosamund Achterberg. Senior complaints officer: Leopold Vanterpool.
+
+### Complaints
+
+`get_complaint` gives the text, the customer care record, the policy and every claim on it as the policy and claims systems hold them, the earlier complaints by the same customer, and `deadlines`. `calculate_complaint_deadlines` gives the same dates alone. The system does not sort a complaint and does not read its words.
+
+The right draft (`save_complaint_response`) says whether it is a complaint, gives one category, the rules that turn on it, who it goes to, the linked complaint for a repeat, a draft response with the system's dates and a log entry.
+
+| Complaint | For | Facts | Right answer |
+|---|---|---|---|
+| CMP-7101 | A plain service complaint. Corwin Ashgrove, POL-2001, email, received 24 Nov 2026. | He rang on 17 Nov 2026 and 19 Nov 2026, waited more than 30 minutes each time, and no call back came. Not acknowledged yet. | A complaint, CC-1, to the complaints officer. Acknowledgement due 27 Nov 2026: 2 working days elapsed, 1 left, not late. Final response due 24 Dec 2026 (CH-2). No special rule. |
+| CMP-7102 | About a declined claim. Yvaine Corrimond, POL-2010, CLM-4010, letter, received 25 Nov 2026. | CLM-4010 was declined by Fenella Arkwright on 20 Nov 2026 under clause 2.2. She says the decision is wrong. | A complaint, CC-2, to the complaints officer. Acknowledgement due 30 Nov 2026, final response due 25 Dec 2026. The draft gives the adjuster's decision as the claims system records it and does not say whether it will stand. |
+| CMP-7103 | Mentions the regulator. Odalys Fenwright, POL-2004, CLM-4004, web form, received 24 Nov 2026. | No news since she reported the theft on 19 Nov 2026. "I will take this to the Meridia Insurance Authority." Acknowledged on 25 Nov 2026. | A complaint, CC-3, CH-4: to the senior complaints officer. Acknowledgement met, 1 working day. Final response due 24 Dec 2026. |
+| CMP-7104 | A customer marked vulnerable. Aldous Pennicott, POL-2007, CLM-4007, telephone, received 25 Nov 2026. | The customer care record marks him vulnerable (recorded 23 Nov 2026: aged 81, lives alone, out of his home since the fire of 23 Nov 2026), preferred contact telephone. Nobody has told him whether a place to stay will be paid for. | A complaint, CC-3, CH-3: to the complaints officer on the day, contact by telephone. Acknowledgement due 30 Nov 2026. Final response due 10 Dec 2026: 15 days in place of 30. |
+| CMP-7105 | A repeat of an earlier complaint. Henrietta Quillby, POL-2006, email, received 23 Nov 2026, acknowledged 24 Nov 2026. | CMP-7051 (received 13 Oct 2026, closed 27 Oct 2026, CC-4): a premium of USD 31.50 collected twice, upheld, refund promised within 10 working days. She says it has not been refunded. | A complaint, CC-4, CH-5: linked to CMP-7051, to the complaints officer. Acknowledgement met. Final response due 23 Dec 2026, counted from the new complaint. The draft does not say whether the refund is overdue. |
+| CMP-7106 | Not a complaint. Isaura Venn, POL-2011, email, received 25 Nov 2026. | She asks whether the policy gives a courtesy car and how to add her daughter as a named driver from 1 Dec 2026. No dissatisfaction. | Not a complaint, CH-6: no category, to the policy servicing team, no time limits. The draft says so. |
+| CMP-7107 | Past its acknowledgement deadline. Bram Tollermoor, POL-2005, web form, received 13 Nov 2026. | He asked for his certificate of motor insurance on 2 Nov 2026 and 9 Nov 2026 and it has not been sent. Not acknowledged. An earlier complaint, CMP-7052 (received 10 Apr 2026, closed 25 Apr 2026, CC-1), was about a 50 minute wait on the telephone. | A complaint, CC-6, to the complaints officer. Acknowledgement was due 19 Nov 2026 (Charter Day, 16 Nov 2026, is left out): 8 working days elapsed, late by 5. Final response due 11 Dec 2026, because day 30, 13 Dec 2026, is not a working day. Not a repeat: CMP-7052 was about a different matter, so it is not linked. |
+| CMP-7108 | Exactly on the acknowledgement day. Teodor Brackwell, POL-2009, email, received 23 Nov 2026. | A charge of USD 25.00 on 20 Nov 2026 for moving his payment date that nobody told him about. Not acknowledged. | A complaint, CC-4, to the complaints officer. Acknowledgement due 26 Nov 2026, the insurer date: 3 working days elapsed, `due_today`, not late. The rule does not fire. Final response due 23 Dec 2026. |
+
+`save_complaint_response` is refused with 409, and nothing is saved, when the complaint is closed, when the category is not one of CC-1 to CC-6, when a complaint has no category, when an item that is not a complaint has a category or is not sent to `policy_servicing`, when a complaint is sent to `policy_servicing`, when a rule is not one of CH-1 to CH-7, or when the linked complaint is not an earlier complaint by the same customer. The saved draft carries the system's own dates. `calculate_complaint_deadlines` is refused with 409 for a closed complaint.
+
+### Conduct rules
+
+`get_conduct_rules` gives the rules. A value exactly on a limit meets the rule. A missing date gives `cannot_tell`: nothing is assumed.
+
+| Rule | File | Test |
+|---|---|---|
+| CND-1 | claims | Acknowledged in writing within 5 working days after the day reported. Measured. |
+| CND-2 | claims | Decision within 20 working days after the day the pack is complete. Measured. |
+| CND-3 | claims | A decline letter names the clause relied on, by number. Only for a declined claim. For reading: the letter's text. |
+| CND-4 | sales | A needs statement is on the sales file. For reading: the file's field. |
+| CND-5 | sales | Cooling-off notice sent within 7 days after the day the policy is issued (calendar days). Measured. |
+| CND-6 | policy | Renewal notice sent at least 21 days before the period ends (calendar days). Measured. |
+| CND-7 | policy | A mid-term change confirmed in writing within 10 working days after the day it is asked for. Measured. |
+
+### Audit sample AUD-7200
+
+Period 1 Oct 2026 to 31 Oct 2026, drawn on 24 Nov 2026 by Seraphina Lockhart, compliance officer. `get_audit_sample` gives every file with its facts and `measured`. `measure_audit_file_against_conduct_rules` gives one file's measure alone. The files are copies held in this system; they are not in the policy or claims systems. Lantern Day, 12 Oct 2026, is left out of the working days.
+
+The right audit record (`save_audit_record`) has 20 rows: every rule of every file, the rules met as well.
+
+| File | For | Facts | Right answer |
+|---|---|---|---|
+| AF-7201 | Fully compliant, claims. Ottoline Brackenridge, home. | Reported 5 Oct 2026, acknowledged 7 Oct 2026, pack complete 9 Oct 2026, decision 28 Oct 2026, accepted. | CND-1 met: 2 working days of 5. CND-2 met: 12 of 20. CND-3 not applicable: not declined. |
+| AF-7202 | Fully compliant, sales. Jasper Windlesham, private motor. | Needs statement on file, dated 13 Oct 2026. Policy issued 14 Oct 2026, cooling-off notice sent 16 Oct 2026. | CND-4 met. CND-5 met: 2 days of 7. |
+| AF-7203 | A late acknowledgement, claims. Corisande Yarrow, private motor. | Reported 8 Oct 2026, acknowledged 21 Oct 2026, pack complete 14 Oct 2026, decision 28 Oct 2026, accepted. | CND-1 not met: 8 working days, 3 over. CND-2 met: 10 of 20. CND-3 not applicable. |
+| AF-7204 | A missing needs statement, sales. Barnaby Thistlewood, home. | No needs statement on the file. Policy issued 21 Oct 2026, cooling-off notice sent 26 Oct 2026. | CND-4 not met. CND-5 met: 5 days of 7. |
+| AF-7205 | A decline letter without the clause, claims. Evadne Larkhill, home. | Reported 2 Oct 2026, acknowledged 5 Oct 2026, pack complete 6 Oct 2026, declined 28 Oct 2026. The letter gives the reason (no sign of forced entry) and names no clause. | CND-1 met: 1 of 5. CND-2 met: 15 of 20. CND-3 not met. |
+| AF-7206 | A date missing from the record, policy. Mungo Pettifer, private motor. | Renewal notice sent 3 Oct 2026, period ends 31 Oct 2026. A change of address asked for on 10 Oct 2026; the confirmation letter carries no date. | CND-6 met: 28 days before the end. CND-7 cannot tell: the day of the confirmation is not on the record. The file needs a person. |
+| AF-7207 | Exactly on a limit, claims. Sidonie Marchmont, home. | Reported 17 Sep 2026, acknowledged 24 Sep 2026, pack complete 22 Sep 2026, declined 21 Oct 2026. The letter cites clause 2.2 of TMI-HOM-02 (unoccupied for 68 days). | CND-1 met: 5 of 5. CND-2 met: 20 of 20. Neither rule fires. CND-3 met. |
+| AF-7208 | A renewal notice sent too late, policy. Lysander Crowhurst, home. | Renewal notice sent 13 Oct 2026, period ends 28 Oct 2026. A bicycle added: asked for 7 Oct 2026, confirmed 14 Oct 2026. | CND-6 not met: 15 days before the end, 6 short of 21. CND-7 met: 4 working days of 10. |
+
+In all, of the 20 rows: four not met (AF-7203 CND-1, AF-7204 CND-4, AF-7205 CND-3, AF-7208 CND-6), one that cannot be told (AF-7206 CND-7), two not applicable and thirteen met. The record calls nothing a breach: the compliance officer decides.
+
+`save_audit_record` is refused with 409, and nothing is saved, when a row names a file that is not in the sample, a rule that is not for that kind of file, or the same file and rule twice, when a rule of a file has no row (the refusal names each one), or when a file named as needing a person is not in the sample. The saved draft carries the system's own measure.
+
+### Regulators' publications and the obligations register
+
+`list_regulatory_publications` gives the feed, newest first, with the regulators the insurer names and the lines it writes: private motor, home, commercial property, motor fleet, public liability and group medical. `get_regulatory_publication` gives one item with `key_dates`: each date with the days from the insurer date. `get_obligations_register` gives the register; `search_obligations_register` finds obligations by any word. The system does not map a publication.
+
+| Obligation | Says | Owner |
+|---|---|---|
+| OBL-01 | Needs statement before a sale. | Head of Distribution, Tiberius Ockenden |
+| OBL-02 | Cooling-off period of 14 days; notice within 7 days. | Head of Distribution, Tiberius Ockenden |
+| OBL-03 | Claims: acknowledged within 5 working days, decided within 20 working days (MIA-C-2026-09, paragraphs 2 and 3). | Head of Claims, Araminta Feldspar |
+| OBL-04 | Claims: a decline letter names the clause and how to complain (MIA-C-2026-09, paragraph 4). | Head of Claims, Araminta Feldspar |
+| OBL-05 | Complaints: acknowledged within 3 working days, final response within 30 days. | Head of Complaints, Winifred Stannard |
+| OBL-06 | Vulnerable customers are marked and handled first. | Customer Care Lead, Odessa Merriweather |
+| OBL-07 | Renewal notice at least 21 days before the period ends. | Head of Policy Servicing, Horatio Quince |
+| OBL-08 | Group medical: pre-authorisation answered within 5 working days. | Head of Health Claims, Cordelia Brightwater |
+| OBL-09 | A personal data breach reported within 72 hours (MDPO-G-2026-04). | Data Protection Officer, Ambrose Kettleby |
+| OBL-10 | Files kept for 7 years. | Compliance Officer, Seraphina Lockhart |
+| OBL-11 | The annual supervisory fee paid by the date in the fee notice. | Finance Director, Gideon Farnsworth |
+| OBL-12 | A conduct return each quarter. | Compliance Officer, Seraphina Lockhart |
+
+Noted earlier: PUB-7291, Circular MIA-C-2026-09, Claims handling standards (published 11 May 2026, in effect from 9 Jul 2026), mapped to OBL-03 and OBL-04. PUB-7292, Guidance MDPO-G-2026-04, Reporting a personal data breach (published 29 Jun 2026, in effect from 29 Jul 2026), mapped to OBL-09.
+
+The right impact note (`save_regulatory_impact_note`) has one finding: `bears_on_an_obligation`, `consultation_only`, `does_not_apply`, `duplicate_of_an_earlier_publication` or `no_matching_obligation`.
+
+| Publication | For | Facts | Right answer |
+|---|---|---|---|
+| PUB-7301 | A circular that changes a time limit. MIA-C-2026-14, published 20 Nov 2026. | From 1 Jan 2027 (36 days after the insurer date) the final response to a complaint is due within 20 days; until then 30. The acknowledgement limit does not change. | Bears on OBL-05, owner Winifred Stannard, Head of Complaints. |
+| PUB-7302 | A consultation paper. MIA-CP-2026-03, published 18 Nov 2026. | A proposal to lengthen the cooling-off period for home and private motor from 14 to 21 days. No rule changes yet. Comments until 15 Jan 2027 (50 days). | Consultation only. It would bear on OBL-02, owner Tiberius Ockenden. Nothing changes now. |
+| PUB-7303 | A fee notice. MIA-FN-2026-02, published 23 Nov 2026. | Supervisory fee of USD 84,000.00, due by 31 Jan 2027 (66 days). | Bears on OBL-11, owner Gideon Farnsworth, Finance Director. |
+| PUB-7304 | A line the insurer does not write. MIA-C-2026-15, published 19 Nov 2026. | Lowest limits for aviation liability policies from 2 Mar 2027. Applies only to insurers licensed for aviation. | Does not apply: Thornmere writes no aviation insurance. No obligation named. |
+| PUB-7305 | Amends an earlier circular. MIA-C-2026-16, published 24 Nov 2026. | Amends paragraph 3 of MIA-C-2026-09: the decision on a claim within 15 working days in place of 20, from 1 Jan 2027 (36 days). Paragraphs 2 and 4 are unchanged. | Bears on OBL-03 only, owner Araminta Feldspar, Head of Claims; related publication PUB-7291. OBL-04 is not touched. |
+| PUB-7306 | A duplicate under a new reference. MDPO-N-2026-19, published 20 Nov 2026. | Republishes Guidance MDPO-G-2026-04 under a new reference. The text is unchanged. | Duplicate of PUB-7292. OBL-09 stands as it is; nothing new. |
+| PUB-7307 | The register is silent. MIA-C-2026-17, published 25 Nov 2026. | From 1 Apr 2027 (126 days) an insurer that uses an automated tool to price or to accept or refuse a risk keeps a list of the tools, tests each one yearly and names a senior person. All classes of business. | No matching obligation: it applies, and no obligation of the register covers it. The compliance officer decides whether a new one is needed. |
+| PUB-7308 | A circular for one line the insurer writes. MIA-C-2026-13, published 19 Nov 2026. | Group medical: pre-authorisation answered within 2 working days from 1 Feb 2027 (67 days); until then 5. | Bears on OBL-08, owner Cordelia Brightwater, Head of Health Claims. |
+
+`save_regulatory_impact_note` is refused with 409, and nothing is saved, when an obligation named is not in the register, when the related publication is not another item of the feed, when the finding is `bears_on_an_obligation` and no obligation is named, when the finding is `does_not_apply` or `no_matching_obligation` and obligations are named, or when a duplicate names no earlier publication. The saved draft carries the owners from the register and the dates worked out by the system.
+
+### Document categories and the privilege guide
+
+`get_litigation_document_guide` gives both. A document is sorted by what it is and who it is from and to, not by what it quotes. A copy takes the category, the flag and the rule of the original, and the row names the original (PG-7).
+
+| Category | Covers |
+|---|---|
+| DC-1 | Court documents and documents made for the proceedings: claim forms, defences, witness statements, drafts of these, letters before action. |
+| DC-2 | Correspondence with the policyholder or the claimant: claim forms, accident reports, letters, decline letters, complaints. |
+| DC-3 | Internal notes and internal emails. An internal note that passes on legal advice is DC-5. |
+| DC-4 | Expert reports: engineers, surveyors, doctors. |
+| DC-5 | Legal advice: a request to Thornmere's lawyers, their advice, and an internal note that passes it on. |
+| DC-6 | Correspondence with third parties: brokers, repairers, reinsurers, witnesses. |
+| DC-7 | Policy documents. |
+
+| Rule | Flag | Says |
+|---|---|---|
+| PG-1 | yes | Thornmere asks its lawyer for legal advice, or the lawyer gives it, or an internal note passes it on. |
+| PG-2 | yes | Made mainly for proceedings that have started or are expected: a draft marked as prepared for litigation, a draft witness statement or defence, an expert report asked for by Thornmere's lawyers for the proceedings. |
+| PG-3 | no | A lawyer is only copied on an ordinary business email that neither asks for nor gives legal advice. |
+| PG-4 | unclear | Legal advice sent, forwarded or quoted to anybody outside Thornmere other than its own lawyers. For the lawyer. Comes before PG-1. |
+| PG-5 | no | The ordinary course of the claim: letters to and from the policyholder, the claimant or their lawyers, the adjuster's notes, a report asked for by the claims team to decide the claim, policy documents, documents filed at court or served by the other side. |
+| PG-6 | unclear | May record legal advice but does not say who gave it, or has no author or date so its purpose cannot be told. For the lawyer. |
+| PG-7 | as the original | A copy of a document already in the set. |
+
+Thornmere's lawyers: Emeric Thornbury, in-house counsel, and Lucasta Pargeter of Pargeter Voss Legal. The flag says only that a document may be privileged. The lawyers decide.
+
+### Disputed claims
+
+`get_disputed_claim` gives the people in the matter with their side, and every document as text with its date, author, recipients, `recipients_outside_thornmere_and_its_lawyers` and `identical_text_to`. The right schedule (`save_document_schedule`) has one row for each document.
+
+**DSP-7401**, Hollowmere Cold Stores Ltd, claim DCL-7451, commercial property, USD 186,000.00 in dispute. A letter before action is received; proceedings are expected. 11 documents: 3 yes, 7 no, 1 unclear.
+
+| Document | What it is | Date | Author | Category | May be privileged |
+|---|---|---|---|---|---|
+| DSP-7401-D01 | Notice of the loss from the policyholder | 29 Jul 2026 | Barnabas Hollowmere | DC-2 | no, PG-5 |
+| DSP-7401-D02 | Adjuster's note of the site visit | 5 Aug 2026 | Wilfred Ackerley | DC-3 | no, PG-5 |
+| DSP-7401-D03 | Engineer's report, asked for by the adjuster to help decide the claim | 18 Aug 2026 | Ignatius Calderbrook | DC-4 | no, PG-5 |
+| DSP-7401-D04 | Letter declining the claim | 28 Aug 2026 | Griselda Hoxton | DC-2 | no, PG-5 |
+| DSP-7401-D05 | Letter before action from the policyholder's lawyers | 17 Oct 2026 | Perpetua Quillon | DC-1 | no, PG-5 |
+| DSP-7401-D06 | Email asking the external lawyer for advice | 19 Oct 2026 | Griselda Hoxton | DC-5 | yes, PG-1 |
+| DSP-7401-D07 | Note of advice from the external lawyer | 24 Oct 2026 | Lucasta Pargeter | DC-5 | yes, PG-1 |
+| DSP-7401-D08 | Email to the broker, Imelda Roe, that quotes the lawyers' advice in full | 26 Oct 2026 | Griselda Hoxton | DC-6 | unclear, PG-4: it looks privileged, but the advice went to a third party. For the lawyer. |
+| DSP-7401-D09 | Draft witness statement, marked "DRAFT. Prepared for litigation." | 14 Nov 2026 | Lucasta Pargeter | DC-1 | yes, PG-2 |
+| DSP-7401-D10 | Copy of the engineer's report: a duplicate of DSP-7401-D03 | 18 Aug 2026 | Ignatius Calderbrook | DC-4 | no, PG-5, as the original |
+| DSP-7401-D11 | Email to finance about the reserve, in-house counsel only copied | 21 Oct 2026 | Griselda Hoxton | DC-3 | no, PG-3 |
+
+**DSP-7402**, Ferelith Dunmore and Alaric Penhale (the policyholder), claim DCL-7452, private motor, USD 74,500.00 in dispute. Proceedings were issued in the Port Ilvane District Court on 13 Oct 2026, case PIDC-2026-0871. 9 documents: 3 yes, 6 no.
+
+| Document | What it is | Date | Author | Category | May be privileged |
+|---|---|---|---|---|---|
+| DSP-7402-D01 | Letter of claim from the other driver | 19 Jun 2026 | Ferelith Dunmore | DC-2 | no, PG-5 |
+| DSP-7402-D02 | Accident report form from the policyholder | 9 Jun 2026 | Alaric Penhale | DC-2 | no, PG-5 |
+| DSP-7402-D03 | File note of a call with the witness | 29 Jun 2026 | Matthias Orlop | DC-3 | no, PG-5 |
+| DSP-7402-D04 | Claim form issued at court by the claimant's lawyers | 13 Oct 2026 | Dorothea Kite | DC-1 | no, PG-5 |
+| DSP-7402-D05 | In-house counsel's advice on liability | 17 Oct 2026 | Emeric Thornbury | DC-5 | yes, PG-1 |
+| DSP-7402-D06 | Internal email that passes counsel's advice on | 18 Oct 2026 | Matthias Orlop | DC-5 | yes, PG-1 |
+| DSP-7402-D07 | Medical report, asked for by in-house counsel for the proceedings | 6 Nov 2026 | Hesketh Vane | DC-4 | yes, PG-2 |
+| DSP-7402-D08 | Email to the repairer about an invoice of USD 3,240.00, in-house counsel only copied | 9 Jul 2026 | Matthias Orlop | DC-6 | no, PG-3 |
+| DSP-7402-D09 | Second scan of the letter of claim: a duplicate of DSP-7402-D01 | 19 Jun 2026 | Ferelith Dunmore | DC-2 | no, PG-5, as the original |
+
+**DSP-7403**, Thaddea Wolstencroft, claim DCL-7453, home, USD 58,200.00 in dispute. The policyholder has complained; proceedings are expected. 8 documents: 2 yes, 5 no, 1 unclear.
+
+| Document | What it is | Date | Author | Category | May be privileged |
+|---|---|---|---|---|---|
+| DSP-7403-D01 | Policy schedule | 22 Oct 2025 | Thornmere Mutual Insurance, policy administration | DC-7 | no, PG-5 |
+| DSP-7403-D02 | Claim form | 9 Jul 2026 | Thaddea Wolstencroft | DC-2 | no, PG-5 |
+| DSP-7403-D03 | Surveyor's report, asked for by the adjuster to help decide the claim | 31 Jul 2026 | Fennimore Drake | DC-4 | no, PG-5 |
+| DSP-7403-D04 | Letter declining the claim | 13 Aug 2026 | Griselda Hoxton | DC-2 | no, PG-5 |
+| DSP-7403-D05 | Letter of complaint | 23 Aug 2026 | Thaddea Wolstencroft | DC-2 | no, PG-5 |
+| DSP-7403-D06 | Advice from the external lawyers | 27 Sep 2026 | Lucasta Pargeter | DC-5 | yes, PG-1 |
+| DSP-7403-D07 | A note with no date and no name: "Spoke to L. about the start date point." | none | none | DC-3 | unclear, PG-6: it may record legal advice and does not say who gave it. The row leaves the date and the author empty. |
+| DSP-7403-D08 | Draft defence, marked "DRAFT. Prepared for litigation. Not filed." | 17 Nov 2026 | Lucasta Pargeter | DC-1 | yes, PG-2 |
+
+The same kind of report has two answers: an engineer's or surveyor's report asked for by the claims team to decide the claim is PG-5 (DSP-7401-D03, DSP-7403-D03), and a medical report asked for by the lawyers for the proceedings is PG-2 (DSP-7402-D07).
+
+`save_document_schedule` is refused with 409, and nothing is saved, when a row names a document that is not in the set or names one twice, when a document of the set has no row (the refusal names each one), when a category is not one of DC-1 to DC-7, when a rule is not one of PG-1 to PG-7, or when `duplicate_of` is not another document of the set. The saved draft carries the system's own counts.
 
 ## Rules for checking
 

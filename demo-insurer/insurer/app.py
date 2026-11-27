@@ -20,11 +20,15 @@ from .store import Store
 from .systems import claims, health, policy
 from .systems import underwriting
 from .systems import investigations
+from .systems import servicing
+from .systems import conduct
 
 log = logging.getLogger("demo-insurer")
 SYSTEMS = [policy, claims, health]
 SYSTEMS.append(underwriting)
 SYSTEMS.append(investigations)
+SYSTEMS.append(servicing)
+SYSTEMS.append(conduct)
 
 
 class DemoHeaderMiddleware:

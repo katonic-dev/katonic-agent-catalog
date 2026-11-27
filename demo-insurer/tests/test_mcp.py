@@ -18,6 +18,8 @@ READ_CALLS = {
     "health": ("get_member", {"member_id": "MEM-7201"}, "member_id", "MEM-7201"),
     "underwriting": ("get_submission", {"submission_id": "SBM-6501"}, "submission_id", "SBM-6501"),
     "investigations": ("get_claim_for_checking", {"claim_id": "CLM-6201"}, "claim_id", "CLM-6201"),
+    "servicing": ("get_change_request", {"change_request_id": "CHG-7301"}, "change_request_id", "CHG-7301"),
+    "conduct": ("get_complaint", {"complaint_id": "CMP-7101"}, "complaint_id", "CMP-7101"),
 }
 
 

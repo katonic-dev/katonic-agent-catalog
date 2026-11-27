@@ -17,6 +17,8 @@ TODAY = "2026-11-26"
 SYSTEMS = ["policy", "claims", "health"]
 SYSTEMS.append("underwriting")
 SYSTEMS.append("investigations")
+SYSTEMS.append("servicing")
+SYSTEMS.append("conduct")
 ALL_SYSTEMS = list(SYSTEMS)
 H = {"X-API-Key": KEY}
 

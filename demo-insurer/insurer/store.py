@@ -225,4 +225,10 @@ class Store:
             "closed_claims_in_the_leakage_review": len(d["leakage_claims"]),
             "claims_waiting_for_the_fraud_check": sum(1 for c in d["investigation_claims"].values() if c["status"] == "new"),
             "claims_referred_to_investigations": sum(1 for c in d["investigation_claims"].values() if c["status"] == "flagged"),
+            "change_requests_received": sum(1 for c in d["sv_change_requests"].values() if c["status"] == "received"),
+            "certificate_requests_received": sum(1 for c in d["sv_certificate_requests"].values() if c["status"] == "received"),
+            "broker_call_back_requests_saved": sum(len(b["call_back_requests"]) for b in d["sv_brokers"].values()),
+            "complaints_new": sum(1 for c in d["cd_complaints"].values() if c["status"] == "new"),
+            "regulatory_publications_new": sum(1 for p in d["cd_publications"].values() if p["status"] == "new"),
+            "disputed_claims_to_be_sorted": len(d["cd_disputes"]),
         }
