@@ -1,0 +1,65 @@
+id: claims-leakage-review
+name: Claims Leakage Review
+pack: insurance
+area: Claims quality
+summary: >
+  Reviews closed claims against the insurer's numbered handling standards. For
+  each claim it sets what was paid, line by line, beside what the system works
+  out should have been paid, and lists the claims paid outside the standards
+  with the standard, the amount and the reason. Where the record is incomplete
+  it says that it cannot tell and that a person must look. The claims quality
+  team decides what follows. The agent recovers no money, reopens no claim and
+  says of no person that they were at fault.
+
+type: workflow
+form: scheduled
+started_by: A schedule. At the end of each review period the closed claims of the period, which the investigations system lists, are sent to the agent. Here a person sends the message
+
+# The output goes to the claims quality team, not to a desk. In this pack the
+# agent is built as a chat agent and a person sends the message.
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message names one closed claim, or asks for the closed claims of a
+# period. One read gives a closed claim with its whole payment file, and the
+# list of a period gives the same for every claim in it. The system tests one
+# claim against every standard and does every sum. The agent holds no read of
+# saved findings: a finding is not part of a claim's file.
+needs:
+  - id: investigations-system
+    kind: api
+    required: true
+    label: The insurer's investigations system, to read the handling standards, to list the closed claims of a review period, to read one closed claim with its payment file, to have the system work out what should have been paid and test the claim against every standard, and to save the finding as a draft
+    operations:
+      - get_claims_handling_standards
+      - list_closed_claims_for_review
+      - get_closed_claim_payment_file
+      - calculate_what_should_have_been_paid
+      - save_leakage_finding
+
+demo_insurer_systems: [investigations]
+
+stops_for_a_person:
+  - The claims quality team reads each finding and decides what follows from it. The agent decides nothing.
+  - Where the record is incomplete, the agent says that it cannot tell and names what is missing. A person looks at the file. The agent never guesses an amount.
+  - Whether money is asked back, from whom and how, is for a person. The agent recovers nothing and contacts nobody.
+  - Whether a closed claim is opened again is for a person. The agent reopens nothing and changes nothing on a claim.
+  - A finding names the standard and the payment, not a person. Whether anybody did wrong is for a person to judge, and the agent never says so.
+
+# Saving a finding is a draft kept with its author, a time and a version
+# number. It reopens no claim, asks nobody for money back and changes nothing
+# on the claim. Working out what should have been paid is a read: it saves
+# nothing, so it is not listed here.
+changes:
+  - {tool: save_leakage_finding, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."
