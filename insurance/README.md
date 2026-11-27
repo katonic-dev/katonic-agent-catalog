@@ -56,7 +56,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 29 | Bordereaux Check | Checks a bordereau against the treaty or binder terms | Workflow, event-triggered | Reinsurance desk | Planned |
 | 30 | Treaty Recovery | Lists paid claims that reach a treaty's attachment point with no recovery raised | Workflow, scheduled | Reinsurance desk | Planned |
 | | **Partners** | | | | |
-| 31 | Partner Quality | Checks administrators, repair networks and suppliers against service levels and credentials | Workflow, scheduled | Sent to the supplier manager | Planned |
+| 31 | [Partner Quality](agents/partner-quality/README.md) | Checks administrators, repair networks and suppliers against service levels and credentials | Workflow, scheduled | Sent to the supplier manager | Written. Not yet built on a cluster |
 
 ## The desks
 

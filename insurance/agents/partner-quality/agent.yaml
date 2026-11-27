@@ -1,0 +1,65 @@
+id: partner-quality
+name: Partner Quality
+pack: insurance
+area: Reinsurance and partners
+summary: >
+  Reviews the insurer's partners (claims administrators, repair networks and
+  suppliers) against their contracts. For one partner or for all of them it
+  sets the month's measured figures against the numbered service levels and
+  each credential against its expiry date, and lists what is not met, what has
+  expired, what expires within the notice window (a warning, not a miss) and
+  what cannot be told because a figure was not reported. The system does every
+  comparison and every count of days. The supplier manager decides what
+  follows. The agent suspends no partner, ends no contract, applies no
+  penalty, writes to no partner and names no member of staff.
+
+type: workflow
+form: scheduled
+started_by: A schedule. After each month's reports are in, the partners are sent to the agent. Here a person sends the message
+
+# The output goes to the supplier manager, not to a desk. In this pack the
+# agent is built as a chat agent and a person sends the message.
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message names one partner, or asks for all partners. One read gives a
+# partner whole with the system's measure of it, and the list gives the same
+# for every partner, so the agent holds no separate read of the measure
+# (measure_partner_against_service_levels returns what both reads already
+# carry). It holds no read of saved reviews: a review is not part of a
+# partner's record.
+needs:
+  - id: reinsurance-system
+    kind: api
+    required: true
+    label: The insurer's reinsurance and partners system, to list the partners with their service levels, figures, credentials and the system's measure, to read one partner the same way, and to save the review of a partner as a draft
+    operations:
+      - list_partners
+      - get_partner
+      - save_partner_review
+
+demo_insurer_systems: [reinsurance]
+
+stops_for_a_person:
+  - The supplier manager reads each review and decides what follows from it. The agent decides nothing.
+  - Where a figure for the period was not reported, the agent says that it cannot tell and names what is missing. A person gets the figure. The agent never guesses one and never calls it a miss.
+  - Whether a partner is suspended, a contract is ended or a penalty is applied is for a person. The agent does none of these.
+  - Whether anything is said to a partner, and by whom, is for a person. The agent writes to nobody.
+  - A review names the contract term and the figure, not a person. Whether anybody did wrong is for a person to judge, and the agent never says so.
+
+# Saving a review is a draft kept with its author, a time and a version
+# number. It ends no contract, suspends nobody, contacts no partner and
+# changes nothing on the partner's record.
+changes:
+  - {tool: save_partner_review, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."

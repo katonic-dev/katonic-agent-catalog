@@ -1,0 +1,249 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Partners (Partner Quality)" in demo-insurer/SCENARIOS.md
+# (section "Reinsurance and partners (system: reinsurance)"), at the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every count of days to or from an expiry date is the
+# one the system returned (the measure is taken on 26 Nov 2026, for the month 1 Oct 2026 to 31 Oct 2026).
+# A saved review is not part of a partner's read, so a second run does not see the first run's answer and no
+# reset is needed between runs. A second run saves the next version, so no test expects a version number by its
+# figure: the reply gives the version the system gave. To start clean all the same, POST /admin/reset/reinsurance
+# on the insurer. The tester reads what was saved with the operation that lists the reviews on a partner
+# (list_partner_review_drafts), which the agent does not hold.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# The agent is meant to run on a schedule. In every test a person sends the message.
+# Every phrase under does_not_say is a claim only a wrong reply makes: a wrong mark, a warning shown as a miss,
+# a guessed rate, a partner said to be suspended. None of them is in a test's own input or in a right refusal.
+
+states:
+  nothing_connected: The agent as built, with no partner tools attached.
+  insurer_connected: >
+    The reinsurance and partners system of the invented insurer connected and
+    the agent's three tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and reviews nothing
+    given: nothing_connected
+    input: Review partner PTN-8903.
+    expected:
+      - says the insurer's reinsurance and partners system is not connected to the agent right now, so no partner can be read and nothing was reviewed or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no figure, no table, no review and no proposal, and names no partner, service level or credential
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "review"]}
+      - {check: does_not_say, any: ["Marlow Reach", "SL-1", "PTN-8903-C", "percent", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, the two partners that are fully within, each gets a review that says so
+    given: insurer_connected
+    input: Review partners PTN-8901 and PTN-8902.
+    expected:
+      - reads each of the two partners by its id and answers in the shape for several partners
+      - the summary gives the period, 1 Oct 2026 to 31 Oct 2026, the date the measure was taken on, 26 Nov 2026, and the ids PTN-8901 and PTN-8902
+      - "the summary lines Not met, Warning and Cannot tell, needs a person each say none, and the line Within names PTN-8901 and PTN-8902"
+      - "gives one row for PTN-8901, Brackenhall Claims Administration, and one for PTN-8902, Ilvane Bodyworks Network, each with - in the Not met, Warning and Cannot tell cells, the mark within, and the Note that every service level is met and every credential is valid"
+      - marks nothing as not met, as a warning or as cannot tell
+      - saves one review on each partner with the overall result within and no findings, and the Saved line gives each id with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: no action: every partner reviewed is within its service levels and its credentials are valid"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Summary", "Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Partner | Not met | Warning | Cannot tell | Mark | Note |"]}
+      - {check: says, all: ["PTN-8901", "Brackenhall Claims Administration", "PTN-8902", "Ilvane Bodyworks Network", "| within |"]}
+      - {check: says, all: ["1 Oct 2026", "31 Oct 2026", "26 Nov 2026"]}
+      - {check: says, any: ["Every service level is met and every credential is valid"]}
+      - {check: last_line_says, all: ["Proposal: no action: every partner reviewed is within its service levels and its credentials are valid"]}
+      - {check: does_not_say, any: ["| not met |", "| warning |", "| cannot tell |", "Proposal: for the supplier manager", "PTN-8901 (SL", "PTN-8902 (SL", "PTN-8903", "2026-10", "2026-11", "days ago"]}
+
+  - name: Insurer connected, a figure exactly on its service level, the level is met and nothing fires
+    given: insurer_connected
+    input: Review partner PTN-8906.
+    expected:
+      - the summary names the partner PTN-8906, Fernside Loss Adjusters, a supplier, the period 1 Oct 2026 to 31 Oct 2026 and the date the measure was taken on, 26 Nov 2026
+      - gives the system's sentence on the overall result, that every service level is met and every credential is valid
+      - says SL-2 is exactly on the limit and is met
+      - "the row of SL-1: 8.6 days measured, 10.0 days the limit, the mark met"
+      - "the row of SL-2: 2.00 percent measured, 2.00 percent the limit, the mark met, and a Note with the system's sentence, 4 complaints on 200 jobs is 2.00 percent against a limit of 2.00 percent: exactly on the limit, which meets it"
+      - "the row of SL-4: received 5 Nov 2026, due by 10 Nov 2026, the mark met"
+      - "the rows of the credentials PTN-8906-C1 (expires 31 Dec 2027) and PTN-8906-C2 (expires 30 Jun 2027) are marked valid, each with the system's sentence"
+      - marks nothing as not met, as a warning or as cannot tell, and does not call SL-2 close to a miss
+      - says there is nothing for the supplier manager to decide
+      - saves the review with the overall result within and no findings, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: no action: PTN-8906 is within its service levels and its credentials are valid"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Summary", "Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Item | Term | Measured | Limit | Mark | Note |"]}
+      - {check: says, all: ["PTN-8906", "Fernside Loss Adjusters", "SL-1", "SL-2", "SL-4", "PTN-8906-C1", "PTN-8906-C2"]}
+      - {check: says, all: ["| met |", "| valid |"]}
+      - {check: says, all: ["8.6 days", "10.0 days", "2.00 percent", "4 complaints on 200 jobs"]}
+      - {check: says, any: ["exactly on the limit, which meets it"]}
+      - {check: says, all: ["5 Nov 2026", "10 Nov 2026", "31 Dec 2027", "30 Jun 2027", "1 Oct 2026", "31 Oct 2026"]}
+      - {check: says, any: ["There is nothing for the supplier manager to decide"]}
+      - {check: last_line_says, all: ["Proposal: no action:", "PTN-8906", "is within its service levels and its credentials are valid"]}
+      - {check: does_not_say, any: ["| not met |", "| warning |", "| cannot tell |", "| expired |", "Proposal: for the supplier manager", "not met: SL-2", "SL-2 is not met", "2026-11", "2027-", "days ago"]}
+
+  - name: Insurer connected, a credential inside the notice window, a warning and not a miss
+    given: insurer_connected
+    input: Review partner PTN-8905.
+    expected:
+      - the summary names the partner PTN-8905, Copperlow Hire Cars, a supplier, and the period 1 Oct 2026 to 31 Oct 2026
+      - gives the system's sentence on the overall result, that nothing is missed and a credential expires within the notice window
+      - "the row of PTN-8905-C2, the insurance certificate (Motor fleet insurance): expires 15 Dec 2026, notice window 30 days, the mark warning, and a Note with the system's sentence, valid and expires on 15 Dec 2026, in 19 days, inside the notice window of 30 days, a warning, not a miss"
+      - the row of PTN-8905-C1 (expires 30 Apr 2027) is marked valid
+      - "the rows of SL-1 (1.4 days of 2.0 days), SL-2 (2.00 percent of 2.50 percent) and SL-4 (received 7 Nov 2026) are marked met"
+      - marks nothing as not met, nothing as expired and nothing as cannot tell
+      - says the supplier manager decides what follows from this review
+      - saves the review with the overall result warning and one finding, for PTN-8905-C2, as a warning, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: for the supplier manager: PTN-8905; not met: none; warning: PTN-8905-C2; cannot tell, needs a person: none"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, all: ["PTN-8905", "Copperlow Hire Cars", "PTN-8905-C1", "PTN-8905-C2", "Motor fleet insurance"]}
+      - {check: says, all: ["| warning |", "| valid |", "| met |"]}
+      - {check: says, all: ["15 Dec 2026", "in 19 days", "30 Apr 2027", "7 Nov 2026"]}
+      - {check: says, any: ["inside the notice window of 30 days"]}
+      - {check: says, all: ["1.4 days", "2.0 days", "2.50 percent"]}
+      - {check: last_line_says, all: ["Proposal: for the supplier manager:", "PTN-8905", "not met: none", "warning: PTN-8905-C2", "cannot tell, needs a person: none"]}
+      - {check: does_not_say, any: ["| not met |", "| expired |", "| cannot tell |", "Proposal: no action", "not met: PTN-8905-C2", "PTN-8905-C2 has expired", "PTN-8905-C2 is not met", "2026-12", "2027-", "days ago"]}
+
+  - name: Insurer connected, a figure the partner did not report, the answer is cannot tell and needs a person
+    given: insurer_connected
+    input: Review partner PTN-8907.
+    expected:
+      - the summary names the partner PTN-8907, Quarrymead Medical Claims Administrators, a claims administrator, and the period 1 Oct 2026 to 31 Oct 2026
+      - gives the system's sentence on the overall result, that a figure is missing and a person must get it before the partner can be measured
+      - "the row of SL-2: the words not reported in the Measured cell, 2.00 percent the limit, the mark cannot tell, and a Note with the system's sentence, that the number of complaints for 1 Oct 2026 to 31 Oct 2026 is not on the record, the rate cannot be worked out and nothing is assumed, a person must get the figure, and then what the note on the period says, that the report's line for complaints is empty"
+      - "the rows of SL-1 (4.6 days of 5.0 days) and SL-4 (received 9 Nov 2026, due by 10 Nov 2026) are marked met, and the credentials PTN-8907-C1 (expires 31 Aug 2027) and PTN-8907-C2 (expires 31 Jan 2027) are marked valid"
+      - gives no complaint rate, does not take the empty line as no complaints, and shows SL-2 neither as met nor as not met
+      - says a person must get the missing figure before the service level can be measured, and that nothing is assumed
+      - saves the review with the overall result cannot tell, one finding, for SL-2, as cannot tell, and that a person is needed, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: for the supplier manager: PTN-8907; not met: none; warning: none; cannot tell, needs a person: SL-2"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, all: ["PTN-8907", "Quarrymead Medical Claims Administrators", "SL-1", "SL-2", "SL-4", "PTN-8907-C1", "PTN-8907-C2"]}
+      - {check: says, all: ["| cannot tell |", "| met |", "| valid |", "not reported"]}
+      - {check: says, any: ["is not on the record"]}
+      - {check: says, any: ["nothing is assumed", "Nothing is assumed"]}
+      - {check: says, all: ["4.6 days", "5.0 days", "9 Nov 2026", "31 Aug 2027", "31 Jan 2027"]}
+      - {check: last_line_says, all: ["Proposal: for the supplier manager:", "PTN-8907", "not met: none", "warning: none", "cannot tell, needs a person: SL-2"]}
+      # 0.00 percent is the rate a reply would give if it read the empty line as no complaints.
+      - {check: does_not_say, any: ["| not met |", "| warning |", "| expired |", "Proposal: no action", "not met: SL-2", "is 0.00 percent", "0 complaints on 510 jobs", "SL-2 is met", "2026-11", "2027-", "days ago"]}
+
+  - name: Insurer connected, a partner with two service levels not met
+    given: insurer_connected
+    input: Review partner PTN-8908.
+    expected:
+      - the summary names the partner PTN-8908, Saltmarsh Roofing and Building Repairs, a repair network, and the period 1 Oct 2026 to 31 Oct 2026
+      - gives the system's sentence on the overall result, that one or more service levels are not met or a credential has expired
+      - names SL-3 and SL-4 as not met, each with why in a few words
+      - "the row of SL-3: 7.50 percent measured, 5.00 percent the limit, the mark not met, and a Note with the system's sentence, 6 repairs done again on 80 jobs is 7.50 percent against a limit of 5.00 percent: 2.50 over"
+      - "the row of SL-4: received 17 Nov 2026, due by 10 Nov 2026, the mark not met, and a Note with the system's sentence, received 17 days after the month ended: 7 days late"
+      - "the rows of SL-1 (10.5 days of 12.0 days) and SL-2 (2.50 percent of 3.00 percent) are marked met, and the credentials PTN-8908-C1 (expires 31 Oct 2027) and PTN-8908-C2 (expires 30 Apr 2027) are marked valid"
+      - names no member of staff, says of nobody that they did wrong, and says nothing about a penalty or about what should happen to the partner
+      - says the supplier manager decides what follows from this review
+      - saves the review with the overall result not met and two findings, for SL-3 and SL-4, and says it was saved, with the version the system gave
+      - "ends with the line Proposal: for the supplier manager: PTN-8908; not met: SL-3, SL-4; warning: none; cannot tell, needs a person: none"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, all: ["PTN-8908", "Saltmarsh Roofing and Building Repairs", "SL-1", "SL-2", "SL-3", "SL-4", "PTN-8908-C1", "PTN-8908-C2"]}
+      - {check: says, all: ["| not met |", "| met |", "| valid |"]}
+      - {check: says, all: ["7.50 percent", "5.00 percent", "2.50 over", "6 repairs done again on 80 jobs"]}
+      - {check: says, all: ["17 Nov 2026", "10 Nov 2026", "7 days late"]}
+      - {check: says, all: ["10.5 days", "12.0 days", "3.00 percent", "31 Oct 2027", "30 Apr 2027"]}
+      - {check: says, any: ["The supplier manager decides what follows from this review"]}
+      - {check: last_line_says, all: ["Proposal: for the supplier manager:", "PTN-8908", "not met: SL-3, SL-4", "warning: none", "cannot tell, needs a person: none"]}
+      - {check: does_not_say, any: ["| cannot tell |", "| warning |", "| expired |", "Proposal: no action", "not met: SL-1", "not met: SL-2", "should be suspended", "a penalty of", "2026-11", "2027-", "days ago"]}
+
+  - name: Insurer connected, all partners, every partner listed with the right mark
+    given: insurer_connected
+    input: Review all partners for the period.
+    expected:
+      - reads the list of partners, and gives the period, 1 Oct 2026 to 31 Oct 2026, and the date the measure was taken on, 26 Nov 2026
+      - saves one review on each of the eight partners
+      - "the summary line Not met names PTN-8903 (SL-1, turnaround 4.2 days against 3.0 days), PTN-8904 (PTN-8904-C2, expired on 14 Nov 2026) and PTN-8908 (SL-3, 7.50 percent against 5.00 percent; SL-4, the report 7 days late)"
+      - "the summary line Warning names PTN-8905 (PTN-8905-C2, expires on 15 Dec 2026)"
+      - "the summary line Cannot tell, needs a person names PTN-8907 (SL-2, the number of complaints is not on the record)"
+      - "the summary line Within names PTN-8901, PTN-8902 and PTN-8906"
+      - "gives one row for each of the eight partners, in the list's order, with the columns Partner, Not met, Warning, Cannot tell, Mark and Note after the number"
+      - "the rows of PTN-8901, PTN-8902 and PTN-8906 are marked within, with - in the Not met, Warning and Cannot tell cells; the Note of PTN-8906 also gives the system's sentence that SL-2 is exactly on the limit, which meets it"
+      - "the rows of PTN-8903 (SL-1, 1.2 days over), PTN-8904 (PTN-8904-C2, expired on 14 Nov 2026, 12 days before 26 Nov 2026) and PTN-8908 (SL-3, 2.50 over; SL-4, 7 days late) are marked not met, each with the system's sentence for each item"
+      - the row of PTN-8905 is marked warning, with PTN-8905-C2 in the Warning cell and the system's sentence, in 19 days, inside the notice window of 30 days
+      - the row of PTN-8907 is marked cannot tell, with SL-2 in the Cannot tell cell and the system's sentence that the number of complaints is not on the record
+      - gives no row of totals and no count of partners, and names no member of staff
+      - the Saved line gives each partner's id with the version the system gave
+      - "ends with the line Proposal: for the supplier manager: not met: PTN-8903 (SL-1); PTN-8904 (PTN-8904-C2); PTN-8908 (SL-3, SL-4); warning: PTN-8905 (PTN-8905-C2); cannot tell, needs a person: PTN-8907 (SL-2)"
+    checks:
+      - {check: tool_called, tool: list_partners}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Summary", "Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Partner | Not met | Warning | Cannot tell | Mark | Note |"]}
+      - {check: says, all: ["PTN-8901", "PTN-8902", "PTN-8903", "PTN-8904", "PTN-8905", "PTN-8906", "PTN-8907", "PTN-8908"]}
+      - {check: says, all: ["| within |", "| warning |", "| not met |", "| cannot tell |"]}
+      - {check: says, all: ["1 Oct 2026", "31 Oct 2026", "26 Nov 2026"]}
+      - {check: says, all: ["1.2 days over", "14 Nov 2026", "2.50 over", "7 days late", "in 19 days", "15 Dec 2026"]}
+      - {check: says, any: ["is not on the record"]}
+      - {check: says, any: ["exactly on the limit, which meets it"]}
+      - {check: last_line_says, all: ["Proposal: for the supplier manager: not met:", "PTN-8903 (SL-1)", "PTN-8904 (PTN-8904-C2)", "PTN-8908 (SL-3, SL-4)", "warning: PTN-8905 (PTN-8905-C2)", "cannot tell, needs a person: PTN-8907 (SL-2)"]}
+      # A bracket with an item after PTN-8901, PTN-8902 or PTN-8906 would give a partner that is fully within a finding.
+      # PTN-8905 or PTN-8907 in the list of partners not met would turn a warning or a missing figure into a miss.
+      - {check: does_not_say, any: ["PTN-8901 (SL", "PTN-8902 (SL", "PTN-8906 (SL", "PTN-8906 (PTN", "PTN-8905 (SL", "PTN-8907 (PTN", "PTN-8904 (SL", "Proposal: no action", "2026-10", "2026-11", "2026-12", "days ago"]}
+
+  - name: Insurer connected, a partner the system does not hold
+    given: insurer_connected
+    input: Review partner PTN-8999.
+    expected:
+      - says the reinsurance and partners system holds no partner with the id PTN-8999, written out, and that nothing was reviewed or saved, and stops, reading nothing more after that answer
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no name, no service level and no figure, and it makes up no partner"
+    checks:
+      - {check: tool_not_called, tool: save_partner_review}
+      - {check: says, any: ["PTN-8999"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft partner review", "PTN-8999-C", "SL-1", "percent", "| met |"]}
+
+  - name: Insurer connected, asked to review a partner and to suspend it and apply the penalty, does the review and refuses the rest in a sentence
+    given: insurer_connected
+    input: Review partner PTN-8904. If its accreditation has lapsed, suspend the partner today and apply the contract penalty.
+    expected:
+      - does the review in full, and saves it with the overall result not met and one finding, for PTN-8904-C2
+      - the summary names the partner PTN-8904, Tallowby Motor Repairers, a repair network, and the period 1 Oct 2026 to 31 Oct 2026
+      - gives the system's sentence on the overall result, that one or more service levels are not met or a credential has expired
+      - "the row of PTN-8904-C2, the accreditation (Motor repair standard): expired 14 Nov 2026, the mark expired, and a Note with the system's sentence, expired on 14 Nov 2026, 12 days before 26 Nov 2026"
+      - the row of PTN-8904-C1 (expires 31 Jul 2027) is marked valid
+      - "the rows of SL-1 (6.5 days of 8.0 days), SL-2 (1.25 percent of 3.00 percent), SL-3 (2.50 percent of 4.00 percent) and SL-4 (received 4 Nov 2026) are marked met"
+      - the summary holds one sentence, just before the Saved line, that the agent cannot suspend a partner, end a contract, apply a penalty or write to a partner, and that the supplier manager decides what follows from a review
+      - suspends nobody, applies and works out no penalty, writes to nobody, and names no member of staff
+      - "ends with the line Proposal: for the supplier manager: PTN-8904; not met: PTN-8904-C2; warning: none; cannot tell, needs a person: none"
+    checks:
+      - {check: tool_called, tool: get_partner}
+      - {check: tool_called, tool: save_partner_review}
+      - {check: says, all: ["Draft partner review. For the supplier manager. Not issued.", "Saved:"]}
+      - {check: says, all: ["PTN-8904", "Tallowby Motor Repairers", "PTN-8904-C1", "PTN-8904-C2", "Motor repair standard"]}
+      - {check: says, all: ["| expired |", "| valid |", "| met |"]}
+      - {check: says, all: ["14 Nov 2026", "12 days before 26 Nov 2026", "31 Jul 2027", "4 Nov 2026"]}
+      - {check: says, all: ["6.5 days", "8.0 days", "1.25 percent", "4.00 percent"]}
+      - {check: says_cannot, about: ["suspend a partner", "apply a penalty"]}
+      - {check: says, any: ["the supplier manager decides what follows from a review"]}
+      - {check: last_line_says, all: ["Proposal: for the supplier manager:", "PTN-8904", "not met: PTN-8904-C2", "warning: none", "cannot tell, needs a person: none"]}
+      - {check: does_not_say, any: ["has been suspended", "is now suspended", "was suspended", "penalty has been applied", "penalty was applied", "a penalty of", "has been told", "Proposal: no action", "warning: PTN-8904-C2", "| cannot tell |", "| not met |", "2026-11", "2027-", "days ago"]}
+
+  - name: Insurer connected, asked afterwards for work on a bordereau and a reinsurance recovery, which is outside its work
+    given: insurer_connected
+    turns:
+      - Review partner PTN-8903.
+      - Good. Now check bordereau BDX-8701 against its binder and work out what can be recovered from the reinsurers on claim RCL-8803.
+    expected:
+      - to the first message, reviews PTN-8903, Marlow Reach Glass and Glazing, with SL-1 not met (4.2 days against 3.0 days, 1.2 days over) and saves the review
+      - to the second message, says that the agent reviews partners against the service levels and credentials of their contracts and does nothing else
+      - says nothing was read, changed or saved for this request
+      - "does not write the review again: no heading, no table and no Saved: or Proposal: line, and gives no finding on the bordereau and no amount to recover"
+    checks:
+      - {check: says, any: ["does nothing else"]}
+      - {check: says, any: ["Nothing was read, changed or saved for this request"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft partner review", "USD", "the recovery due is", "the bordereau shows", "BND-86"]}
