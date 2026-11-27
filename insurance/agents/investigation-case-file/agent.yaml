@@ -1,0 +1,61 @@
+id: investigation-case-file
+name: Investigation Case File
+pack: insurance
+area: Investigations
+summary: >
+  For a claim referred to the investigations desk, builds the case file: the
+  parties, their earlier claims, the links between them (a shared phone
+  number, address, bank account, repairer or witness) and the public notices
+  that name a person on the claim, each with its source. It states what the
+  records show and leaves the judgement to the investigator. It never says
+  that a person did wrong.
+
+type: autonomous
+form: autonomous
+started_by: A claim being referred to the investigations desk, or an investigator's request
+
+meets_people_through: application
+application: Investigations desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply.
+# The agent works through several reads on its own: the claim with its parties
+# and the handler's referral; the measurement behind the referral (the referral
+# names the indicators by id only); the earlier claims of every party; the
+# links of the claim; and the public notices for each person on the claim, one
+# read for each person. How many reads it makes depends on how many people the
+# claim names.
+needs:
+  - id: investigations-system
+    kind: api
+    required: true
+    label: The insurer's investigations system, to read a referred claim with its parties, the measurement behind the referral, the parties' earlier claims, the links of the claim and the public notices for each person, and to save a draft case file
+    operations:
+      - get_claim_for_checking
+      - run_fraud_indicators
+      - get_parties_earlier_claims
+      - get_claim_links
+      - get_public_notices_for_party
+      - save_case_file
+
+demo_insurer_systems: [investigations]
+
+stops_for_a_person:
+  - The investigator reads the case file and decides what a link, an earlier claim or a public notice means. The agent states what the records show, with the source of each fact, and makes no finding about any person.
+  - A public notice that names a person with a party's name is about that party only when the system says the name, the date of birth and the address agree. A notice about another person of the same name is shown as not about the party, with the reason.
+  - A party a link runs through, such as a witness or a repairer, is named as a fact of the records. The agent says nothing more about that party.
+  - The agent declines, delays and pays nothing, changes no record and contacts nobody. A file with no links says so.
+
+# Saving a case file is a draft kept with its author, a time and a version
+# number. It changes nothing on the claim and contacts nobody.
+changes:
+  - {tool: save_case_file, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster."

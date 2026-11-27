@@ -1,0 +1,59 @@
+id: fraud-detection
+name: Fraud Detection
+pack: insurance
+area: Investigations
+summary: >
+  Before anything is paid, checks a new claim against the insurer's own
+  numbered indicators and the parties' earlier claims, and prepares a referral
+  with its reasons for the investigator. The system measures every indicator.
+  The agent says which are met and what each rests on. It never says that a
+  claim is false or that a person did wrong, and it declines nothing.
+
+type: workflow
+form: event-triggered
+started_by: A new claim reaching the fraud check, before anything is paid
+
+meets_people_through: application
+application: Investigations desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the claim's id and reads the reply.
+# The claim comes with its parties, its documents and its policy in one read.
+# The system measures all six indicators in one read, with the day counts, the
+# counts of claims and the percentage. A third read gives the earlier claims of
+# every party and any other person who has the claimant's name. The agent does
+# not hold the read that lists the indicators: the measurement gives each
+# indicator's id, name, test and threshold.
+needs:
+  - id: investigations-system
+    kind: api
+    required: true
+    label: The insurer's investigations system, to read a new claim with its parties, to have every indicator measured on it, to read the parties' earlier claims, and to save a draft referral
+    operations:
+      - get_claim_for_checking
+      - run_fraud_indicators
+      - get_parties_earlier_claims
+      - save_fraud_referral
+
+demo_insurer_systems: [investigations]
+
+stops_for_a_person:
+  - The investigator reads the draft referral and decides what an indicator that is met means. The agent says which indicators are met and what each rests on. It makes no finding about the claim or about any person.
+  - A claim with no indicator met stays with its handler. The agent proposes no referral and says so. That is a result, not a failure.
+  - The agent declines, delays and pays nothing, changes no record and contacts nobody. A handler or the investigator does each of those.
+  - A person with the claimant's name and another date of birth is another person. The agent says so and leaves that person's claims out.
+
+# Saving a referral is a draft kept with its author, a time and a version
+# number. It does not change the claim's status, holds no payment and tells
+# nobody anything.
+changes:
+  - {tool: save_fraud_referral, waits_for_approval: false}
+
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster."

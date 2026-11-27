@@ -27,8 +27,8 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 7 | [Claims Correspondence](agents/claims-correspondence/README.md) | Drafts the letter to the claimant from the claim file and the insurer's templates | Conversational, acting | Claims assessment desk | Built on a development cluster. All nine tests pass five runs in a row; the Arabic letter is not yet read by a reader of Arabic |
 | 8 | [Claims Leakage Review](agents/claims-leakage-review/README.md) | Reviews closed claims against the handling standards and lists those paid outside them | Workflow, scheduled | Sent to the claims quality team | Written. Not yet built on a cluster |
 | | **Fraud** | | | | |
-| 9 | Fraud Detection | Checks a claim against the insurer's own indicators and the claimant's history and flags it with reasons, before payment | Workflow, event-triggered | Investigations desk | Planned |
-| 10 | Investigation Case File | Builds the case file for a flagged claim: earlier claims by the same parties, links between them, public reporting | Autonomous | Investigations desk | Planned |
+| 9 | [Fraud Detection](agents/fraud-detection/README.md) | Checks a claim against the insurer's own indicators and the claimant's history and flags it with reasons, before payment | Workflow, event-triggered | Investigations desk | Written. Not yet built on a cluster |
+| 10 | [Investigation Case File](agents/investigation-case-file/README.md) | Builds the case file for a flagged claim: earlier claims by the same parties, links between them, public reporting | Autonomous | Investigations desk | Written. Not yet built on a cluster |
 | | **Underwriting** | | | | |
 | 11 | [Underwriting Support](agents/underwriting-support/README.md) | Reads a broker's submission and prepares the file: within guidelines, outside, missing | Workflow, event-triggered | Underwriting desk | Written. Not yet built on a cluster |
 | 12 | [Risk Appetite Check](agents/risk-appetite-check/README.md) | Says in a sentence whether a risk is within appetite and which rule says so | Conversational, answering | Chat | Written. Not yet built on a cluster |
