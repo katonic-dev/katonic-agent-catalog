@@ -49,9 +49,9 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 24 | [Complaint Handling](agents/complaint-handling/README.md) | Classifies a complaint, gathers the policy and claim history, drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Written. Not yet built on a cluster |
 | 25 | [Litigation Support](agents/litigation-support/README.md) | Sorts the documents of a disputed claim and flags what may be privileged | Autonomous | Sent to the lawyers | Written. Not yet built on a cluster |
 | | **Product and pricing** | | | | |
-| 26 | Product Change Analyst | Takes a proposed product change and returns what it touches and the questions it cannot answer | Conversational, answering | Chat | Planned |
-| 27 | Pricing Analyst | Works out the premium that holds a target loss ratio and shows the calculation | Conversational, answering | Chat | Planned |
-| 28 | Risk Profiling | Answers questions on portfolio exposure from the warehouse and shows the query it ran | Conversational, answering | Chat | Planned |
+| 26 | [Product Change Analyst](agents/product-change-analyst/README.md) | Takes a proposed product change and returns what it touches and the questions it cannot answer | Conversational, answering | Chat | Written. Not yet built on a cluster |
+| 27 | [Pricing Analyst](agents/pricing-analyst/README.md) | Works out the premium that holds a target loss ratio and shows the calculation | Conversational, answering | Chat | Written. Not yet built on a cluster |
+| 28 | [Risk Profiling](agents/risk-profiling/README.md) | Answers questions on portfolio exposure from the warehouse and shows the query it ran | Conversational, answering | Chat | Written. Not yet built on a cluster |
 | | **Reinsurance and finance** | | | | |
 | 29 | [Bordereaux Check](agents/bordereaux-check/README.md) | Checks a bordereau against the treaty or binder terms | Workflow, event-triggered | Reinsurance desk | Written. Not yet built on a cluster |
 | 30 | [Treaty Recovery](agents/treaty-recovery/README.md) | Lists paid claims that reach a treaty's attachment point with no recovery raised | Workflow, scheduled | Reinsurance desk | Written. Not yet built on a cluster |

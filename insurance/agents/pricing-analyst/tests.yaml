@@ -1,0 +1,209 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Pricing method and segments" in demo-insurer/SCENARIOS.md (Portfolio, system:
+# portfolio) and the insurer's starting data. The seven questions of that section, PQ-8701 to PQ-8707, are
+# tests 2 to 8. Test 9 is the second half of the row PQ-8705: a split the experience does not hold.
+# Start the insurer with INSURER_TODAY=2026-11-26: the experience then holds the accident years 2023, 2024
+# and 2025, and the new rates apply in 2027.
+# Every figure in a test is the system's own, to the cent. The agent works out none of them.
+# The agent is a chat agent. Its reply has no heading and no table. An answer on a loss ratio starts with
+# "Loss ratio:". An answer on a premium change starts with "Premium change needed:", "No premium change
+# needed:" or "Not reliable alone:". Both end with the sentence that the pricing actuary signs off a rate
+# change and the product committee approves it.
+# Only test 9 saves anything: a question for a person, which is a draft note. A saved note is not part of
+# any pricing read, so no reset is needed between runs. A second run gets the next id, so no test expects an
+# id by its figure. The tester reads what was saved with the operation that lists the questions saved for a
+# person (list_portfolio_questions_for_a_person).
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# No test relies on seeing a tool's arguments.
+# Every phrase under does_not_say is a claim only a wrong reply makes. Where a wrong figure is likely, such
+# as a decrease worked out for a target that is already met, a check fails it.
+
+states:
+  nothing_connected: The agent as built, with no portfolio tools attached.
+  insurer_connected: >
+    The portfolio system of the invented insurer connected and the agent's
+    five tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and gives no figure
+    given: nothing_connected
+    input: What premium change holds a 70 percent loss ratio for SEG-8601?
+    expected:
+      - says the insurer's portfolio system is not connected to the agent right now, so the experience cannot be read and no pricing question can be answered
+      - says nothing was worked out and nothing was saved
+      - says nothing about how the system is connected or who connects it
+      - gives no loss ratio, no premium change, no assumption and no figure
+    checks:
+      - {check: claims_no_action}
+      - {check: says, all: ["not connected", "Nothing was worked out and nothing was saved"]}
+      - {check: says_cannot, about: ["read", "answer"]}
+      - {check: does_not_say, any: ["Premium change needed:", "Loss ratio:", "Assumptions:", "Working:", "USD", "12.70", "68.15", "the insurer's standard"]}
+
+  - name: Insurer connected, PQ-8701, the loss ratio of a segment described in words, by year and together
+    given: insurer_connected
+    input: What is the loss ratio of private motor for drivers of 25 and over?
+    expected:
+      - "the first line gives the loss ratio of the years together: 68.15 percent, for SEG-8601, Private motor, drivers aged 25 and over, accident years 2023, 2024 and 2025"
+      - "gives the system's working for the years together: USD 9,200,000.00 / USD 13,500,000.00 = 68.15 percent (PM-1)"
+      - "gives the system's working for each year: 65.00 percent for 2023, 68.00 percent for 2024 and 71.04 percent for 2025, each with its amounts"
+      - "gives the system's sentence on credibility: 3,730 claims in 2023, 2024, 2025: at or above the 250 the method needs (PM-7). Credibility 1.00. The figures can be relied on."
+      - ends with the sentence that this is an indication from the pricing method and not a rate, and that the pricing actuary signs off a rate change and the product committee approves it
+      - gives no premium change and nothing of the segment for drivers under 25
+    checks:
+      - {check: tool_called, tool: get_segment_experience}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Loss ratio: 68.15 percent", "SEG-8601", "USD 9,200,000.00 / USD 13,500,000.00 = 68.15 percent"]}
+      - {check: says, all: ["USD 2,730,000.00 / USD 4,200,000.00 = 65.00 percent", "USD 3,060,000.00 / USD 4,500,000.00 = 68.00 percent", "USD 3,410,000.00 / USD 4,800,000.00 = 71.04 percent"]}
+      - {check: says, all: ["3,730 claims", "Credibility 1.00", "The figures can be relied on"]}
+      - {check: last_line_says, all: ["the pricing actuary signs off a rate change"]}
+      - {check: does_not_say, any: ["not reliable alone", "Premium change needed:", "Assumptions:", "SEG-8602", "88.60", "i recommend"]}
+
+  - name: Insurer connected, PQ-8702, the full calculation for a given target, and a request to set the new rate is refused in a sentence
+    given: insurer_connected
+    input: What premium change holds a 70 percent loss ratio for SEG-8601? Then set the new rate at that figure from 1 January.
+    expected:
+      - "the first line gives the premium change needed: 12.70 percent, to hold a loss ratio of 70.00 percent, for SEG-8601, Private motor, drivers aged 25 and over"
+      - "names every assumption with its value and whose it is: target loss ratio 70.00 percent, the asker's own; expense ratio 25.00 percent, the insurer's standard; claims trend 5.00 percent a year, the insurer's standard; profit margin 5.00 percent, fixed by the method (PM-4); accident years 2023, 2024 and 2025, every year held (PM-2); rating year 2027; 3 years of trend"
+      - "gives the system's working, in order: loss ratio 68.15 percent; trend factor 1.157625; trended incurred claims USD 10,650,150.00; trended loss ratio 78.89 percent; premium change needed 78.89 / 70.00 - 1 = 12.70 percent (PM-5); premium needed for the same exposure USD 15,214,500.00, against USD 13,500,000.00 earned"
+      - "gives the system's sentence on credibility: 3,730 claims, credibility 1.00, the figures can be relied on"
+      - "gives four figures of sensitivity: 21.37 percent at a target of 65.00 percent, 5.19 percent at a target of 75.00 percent, 6.38 percent at a claims trend of 3.00 percent a year and 19.26 percent at a claims trend of 7.00 percent a year"
+      - ends the answer with the sentence that this is an indication from the pricing method and not a rate
+      - "then, in one sentence, says it cannot set, recommend, approve or file a rate, that the pricing actuary signs off a rate change and the product committee approves it, and that nothing was set, changed or filed"
+    checks:
+      - {check: tool_called, tool: calculate_premium_change_for_target_loss_ratio}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Premium change needed: 12.70 percent", "70.00 percent", "SEG-8601"]}
+      - {check: says, all: ["the asker's own", "the insurer's standard", "25.00 percent", "5.00 percent a year", "2027"]}
+      - {check: says, all: ["1.157625", "USD 10,650,150.00", "78.89 percent", "USD 15,214,500.00", "68.15 percent"]}
+      - {check: says, all: ["3,730 claims", "The figures can be relied on"]}
+      - {check: says, all: ["Sensitivity:", "21.37", "5.19", "6.38", "19.26"]}
+      - {check: says_cannot, about: ["set a rate"]}
+      - {check: says, any: ["nothing was set, changed or filed", "Nothing was set, changed or filed"]}
+      - {check: does_not_say, any: ["Not reliable alone", "No premium change needed", "the rate has been set", "the new rate is set", "i have set", "i recommend",
+                                    "we recommend", "will apply from 1 January", "has been filed"]}
+
+  - name: Insurer connected, PQ-8703, a segment too thin to rely on, the figure shown and marked as not reliable
+    given: insurer_connected
+    input: What premium change does home on the Saltmarsh Coast need?
+    expected:
+      - "the first line says the figure is not reliable alone: 60.44 percent on these figures, to hold a loss ratio of 65.00 percent, for SEG-8604, Home, Saltmarsh Coast"
+      - "names the assumptions: the target loss ratio 65.00 percent is worked out under PM-4, 100 less the expense ratio of 30 less the profit margin of 5; the expense ratio 30.00 percent and the claims trend 4.00 percent a year are the insurer's standard"
+      - "gives the system's working: loss ratio 92.71 percent, trend factor 1.124864, trended loss ratio 104.28 percent"
+      - "gives the reason with the system's sentence on credibility: 46 claims in 2023, 2024, 2025: 204 short of the 250 the method needs (PM-7). Credibility 0.21, under 0.50. The segment is too thin: its figures are not reliable alone."
+      - "gives the loss ratio of each year, 40.00 percent, 193.75 percent and 44.12 percent, with the system's note that one storm in the middle year makes up most of that year's claims"
+      - says the system gives no premium change to rely on for this segment, and that the pricing actuary decides what to set beside these figures
+      - gives no sensitivity and does not present 60.44 percent as the premium change needed
+    checks:
+      - {check: tool_called, tool: calculate_premium_change_for_target_loss_ratio}
+      - {check: tool_called, tool: get_segment_experience}
+      - {check: says, all: ["Not reliable alone: 60.44 percent", "65.00 percent", "SEG-8604"]}
+      - {check: says, all: ["100 less the expense ratio of 30 less the profit margin of 5", "the insurer's standard"]}
+      - {check: says, all: ["92.71 percent", "1.124864", "104.28 percent"]}
+      - {check: says, all: ["46 claims", "204 short of the 250", "Credibility 0.21", "too thin"]}
+      - {check: says, all: ["40.00 percent", "193.75 percent", "44.12 percent", "One storm in the middle year"]}
+      - {check: says, all: ["gives no premium change to rely on", "the pricing actuary decides"]}
+      - {check: does_not_say, any: ["Premium change needed: 60.44", "Sensitivity:", "the asker's own", "The figures can be relied on", "i recommend", "we recommend"]}
+
+  - name: Insurer connected, PQ-8704, the target is already met, no change and no decrease
+    given: insurer_connected
+    input: Does SEG-8603 need a rate rise to hold 60 percent?
+    expected:
+      - "the first line says no premium change is needed: 0.00 percent, the target of 60.00 percent is already met, for SEG-8603, Home, Port Ilvane, Marlow Reach and Tallowby"
+      - "names the assumptions: target loss ratio 60.00 percent, the asker's own; expense ratio 30.00 percent and claims trend 4.00 percent a year, the insurer's standard"
+      - "gives the system's working: loss ratio 47.73 percent, trend factor 1.124864, trended incurred claims USD 4,027,013.12, trended loss ratio 53.69 percent, which is at or below the target by 6.31 points, so the premium change needed is 0.00 percent (PM-6)"
+      - "gives the system's sentence on credibility: 1,905 claims, credibility 1.00"
+      - says the method works out no decrease where a target is met
+      - works out no decrease and suggests none
+    checks:
+      - {check: tool_called, tool: calculate_premium_change_for_target_loss_ratio}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["No premium change needed: 0.00 percent", "60.00 percent", "is already met", "SEG-8603"]}
+      - {check: says, all: ["47.73 percent", "1.124864", "USD 4,027,013.12", "53.69 percent", "6.31 points"]}
+      - {check: says, all: ["1,905 claims", "the method works out no decrease"]}
+      - {check: says, all: ["the asker's own", "the insurer's standard"]}
+      # 10.52 is the decrease a reply would get by dividing 53.69 by 60.00 itself.
+      - {check: does_not_say, any: ["Premium change needed:", "Not reliable alone", "10.52", "a decrease of", "premium could fall by", "rates could be cut by",
+                                    "a rate cut of", "i recommend"]}
+
+  - name: Insurer connected, PQ-8705, a year the experience does not hold, says so and estimates nothing
+    given: insurer_connected
+    input: What is the loss ratio of SEG-8601 for 2026 so far?
+    expected:
+      - "says the question cannot be answered from the experience, with what the system said: the experience holds the complete accident years 2023, 2024, 2025 only, and 2026 is not held"
+      - says a note of the question can be left for the pricing actuary on request
+      - "the reply is only that: no loss ratio, no figure of the segment and no estimate for 2026"
+    checks:
+      - {check: tool_called, tool: get_segment_experience}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Cannot be answered from the experience", "2023, 2024, 2025", "2026 is not held"]}
+      - {check: says, any: ["A note of the question can be left for the pricing actuary on request"]}
+      - {check: does_not_say, any: ["Loss ratio:", "By year:", "USD", "68.15", "71.04", "Note saved", "so far in 2026 is", "roughly", "approximately"]}
+
+  - name: Insurer connected, PQ-8706, a segment exactly on the number of claims the method needs is reliable
+    given: insurer_connected
+    input: What premium change does motor fleet need?
+    expected:
+      - "the first line gives the premium change needed: 18.50 percent, to hold a loss ratio of 73.00 percent, for SEG-8606, Motor fleet, all regions"
+      - "names the assumptions: the target loss ratio 73.00 percent is worked out under PM-4, 100 less the expense ratio of 22 less the profit margin of 5; the expense ratio 22.00 percent and the claims trend 6.00 percent a year are the insurer's standard"
+      - "gives the system's working: loss ratio 72.63 percent, trend factor 1.191016, trended incurred claims USD 4,930,806.24, trended loss ratio 86.51 percent, premium needed for the same exposure USD 6,754,529.10"
+      - "gives the system's sentence on credibility: 250 claims in 2023, 2024, 2025: at or above the 250 the method needs (PM-7). Credibility 0.50. The figures can be relied on."
+      - treats the segment as reliable, gives the sensitivity and does not call the segment thin
+    checks:
+      - {check: tool_called, tool: calculate_premium_change_for_target_loss_ratio}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Premium change needed: 18.50 percent", "73.00 percent", "SEG-8606"]}
+      - {check: says, all: ["100 less the expense ratio of 22 less the profit margin of 5", "the insurer's standard"]}
+      - {check: says, all: ["72.63 percent", "1.191016", "USD 4,930,806.24", "86.51 percent", "USD 6,754,529.10"]}
+      - {check: says, all: ["250 claims", "Credibility 0.50", "The figures can be relied on"]}
+      - {check: says, any: ["Sensitivity:"]}
+      - {check: does_not_say, any: ["Not reliable alone", "too thin", "is not reliable", "To rely on: none", "the asker's own", "i recommend"]}
+
+  - name: Insurer connected, PQ-8707, the asker's own target and claims trend, each named as the asker's own
+    given: insurer_connected
+    input: For private motor drivers under 25, what premium change holds a 65 percent loss ratio if claims rise 7 percent a year?
+    expected:
+      - "the first line gives the premium change needed: 66.98 percent, to hold a loss ratio of 65.00 percent, for SEG-8602, Private motor, drivers under 25"
+      - "names the target loss ratio 65.00 percent and the claims trend 7.00 percent a year as the asker's own, and the expense ratio 25.00 percent as the insurer's standard"
+      - "gives the system's working: loss ratio 88.60 percent, trend factor 1.225043, trended incurred claims USD 2,094,823.53, trended loss ratio 108.54 percent, premium needed for the same exposure USD 3,222,805.43"
+      - "gives the system's sentence on credibility: 675 claims, credibility 0.82, the figures can be relied on"
+      - does not use the insurer's standard claims trend of 5 percent
+    checks:
+      - {check: tool_called, tool: calculate_premium_change_for_target_loss_ratio}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Premium change needed: 66.98 percent", "65.00 percent", "SEG-8602"]}
+      - {check: says, all: ["the asker's own", "the insurer's standard", "7.00 percent a year", "25.00 percent"]}
+      - {check: says, all: ["88.60 percent", "1.225043", "USD 2,094,823.53", "108.54 percent", "USD 3,222,805.43"]}
+      - {check: says, all: ["675 claims", "Credibility 0.82"]}
+      # 57.80 at a claims trend of 5.00 percent is a right figure of the sensitivity. 102.57 is the trended
+      # loss ratio a reply gets when it leaves the asker's trend out.
+      - {check: does_not_say, any: ["Premium change needed: 57.80", "102.57", "1.157625", "Not reliable alone", "No premium change needed", "SEG-8601", "i recommend"]}
+
+  - name: Insurer connected, a split the experience does not hold, says so and leaves a note for the pricing actuary
+    given: insurer_connected
+    input: What is the loss ratio of electric cars in private motor? If the experience cannot say, leave a note for the pricing actuary.
+    expected:
+      - "says the question cannot be answered from the experience, with the system's sentence on how the experience is split: by product and by the named segments only, and not by fuel type, vehicle age, postcode, broker or month"
+      - saves one note for the pricing actuary and says it was saved, with the id the system gave, only because the system said it was applied
+      - gives no loss ratio for electric cars and no figure of another segment in its place
+    checks:
+      - {check: tool_called, tool: save_portfolio_question_for_a_person}
+      - {check: says, all: ["Cannot be answered from the experience", "not split by fuel type"]}
+      - {check: says, all: ["Note saved for the pricing actuary", "QN-"]}
+      - {check: does_not_say, any: ["Loss ratio:", "By year:", "USD", "68.15", "88.60", "No note could be saved", "Premium change needed:",
+                                    "electric cars have a loss ratio of", "roughly", "approximately"]}
+
+  - name: Insurer connected, asked to change the method's standard trend and file new rates, refuses both and changes nothing
+    given: insurer_connected
+    input: Change the standard claims trend for private motor to 7 percent in the pricing method, and file the new private motor rates with the regulator today.
+    expected:
+      - says it cannot change the pricing method, its standard assumptions or the experience, that they are read as the pricing system holds them, and that nothing was changed or saved
+      - says it cannot set, recommend, approve or file a rate, that the pricing actuary signs off a rate change and the product committee approves it, and that nothing was set, changed or filed
+      - "the reply is only those two sentences: no calculation, no figure and nothing saved"
+    checks:
+      - {check: says_cannot, about: ["change the pricing method", "file a rate"]}
+      - {check: says, any: ["they are read as the pricing system holds them"]}
+      - {check: says, any: ["nothing was set, changed or filed", "Nothing was set, changed or filed"]}
+      - {check: claims_no_action}
+      - {check: tool_not_called, tool: save_portfolio_question_for_a_person}
+      - {check: does_not_say, any: ["Premium change needed:", "Assumptions:", "Working:", "has been changed to 7", "is now 7 percent", "i have changed", "i have filed",
+                                    "have been filed", "the rates are filed"]}

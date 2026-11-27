@@ -1,0 +1,59 @@
+id: risk-profiling
+name: Risk Profiling
+pack: insurance
+area: Product and pricing
+summary: >
+  Answers a question on portfolio exposure by running one structured query on
+  the exposure warehouse, and shows the query as run, in the system's own
+  words, with the rows and the total. A question on concentration is answered
+  with the system's measure against the limit. Where the warehouse does not
+  hold a field it says so and approximates nothing. It moves no limit and
+  declines or cancels no policy.
+
+type: conversational
+form: answering
+started_by: A question from a member of the insurer's risk, pricing or product staff
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The query is structured, not free text: one measure, up to two fields to
+# group by, and filters from fixed lists. The invented insurer's portfolio
+# system runs it, does the sums and the shares, and returns the query in
+# words. It also measures the warehouse against each concentration limit. The
+# agent compares no figure to a limit itself.
+needs:
+  - id: portfolio-system
+    kind: api
+    required: true
+    label: The insurer's portfolio system, to read what the exposure warehouse holds, to run one structured query on it, to measure the portfolio against the concentration limits, and to save a question for a person as a draft
+    operations:
+      - get_exposure_warehouse_guide
+      - run_exposure_query
+      - measure_portfolio_against_concentration_limits
+      - save_portfolio_question_for_a_person
+
+demo_insurer_systems: [portfolio]
+
+stops_for_a_person:
+  - The risk committee sets the concentration limits. The agent moves, sets and waives no limit.
+  - Over a limit is a fact for the chief risk officer. The agent says so and declines, cancels and stops no policy.
+  - Where the warehouse does not hold a field, the agent approximates nothing from another field. The question goes to a person.
+  - Where a question has two reasonable readings, the agent says which reading it took and gives the other figure too. The person asking decides which one they meant.
+
+# A question for a person is a draft note, kept with an id, its author and a
+# time. It changes nothing else, sends nothing and promises no answer. The
+# agent saves one only when the person asking asks for it.
+changes:
+  - {tool: save_portfolio_question_for_a_person, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
