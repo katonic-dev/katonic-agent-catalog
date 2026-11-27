@@ -37,7 +37,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | | **Policy servicing and distribution** | | | | |
 | 15 | Policy Servicing | Prepares mid-term changes and renewal documents for staff and points out a possible gap in cover | Conversational, acting | Policy servicing desk | Planned |
 | 16 | Certificate and Endorsement Preparation | Prepares the certificate or endorsement from the policy as it stands, and the change to the policy system | Workflow, event-triggered | Policy servicing desk | Planned |
-| 17 | Broker Query | Answers a broker's question on a policy or a claim, with the source | Conversational, acting | Chat | Planned |
+| 17 | [Broker Query](agents/broker-query/README.md) | Answers a broker's question on a policy or a claim, with the source | Conversational, acting | Chat | Written. Not yet built on a cluster |
 | 18 | [Member Policy Q&A](agents/member-policy-qa/README.md) | Answers a member's question on their own cover: covered, covered with conditions, not covered, needs a person | Conversational, answering | Chat | Written. Not yet built on a cluster |
 | | **Health claims** | | | | |
 | 19 | [Pre-authorisation Preparation](agents/pre-authorisation-preparation/README.md) | Sets a request against the member's benefits and the medical policy: met, not met, missing | Workflow, event-triggered | Health claims desk | Built on a development cluster. All ten tests pass five runs in a row |

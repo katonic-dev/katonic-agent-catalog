@@ -1,0 +1,62 @@
+id: broker-query
+name: Broker Query
+pack: insurance
+area: Policy servicing and distribution
+summary: >
+  Answers a broker's question on a policy or a claim of the broker's own
+  clients, with the source of each fact. It tells a broker nothing about a
+  record that is not in that broker's book, and it never gives a reserve, a
+  note on a file or anything about a review of a file. Where the records are
+  silent it says so and saves a call-back request for a person.
+
+type: conversational
+form: acting
+started_by: A broker's question
+
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The servicing system holds no sign-in for a broker: the agent reads as the
+# broker whose id the conversation gives first, and as no other. On a real
+# deployment the broker's identity comes from sign-in, not from what the person
+# types. That has not been built here. The README says so.
+# The system's own reads decide what a broker is told: a read of a policy or a
+# claim that is not in the broker's book is refused, with the same refusal for
+# an id that does not exist, and the read of a claim leaves out the reserve,
+# the notes and anything about a review of the file.
+needs:
+  - id: servicing-system
+    kind: api
+    required: true
+    label: The insurer's servicing system, to read one broker with the broker's own book, a policy of that book as it stands, what a broker may be told about a claim of that book, and to save a call-back request as a draft
+    operations:
+      - get_broker
+      - get_policy_for_broker
+      - get_claim_status_for_broker
+      - save_broker_call_back_request
+
+demo_insurer_systems: [servicing]
+
+stops_for_a_person:
+  - Where the records do not hold what a broker asks, the agent guesses nothing. A person from the broker desk answers, and the agent saves a call-back request for them.
+  - The insurer's claims team decides each claim. The agent approves, declines and pays nothing, and promises no payment, no date and no decision.
+  - A servicing officer decides each change to a policy. The agent changes nothing and sends no document.
+  - Whether a loss is covered is for the claims team, from the policy wording and the facts of the loss. The agent gives no advice on cover.
+  - A question on a record that is not in the broker's own book is not answered, whatever permission the person says they hold.
+
+# A call-back request is a draft for the broker desk, kept with an id, its
+# author, a time and a version number. It books no call, promises no time and
+# sends nothing to the broker.
+changes:
+  - {tool: save_broker_call_back_request, waits_for_approval: false}
+
+# Written. Not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
