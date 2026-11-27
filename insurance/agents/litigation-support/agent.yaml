@@ -1,0 +1,65 @@
+id: litigation-support
+name: Litigation Support
+pack: insurance
+area: Compliance and conduct
+summary: >
+  For a disputed claim, sorts every document of the set into the insurer's
+  numbered document categories and flags what may be privileged, with the
+  numbered rule of the insurer's privilege guide, for the lawyers. Every
+  document appears once, a copy is named as a duplicate, and where the guide
+  does not settle a document the flag is unclear, with the reason. The lawyers
+  decide. The agent never says that a document is privileged, withholds and
+  discloses nothing, and gives no view on the merits of the dispute.
+
+type: autonomous
+form: autonomous
+started_by: A lawyer's or a claims manager's request to sort the documents of a disputed claim
+
+# The output goes to the insurer's lawyers, not to a desk. In this pack the
+# agent is built as a chat agent and a person sends the message.
+meets_people_through: chat
+application: null
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message names one disputed claim. One read gives the whole matter: the
+# people with their side and every document as text, with the people each one
+# went to outside the insurer and its lawyers and, for a copy, the id of the
+# document with the same text. A second read gives the document categories and
+# the privilege guide. The agent then works through every document on its own:
+# is it a copy, which category, which rule of the guide, which flag. How many
+# steps it takes depends on how many documents the set holds. The system sorts
+# nothing and flags nothing. The agent holds no read of saved schedules: a
+# saved schedule is not part of a disputed claim.
+needs:
+  - id: conduct-system
+    kind: api
+    required: true
+    label: The insurer's conduct system, to read a disputed claim with the people in the matter and every document as text, to read the document categories and the privilege guide, and to save a draft document schedule
+    operations:
+      - get_disputed_claim
+      - get_litigation_document_guide
+      - save_document_schedule
+
+demo_insurer_systems: [conduct]
+
+stops_for_a_person:
+  - The lawyers read the schedule and decide what is privileged. A flag says only that a document may be privileged, with the rule of the guide. It is not a legal opinion.
+  - Where the guide does not settle a document, such as legal advice that was sent to a third party or a note with no date and no author, the flag is unclear and the lawyer decides. The agent never guesses.
+  - What is withheld from the other side and what is disclosed is for the lawyers. The agent withholds nothing, discloses nothing and sends nothing.
+  - Any view on the merits of the dispute is for the lawyers. The agent gives none, and carries no advice from a document into its reply.
+
+# Saving a schedule is a draft kept with its author, a time and a version
+# number. It decides nothing about privilege, changes no document and discloses
+# nothing.
+changes:
+  - {tool: save_document_schedule, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."

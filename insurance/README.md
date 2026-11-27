@@ -45,9 +45,9 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 21 | [Provider Invoice Check](agents/provider-invoice-check/README.md) | Checks a provider's invoice line by line against the tariff and the contract | Workflow, API | Health claims desk | Built on a development cluster. All nine tests pass five runs in a row |
 | | **Compliance and conduct** | | | | |
 | 22 | Compliance Audit | Checks policy, claims and sales files against the insurer's own rules and records what it checked | Workflow, scheduled | Sent to compliance | Planned |
-| 23 | Regulatory Monitoring | Reads the regulators the insurer names and maps each change to the obligations register | Workflow, scheduled | Regulatory change desk | Planned |
+| 23 | [Regulatory Monitoring](agents/regulatory-monitoring/README.md) | Reads the regulators the insurer names and maps each change to the obligations register | Workflow, scheduled | Regulatory change desk | Written. Not yet built on a cluster |
 | 24 | Complaint Handling | Classifies a complaint, gathers the policy and claim history, drafts the response and the log entry | Workflow, event-triggered | Complaints desk | Planned |
-| 25 | Litigation Support | Sorts the documents of a disputed claim and flags what may be privileged | Autonomous | Sent to the lawyers | Planned |
+| 25 | [Litigation Support](agents/litigation-support/README.md) | Sorts the documents of a disputed claim and flags what may be privileged | Autonomous | Sent to the lawyers | Written. Not yet built on a cluster |
 | | **Product and pricing** | | | | |
 | 26 | Product Change Analyst | Takes a proposed product change and returns what it touches and the questions it cannot answer | Conversational, answering | Chat | Planned |
 | 27 | Pricing Analyst | Works out the premium that holds a target loss ratio and shows the calculation | Conversational, answering | Chat | Planned |

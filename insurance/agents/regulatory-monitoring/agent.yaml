@@ -1,0 +1,69 @@
+id: regulatory-monitoring
+name: Regulatory Monitoring
+pack: insurance
+area: Compliance and conduct
+summary: >
+  Reads the publications of the regulators the insurer names. For each
+  publication it says whether it bears on the insurer and maps it to the
+  numbered obligations of the obligations register, with the owner of each. It
+  says when a publication is only a consultation, when it is for a line of
+  business the insurer does not write, when it repeats an earlier item, and
+  when no obligation matches. The regulatory change owner decides. The agent
+  gives no legal opinion, changes nothing in the register and never answers a
+  regulator.
+
+type: workflow
+form: scheduled
+started_by: A schedule. Each working day the new publications in the feed are sent to the agent. Here a person or the desk sends the message
+
+# The agent is meant to run on a schedule. In this pack it is built as a chat
+# agent, and a person or the desk starts it with a message. A clock has not
+# started it.
+meets_people_through: application
+application: Regulatory change desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# One message names one publication, or asks for the new publications of the
+# feed. The feed gives every item whole, with its dates and the days counted by
+# the system, the regulators the insurer names and the lines it writes. The
+# register gives every obligation with its owner. The system maps nothing: the
+# agent reads the text of the publication against the text of the obligations.
+# The agent does not hold the search of the register by words: the register is
+# twelve obligations and is read whole, and a search by words matches an
+# obligation on a shared word. It holds no read of saved notes: a saved note is
+# not part of a publication.
+needs:
+  - id: conduct-system
+    kind: api
+    required: true
+    label: The insurer's conduct system, to read the regulators' publications with their dates, to read one publication by its id, to read the obligations register with the owner of each obligation, and to save an impact note on a publication as a draft
+    operations:
+      - list_regulatory_publications
+      - get_regulatory_publication
+      - get_obligations_register
+      - save_regulatory_impact_note
+
+demo_insurer_systems: [conduct]
+
+stops_for_a_person:
+  - The regulatory change owner reads each impact note and decides what changes in the obligations register. The agent changes no obligation.
+  - Where no obligation of the register matches a publication, the agent says so and the point goes to compliance, who decide whether a new obligation is needed. The agent never forces a match.
+  - A consultation is a proposal. The agent says that it is not a rule yet and that nothing changes now. Whether the insurer answers the consultation is for a person.
+  - Whether the insurer meets a rule, and what the law requires, is for a person. The agent gives no legal opinion.
+  - Anything said to a regulator, or to the owner of an obligation, is said by a person. The agent answers nobody and reports nothing.
+
+# Saving an impact note is a draft kept with its author, a time and a version
+# number. It changes no obligation, nothing else in the register and nothing on
+# the publication, and it reports nothing to a regulator.
+changes:
+  - {tool: save_regulatory_impact_note, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: "Written. Not yet built on a cluster. No test has been run."

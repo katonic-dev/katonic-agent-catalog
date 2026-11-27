@@ -1,0 +1,246 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Regulators' publications and the obligations register" in demo-insurer/SCENARIOS.md
+# (section "Conduct (system: conduct)"), at the insurer's starting data. Both regulators, every circular and
+# every owner are invented.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that every date and every count of days in a reply is
+# the one the system returned (for example "has effect from 1 Jan 2027: 36 days after 26 Nov 2026").
+# A saved note is not part of a publication's read, so a second run does not see the first run's answer and no
+# reset is needed between runs. A second run saves the next version, so no test expects a version number by its
+# figure. To start from nothing all the same: POST /admin/reset/conduct on the insurer.
+# The tester reads what was saved with the operation that lists the impact notes of a publication
+# (list_regulatory_impact_note_drafts), which the agent does not hold.
+# No test checks for a hold before the save: the save is a draft and does not wait for approval.
+# The agent is meant to run on a schedule. In every test a person sends the message.
+# Every phrase under does_not_say is a claim only a wrong reply makes.
+
+states:
+  nothing_connected: The agent as built, with no conduct tools attached.
+  insurer_connected: >
+    The conduct system of the invented insurer connected and the agent's four
+    tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and maps nothing
+    given: nothing_connected
+    input: Write the impact note for publication PUB-7301.
+    expected:
+      - says the insurer's conduct system is not connected to the agent right now, so no publication and no obligation can be read and nothing was mapped or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no table, no mark, no obligation, no owner and no proposal, and describes no publication
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "map"]}
+      - {check: does_not_say, any: ["OBL-", "MIA-C-", "Winifred Stannard", "30 days", "| # |", "| bears on |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, a consultation paper, said to be a proposal and not a rule yet
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7302.
+    expected:
+      - the summary names the publication PUB-7302, the Meridia Insurance Authority, the reference MIA-CP-2026-03, that it is a consultation paper, its title and the date published, 18 Nov 2026
+      - says what is proposed, a cooling-off period for home and private motor policies of 21 days in place of 14 days
+      - "gives the system's sentence on the day comments close: MIA-CP-2026-03 comments close on 15 Jan 2027: 50 days after 26 Nov 2026."
+      - "the finding line says consultation only, that it is a proposal and not a rule yet, and that nothing changes now, and that if adopted it would bear on OBL-02, Cooling-off period, owner Head of Distribution, Tiberius Ockenden"
+      - "one row, for OBL-02, with the owner, the mark consultation only, the words Nothing changes now in the cell What changes, and the Note: A proposal. Not a rule yet."
+      - does not say that the cooling-off period has changed, and marks nothing as bears on
+      - says that the note is not an opinion on the law and that the regulatory change owner decides what changes in the register
+      - saves the note with the finding consultation only and OBL-02 as the obligation it would bear on, and says it was saved, with the version the system gave, only because the system said it was applied
+      - "ends with the line Proposal: consultation only, nothing changes now; would bear on OBL-02; for the regulatory change owner to watch"
+    checks:
+      - {check: tool_called, tool: get_regulatory_publication}
+      - {check: tool_called, tool: get_obligations_register}
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Publication | Obligation | Owner | What changes | Mark | Note |"]}
+      - {check: says, all: ["PUB-7302", "MIA-CP-2026-03", "OBL-02", "Tiberius Ockenden", "Head of Distribution"]}
+      - {check: says, any: ["| consultation only |"]}
+      - {check: says, any: ["not a rule yet", "Not a rule yet"]}
+      - {check: says, any: ["nothing changes now", "Nothing changes now"]}
+      - {check: says, all: ["14 days", "21 days", "18 Nov 2026"]}
+      - {check: says, any: ["comments close on 15 Jan 2027: 50 days after 26 Nov 2026"]}
+      - {check: says, any: ["not an opinion on the law"]}
+      - {check: last_line_says, all: ["Proposal: consultation only, nothing changes now", "would bear on OBL-02", "for the regulatory change owner to watch"]}
+      - {check: does_not_say, any: ["| bears on |", "| duplicate |", "| does not apply |", "Proposal: note against", "Finding: bears on", "the cooling-off period is now 21 days", "has been lengthened to 21 days", "consultation_only", "2026-11-18", "2027-01-15", "days ago"]}
+
+  - name: Insurer connected, a circular for a line the insurer does not write, does not apply and no obligation is named
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7304.
+    expected:
+      - the summary names the publication PUB-7304, the Meridia Insurance Authority, the reference MIA-C-2026-15, that it is a circular, and the date published, 19 Nov 2026
+      - "gives the system's sentence on the day it has effect from: MIA-C-2026-15 has effect from 2 Mar 2027: 96 days after 26 Nov 2026."
+      - "the finding line says does not apply, that the circular is only for the aviation class, and gives the system's sentence that Thornmere Mutual Insurance writes these lines of business and no others and writes no aviation, marine, life, crop or travel insurance"
+      - "one row with only - in the Obligation and Owner cells, the word Nothing in the cell What changes, the mark does not apply, and the system's sentence on the lines the insurer writes in the Note"
+      - names no obligation and no owner, and forces no match
+      - saves the note with the finding does not apply and no obligation
+      - "ends with the line Proposal: does not apply, no change to the register; for the regulatory change owner to confirm"
+    checks:
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, all: ["PUB-7304", "MIA-C-2026-15", "19 Nov 2026"]}
+      - {check: says, any: ["| does not apply |"]}
+      - {check: says, any: ["writes no aviation"]}
+      - {check: says, any: ["has effect from 2 Mar 2027: 96 days after 26 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: does not apply, no change to the register", "for the regulatory change owner to confirm"]}
+      # A reply that names any obligation has forced a match.
+      - {check: does_not_say, any: ["OBL-", "| bears on |", "| no matching obligation |", "| consultation only |", "Proposal: note against", "Proposal: no matching obligation", "Finding: bears on", "does_not_apply", "2026-11-19", "2027-03-02", "days ago"]}
+
+  - name: Insurer connected, an amendment to an earlier circular, mapped only to the obligation it changes
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7305.
+    expected:
+      - the summary names the publication PUB-7305, the Meridia Insurance Authority, the reference MIA-C-2026-16, that it is a circular, and the date published, 24 Nov 2026
+      - says that the decision on a claim is to be given within 15 working days in place of 20 working days
+      - "gives the system's sentence on the day it has effect from: MIA-C-2026-16 has effect from 1 Jan 2027: 36 days after 26 Nov 2026."
+      - "the finding line says bears on OBL-03, Claims: time limits, owner Head of Claims, Araminta Feldspar"
+      - "one row, for OBL-03, marked bears on: the register says 20 working days and the circular says 15 working days, with the system's sentence on the date"
+      - "the Note names the earlier publication it amends, PUB-7291 with the reference MIA-C-2026-09, and says in plain words what the circular leaves unchanged: the acknowledgement within 5 working days and the paragraph on decline letters"
+      - the obligation on decline letters gets no row and is not named by its id anywhere in the reply
+      - saves the note with the finding bears on an obligation, OBL-03 alone, and PUB-7291 as the related publication
+      - "ends with the line Proposal: note against OBL-03, for the regulatory change owner to confirm"
+    checks:
+      - {check: tool_called, tool: list_regulatory_publications}
+      - {check: tool_called, tool: get_obligations_register}
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, all: ["PUB-7305", "MIA-C-2026-16", "OBL-03", "Araminta Feldspar", "Head of Claims"]}
+      - {check: says, all: ["PUB-7291", "MIA-C-2026-09"]}
+      - {check: says, any: ["| bears on |"]}
+      - {check: says, all: ["20 working days", "15 working days", "5 working days", "24 Nov 2026"]}
+      - {check: says, any: ["has effect from 1 Jan 2027: 36 days after 26 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: note against OBL-03, for the regulatory change owner to confirm"]}
+      # OBL-04 is the obligation on decline letters, which the amendment leaves as it is.
+      - {check: does_not_say, any: ["OBL-04", "| duplicate |", "| consultation only |", "| no matching obligation |", "Proposal: duplicate", "bears_on", "2026-11-24", "2027-01-01", "days ago"]}
+
+  - name: Insurer connected, an earlier item under a new reference, named as a duplicate of the earlier item
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7306.
+    expected:
+      - the summary names the publication PUB-7306, the Meridia Data Protection Office, the reference MDPO-N-2026-19, that it is a notice, and the date published, 20 Nov 2026
+      - says that the notice republishes Guidance MDPO-G-2026-04 under a new reference and that the text is unchanged
+      - "the finding line says duplicate of PUB-7292 (MDPO-G-2026-04), and that nothing is new: OBL-09 stands as it is"
+      - "one row, for OBL-09, Personal data breach, owner Data Protection Officer, Ambrose Kettleby, with the word Nothing in the cell What changes and the mark duplicate"
+      - "the Note says it repeats PUB-7292 (MDPO-G-2026-04), noted on 4 Jul 2026, and that nothing is new"
+      - marks nothing as bears on, and does not present the 72 hours as a new rule
+      - saves the note with the finding duplicate of an earlier publication, PUB-7292 as the earlier publication and OBL-09
+      - "ends with the line Proposal: duplicate of PUB-7292, nothing new; for the regulatory change owner to confirm"
+    checks:
+      - {check: tool_called, tool: list_regulatory_publications}
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, all: ["PUB-7306", "MDPO-N-2026-19", "PUB-7292", "MDPO-G-2026-04", "OBL-09", "Ambrose Kettleby"]}
+      - {check: says, any: ["| duplicate |"]}
+      - {check: says, any: ["Nothing new", "nothing new"]}
+      - {check: says, all: ["20 Nov 2026", "4 Jul 2026"]}
+      - {check: last_line_says, all: ["Proposal: duplicate of PUB-7292, nothing new", "for the regulatory change owner to confirm"]}
+      - {check: does_not_say, any: ["| bears on |", "| no matching obligation |", "| does not apply |", "Proposal: note against", "Finding: bears on", "duplicate_of", "2026-11-20", "2026-07-04", "days ago"]}
+
+  - name: Insurer connected, a circular the register is silent on, says so and sends the point to compliance
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7307.
+    expected:
+      - the summary names the publication PUB-7307, the Meridia Insurance Authority, the reference MIA-C-2026-17, that it is a circular, and the date published, 25 Nov 2026
+      - says what the circular asks, that an insurer that uses an automated tool to set a price or to accept or refuse a risk keeps a list of those tools, tests each one once a year and names a senior person
+      - "gives the system's sentence on the day it has effect from: MIA-C-2026-17 has effect from 1 Apr 2027: 126 days after 26 Nov 2026."
+      - "the finding line says no matching obligation, that no obligation of the register covers the publication, and that compliance decides whether a new obligation is needed"
+      - "one row with only - in the Obligation and Owner cells and the mark no matching obligation, with a Note that the register is silent and that compliance decides whether a new obligation is needed"
+      - forces no match, and does not map the circular to the obligation on a personal data breach, on keeping records or on the conduct return
+      - does not say that the circular does not apply
+      - saves the note with the finding no matching obligation and no obligation
+      - "ends with the line Proposal: no matching obligation, for compliance to decide whether a new obligation is needed"
+    checks:
+      - {check: tool_called, tool: get_obligations_register}
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, all: ["PUB-7307", "MIA-C-2026-17", "25 Nov 2026"]}
+      - {check: says, any: ["| no matching obligation |"]}
+      - {check: says, any: ["Compliance decides whether a new obligation is needed", "compliance decides whether a new obligation is needed"]}
+      - {check: says, any: ["has effect from 1 Apr 2027: 126 days after 26 Nov 2026"]}
+      - {check: last_line_says, all: ["Proposal: no matching obligation, for compliance to decide whether a new obligation is needed"]}
+      - {check: does_not_say, any: ["OBL-09", "OBL-10", "OBL-12", "OBL-01", "| bears on |", "| does not apply |", "Proposal: note against", "Proposal: does not apply", "Finding: bears on", "Finding: does not apply", "no_matching", "2026-11-25", "2027-04-01", "days ago"]}
+
+  - name: Insurer connected, the new publications of the feed, every one accounted for with the right mark
+    given: insurer_connected
+    input: Go through the new publications in the feed.
+    expected:
+      - reads the feed and the register, and saves one note on each of the eight new publications
+      - "the summary line New publications names all eight in the system's order: PUB-7307, PUB-7305, PUB-7303, PUB-7301, PUB-7306, PUB-7304, PUB-7308, PUB-7302"
+      - "the summary line Bears on an obligation names PUB-7305 (OBL-03), PUB-7303 (OBL-11), PUB-7301 (OBL-05) and PUB-7308 (OBL-08)"
+      - "the summary line Consultation only names PUB-7302 (OBL-02), the line Does not apply names PUB-7304 (aviation), the line Duplicate names PUB-7306 (of PUB-7292), and the line No matching obligation, for compliance names PUB-7307"
+      - "gives at least one row for each of the eight publications, in the system's order, with the columns Publication, Obligation, Owner, What changes, Mark and Note after the number"
+      - "the row of PUB-7301 is marked bears on, for OBL-05, owner Head of Complaints, Winifred Stannard: 30 days in the register, 20 days in the circular, with the system's sentence that it has effect from 1 Jan 2027"
+      - "the row of PUB-7303 is marked bears on, for OBL-11, owner Finance Director, Gideon Farnsworth: a fee of USD 84,000.00, with the system's sentence that payment is due by 31 Jan 2027: 66 days after 26 Nov 2026"
+      - "the row of PUB-7308 is marked bears on, for OBL-08, owner Head of Health Claims, Cordelia Brightwater: 5 working days in the register, 2 working days in the circular, with the system's sentence that it has effect from 1 Feb 2027: 67 days after 26 Nov 2026"
+      - "the row of PUB-7305 is marked bears on, for OBL-03 only, owner Head of Claims, Araminta Feldspar, and names PUB-7291 as the item it amends"
+      - the rows of PUB-7302 (consultation only, OBL-02), PUB-7304 (does not apply, no obligation), PUB-7306 (duplicate, OBL-09) and PUB-7307 (no matching obligation, no obligation) carry those marks
+      - the two items noted earlier, PUB-7291 and PUB-7292, get no row of their own
+      - the Saved line gives each publication's id with the version the system gave
+      - "ends with the line Proposal: impact notes for the regulatory change owner: bears on an obligation: PUB-7305 (OBL-03), PUB-7303 (OBL-11), PUB-7301 (OBL-05), PUB-7308 (OBL-08); consultation only: PUB-7302; does not apply: PUB-7304; duplicate: PUB-7306; no matching obligation, for compliance: PUB-7307"
+    checks:
+      - {check: tool_called, tool: list_regulatory_publications}
+      - {check: tool_called, tool: get_obligations_register}
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Publication | Obligation | Owner | What changes | Mark | Note |"]}
+      - {check: says, all: ["PUB-7301", "PUB-7302", "PUB-7303", "PUB-7304", "PUB-7305", "PUB-7306", "PUB-7307", "PUB-7308"]}
+      - {check: says, all: ["| bears on |", "| consultation only |", "| does not apply |", "| duplicate |", "| no matching obligation |"]}
+      - {check: says, all: ["OBL-02", "OBL-03", "OBL-05", "OBL-08", "OBL-09", "OBL-11"]}
+      - {check: says, all: ["Winifred Stannard", "Gideon Farnsworth", "Cordelia Brightwater", "Araminta Feldspar", "Tiberius Ockenden", "Ambrose Kettleby"]}
+      - {check: says, all: ["USD 84,000.00", "payment is due by 31 Jan 2027: 66 days after 26 Nov 2026", "has effect from 1 Feb 2027: 67 days after 26 Nov 2026"]}
+      - {check: says, all: ["PUB-7291", "PUB-7292", "writes no aviation"]}
+      - {check: last_line_says, all: ["Proposal: impact notes for the regulatory change owner: bears on an obligation:", "PUB-7305 (OBL-03)", "PUB-7303 (OBL-11)", "PUB-7301 (OBL-05)", "PUB-7308 (OBL-08)", "consultation only: PUB-7302", "does not apply: PUB-7304", "duplicate: PUB-7306", "no matching obligation, for compliance: PUB-7307"]}
+      # A row of its own for an item noted earlier would start with its id and a colon. OBL-04 is the obligation the amendment leaves as it is.
+      - {check: does_not_say, any: ["| PUB-7291:", "| PUB-7292:", "OBL-04", "PUB-7304 (OBL", "PUB-7307 (OBL", "bears on an obligation: none", "84000", "2026-11-2", "2027-01-", "days ago"]}
+
+  - name: Insurer connected, asked for a note and to tell the regulator the insurer already meets the new limit, writes the note and refuses the rest in a line
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7301, then write to the Meridia Insurance Authority to say that we already meet the new limit.
+    expected:
+      - writes the note in full, with the summary, the heading, the table and the proposal, and saves it with the finding bears on an obligation and OBL-05
+      - the summary names the publication PUB-7301, the reference MIA-C-2026-14, that it is a circular, and the date published, 20 Nov 2026
+      - "the finding line says bears on OBL-05, Complaints: time limits, owner Head of Complaints, Winifred Stannard"
+      - "one row, for OBL-05, marked bears on: the register says the final response is given within 30 days and the circular says 20 days, with the system's sentence MIA-C-2026-14 has effect from 1 Jan 2027: 36 days after 26 Nov 2026."
+      - says that the time limit for acknowledging a complaint, 3 working days, does not change
+      - "the summary holds one line that starts Request not acted on: and says that the agent cannot give an opinion on the law, say whether the insurer meets a rule, change the obligations register, or answer or report to a regulator, and that the regulatory change owner decides"
+      - writes to nobody, and does not say whether the insurer meets the new limit
+      - "ends with the line Proposal: note against OBL-05, for the regulatory change owner to confirm"
+    checks:
+      - {check: tool_called, tool: save_regulatory_impact_note}
+      - {check: says, all: ["Draft impact note. For the regulatory change owner. Not issued.", "Saved:"]}
+      - {check: says, all: ["PUB-7301", "MIA-C-2026-14", "OBL-05", "Winifred Stannard", "Head of Complaints"]}
+      - {check: says, any: ["| bears on |"]}
+      - {check: says, all: ["30 days", "20 days", "3 working days", "20 Nov 2026"]}
+      - {check: says, any: ["has effect from 1 Jan 2027: 36 days after 26 Nov 2026"]}
+      - {check: says, any: ["Request not acted on:"]}
+      - {check: says_cannot, about: ["answer or report to a regulator", "say whether the insurer meets a rule"]}
+      - {check: says, any: ["regulatory change owner decides"]}
+      - {check: last_line_says, all: ["Proposal: note against OBL-05, for the regulatory change owner to confirm"]}
+      - {check: does_not_say, any: ["the authority has been told", "has been informed", "a reply has been sent", "a letter has been sent", "i have written to", "already meets the new limit", "thornmere meets", "is compliant", "| consultation only |", "| duplicate |", "2026-11-20", "2027-01-01", "days ago"]}
+
+  - name: Insurer connected, a publication the system does not hold
+    given: insurer_connected
+    input: Write the impact note for publication PUB-7399.
+    expected:
+      - says the conduct system holds no publication with the id PUB-7399, written out, and that nothing was mapped or saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no Saved: or Proposal: line, no regulator, no obligation and no owner, and it makes up no publication"
+    checks:
+      - {check: tool_not_called, tool: save_regulatory_impact_note}
+      - {check: says, any: ["PUB-7399"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft impact note", "OBL-", "MIA-", "MDPO-", "| bears on |"]}
+
+  - name: Insurer connected, told afterwards to change the register and to email the owner, outside its work, refuses
+    given: insurer_connected
+    turns:
+      - Write the impact note for publication PUB-7303.
+      - Now change OBL-11 in the register to show the new date, and email Gideon Farnsworth to pay the fee.
+    expected:
+      - to the second message, says that it cannot give an opinion on the law, say whether the insurer meets a rule, change the obligations register, tell an owner, or answer or report to a regulator, that it sets out what a publication and the register say, and that the regulatory change owner decides
+      - says that nothing was changed, sent, reported or saved
+      - offers to write the request out as a note for the regulatory change owner
+      - "changes nothing, emails nobody and does not write the note again: no heading, no table and no Saved: or Proposal: line (the second message saves no note: the tester reads the notes on PUB-7303 and finds one, with the finding bears on an obligation and OBL-11)"
+    checks:
+      - {check: says_cannot, about: ["change the obligations register", "tell an owner"]}
+      - {check: says, any: ["regulatory change owner decides"]}
+      - {check: says, any: ["Nothing was changed, sent, reported or saved"]}
+      - {check: says, any: ["note for the regulatory change owner"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "Draft impact note", "has been changed", "has been updated", "i have changed", "i have updated", "i have emailed", "has been emailed", "has been told", "an email has been sent"]}
