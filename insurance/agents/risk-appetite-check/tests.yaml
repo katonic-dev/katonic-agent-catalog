@@ -1,6 +1,8 @@
-# Ten tests. A test passes only when it passes five runs in a row.
+# Eleven tests. A test passes only when it passes five runs in a row.
 # Right answers come from "Appetite statement" in demo-insurer/SCENARIOS.md (Underwriting, system:
 # underwriting) and the insurer's starting data. The eight questions of that section are tests 2 to 9.
+# Test 10 is not a row of that section: its answer follows from rules AP-P3, AP-P5 and AP-G1 as the
+# section lists them.
 # Start the insurer with INSURER_TODAY=2026-11-26.
 # The agent is a chat agent. Its reply has no heading, no table and no "Saved:" or "Proposal:" line. An
 # appetite answer starts with one of four phrases alone on the first line (Within appetite. / Outside
@@ -40,7 +42,7 @@ tests:
     expected:
       - "the first line is Within appetite."
       - "gives the rule AP-P1, Commercial property, within, with its whole text in quotation marks: Offices, shops, and warehouses for goods that do not burn easily, in construction class A or B."
-      - "may add one line that starts On the condition: for the construction class, if it reads the description as not stating it"
+      - "writes no line that starts On the condition: because brick walls are class A or class B by the statement's own sentences on the construction classes"
       - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
       - names no other rule and says nothing about price, limits or terms
     checks:
@@ -48,7 +50,7 @@ tests:
       - {check: says, all: ["Within appetite.", "AP-P1", "Offices, shops, and warehouses for goods that do not burn easily, in construction class A or B"]}
       - {check: says, any: ["not a decision on the risk"]}
       # AP-P2 and AP-M4 are the rules a search returns on the word food. They are about something else.
-      - {check: does_not_say, any: ["Outside appetite.", "To be referred.", "The statement is silent.", "AP-P2", "AP-M4", "AP-P6",
+      - {check: does_not_say, any: ["Outside appetite.", "To be referred.", "The statement is silent.", "On the condition:", "AP-P2", "AP-M4", "AP-P6", "AP-G1",
                                     "is accepted", "has been accepted", "the premium", "USD"]}
 
   - name: Insurer connected, a store for fireworks, outside appetite, and the rule on cold stores does not answer
@@ -163,6 +165,23 @@ tests:
       # "Rule AP-" is the start of a rule line. A reply that quotes a rule for a solar farm is wrong.
       - {check: does_not_say, any: ["Within appetite.", "Outside appetite.", "To be referred.", "AP-", "On the condition:",
                                     "insurers usually", "is usually written", "is likely within", "is likely outside", "probably within", "probably outside"]}
+
+  - name: Insurer connected, an unoccupied nightclub, which two rules name, the stricter position wins and both rules are named
+    given: insurer_connected
+    input: An unoccupied nightclub building. Is it within appetite?
+    expected:
+      - "the first line is Outside appetite."
+      - "gives both rules, the stricter first, each with its whole text in quotation marks: AP-P3, Commercial property, outside, and AP-P5, Commercial property, refer"
+      - "gives one line that starts By rule AP-G1 and quotes the general rule: where two rules of this statement name one risk, the stricter position wins, outside over refer, and refer over within, and the answer names both rules"
+      - says this is the statement's position on this kind of risk, not a decision on the risk, and that an underwriter decides
+      - does not give the position as to be referred, and does not decline the risk
+    checks:
+      - {check: tool_called, tool: get_appetite_statement}
+      - {check: says, all: ["Outside appetite.", "AP-P3", "AP-P5", "AP-G1"]}
+      - {check: says, all: ["Making or storing fireworks or explosives; waste recycling and scrap yards; making foam or plastics; nightclubs", "Unoccupied buildings, and buildings on the heritage register of Meridia", "the stricter position wins"]}
+      - {check: says, any: ["not a decision on the risk"]}
+      - {check: does_not_say, any: ["Within appetite.", "To be referred.", "The statement is silent.", "AP-P6",
+                                    "is declined", "has been declined", "has been referred"]}
 
   - name: Insurer connected, told afterwards that the rule is out of date and to change the answer, keeps the statement as the system holds it
     given: insurer_connected

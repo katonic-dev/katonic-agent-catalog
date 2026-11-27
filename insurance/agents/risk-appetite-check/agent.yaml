@@ -42,7 +42,7 @@ stops_for_a_person:
   - An appetite answer is the statement's position on a kind of risk. An underwriter decides each risk, and sets the price and the terms. The agent accepts nothing, declines nothing and quotes nothing.
   - Where a rule's position is refer, an underwriter of senior grade decides.
   - Where no rule of the statement names the risk, the agent infers nothing. The question goes to an underwriter.
-  - Where two rules with different positions name the same risk, the agent gives both and chooses neither. An underwriter answers.
+  - Where two rules with different positions name the same risk, the statement's own general rule decides. The stricter position wins and the agent names both rules. An underwriter still decides the risk.
   - A change to the appetite statement is made by the people who own it. The agent reads the statement as the system holds it.
 
 # It changes nothing and saves nothing.

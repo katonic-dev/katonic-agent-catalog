@@ -21,7 +21,7 @@ Before a policy's period ends, sets the expiring terms beside the claims of the 
 - Where a change is reported, gives it as it was reported: the date, who reported it and the text.
 - Where the claims record and the policy record disagree, gives both workings and both loss ratios, puts each account after the id of its record, and chooses neither.
 - Saves the review as a draft, and says it was saved only if the system's reply says so.
-- Ends with one proposal line: ready for the underwriter, refer to the senior underwriter, survey before terms, or ask the claims team.
+- Ends with one proposal line: ready for the underwriter, refer to the senior underwriter, survey before terms, or ask the claims team. Where more than one rule applies, the line follows the order the renewal rules give: the claims team first, then the senior underwriter, then a survey. The review still names every rule that applies.
 - Asked in the same message to renew or to send terms, does the review and refuses the rest in one sentence of the summary.
 
 ## What it does not do

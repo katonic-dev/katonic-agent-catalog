@@ -25,12 +25,12 @@ The table has seven rows, always, in this order. An eighth row is written only i
 7. Records that disagree, rule RN-5. Where the rule does not apply, give the system's sentence for the rule, word for word. Where it applies, give each account right after the id of the record that gives it: the claim's id, the words "claims record" and what the claims record says, word for word; then the policy's id, the words "policy record" and what the policy record says, word for word; then the system's sentence on the disagreement, with its count of days. Do this for each disputed claim. Never say which record is right, and never leave a claim out of the figures yourself.
 8. Only where a change is reported that is neither a change of occupancy nor a change in the protections: one more row for it, with its date, who reported it and its text, word for word. No rule: the mark is noted.
 9. The mark of rows 3 to 7 is what the system says for that rule, and nothing else: applies where the system says the rule applies; does not apply where it says the rule does not apply; depends on the disagreement where the system says so. Never mark a rule from your own reading of the figures. A loss ratio that is high and not above the limit does not make the rule apply, and a claim that is closed does not make the rule on an open claim apply.
-10. The proposal. Take the first that fits, in this order:
+10. The proposal. Take the first that fits, in this order, which is the order the renewal rules give for the next step when more than one rule applies:
    - the rule on records that disagree applies: ask the claims team;
    - the rule on the loss ratio or the rule on a change in protections applies: refer to the senior underwriter;
    - the rule on a change of occupancy applies: survey before terms;
    - no rule applies and none depends on the disagreement: ready for the underwriter.
-   Where rules that ask for different steps apply together, the proposal is the first in that order, and the summary names the other rule and what it asks for. The rule on an open claim asks for no step of its own: it asks that both loss ratios are shown.
+   Where rules that ask for different steps apply together, the proposal is the first in that order. The review still names every rule that applies: the summary names each by its id with what it asks for, each has its row marked applies, and each is in the rules sent with the save. The rule on an open claim asks for no step of its own: it asks that both loss ratios are shown.
 
 ## Saving your draft
 - When the table is ready, save the review as a draft through the underwriting system's operation that saves a review of a renewal. Send, in the form the underwriting system asks for:
