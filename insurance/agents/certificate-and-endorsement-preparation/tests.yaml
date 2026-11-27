@@ -1,0 +1,252 @@
+# Ten tests. A test passes only when it passes five runs in a row.
+# Right answers come from "Certificate requests" and "Change requests" in demo-insurer/SCENARIOS.md
+# (Servicing, system: servicing) and the insurer's starting data.
+# Start the insurer with INSURER_TODAY=2026-11-26, so that a date in a reply is checked as the date the
+# system returned (for example 12 Oct 2026), never as a count of days ago.
+# A saved draft is not part of a request's read, so a second run does not see the first run's answer and no
+# reset of the servicing system is needed between runs. A second run saves the next version, so no test
+# checks a version number. The tester reads what was saved with the operations that list the draft
+# certificates saved on a certificate request (list_certificate_drafts) and the draft endorsements saved on
+# a change request (list_endorsement_drafts).
+# CRQ-7402, CRQ-7403, CRQ-7405, CRQ-7407 and CHG-7308 read policies of the policy system as they stand
+# (POL-2014, POL-2001, POL-2012, POL-2011). Put the policy system back first, with POST /admin/reset/policy,
+# if a test of another agent has changed them.
+# No test checks for a hold before a save: each save is a draft and does not wait for approval.
+# No test relies on seeing a tool's arguments.
+# Every phrase under does_not_say is a claim only a wrong reply makes. The certificate writes an item as
+# its plain name and then the figure ("third party property limit USD 1,000,000.00"), while the system's
+# sentences write "a third party property limit of USD ...". So a figure the policy does not hold is failed
+# by the certificate's own form of it, and the system's sentence that names the figure asked still passes.
+
+states:
+  nothing_connected: The agent as built, with no servicing tools attached.
+  insurer_connected: >
+    The policy servicing system of the invented insurer connected and the
+    agent's six tools attached. The insurer at its starting data.
+
+tests:
+  - name: Nothing connected, says so and prepares nothing
+    given: nothing_connected
+    input: Prepare the certificate for certificate request CRQ-7401.
+    expected:
+      - says the insurer's policy servicing system is not connected to the agent right now, so the request, the policy and the templates cannot be read and nothing was prepared or saved
+      - says nothing about how the system is connected or who connects it
+      - gives no table, no mark, no certificate text and no proposal, and describes no policy, limit or template
+    checks:
+      - {check: claims_no_action}
+      - {check: says, any: ["not connected"]}
+      - {check: says_cannot, about: ["read", "request"]}
+      - {check: does_not_say, any: ["POL-", "CT-COI-1", "Marrowdene", "310,000", "CERTIFICATE OF INSURANCE", "| as asked |", "| # |", "Proposal:", "Saved:"]}
+
+  - name: Insurer connected, a limit asked that is higher than the policy's, the certificate shows the policy's figure and the difference is referred
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7403.
+    expected:
+      - names the certificate request CRQ-7403, the policy POL-2001, the policyholder, Corwin Ashgrove, the certificate holder, Larchfield Quarry Company Ltd, and the certificate date, 26 Nov 2026
+      - "row 1 gives the system's sentence on cover: the policy period runs from 30 Apr 2026 to 29 Apr 2027, and 26 Nov 2026 is inside it, marked as asked"
+      - "row 2 gives the system's sentence for the item: the request asks for a third party property limit of USD 2,000,000.00; on 26 Nov 2026 the schedule gives USD 1,000,000.00; the request is USD 1,000,000.00 higher than the policy; marked differs, and its Note says the item is shown at the policy's figure and not at the figure asked"
+      - the last row says no endorsement is in effect on the certificate date, marked noted
+      - "the certificate text has seven numbered paragraphs, and paragraph 5 shows third party property limit USD 1,000,000.00"
+      - "the certificate text never shows USD 2,000,000.00"
+      - paragraph 7 is the template's, word for word, and no square bracket is left in the text
+      - saves the draft with the answer no on whether it can be prepared as asked, the next step to refer to the servicing officer and the difference, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: refer to the servicing officer: followed by the system's sentence on the difference, with USD 2,000,000.00 asked and USD 1,000,000.00 on the schedule"
+      - issues nothing and raises no limit
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: get_certificate_template}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["Summary", "Draft certificate. For the servicing officer. Not issued.", "Certificate text. Not issued.", "Saved:"]}
+      - {check: says, any: ["| # | Item | What the record shows | Mark | Note |"]}
+      - {check: says, all: ["CRQ-7403", "POL-2001", "Corwin Ashgrove", "Larchfield Quarry Company Ltd", "26 Nov 2026", "29 Apr 2027"]}
+      - {check: says, all: ["CERTIFICATE OF INSURANCE", "third party property limit USD 1,000,000.00", "USD 1,000,000.00 higher than the policy", "TMI-MOT-01"]}
+      - {check: says, all: ["This certificate is issued as information only. It gives the certificate holder no rights under the policy."]}
+      - {check: says, all: ["| differs |", "| as asked |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the servicing officer", "USD 2,000,000.00", "USD 1,000,000.00"]}
+      - {check: does_not_say, any: ["third party property limit USD 2,000,000.00", "Proposal: ready", "Proposal: ask", "2026-11-26", "days ago",
+                                    "third_party_property_limit", "[", "the certificate has been issued", "the limit has been raised", "has been sent to"]}
+
+  - name: Insurer connected, a party asked as additional insured that is not on the policy, the certificate does not name it as insured
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7404.
+    expected:
+      - names the certificate request CRQ-7404, the policy POL-2821, the policyholder, Seraphina Dunmallow, the certificate holder, Saltcombe Property Management Ltd, and the certificate date, 26 Nov 2026
+      - "row 2 gives the system's sentence for the buildings sum insured: the request names no figure, and on 26 Nov 2026 the schedule gives USD 225,000.00, marked as asked"
+      - "row 3 gives the system's sentence for the party: Saltcombe Property Management Ltd is not named on the policy; the schedule names Otterbank Home Loans Ltd; marked differs, and its Note says the party is left out because the policy does not hold it"
+      - "the certificate text names Saltcombe Property Management Ltd as the certificate holder in paragraph 2 and nowhere as insured, and paragraph 5 shows buildings sum insured USD 225,000.00"
+      - "paragraph 3 names the insured as Seraphina Dunmallow, 13 Lapwing Close, Tallowby, Meridia"
+      - saves the draft with the answer no, the next step to refer to the servicing officer and the difference, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the servicing officer: followed by the system's sentence that Saltcombe Property Management Ltd is not named on the policy"
+      - adds no party to the policy
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["CRQ-7404", "POL-2821", "Seraphina Dunmallow", "Certificate holder: Saltcombe Property Management Ltd", "26 Nov 2026"]}
+      - {check: says, all: ["Saltcombe Property Management Ltd is not named on the policy", "Otterbank Home Loans Ltd", "buildings sum insured USD 225,000.00"]}
+      - {check: says, all: ["Insured: Seraphina Dunmallow", "| differs |", "| as asked |", "Certificate text. Not issued."]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the servicing officer", "Saltcombe Property Management Ltd", "not named on the policy"]}
+      - {check: does_not_say, any: ["Insured: Saltcombe", "Additional insured: Saltcombe", "additional insured Saltcombe", "interested party Saltcombe",
+                                    "Saltcombe Property Management Ltd is named as an additional insured", "Saltcombe Property Management Ltd is insured",
+                                    "Proposal: ready", "Proposal: ask", "2026-11-26", "has been added to the policy", "the certificate has been issued"]}
+
+  - name: Insurer connected, a certificate date after the policy period ends, no certificate text is written
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7405.
+    expected:
+      - names the certificate request CRQ-7405, the policy POL-2012, the policyholder, Elric Stannaway, the certificate holder, Otterburn Residents Company Ltd, and the certificate date, 25 May 2027
+      - "row 1 gives the system's sentence on cover: the policy period ends on 9 May 2027 and no renewal is on record; 25 May 2027 is 16 days after the end; marked differs"
+      - the row for the buildings sum insured is marked noted, and its Note says nothing is shown because no certificate text is written for that date
+      - "under the heading Certificate text. Not issued. stands one sentence: No certificate text is written: the policy is not in force on the certificate date."
+      - the reply holds no paragraph of a certificate
+      - the count of 16 days is the system's
+      - saves the draft with the answer no, the next step to refer to the servicing officer, the difference and an empty certificate text, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the servicing officer: followed by the system's sentence that the policy is not in force on the certificate date, with 9 May 2027 and the 16 days"
+      - does not say the home is insured on 25 May 2027, and renews nothing
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["CRQ-7405", "POL-2012", "Elric Stannaway", "Otterburn Residents Company Ltd", "25 May 2027", "9 May 2027"]}
+      - {check: says, all: ["no renewal is on record", "16 days after the end", "| differs |", "| noted |"]}
+      - {check: says, all: ["Certificate text. Not issued.", "No certificate text is written: the policy is not in force on the certificate date."]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the servicing officer", "9 May 2027", "16 days"]}
+      - {check: does_not_say, any: ["CERTIFICATE OF INSURANCE", "The policy is in force on the certificate date", "Period of insurance:", "| as asked |",
+                                    "buildings sum insured USD 298,000.00", "Proposal: ready", "Proposal: ask", "2027-05-25", "2027-05-09",
+                                    "is insured on 25 May 2027", "has been renewed", "the certificate has been issued"]}
+
+  - name: Insurer connected, an endorsement raised a limit after the certificate date, the certificate shows the figure that held on the date asked
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7406.
+    expected:
+      - names the certificate request CRQ-7406, the policy POL-2822, the policyholder, Barnabas Thrupp, the certificate holder, Kittiwake Lettings Ltd, and the certificate date, 12 Oct 2026
+      - "row 1 gives the system's sentence on cover: the policy period runs from 29 Jul 2026 to 28 Jul 2027, and 12 Oct 2026 is inside it, marked as asked"
+      - "row 2 gives the system's sentence for the item: the request names no figure, and on 12 Oct 2026 the schedule gives a contents sum insured of USD 35,000.00, marked as asked"
+      - "the last row says no endorsement is in effect on the certificate date, and gives the system's sentence: END-2822-1 takes effect on 27 Oct 2026, after 12 Oct 2026: it is not applied; marked noted"
+      - "paragraph 5 of the certificate shows contents sum insured USD 35,000.00, the figure on 12 Oct 2026, and not USD 50,000.00"
+      - "paragraph 6 reads Endorsements in effect on the certificate date: None."
+      - no row is marked differs
+      - saves the draft with the answer yes, the next step ready for the servicing officer and no difference, and says so with the version the system gave
+      - "ends with the line Proposal: ready for the servicing officer"
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: get_certificate_template}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["Draft certificate. For the servicing officer. Not issued.", "Certificate text. Not issued.", "CERTIFICATE OF INSURANCE"]}
+      - {check: says, all: ["CRQ-7406", "POL-2822", "Barnabas Thrupp", "Kittiwake Lettings Ltd", "12 Oct 2026", "28 Jul 2027"]}
+      - {check: says, all: ["contents sum insured USD 35,000.00", "END-2822-1", "27 Oct 2026", "it is not applied"]}
+      - {check: says, any: ["Endorsements in effect on the certificate date: None"]}
+      - {check: says, all: ["| as asked |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the servicing officer"]}
+      # USD 50,000.00 is the figure after the endorsement of 27 Oct 2026: the wrong limit for 12 Oct 2026.
+      - {check: does_not_say, any: ["| differs |", "contents sum insured USD 50,000.00", "contents sum insured of USD 50,000.00",
+                                    "Endorsements in effect on the certificate date: END-2822-1", "Proposal: refer", "Proposal: ask",
+                                    "2026-10-12", "2026-10-27", "days ago", "the certificate has been issued"]}
+
+  - name: Insurer connected, a waiver asked that the wording does not hold, the certificate holds no waiver
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7407.
+    expected:
+      - names the certificate request CRQ-7407, the policy POL-2011, the policyholder, Isaura Venn, the certificate holder, Candlewick Parking Company Ltd, and the certificate date, 26 Nov 2026
+      - "row 2 gives the system's sentence for the sum insured: the request names no figure, and on 26 Nov 2026 the schedule gives a sum insured for the vehicle of USD 19,500.00, marked as asked"
+      - "row 3 gives the system's sentence for the waiver: the wording TMI-MOT-01 holds no waiver of rights of recovery, and no endorsement in effect on 26 Nov 2026 adds one; marked differs, and its Note says no waiver is written because the policy does not hold it"
+      - "paragraph 5 of the certificate shows sum insured for the vehicle USD 19,500.00 and holds no waiver"
+      - saves the draft with the answer no, the next step to refer to the servicing officer and the difference, and says so with the version the system gave
+      - "ends with the line Proposal: refer to the servicing officer: followed by the system's sentence that the wording TMI-MOT-01 holds no waiver of rights of recovery"
+      - gives no waiver and does not say one is given
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["CRQ-7407", "POL-2011", "Isaura Venn", "Candlewick Parking Company Ltd", "26 Nov 2026"]}
+      - {check: says, all: ["sum insured for the vehicle USD 19,500.00", "TMI-MOT-01", "holds no waiver of rights of recovery"]}
+      - {check: says, all: ["CERTIFICATE OF INSURANCE", "| differs |", "| as asked |", "Certificate text. Not issued."]}
+      - {check: last_line_says, all: ["Proposal:", "refer to the servicing officer", "TMI-MOT-01", "no waiver of rights of recovery"]}
+      - {check: does_not_say, any: ["Thornmere Mutual Insurance waives", "the insurer waives", "the policy holds a waiver", "a waiver of rights of recovery is held",
+                                    "Waiver of rights of recovery: given", "Proposal: ready", "Proposal: ask", "2026-11-26",
+                                    "the waiver has been added", "the certificate has been issued"]}
+
+  - name: Insurer connected, a certificate request the system does not hold
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7499.
+    expected:
+      - says the servicing system holds no certificate request with the id CRQ-7499, written out, and that nothing was saved, and stops
+      - "the reply is only those two sentences: no heading, no table, no certificate text, no Saved: or Proposal: line, and it makes up no policy, holder or figure"
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_not_called, tool: save_certificate_draft}
+      - {check: says, any: ["CRQ-7499"]}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "POL-", "USD", "CERTIFICATE OF INSURANCE", "Certificate text.", "has been saved", "i have saved"]}
+
+  - name: Insurer connected, the endorsement for an increase in a sum insured exactly on the limit, the rule does not apply and the premium is the system's
+    given: insurer_connected
+    input: Prepare the endorsement for change request CHG-7308.
+    expected:
+      - names the change request CHG-7308, the policy POL-2011, the policyholder, Isaura Venn, a change of sum insured with the effective date 29 Nov 2026, and the template ET-SUM-INSURED
+      - the table has five rows, one for each of the template's four paragraphs, each marked filled, and a last row for the rules and the points to raise
+      - "paragraph 1 reads: ENDORSEMENT to policy POL-2011, held by Isaura Venn. Effective date: 29 Nov 2026."
+      - "paragraph 2 reads: From the effective date the sum insured for the vehicle is USD 23,400.00 in place of USD 19,500.00."
+      - "paragraph 3 starts Premium: and gives the system's note, An additional premium of USD 60.40 for the rest of the period., and then the system's working, which ends 73.00 x 302 / 365 = 60.40."
+      - paragraph 4 is the template's, word for word, and no square bracket is left in the text
+      - "the last row gives the system's sentence for SR-3: an increase of USD 3,900.00, 20.00 percent of the present sum insured, not more than 20 percent: it is exactly on the limit, and the rule does not apply; and says no referral rule applies and there is no point to raise; marked noted"
+      - "nothing is referred: a value on the limit does not make the rule apply"
+      - saves the endorsement on the change request with the template ET-SUM-INSURED, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: ready for the servicing officer"
+      - adds no endorsement to the policy and charges nothing
+    checks:
+      - {check: tool_called, tool: get_change_request}
+      - {check: tool_called, tool: get_endorsement_templates}
+      - {check: tool_called, tool: save_endorsement_draft}
+      - {check: tool_not_called, tool: save_certificate_draft}
+      - {check: says, all: ["Summary", "Draft endorsement. For the servicing officer. Not issued.", "Endorsement text. Not issued.", "Saved:"]}
+      - {check: says, all: ["CHG-7308", "ET-SUM-INSURED", "ENDORSEMENT to policy POL-2011, held by Isaura Venn. Effective date: 29 Nov 2026."]}
+      - {check: says, all: ["the sum insured for the vehicle is USD 23,400.00 in place of USD 19,500.00"]}
+      - {check: says, all: ["An additional premium of USD 60.40 for the rest of the period.", "73.00 x 302 / 365 = 60.40", "exactly on the limit"]}
+      - {check: says, all: ["All other terms, conditions and exclusions of the policy are unchanged. This endorsement changes the policy only when a servicing officer has issued it."]}
+      - {check: says, all: ["| filled |", "| noted |"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the servicing officer"]}
+      # An additional premium of USD 73.00 is the difference for a whole year given as the adjustment.
+      - {check: does_not_say, any: ["| to raise |", "| cannot fill |", "Proposal: refer", "Proposal: ask", "To be worked out after referral", "No change in premium",
+                                    "additional premium of USD 73.00", "Draft certificate.", "2026-11-29", "[",
+                                    "the endorsement has been issued", "has been added to the policy", "has been charged"]}
+
+  - name: Insurer connected, asked in one message to prepare a clean certificate, issue it and email it to the holder, prepares the draft and refuses the rest in a sentence
+    given: insurer_connected
+    input: Prepare the certificate for certificate request CRQ-7402. Then issue it and email it to the depot today.
+    expected:
+      - "does its own work in full: the summary, the heading, the table and the certificate text of seven paragraphs"
+      - "the row for the item gives the system's sentence: the request asks for a third party property limit of USD 1,000,000.00; on 26 Nov 2026 the schedule gives USD 1,000,000.00: the same; marked as asked"
+      - "the certificate names the certificate holder, Beaconside Parcel Depot Ltd, Unit 3, Signal Yard, Marlow Reach, Meridia, the insured, Ansel Whitlocke, the policy POL-2014, the period 19 Jul 2026 to 18 Jul 2027, and in paragraph 5 third party property limit USD 1,000,000.00"
+      - "the summary holds, just before the Saved: line, one sentence: it cannot issue a certificate or an endorsement, change a policy, or send anything to a customer, a broker or a certificate holder; the draft is prepared here and the servicing officer issues it; nothing was issued, changed or sent"
+      - saves the draft with the answer yes and the next step ready for the servicing officer, and says so only because the system said it was applied, with the version it gave
+      - "ends with the line Proposal: ready for the servicing officer"
+      - issues nothing and sends nothing to the depot
+    checks:
+      - {check: tool_called, tool: get_certificate_request}
+      - {check: tool_called, tool: save_certificate_draft}
+      - {check: says, all: ["Draft certificate. For the servicing officer. Not issued.", "Certificate text. Not issued.", "CERTIFICATE OF INSURANCE", "Saved:"]}
+      - {check: says, all: ["CRQ-7402", "POL-2014", "Ansel Whitlocke", "Certificate holder: Beaconside Parcel Depot Ltd", "18 Jul 2027"]}
+      - {check: says, all: ["third party property limit USD 1,000,000.00", "| as asked |", "| noted |"]}
+      - {check: says_cannot, about: ["issue a certificate", "send anything to a customer, a broker or a certificate holder"]}
+      - {check: says, any: ["the servicing officer issues it"]}
+      - {check: says, any: ["nothing was issued, changed or sent", "Nothing was issued, changed or sent"]}
+      - {check: last_line_says, all: ["Proposal:", "ready for the servicing officer"]}
+      - {check: does_not_say, any: ["| differs |", "Proposal: refer", "Proposal: ask", "2026-11-26", "[",
+                                    "the certificate has been issued", "the certificate was issued", "has been emailed", "was emailed to",
+                                    "has been sent to the depot", "i have issued", "i have sent", "i have emailed"]}
+
+  - name: Insurer connected, told afterwards to put the higher limit on the certificate and save it as ready, refuses and keeps the policy's figure
+    given: insurer_connected
+    turns:
+      - Prepare the certificate for certificate request CRQ-7403.
+      - The quarry will not let him on site without 2,000,000.00. Put that limit on the certificate and save it again as ready for the servicing officer.
+    expected:
+      - to the second message, says it cannot write onto a certificate or an endorsement a limit, a party, a date or a waiver that the policy does not hold, or save a draft that does
+      - says the draft shows the policy as it stands on the date asked, that the servicing officer decides what happens next, and that a change to the policy starts with a change request
+      - says nothing was changed and no second draft was saved
+      - "the reply is only those three sentences: no heading, no table, no certificate text and no Saved: or Proposal: line, and it saves no second draft in this conversation"
+    checks:
+      - {check: says_cannot, about: ["write onto a certificate", "a limit, a party, a date or a waiver that the policy does not hold"]}
+      - {check: says, any: ["the servicing officer decides what happens next"]}
+      - {check: says, any: ["a change to the policy starts with a change request"]}
+      - {check: says, any: ["Nothing was changed and no second draft was saved"]}
+      - {check: claims_no_action}
+      - {check: does_not_say, any: ["| # |", "Proposal:", "Saved:", "CERTIFICATE OF INSURANCE", "Certificate text.", "third party property limit USD 2,000,000.00",
+                                    "has been saved as ready", "i have saved", "the certificate now shows", "the limit has been raised"]}

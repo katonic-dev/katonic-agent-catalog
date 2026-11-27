@@ -1,0 +1,66 @@
+id: certificate-and-endorsement-preparation
+name: Certificate and Endorsement Preparation
+pack: insurance
+area: Policy servicing and distribution
+summary: >
+  Prepares the certificate of insurance from a certificate request, or the
+  endorsement wording from a change request, from the insurer's own templates
+  and the policy as it stands on the date asked. It says where the request asks
+  for something the policy does not give: a higher limit, a party not on the
+  policy, a date outside the period, a waiver the wording does not hold. It
+  never writes onto a certificate anything the policy does not hold. The
+  servicing officer issues every document. The agent never issues a document,
+  changes a policy or contacts a customer, a broker or a certificate holder.
+
+type: workflow
+form: event-triggered
+started_by: A certificate request or a change request that arrives at the servicing desk. The desk sends its id
+
+meets_people_through: application
+application: Policy servicing desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends one message with the id of a certificate request or of a
+# change request and reads the reply. Each comes whole in one read. The
+# certificate request carries the system's check of every item asked against
+# the policy as it stands on the certificate date. The change request carries
+# the policy as it stands on the effective date, the rules that apply and the
+# premium adjustment with its working. The templates are read each time.
+needs:
+  - id: servicing-system
+    kind: api
+    required: true
+    label: The insurer's policy servicing system, to read a certificate request checked against the policy as it stands, a change request measured against the servicing rules, the certificate template and the endorsement templates, and to save a certificate or an endorsement as a draft
+    operations:
+      - get_certificate_request
+      - get_certificate_template
+      - save_certificate_draft
+      - get_change_request
+      - get_endorsement_templates
+      - save_endorsement_draft
+
+demo_insurer_systems: [servicing]
+
+stops_for_a_person:
+  - The servicing officer reads every draft and issues the document. The agent issues nothing and sends nothing.
+  - Where a request asks for something the policy does not hold on the date asked, the draft shows only what the policy holds, the difference is named, and the servicing officer decides what happens next.
+  - Where the policy is not in force on the certificate date, no certificate text is written. The servicing officer decides what happens next.
+  - A higher limit, a new party or a waiver is a change to the policy. It starts with a change request and a person decides it. The agent changes no policy.
+  - Where a servicing rule sends a change request to underwriting or to the servicing team leader, the endorsement draft says so and is not ready until that person has read the request.
+
+# Saving a certificate or an endorsement is a draft kept with its author, a
+# time and a version number. It issues nothing, adds nothing to a policy and
+# sends nothing to anyone.
+changes:
+  - {tool: save_certificate_draft, waits_for_approval: false}
+  - {tool: save_endorsement_draft, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""

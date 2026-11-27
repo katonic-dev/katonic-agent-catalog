@@ -35,8 +35,8 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | 13 | [Underwriting Referral Memo](agents/underwriting-referral-memo/README.md) | Drafts the referral memo: the risk, the terms, the rule that forced the referral, the precedents | Workflow, API | Underwriting desk | Written. Not yet built on a cluster |
 | 14 | [Renewal Review](agents/renewal-review/README.md) | Sets expiring terms beside the period's claims and the changes in the risk | Workflow, scheduled | Underwriting desk | Written. Not yet built on a cluster |
 | | **Policy servicing and distribution** | | | | |
-| 15 | Policy Servicing | Prepares mid-term changes and renewal documents for staff and points out a possible gap in cover | Conversational, acting | Policy servicing desk | Planned |
-| 16 | Certificate and Endorsement Preparation | Prepares the certificate or endorsement from the policy as it stands, and the change to the policy system | Workflow, event-triggered | Policy servicing desk | Planned |
+| 15 | [Policy Servicing](agents/policy-servicing/README.md) | Prepares a mid-term change for staff: the rule it touches, the premium adjustment and any gap in cover | Conversational, acting | Policy servicing desk | Written. Not yet built on a cluster |
+| 16 | [Certificate and Endorsement Preparation](agents/certificate-and-endorsement-preparation/README.md) | Prepares the certificate or endorsement from the policy as it stands, and says where the request asks for something the policy does not give | Workflow, event-triggered | Policy servicing desk | Written. Not yet built on a cluster |
 | 17 | [Broker Query](agents/broker-query/README.md) | Answers a broker's question on a policy or a claim, with the source | Conversational, acting | Chat | Written. Not yet built on a cluster |
 | 18 | [Member Policy Q&A](agents/member-policy-qa/README.md) | Answers a member's question on their own cover: covered, covered with conditions, not covered, needs a person | Conversational, answering | Chat | Written. Not yet built on a cluster |
 | | **Health claims** | | | | |

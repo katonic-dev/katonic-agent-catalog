@@ -1,0 +1,59 @@
+id: policy-servicing
+name: Policy Servicing
+pack: insurance
+area: Policy servicing and distribution
+summary: >
+  For servicing staff. Prepares a mid-term change from a change request: what
+  is asked, which numbered servicing rule it touches, the premium adjustment as
+  the system worked it out, and any gap in cover. The servicing officer decides
+  and makes the change. The agent never changes a policy, charges or returns a
+  premium, cancels a policy or contacts a customer or a broker. It does not
+  prepare renewal documents.
+
+type: conversational
+form: acting
+started_by: A servicing officer's request, with the id of a change request
+
+meets_people_through: application
+application: Policy servicing desk
+
+platform:
+  kind: chat
+  tier: reasoning
+
+# The desk sends the officer's request with the change request's id and reads
+# the reply. The change request comes whole in one read: who asked, what
+# changes, the policy as it stands on the effective date, each referral rule
+# with whether it applies, the premium adjustment with its working, the gap
+# check and the points to raise. No other read is needed.
+needs:
+  - id: servicing-system
+    kind: api
+    required: true
+    label: The insurer's policy servicing system, to read a change request measured against the servicing rules, with the premium adjustment and the gap check, and to save the change as a draft
+    operations:
+      - get_change_request
+      - save_change_draft
+
+demo_insurer_systems: [servicing]
+
+stops_for_a_person:
+  - The servicing officer reads the draft, decides and makes the change. The agent changes no policy, charges and returns no premium, and cancels nothing.
+  - Where rule SR-2, SR-3 or SR-5 applies, the request goes to underwriting before anything is changed.
+  - Where rule SR-1, SR-4 or SR-8 applies, the request goes to the servicing team leader before anything is changed.
+  - A gap in cover, and an effective date before the insurer date, are pointed out to the servicing officer under rule SR-7. A person decides what is done about them.
+  - A person contacts the customer or the broker. The agent contacts nobody.
+  - Renewal documents are prepared by a person. The servicing system has no operation for them.
+
+# Saving a change is a draft kept with its author, a time and a version
+# number. It changes no policy, charges and returns no premium, cancels nothing
+# and contacts nobody.
+changes:
+  - {tool: save_change_draft, waits_for_approval: false}
+
+# Written, not yet built on a cluster.
+state:
+  built_on_a_cluster: false
+  tests_passed: false
+  on_the_catalog_shelf: false
+  notes: ""
