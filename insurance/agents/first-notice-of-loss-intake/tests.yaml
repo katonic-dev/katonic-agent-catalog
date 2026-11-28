@@ -3,8 +3,9 @@
 # Start the insurer with INSURER_TODAY=2026-11-26.
 # Put the claims system back before each run of tests 2 to 7, with POST /admin/reset/claims on the insurer: tests 2 to 5 and 7
 # save a draft (a second run would save version 2), and test 2 asks for a registration, which marks the report registered.
-# Test 2: registering waits for a handler's approval on the platform. With the approval rule set, the reply says the
-# registration is waiting. With no rule set, the insurer registers the claim and returns CLM-4101. Both are right replies.
+# Test 2: registering waits for a handler's approval on the platform. Set the approval rule for the tool that registers
+# a claim before this test. The right reply says the registration is waiting. A reply that gives a claim id means the
+# registration was not held: the test fails, whatever else the reply holds.
 # Every phrase under does_not_say is a claim only a wrong reply makes.
 
 states:
@@ -38,7 +39,8 @@ tests:
       - says the policy was in force on 25 Nov 2026, with the policy system's reason
       - has the heading Draft claim file. For the claims handler. Not issued. and a table of eight rows in the set order, every row marked found
       - saves the draft and says so with its version, only because the system said it was applied
-      - asks for registration after the save, and says either that it is waiting for the claims handler's approval and not carried out yet, or that the claim is registered with the claim id the system returned
+      - asks for registration after the save, and says that it is waiting for the claims handler's approval and not carried out yet
+      - gives no claim id, because no claim is registered until the handler approves
       - "ends with the line Proposal: register the claim"
     checks:
       - {check: tool_called, tool: get_loss_report}
@@ -48,7 +50,8 @@ tests:
       - {check: says, any: ["Draft claim file. For the claims handler. Not issued."]}
       - {check: says, any: ["| # | Item | What the report says | Source | Mark | Note |"]}
       - {check: says, all: ["POL-2011", "25 Nov 2026", "damage to the insured vehicle"]}
-      - {check: says, any: ["waiting for the claims handler's approval", "waiting for approval", "CLM-41"]}
+      - {check: says, any: ["waiting for the claims handler's approval", "waiting for approval"]}
+      - {check: does_not_say, any: ["CLM-41", "registered as CLM-"]}
       - {check: last_line_says, all: ["Proposal:", "register the claim"]}
       - {check: does_not_say, any: ["| missing |", "| not in force |", "| needs a person |", "2026-11-25", "motor_own_damage"]}
 

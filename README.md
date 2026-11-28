@@ -1,8 +1,14 @@
 # Katonic Agent Catalog
 
-Agents and applications you can build on the Katonic platform. Each one has its own folder: the instructions, what the agent needs connected, its tests, invented sample data and a build guide.
+Agents and applications you can build on the Katonic platform. Each one has its own folder: the instructions, what the agent needs connected, its tests and a build guide.
 
 There are four packs: banking, retail and restaurants, insurance, and telecom. Each comes with an invented company to build against. The telecom pack is at its first step: its design is written and nothing of it is built yet.
+
+In the three packs that are built, 97 agents are written and 77 of them have been built and tested on a development cluster. One rule holds for every agent here: it prepares the work, and a person makes the decision.
+
+- **To see one in a quarter of an hour,** read [a short way in](insurance/README.md#a-short-way-in) in the insurance pack, or open any agent from a pack's table.
+- **To try one,** [install the invented bank on the Katonic platform](demo-bank/docs/install-on-katonic.md), step by step with screens, and build an agent from its folder.
+- **To talk to Katonic,** go to [katonic.ai](https://www.katonic.ai).
 
 **Status: work in progress.** The tables inside each pack say what is built and what is planned. Nothing here is a tested integration with a named product.
 
@@ -25,6 +31,7 @@ There are four packs: banking, retail and restaurants, insurance, and telecom. E
 - **A desk** is an application: a queue of cases, the agent's findings and draft beside each one, approve or send back, and a register of who decided what. The desk engine is a separate project, [katonic-case-desk](https://github.com/katonic-dev/katonic-case-desk). Each desk in this repository is a settings folder for it.
 - **The invented bank** stands in for a bank's own systems, so that an agent which reads a payment queue or a screening alert has something to read. You run your own copy next to your platform. When you move to real systems, you swap the bank's API for your own.
 - **The invented retailer** does the same for a retailer and a restaurant operator: an agent which reads a month of food safety records, a supplier's invoice or the guests' comments has something to read.
+- **The invented insurer** does the same for an insurer: an agent which reads a loss report, a policy wording or a provider's invoice has something to read.
 
 ## Types and forms
 
@@ -39,13 +46,13 @@ Every agent is sorted the same way, by what starts it and who decides the next s
 
 The white paper [Types of AI agents](https://www.katonic.ai/resources/white-papers/types-of-ai-agents) explains each form.
 
-One rule holds for every agent here: it prepares the work, and a person makes the decision.
-
 ## Invented data
 
 Meridian Trust Bank does not exist. Every customer, account, payment, alert, loan and policy in this repository is invented, and is labelled as invented where it appears. Country codes in account numbers and bank identifiers are codes no real country uses.
 
 Rowanmere Group does not exist either. Every store, restaurant, supplier, colleague, guest comment, invoice, reading and policy of it in this repository is invented, and is labelled as invented where it appears. It is set in the same invented country as the bank.
+
+Thornmere Mutual Insurance does not exist either. Every policy, policyholder, member, claim, broker, provider, invoice and policy wording of it in this repository is invented, and is labelled as invented where it appears. It is set in the invented country Meridia.
 
 ## Licence
 

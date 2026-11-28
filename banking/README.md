@@ -2,9 +2,9 @@
 
 30 agents a bank can build on the Katonic platform, and the applications people use them through.
 
-**Status: work in progress.** The State column says where each one stands. "Planned" means the folder is not written yet.
+**Status: work in progress.** The State column says where each one stands.
 
-Every agent follows one rule: it prepares the work, and a person makes the decision. A tool that changes something waits for approval unless the bank has decided otherwise for that tool.
+Every agent follows one rule: it prepares the work, and a person makes the decision. Approval for a tool that changes something is set by a rule in Control Room, Policies. Each agent's page lists the tools that need one.
 
 ## The agents
 

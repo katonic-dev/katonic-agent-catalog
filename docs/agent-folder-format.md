@@ -7,16 +7,16 @@ Every agent in this catalog has one folder, and every folder has the same files.
   agent.yaml          what the agent is: its form, what starts it, what it needs
   instructions.md     the agent's instructions, word for word
   workflow.yaml       only for a workflow agent: its steps
-  tests.yaml          five tests, each with a known right answer
-  sample-data/        invented documents the tests and the guide use
-  bundle.json         the agent as exported from a cluster, once it has been built
+  tests.yaml          the tests, each with a known right answer
+  sample-data/        invented documents, where a test or the guide needs one (no folder has one yet)
+  bundle.json         the agent as exported from a cluster (no folder has one yet)
   README.md           the build guide: what it does, what you set up, how to try it
 ```
 
 ## Three ways to get an agent onto a platform
 
 1. **By hand,** in Katonic Studio, from the build guide. This always works.
-2. **By importing `bundle.json`** through the platform's API. The platform can export an agent as one file and recreate it elsewhere. Tools are matched by name on the new platform, and anything it cannot match is listed. Knowledge sources and specialist agents are not carried yet, so those are attached by hand after the import. This route has not been run end to end for this catalog yet.
+2. **By importing `bundle.json`** through the platform's API. The platform can export an agent as one file and recreate it elsewhere. Tools are matched by name on the new platform, and anything it cannot match is listed. Knowledge sources and specialist agents are not carried yet, so those are attached by hand after the import. This route has not been run end to end for this catalog yet, and no bundle is published here: build by hand.
 3. **From the Catalog,** once the agent has been added to the platform's template list and has passed its checks there.
 
 ## agent.yaml
@@ -24,7 +24,7 @@ Every agent in this catalog has one folder, and every folder has the same files.
 ```yaml
 id: policy-and-procedures-assistant      # the folder name; lower case, hyphens
 name: Policy and Procedures Assistant
-pack: banking                   # banking | retail
+pack: banking                   # banking | retail | insurance
 area: Compliance and audit
 summary: >
   One or two sentences: what it does, for whom.
@@ -55,6 +55,7 @@ needs:
 
 # Which systems of the invented bank it reads when you try it. Empty if none.
 # In the retail pack the field is demo_retailer_systems, for the invented retailer.
+# In the insurance pack it is demo_insurer_systems, for the invented insurer.
 demo_bank_systems: []
 
 # What a person decides. Every agent has at least one line here.
@@ -68,7 +69,7 @@ changes: []                     # for example: [{tool: block_card, waits_for_app
 # Where it stands. Only what has been run counts.
 state:
   built_on_a_cluster: false
-  tests_passed: false           # all five tests, five runs each
+  tests_passed: false           # every test, five runs in a row
   on_the_catalog_shelf: false
   notes: ""
 ```
@@ -83,7 +84,7 @@ state:
 | `api` | An API you import from its OpenAPI file | Not yet. The build guide says how to connect it by hand |
 | `agent` | Another agent of this catalog that a manager agent passes work to | Not as a need. The build guide says how to attach it by hand |
 
-A need of the kind `api` also lists `operations`: the operations the agent's instructions rely on. Any API that offers them will do. The invented bank and the invented retailer each offer theirs.
+A need of the kind `api` also lists `operations`: the operations the agent's instructions rely on. Any API that offers them will do. The invented bank, the invented retailer and the invented insurer each offer theirs.
 
 ## instructions.md
 
@@ -100,7 +101,7 @@ Only for a workflow agent. The steps in order, what each step reads from the one
 
 ## tests.yaml
 
-At least five tests. Each one names the state the agent is in, what the person types or what arrives, and what a right answer contains.
+At least five tests. Each one names the state the agent is in, what the person types or what arrives, and what a right answer contains. A `states` block at the top of the file says in a sentence what each state is.
 
 ```yaml
 tests:
@@ -136,4 +137,4 @@ Invented documents, labelled as invented on the first line. Nothing from a real 
 
 ## README.md
 
-The build guide, in this order: what it does, what it does not do, what you set up, the build steps, how to try it, where it stops for a person. Every step is one that was run on a cluster. Anything that does not work yet is said plainly.
+The build guide, in this order: what it does, what it does not do, what you set up, the build steps, how to try it, where it stops for a person. Every step is one that was run on a cluster. Where an agent is not built yet, or its steps are not written up yet, the guide says so. Anything that does not work yet is said plainly.

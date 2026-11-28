@@ -6,7 +6,7 @@
 
 To carry on the build, read [Building the insurance agents on a cluster](BUILD-ON-A-CLUSTER.md): what is left, and how one agent is built, tested and recorded.
 
-Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. A tool that changes something waits for approval unless the insurer has decided otherwise for that tool.
+Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. Approval for a tool that changes something is set by a rule in Control Room, Policies. Each agent's page lists the tools that need one.
 
 ## Three things to know before you read the tables
 
@@ -19,7 +19,7 @@ Every agent follows one rule: it prepares the work, and a person makes the decis
 | # | Agent | What it does | Type and form | How people meet it | State |
 |---|---|---|---|---|---|
 | | **Claims intake** | | | | |
-| 1 | [First Notice of Loss Intake](agents/first-notice-of-loss-intake/README.md) | Takes a new loss report, finds the policy, checks it was in force on the date of the loss, prepares the claim file and lists what is missing | Workflow, event-triggered | Claims intake desk | Built on a development cluster. Six of seven tests pass five runs in a row. The step that registers a claim did not wait for approval there, so the seventh test is not finished |
+| 1 | [First Notice of Loss Intake](agents/first-notice-of-loss-intake/README.md) | Takes a new loss report, finds the policy, checks it was in force on the date of the loss, prepares the claim file and lists what is missing | Workflow, event-triggered | Claims intake desk | Built on a development cluster. Six of seven tests pass five runs in a row. The approval rule for registering a claim was not yet set there, so the seventh test is not finished |
 | 2 | [Claims Processing](agents/claims-processing/README.md) | Sorts a new claim by the handling guide's rules so it reaches the right team, with the reason | Workflow, event-triggered | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |
 | 3 | [Claim Pack Completeness](agents/claim-pack-completeness/README.md) | Compares a claim's documents with the checklist for its type and lists what is missing, unreadable or does not show what it must | Workflow, event-triggered | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |
 | 4 | [Claim Summary](agents/claim-summary/README.md) | Writes the summary an adjuster reads first: the loss, the cover, the documents, the open points, each with its source | Workflow, API | Claims intake desk | Built on a development cluster. All eight tests pass five runs in a row |
