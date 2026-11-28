@@ -2,7 +2,7 @@
 
 Agents and applications you can build on the Katonic platform. Each one has its own folder: the instructions, what the agent needs connected, its tests, invented sample data and a build guide.
 
-There are two packs: banking, and retail and restaurants. Each comes with an invented company to build against.
+There are four packs: banking, retail and restaurants, insurance, and telecom. Each comes with an invented company to build against. The telecom pack is at its first step: its design is written and nothing of it is built yet.
 
 **Status: work in progress.** The tables inside each pack say what is built and what is planned. Nothing here is a tested integration with a named product.
 
@@ -14,6 +14,9 @@ There are two packs: banking, and retail and restaurants. Each comes with an inv
 | [`demo-bank/`](demo-bank/README.md) | Meridian Trust Bank, an invented bank: nineteen back-office systems behind an API, each with an OpenAPI file and an MCP address, and an invented regulator's publication feed. [How to install it on the Katonic platform](demo-bank/docs/install-on-katonic.md), step by step with screens |
 | [`retail/`](retail/README.md) | The retail and restaurants pack: 36 agents, the desks people use them through, and a store website with a chat box for the crew |
 | [`demo-retailer/`](demo-retailer/README.md) | Rowanmere Group, an invented retailer and restaurant operator: its back-office systems behind an API, each with an OpenAPI file and an MCP address |
+| [`insurance/`](insurance/README.md) | The insurance pack: 31 agents, and the desks people use them through |
+| [`demo-insurer/`](demo-insurer/README.md) | Thornmere Mutual Insurance, an invented insurer: nine back-office systems behind an API, each with an OpenAPI file and an MCP address |
+| [`telecom/`](telecom/README.md) | The telecom pack: 32 agents and eight desks, specified against Larkstone Telecom, an invented operator. The design, the build plan and the review of open source that came first. Nothing is built yet |
 | [`docs/`](docs/agent-folder-format.md) | The format every agent folder follows |
 
 ## How the pieces fit
