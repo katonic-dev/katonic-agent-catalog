@@ -3,7 +3,8 @@
 31 agents an insurer can build on the Katonic platform, and the desks people use them through. They are written against one invented company, Thornmere Mutual Insurance: motor, home, commercial property and group medical cover in the invented country Meridia.
 
 **Status: work in progress.** The State column says where each one stands. All 31 folders are written, and all eight desks are built and tested against a stand-in agent. Ten agents are built on a development cluster and pass every test five runs in a row: six of the seven claims agents, the three health claims agents and Member Policy Q&A. The seventh claims agent is built and one of its tests is not finished. The other twenty are written and not yet built on a cluster.
-nTo carry on the build, read [Building the insurance agents on a cluster](BUILD-ON-A-CLUSTER.md): what is left, and how one agent is built, tested and recorded.
+
+To carry on the build, read [Building the insurance agents on a cluster](BUILD-ON-A-CLUSTER.md): what is left, and how one agent is built, tested and recorded.
 
 Every agent follows one rule: it prepares the work, and a person makes the decision. No agent accepts cover, declines a claim, pays, sends a letter or contacts a customer. A tool that changes something waits for approval unless the insurer has decided otherwise for that tool.
 
